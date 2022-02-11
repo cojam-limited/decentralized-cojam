@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
-import useSWR from 'swr';
+import React from 'react';
 import { useLocalData } from '@utils/fetcher';
-import { getDataFetcher } from '../../utils/fetcher';
+import { usePokeData } from '@api/poke';
 
 function Intro() {
   // 전역상태 관리 SWR 샘플
@@ -13,12 +12,11 @@ function Intro() {
   };
 
   // API 데이터 가져오는 SWR 샘플
-  const KEY_POKE = 'pokemon?limit=10&offset=10';
-  const { data: pokeData, error } = useSWR(KEY_POKE, getDataFetcher);
+  const { pokeData, pokeIsValidating, error } = usePokeData();
 
-  useEffect(() => {
-    console.log(pokeData);
-  }, [pokeData]);
+  if (pokeIsValidating) {
+    return <div>로딩중 ...</div>;
+  }
 
   if (error) {
     return <div>에러 발생!</div>;
@@ -38,7 +36,7 @@ function Intro() {
       <div>
         <h2>API 데이터 상태 관리</h2>
         <ul>
-          {pokeData?.results.map((item) => (
+          {pokeData.map((item) => (
             <li key={item.name}>name: {item.name} </li>
           ))}
         </ul>
