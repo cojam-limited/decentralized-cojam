@@ -1,9 +1,9 @@
 import { getDataFetcher } from '../utils/fetcher';
 import useSWR from 'swr';
 
+// API URL
 const KEY_POKE = 'pokemon?limit=10&offset=10';
-
-// swr 데이터 키
+// SWR 데이터 키
 const POKE_DATA_KEY = 'data/poke';
 
 const pokeFetcher = async () => {

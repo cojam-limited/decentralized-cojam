@@ -1,14 +1,12 @@
-import React from 'react';
-import { useLocalData } from '@utils/fetcher';
+import React, { useEffect } from 'react';
 import { usePokeData } from '@api/poke';
+import { useTestData } from '../../data/test';
 
 function Intro() {
   // 전역상태 관리 SWR 샘플
-  const KEY_INTRO = 'intro';
-  const DATA = { data: 'hi' };
-  const { localData, mutateLocalData } = useLocalData(KEY_INTRO, DATA);
+  const { testData, mutateTestData } = useTestData();
   const handleClick = () => {
-    mutateLocalData({ data: 'hello' });
+    mutateTestData({ welcome: 'hello' });
   };
 
   // API 데이터 가져오는 SWR 샘플
@@ -17,7 +15,6 @@ function Intro() {
   if (pokeIsValidating) {
     return <div>로딩중 ...</div>;
   }
-
   if (error) {
     return <div>에러 발생!</div>;
   }
@@ -27,7 +24,7 @@ function Intro() {
       <div>
         <h2>전역 상태 관리</h2>
         <button onClick={handleClick}>Click me! 전역 상태 변경하기</button>
-        <h3>data : {localData ? localData.data : 'no data'} </h3>
+        <h3>data : {testData.welcome ? testData.welcome : 'no data'} </h3>
       </div>
 
       <br />
