@@ -4,6 +4,7 @@ import { localDataFetcher } from '@utils/fetcher';
 // SWR 데이터 키
 export const WALLET_MODAL_DATA_KEY = 'data/modal-wallet';
 export const KLIP_MODAL_DATA_KEY = 'data/modal-klip';
+export const VOTE_MODAL_DATA_KEY = 'data/modal-vote';
 
 const option = {
   fallbackData: {}, // 에러 방지 초기 데이터 삽입

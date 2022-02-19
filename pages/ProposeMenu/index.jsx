@@ -1,13 +1,8 @@
 import React, { useRef } from 'react';
 import AlertIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import Button from '@components/Button';
-import Carousel from '@components/Carousel';
-import FoodCard from '@components/FoodCard';
-import Pizza from '@assets/img_pizza.jpg';
-import Burger from '@assets/img_burger.jpg';
-import Salad from '@assets/img_salad.jpg';
-import Chicken from '@assets/img_chicken.jpg';
-import Sushi from '@assets/img_sushi.jpg';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
 
 import { Container, UploadContainer } from './styles';
 
@@ -17,13 +12,18 @@ function ProposeMenu() {
   return (
     <Container>
       <h1>Current Proposed List</h1>
-      <Carousel>
-        <FoodCard img={Sushi} title="Sushi" />
-        <FoodCard img={Chicken} title="Chicken" />
-        <FoodCard img={Pizza} title="Pizza" />
-        <FoodCard img={Burger} title="Burger" />
-        <FoodCard img={Salad} title="Salad" />
-      </Carousel>
+      <List
+        sx={{
+          height: '200px',
+          overflowY: 'scroll',
+        }}
+      >
+        {proposedList.map((item, index) => (
+          <ListItem key={index + item} sx={{ backgroundColor: '#F0F0F0', borderRadius: '5px', margin: '5px 0' }}>
+            {item}
+          </ListItem>
+        ))}
+      </List>
 
       <UploadContainer>
         <div className="onlymaster">
@@ -38,3 +38,18 @@ function ProposeMenu() {
 }
 
 export default ProposeMenu;
+
+const proposedList = [
+  'blabla',
+  'blabla',
+  'blabla',
+  'blabla',
+  'blabla',
+  'blabla',
+  'blabla',
+  'blabla',
+  'blabla',
+  'blabla',
+  'blabla',
+  'blabla',
+];

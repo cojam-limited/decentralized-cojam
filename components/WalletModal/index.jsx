@@ -23,7 +23,6 @@ export default function WalletModal() {
     }
   };
 
-  console.log(modalData);
   return (
     <Modal open={Boolean(modalData.open)} onClose={handleClose}>
       <ModalWrapper>

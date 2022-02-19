@@ -5,11 +5,11 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
 
-export default function FoodCard({ img, title }) {
+export default function FoodCard({ img = '', title = '', height = '200px' }) {
   return (
     <Card sx={{ margin: '5px' }}>
       <CardActionArea>
-        <CardMedia component="img" height="200" image={img} alt="chicken" />
+        <CardMedia component="img" height={height} image={img} alt="chicken" />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
             {title}
