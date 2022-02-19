@@ -1,6 +1,8 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Navigation from '@components/Navigation';
+import Drawer from '@components/Drawer';
+import Header from '@components/Header';
 
 const Home = React.lazy(() => import('@pages/Home'));
 const Draw = React.lazy(() => import('@pages/Draw'));
@@ -10,7 +12,7 @@ const NotFound = React.lazy(() => import('@pages/NotFound'));
 const Router = () => {
   return (
     <BrowserRouter>
-      <Navigation />
+      <Header />
       <Suspense fallback={<p> Loading...</p>}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -19,6 +21,8 @@ const Router = () => {
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      <Drawer />
+      <Navigation />
     </BrowserRouter>
   );
 };
