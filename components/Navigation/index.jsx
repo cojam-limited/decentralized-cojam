@@ -1,15 +1,21 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
+import React, { useState } from 'react';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
+import HomeIcon from '@mui/icons-material/Home';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
 import { NavigationContainer } from './styles';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Navigation() {
-  const [value, setValue] = React.useState(0);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const [value, setValue] = useState(0);
+  const handleClickNav = (loaction) => () => {
+    navigate(loaction);
+  };
 
   return (
     <NavigationContainer>
@@ -20,9 +26,22 @@ export default function Navigation() {
           setValue(newValue);
         }}
       >
-        <BottomNavigationAction value={0} label={value === 0 ? 'Draw' : ''} icon={<RestaurantIcon />} />
-        <BottomNavigationAction value={1} label={value === 1 ? 'Propose' : ''} icon={<AddBoxIcon />} />
-        <BottomNavigationAction value={2} label={value === 2 ? 'Vote' : ''} icon={<HowToVoteIcon />} />
+        <BottomNavigationAction onClick={handleClickNav('/')} label={value === 0 ? 'Home' : ''} icon={<HomeIcon />} />
+        <BottomNavigationAction
+          onClick={handleClickNav('/draw')}
+          label={value === 1 ? 'Draw' : ''}
+          icon={<RestaurantIcon />}
+        />
+        <BottomNavigationAction
+          onClick={handleClickNav('/propose')}
+          label={value === 2 ? 'Propose' : ''}
+          icon={<AddBoxIcon />}
+        />
+        <BottomNavigationAction
+          onClick={handleClickNav('/vote')}
+          label={value === 3 ? 'Vote' : ''}
+          icon={<HowToVoteIcon />}
+        />
       </BottomNavigation>
     </NavigationContainer>
   );
