@@ -27,7 +27,7 @@ export default function Carousel({ children }) {
     ],
   };
   return (
-    <div style={{ height: 'fit-content', padding: '10px' }}>
+    <div style={{ height: 'fit-content' }}>
       <Slider {...settings}>{children}</Slider>
     </div>
   );

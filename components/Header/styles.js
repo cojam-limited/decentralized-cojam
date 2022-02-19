@@ -8,6 +8,7 @@ export const StyledHeader = styled.header`
   align-items: center;
   justify-content: space-between;
   padding: 10px;
+  box-shadow: 0px 0px 12px -3px rgba(0, 0, 0, 0.3);
 `;
 
 export const LogoContainer = styled.div`
@@ -16,11 +17,11 @@ export const LogoContainer = styled.div`
   align-items: center;
 
   > img {
-    width: 50px;
+    width: 45px;
     margin-right: 5px;
   }
 
   > h1 {
-    font-size: 25px;
+    font-size: 20px;
   }
 `;

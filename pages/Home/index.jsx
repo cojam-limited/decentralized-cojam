@@ -7,9 +7,12 @@ import Salad from '@assets/img_salad.jpg';
 import Chicken from '@assets/img_chicken.jpg';
 import Sushi from '@assets/img_sushi.jpg';
 
+import { HomeContainer } from './styles';
+
 function Home() {
   return (
-    <div>
+    <HomeContainer>
+      <h1>Discover Menu</h1>
       <Carousel>
         <FoodCard img={Pizza} title="Pizza" />
         <FoodCard img={Burger} title="Burger" />
@@ -17,7 +20,7 @@ function Home() {
         <FoodCard img={Sushi} title="Sushi" />
         <FoodCard img={Chicken} title="Chicken" />
       </Carousel>
-    </div>
+    </HomeContainer>
   );
 }
 

@@ -9,7 +9,7 @@ export default function FoodCard({ img, title }) {
   return (
     <Card sx={{ margin: '5px' }}>
       <CardActionArea>
-        <CardMedia component="img" height="300" image={img} alt="chicken" />
+        <CardMedia component="img" height="200" image={img} alt="chicken" />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
             {title}
