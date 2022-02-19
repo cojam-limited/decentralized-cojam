@@ -36,6 +36,7 @@ export const ServiceContainer = styled.ul`
   li {
     font-size: 15px;
     padding: 5px 10px;
+    width: 250px;
   }
 
   li:hover {
