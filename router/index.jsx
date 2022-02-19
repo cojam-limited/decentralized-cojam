@@ -8,6 +8,7 @@ import Header from '@components/Header';
 
 const Home = React.lazy(() => import('@pages/Home'));
 const RandomDraw = React.lazy(() => import('@pages/RandomDraw'));
+const ProposeMenu = React.lazy(() => import('@pages/ProposeMenu'));
 const Landing = React.lazy(() => import('@pages/Landing'));
 const NotFound = React.lazy(() => import('@pages/NotFound'));
 
@@ -20,6 +21,7 @@ const Router = () => {
           <Route path="/" element={<Home />} />
           <Route path="/landing" element={<Landing />} />
           <Route path="/randomdraw" element={<RandomDraw />} />
+          <Route path="/propose" element={<ProposeMenu />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </Suspense>
