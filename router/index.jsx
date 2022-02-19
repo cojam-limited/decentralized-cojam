@@ -2,6 +2,8 @@ import React, { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Navigation from '@components/Navigation';
 import Drawer from '@components/Drawer';
+import WalletModal from '@components/WalletModal';
+import KlipQRModal from '@components/KlipQRModal';
 import Header from '@components/Header';
 
 const Home = React.lazy(() => import('@pages/Home'));
@@ -21,8 +23,10 @@ const Router = () => {
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </Suspense>
-      <Drawer />
       <Navigation />
+      <Drawer />
+      <WalletModal />
+      <KlipQRModal />
     </BrowserRouter>
   );
 };

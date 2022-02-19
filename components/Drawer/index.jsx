@@ -5,9 +5,11 @@ import Button from '@components/Button';
 import { UserContainer, AccountCard, DrawerContents, ServiceContainer } from './styles';
 
 import useDrawerData from '@data/drawer';
+import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 
 export default function SideDrawer() {
   const { drawerData, mutateDrawerData } = useDrawerData();
+  const { mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
   const accountRef = useRef();
   const address = '0x9bf610E09D53F1A884BECaA43F94a04948285600';
   const balance = 15;
@@ -23,7 +25,7 @@ export default function SideDrawer() {
   };
 
   const handleConnectWallet = () => {
-    setWalletConnection(!walletConnection);
+    mutateModalData({ open: true });
   };
 
   return (

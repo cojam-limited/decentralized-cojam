@@ -68,6 +68,15 @@ const config = {
         test: /\.(gif|jpg|png|webp)$/,
         loader: 'file-loader',
       },
+      {
+        test: /\.svg$/,
+        use: [
+          '@svgr/webpack',
+          {
+            loader: 'file-loader',
+          },
+        ],
+      },
     ],
   },
   plugins: [
