@@ -7,7 +7,7 @@ import KlipQRModal from '@components/KlipQRModal';
 import Header from '@components/Header';
 
 const Home = React.lazy(() => import('@pages/Home'));
-const Draw = React.lazy(() => import('@pages/Draw'));
+const RandomDraw = React.lazy(() => import('@pages/RandomDraw'));
 const Landing = React.lazy(() => import('@pages/Landing'));
 const NotFound = React.lazy(() => import('@pages/NotFound'));
 
@@ -19,7 +19,7 @@ const Router = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/landing" element={<Landing />} />
-          <Route path="/draw" element={<Draw />} />
+          <Route path="/randomdraw" element={<RandomDraw />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </Suspense>

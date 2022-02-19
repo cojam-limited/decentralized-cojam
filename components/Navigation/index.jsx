@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import HomeIcon from '@mui/icons-material/Home';
@@ -13,9 +13,9 @@ export default function Navigation() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const [value, setValue] = useState(0);
-  const handleClickNav = (loaction) => () => {
-    navigate(loaction);
+  const [value, setValue] = useState(pathname.replace('/', ''));
+  const handleClickNav = (location) => () => {
+    navigate(location);
   };
 
   return (
@@ -29,24 +29,28 @@ export default function Navigation() {
       >
         <BottomNavigationAction onClick={handleClickNav('/')} label={value === 0 ? 'Home' : ''} icon={<HomeIcon />} />
         <BottomNavigationAction
-          onClick={handleClickNav('/draw')}
-          label={value === 1 ? 'Draw' : ''}
+          onClick={handleClickNav('/randomdraw')}
+          label={value === 'randomdraw' ? 'Draw' : ''}
           icon={<RestaurantIcon />}
+          value="randomdraw"
         />
         <BottomNavigationAction
           onClick={handleClickNav('/propose')}
-          label={value === 2 ? 'Propose' : ''}
+          label={value === 'propose' ? 'Propose' : ''}
           icon={<AddIcon />}
+          value="propose"
         />
         <BottomNavigationAction
           onClick={handleClickNav('/vote')}
-          label={value === 3 ? 'Vote' : ''}
+          label={value === 'vote' ? 'Vote' : ''}
           icon={<VoteIcon />}
+          value="vote"
         />
         <BottomNavigationAction
           onClick={handleClickNav('/user')}
-          label={value === 4 ? 'My' : ''}
+          label={value === 'user' ? 'My' : ''}
           icon={<AccountIcon />}
+          value="user"
         />
       </BottomNavigation>
     </NavigationContainer>
