@@ -7,11 +7,11 @@ import theme from './theme';
 
 const App = () => {
   return (
-    <>
+    <div style={{ paddingBottom: '60px', height: '100%' }}>
       <ThemeProvider theme={theme}>
         <Router />
       </ThemeProvider>
-    </>
+    </div>
   );
 };
 

@@ -27,7 +27,12 @@ export default function Navigation() {
           setValue(newValue);
         }}
       >
-        <BottomNavigationAction onClick={handleClickNav('/')} label={value === 0 ? 'Home' : ''} icon={<HomeIcon />} />
+        <BottomNavigationAction
+          onClick={handleClickNav('/')}
+          label={value === '' ? 'Home' : ''}
+          icon={<HomeIcon />}
+          value=""
+        />
         <BottomNavigationAction
           onClick={handleClickNav('/randomdraw')}
           label={value === 'randomdraw' ? 'Draw' : ''}

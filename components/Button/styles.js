@@ -5,7 +5,7 @@ export const StyledButton = styled.button`
   font-size: 15px;
   font-weight: bold;
   color: #fff;
-  padding: 10px 15px;
+  padding: 15px;
   background: linear-gradient(114.44deg, #0038f5 0%, #9f03ff 100%);
   border-radius: 8px;
   width: 100%;

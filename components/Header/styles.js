@@ -9,6 +9,7 @@ export const StyledHeader = styled.header`
   justify-content: space-between;
   padding: 10px;
   box-shadow: 0px 0px 12px -3px rgba(0, 0, 0, 0.3);
+  background-color: #fff;
 `;
 
 export const LogoContainer = styled.div`
