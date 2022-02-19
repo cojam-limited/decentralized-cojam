@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Navigation from '@components/Navigation';
 import Drawer from '@components/Drawer';
@@ -6,6 +7,7 @@ import WalletModal from '@components/WalletModal';
 import KlipQRModal from '@components/KlipQRModal';
 import VoteModal from '@components/VoteModal';
 import Header from '@components/Header';
+import Loading from '@components/Loading';
 
 const Home = React.lazy(() => import('@pages/Home'));
 const RandomDraw = React.lazy(() => import('@pages/RandomDraw'));
@@ -18,7 +20,7 @@ const Router = () => {
   return (
     <BrowserRouter>
       <Header />
-      <Suspense fallback={<p> Loading...</p>}>
+      <Suspense fallback={<Loading />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/landing" element={<Landing />} />

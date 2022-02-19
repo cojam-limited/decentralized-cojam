@@ -46,7 +46,7 @@ export default function SideDrawer() {
 
           {address && (
             <AccountCard>
-              <h1>Balacne</h1>
+              <h1>Balance</h1>
               <div className="address" onClick={handleCopy}>
                 <span>{balance} KLAY</span>
               </div>
