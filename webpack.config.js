@@ -20,6 +20,7 @@ const config = {
       '@data': path.resolve(__dirname, 'data'),
       '@config': path.resolve(__dirname, 'config'),
       '@assets': path.resolve(__dirname, 'assets'),
+      '@theme': path.resolve(__dirname, 'theme'),
     },
     fallback: {
       fs: false,
@@ -66,6 +67,15 @@ const config = {
       {
         test: /\.(gif|jpg|png|webp)$/,
         loader: 'file-loader',
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          '@svgr/webpack',
+          {
+            loader: 'file-loader',
+          },
+        ],
       },
     ],
   },
