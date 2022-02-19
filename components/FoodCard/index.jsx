@@ -11,7 +11,7 @@ export default function FoodCard({ img = '', title = '', height = '200px' }) {
       <CardActionArea>
         <CardMedia component="img" height={height} image={img} alt="chicken" />
         <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
+          <Typography gutterBottom variant="h6" component="div">
             {title}
           </Typography>
         </CardContent>

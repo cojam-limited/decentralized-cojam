@@ -13,6 +13,7 @@ const Home = React.lazy(() => import('@pages/Home'));
 const RandomDraw = React.lazy(() => import('@pages/RandomDraw'));
 const ProposeMenu = React.lazy(() => import('@pages/ProposeMenu'));
 const Vote = React.lazy(() => import('@pages/Vote'));
+const User = React.lazy(() => import('@pages/User'));
 const Landing = React.lazy(() => import('@pages/Landing'));
 const NotFound = React.lazy(() => import('@pages/NotFound'));
 
@@ -27,6 +28,7 @@ const Router = () => {
           <Route path="/randomdraw" element={<RandomDraw />} />
           <Route path="/propose" element={<ProposeMenu />} />
           <Route path="/vote" element={<Vote />} />
+          <Route path="/user" element={<User />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </Suspense>

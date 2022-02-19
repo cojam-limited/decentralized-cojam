@@ -5,7 +5,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AddIcon from '@mui/icons-material/AddBox';
 import VoteIcon from '@mui/icons-material/HowToVote';
-import AccountIcon from '@mui/icons-material/AccountCircleOutlined';
+import AccountIcon from '@mui/icons-material/AccountCircle';
 import { NavigationContainer } from './styles';
 import { useLocation, useNavigate } from 'react-router-dom';
 
