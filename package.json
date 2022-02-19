@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "cross-env webpack serve --env development --open",
-    "build": "cross-env NODE_ENV=production webpack"
+    "build": "cross-env NODE_ENV=production webpack",
+    "lint": "eslint --fix --ext .js,.jsx ."
   },
   "dependencies": {
     "@emotion/babel-plugin": "^11.1.2",
