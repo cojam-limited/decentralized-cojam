@@ -9,7 +9,12 @@ import Sushi from '@assets/img_sushi.jpg';
 
 import { HomeContainer } from './styles';
 
+// require('dotenv-webpack').config();
+const test = process.env.REACT_APP_NFT_CONTRACT_ADDRESS;
+console.log(test);
+
 function Home() {
+  console.log("test");
   return (
     <HomeContainer>
       <h1>Discover Menu</h1>
