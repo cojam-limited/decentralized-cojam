@@ -12,6 +12,7 @@ import Sushi from '@assets/img_sushi.jpg';
 
 import useDrawerData from '@data/drawer';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
+import toastNotify from '@utils/toast';
 
 function User() {
   const { drawerData, mutateDrawerData } = useDrawerData();
@@ -27,7 +28,10 @@ function User() {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(accountRef.current.value);
-    window.alert('copied');
+    toastNotify({
+      state: 'success',
+      message: 'copied.',
+    });
   };
 
   const handleConnectWallet = () => {

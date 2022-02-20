@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 import Navigation from '@components/Navigation';
 import Drawer from '@components/Drawer';
 import WalletModal from '@components/WalletModal';
@@ -8,6 +9,7 @@ import KlipQRModal from '@components/KlipQRModal';
 import VoteModal from '@components/VoteModal';
 import Header from '@components/Header';
 import Loading from '@components/Loading';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Home = React.lazy(() => import('@pages/Home'));
 const RandomDraw = React.lazy(() => import('@pages/RandomDraw'));
@@ -37,6 +39,7 @@ const Router = () => {
       <WalletModal />
       <KlipQRModal />
       <VoteModal />
+      <ToastContainer />
     </BrowserRouter>
   );
 };

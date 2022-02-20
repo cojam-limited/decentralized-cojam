@@ -6,6 +6,7 @@ import { UserContainer, AccountCard, DrawerContents, ServiceContainer } from './
 
 import useDrawerData from '@data/drawer';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
+import toastNotify from '@utils/toast';
 
 export default function SideDrawer() {
   const { drawerData, mutateDrawerData } = useDrawerData();
@@ -21,7 +22,10 @@ export default function SideDrawer() {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(accountRef.current.value);
-    window.alert('copied');
+    toastNotify({
+      state: 'success',
+      message: 'copied.',
+    });
   };
 
   const handleConnectWallet = () => {
