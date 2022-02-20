@@ -5,9 +5,8 @@ import { RandomDrawContainer, Step } from './styles';
 import toastNotify from '@utils/toast';
 
 function RandomDraw() {
-  const address = '임시 지갑 주소';
   const [drawingState, setDrawingState] = useState(false);
-  const [drawResult, setDrawResult] = useState({});
+  const [currentDrawResult, setCurrentDrawResult] = useState({});
 
   const getRandomMenuIndex = () => {
     //🔥API 연동: DB에서 메뉴 리스트 조회
@@ -20,25 +19,34 @@ function RandomDraw() {
     return false;
   };
 
-  const handleClickPickRandomly = async () => {
-    //drawResult 초기화
-    setDrawResult({});
-    //🔥카이카스 연동: 지갑 연동 여부 체크
+  const checkWalletConnection = () => {
     if (!address.length) {
       toastNotify({
         state: 'error',
         message: 'Please connect wallet.',
       });
-      return;
-    }
-    //🔥API 연동: 인증 여부 체크
+      return false;
+    } else return true;
+  };
+
+  const checkDrawResultVerification = () => {
     if (getDrawResult()) {
       toastNotify({
         state: 'warn',
         message: 'Already uploaded Receipt. Please Get NFT first!',
       });
-      return;
-    }
+      return false;
+    } else return true;
+  };
+
+  const handleClickPickRandomly = async () => {
+    //drawResult 초기화
+    setCurrentDrawResult({});
+    //🔥지갑 연동: 지갑 연동 여부 체크
+    if (!checkWalletConnection()) return;
+    //🔥API 연동: 인증 여부 체크
+    if (!checkDrawResultVerification()) return;
+
     setDrawingState(true);
     const DrawPromise = new Promise((resolve, reject) => {
       setTimeout(function () {
@@ -49,15 +57,33 @@ function RandomDraw() {
     setDrawingState(false);
 
     //🔥API 연동: 메뉴 리스트에서 랜덤 index 뽑기
-    setDrawResult(mockMenuList[getRandomMenuIndex()]);
+    setCurrentDrawResult(mockMenuList[getRandomMenuIndex()]);
     //🔥API 연동: 뽑기 결과 index에 해당하는 메뉴이름, 인증여부(false)를 DB에 저장
   };
+
+  const handleClickMintNFT = () => {
+    //🔥지갑 연동: 지갑 연동 여부 체크
+    if (!checkWalletConnection()) return;
+
+    //🔥API 연동: DB에 저장된 mintData를 조회
+
+    //🔥API 연동: 하루에 NFT 발급 받은 횟수를 조회
+
+    //하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
+
+    //하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
+
+    //🔥API 연동: mintData 초기화
+
+    //🔥API 연동: drawResult 초기화
+  };
+
   return (
     <RandomDrawContainer>
       <div className="tray_wrapper ">
         {/**뽑기 결과 출력 */}
-        {drawResult?.imageURL ? (
-          <img src={drawResult?.imageURL || RandomTray} className="img_food" alt={drawResult?.name} />
+        {currentDrawResult?.imageURL ? (
+          <img src={currentDrawResult?.imageURL || RandomTray} className="img_food" alt={currentDrawResult?.name} />
         ) : (
           <img
             src={RandomTray}
@@ -65,7 +91,7 @@ function RandomDraw() {
             alt="random tray"
           />
         )}
-        <h1>{drawResult?.name ? drawResult?.name : 'Pick what you want to eat!'}</h1>
+        <h1>{currentDrawResult?.name ? currentDrawResult?.name : 'Pick what you want to eat!'}</h1>
       </div>
 
       <div className="step_wrapper">
