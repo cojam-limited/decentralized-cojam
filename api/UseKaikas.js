@@ -26,7 +26,7 @@ export const kaikasLogin = async () => {
 };
 
 export const kaikasGetBalance = async (address) => {
-  const balance = await caver.klay.getBalance(address);
+  const balance = await caver.rpc.klay.getBalance(address);
   console.log(`현재 잔액 : ${balance / 10 ** 18}`);
   return balance;
 };

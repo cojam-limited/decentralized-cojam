@@ -19,7 +19,7 @@ const App = () => {
       });
 
       window?.klaytn.on('networkChanged', function () {
-        // 유저가 네트워크 변경했을 때 메세지 팝업
+        // 유저가 네트워크 변경했을 때 지갑 업데이트
         toastNotify({
           state: 'warn',
           message: 'network Changed.',
