@@ -51,7 +51,7 @@ export default function SideDrawer() {
   };
 
   useEffect(async () => {
-    if (walletData?.account) {
+    if (walletData?.account && drawerData?.open) {
       // 현재 walletData가 세션에 유자되어있고 Disconnect 안했는데 kaikas가 잠금 상태일 경우 kaikasLogin 호출
       const kaikasUnlocked = await isKaikasUnlocked();
       if (!kaikasUnlocked) {
@@ -64,13 +64,13 @@ export default function SideDrawer() {
 
   useEffect(() => {
     //카이카스 설치된 경우
-    if (window?.klaytn) {
+    if (window?.klaytn & walletData?.account && drawerData?.open) {
       window?.klaytn.on('networkChanged', function () {
         // 유저가 네트워크 변경했을 때 balance 업데이트
         getBalance();
       });
     }
-  }, []);
+  }, [drawerData]);
 
   return (
     <Drawer anchor="right" open={Boolean(drawerData.open)} onClose={handleClose}>

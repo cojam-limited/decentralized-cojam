@@ -64,7 +64,7 @@ function User() {
 
   useEffect(() => {
     //카이카스 설치된 경우
-    if (window?.klaytn) {
+    if (window?.klaytn && walletData?.account) {
       window?.klaytn.on('networkChanged', function () {
         // 유저가 네트워크 변경했을 때 balance 업데이트
         getBalance();
