@@ -9,6 +9,7 @@ import isMobile from '@utils/isMobile';
 import { kaikasLogin } from '@api/UseKaikas';
 import { KLIP_MODAL_DATA_KEY, WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import { useWalletData } from '@data/wallet';
+import toastNotify from '@utils/toast';
 
 export default function WalletModal() {
   const { modalData, mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
@@ -30,6 +31,12 @@ export default function WalletModal() {
       const account = await kaikasLogin();
       mutateWalletData({ account });
       mutateModalData({ open: false });
+    }
+    else{
+      toastNotify({
+        state: 'error',
+        message: 'Not Support MoblieWeb.',
+      });
     }
   };
 

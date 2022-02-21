@@ -1,14 +1,8 @@
 import Caver from 'caver-js'; // or const Caver = require('caver-js')
 import toastNotify from '@utils/toast';
-
+import {mintWithTokenURIABI, mintWithklayABI, proposeMenuABI, voteABI} from '@config/index';
 const caver = new Caver(window.klaytn);
 
-const BADGEMEAL_CONTRACT_ADDRESS = process.env.REACT_APP_NFT_CONTRACT_ADDRESS;
-
-const mintWithTokenURIABI =
-  '[{ "constant": false, "inputs": [ { "name": "to", "type": "address" }, { "name": "tokenId", "type": "uint256" }, { "name": "genralTokenURI", "type": "string" }, { "name": "masterTokenURI", "type": "string" }, { "name": "menuType", "type": "string" } ], "name": "mintWithTokenURI", "outputs": [ { "name": "", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }]';
-const mintWithklayABI =
-  '[{ "constant": false, "inputs": [ { "name": "to", "type": "address" }, { "name": "tokenId", "type": "uint256" }, { "name": "genralTokenURI", "type": "string" }, { "name": "masterTokenURI", "type": "string" }, { "name": "menuType", "type": "string" } ], "name": "mintWithKlay", "outputs": [ { "name": "", "type": "bool" } ], "payable": true, "stateMutability": "payable", "type": "function" }]';
 
 export const kaikasLogin = async () => {
   if (typeof window.klaytn !== 'undefined') {
@@ -80,6 +74,60 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
         .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
         .encodeABI(),
       value: '500000000000000000',
+      gas: '8000000',
+    })
+    .on('transactionHash', (hash) => {
+      console.log(`transactionHash ${hash}`);
+    })
+    .on('receipt', (receipt) => {
+      // success
+      console.log(`succes ${receipt}`);
+    })
+    .on('error', (e) => {
+      // failed
+      console.log(`error ${e}`);
+    });
+};
+
+export const proposeMenu = async (name, nftAddress) => {
+  const contract = caver.contract.create(JSON.parse(proposeMenuABI), process.env.REACT_APP_VOTE_CONTRACT_ADDRESS);
+
+  caver.klay
+    .sendTransaction({
+      type: 'SMART_CONTRACT_EXECUTION',
+      from: window.klaytn.selectedAddress,
+      to: process.env.REACT_APP_VOTE_CONTRACT_ADDRESS,
+      data: contract.methods
+        .proposeMenu(name, nftAddress)
+        .encodeABI(),
+      value: caver.utils.toPeb(0, 'KLAY'),
+      gas: '8000000',
+    })
+    .on('transactionHash', (hash) => {
+      console.log(`transactionHash ${hash}`);
+    })
+    .on('receipt', (receipt) => {
+      // success
+      console.log(`succes ${receipt}`);
+    })
+    .on('error', (e) => {
+      // failed
+      console.log(`error ${e}`);
+    });
+};
+
+export const vote = async (proposal, nftAddress) => {
+  const contract = caver.contract.create(JSON.parse(proposeMenuABI), process.env.REACT_APP_VOTE_CONTRACT_ADDRESS);
+
+  caver.klay
+    .sendTransaction({
+      type: 'SMART_CONTRACT_EXECUTION',
+      from: window.klaytn.selectedAddress,
+      to: process.env.REACT_APP_VOTE_CONTRACT_ADDRESS,
+      data: contract.methods
+        .proposeMenu(proposal, nftAddress)
+        .encodeABI(),
+      value: caver.utils.toPeb(0, 'KLAY'),
       gas: '8000000',
     })
     .on('transactionHash', (hash) => {
