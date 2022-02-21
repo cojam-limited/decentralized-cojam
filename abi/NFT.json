@@ -187,6 +187,20 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "acconut",
+				"type": "address"
+			}
+		],
+		"name": "removeBadgemealMinter",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "from",
 				"type": "address"
 			},
@@ -504,6 +518,20 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "acconut",
+				"type": "address"
+			}
+		],
+		"name": "addBadgemealMinter",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{

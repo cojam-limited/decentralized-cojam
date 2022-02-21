@@ -22,22 +22,40 @@ const caver = new Caver(new Caver.providers.HttpProvider('https://node-api.klayt
 //참조 ABI와 스마트컨트랙트 주소를 통해 스마트컨트랙트 연동
 const NFTContract = new caver.contract(NFTABI, process.env.REACT_APP_NFT_CONTRACT_ADDRESS);
 
+//owner account 설정
+const deployer = caver.wallet.keyring.createFromPrivateKey(process.env.REACT_APP_DEPLOYER_PRIVATE_KEY);
+caver.wallet.add(deployer);
+
 //유저에게 임시로 minter 권한 부여
-export const addUserMinter = async () => {
+export const addMinter = async (account) => {
   try {
-    //owner account 설정
-    const deployer = caver.wallet.keyring.createFromPrivateKey(process.env.REACT_APP_DEPLOYER_PRIVATE_KEY);
-    caver.wallet.add(deployer);
+    //예상 가스
+    const estimatedGas = await caver.klay.estimateGas(NFTContract.methods.addBadgemealMinter(account));
 
-    const estimatedGas = await caver.klay.estimateGas(NFTContract.methods.addMinter(window.klaytn.selectedAddress));
-
-    //addMinter 실행
-    const receipt = await NFTContract.methods.addMinter(window.klaytn.selectedAddress).send({
+    //addBadgemealMinter 실행
+    const receipt = await NFTContract.methods.addBadgemealMinter(account).send({
       from: deployer.address, // owner 주소
       gas: String(estimatedGas), // 수수료
     });
     console.log(receipt);
   } catch (e) {
-    console.log(`[ERROR_addminter]${e}`);
+    console.log(`[ERROR_addBadgemealMinter]${e}`);
+  }
+};
+
+//유저의 minter 권한 삭제
+export const removeMinter = async (account) => {
+  try {
+    //예상 가스
+    const estimatedGas = await caver.klay.estimateGas(NFTContract.methods.removeBadgemealMinter(account));
+
+    //removeBadgemealMinter 실행
+    const receipt = await NFTContract.methods.removeBadgemealMinter(account).send({
+      from: deployer.address, // owner 주소
+      gas: String(estimatedGas), // 수수료
+    });
+    console.log(receipt);
+  } catch (e) {
+    console.log(`[ERROR_removeBadgemealMinter]${e}`);
   }
 };
