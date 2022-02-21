@@ -89,7 +89,7 @@ export default function SideDrawer() {
             </div>
           </AccountCard>
 
-          <Button text={walletData?.account ? 'Disconnct Wallet' : 'Connect Wallet'} onClick={handleConnectWallet} />
+          <Button text={walletData?.account ? 'Disconnect Wallet' : 'Connect Wallet'} onClick={handleConnectWallet} />
         </UserContainer>
 
         <ServiceContainer>

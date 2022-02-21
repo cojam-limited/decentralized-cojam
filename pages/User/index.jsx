@@ -88,7 +88,7 @@ function User() {
           </div>
         </AccountCard>
 
-        <Button text={walletData?.account ? 'Disconnct Wallet' : 'Connect Wallet'} onClick={handleConnectWallet} />
+        <Button text={walletData?.account ? 'Disconnect Wallet' : 'Connect Wallet'} onClick={handleConnectWallet} />
       </UserContainer>
 
       <NFTContainer>
