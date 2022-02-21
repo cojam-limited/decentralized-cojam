@@ -1,4 +1,5 @@
 import Caver from 'caver-js'; // or const Caver = require('caver-js')
+import toastNotify from '@utils/toast';
 
 const caver = new Caver(window.klaytn);
 
@@ -16,6 +17,11 @@ export const kaikasLogin = async () => {
     console.log(`지갑주소 : ${account}`);
     console.log(`네트워크 주소 : ${window.klaytn.networkVersion}`);
     return account;
+  } else {
+    toastNotify({
+      state: 'error',
+      message: 'Please install Kaikas wallet.',
+    });
   }
 };
 
