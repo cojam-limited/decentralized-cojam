@@ -31,8 +31,7 @@ export default function WalletModal() {
       const account = await kaikasLogin();
       mutateWalletData({ account });
       mutateModalData({ open: false });
-    }
-    else{
+    } else {
       toastNotify({
         state: 'error',
         message: 'Not Support MoblieWeb.',

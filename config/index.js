@@ -9,8 +9,6 @@ export const APP_NAME = 'BadgeMeal';
 export const API_BASE_URL = '';
 export const A2P_API_PREPARE_URL = 'https://a2a-api.klipwallet.com/v2/a2a/prepare';
 
-
-
 //kip17 abi
 export const mintWithTokenURIABI =
   '[{ "constant": false, "inputs": [ { "name": "to", "type": "address" }, { "name": "tokenId", "type": "uint256" }, { "name": "genralTokenURI", "type": "string" }, { "name": "masterTokenURI", "type": "string" }, { "name": "menuType", "type": "string" } ], "name": "mintWithTokenURI", "outputs": [ { "name": "", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }]';
@@ -18,7 +16,7 @@ export const mintWithklayABI =
   '[{ "constant": false, "inputs": [ { "name": "to", "type": "address" }, { "name": "tokenId", "type": "uint256" }, { "name": "genralTokenURI", "type": "string" }, { "name": "masterTokenURI", "type": "string" }, { "name": "menuType", "type": "string" } ], "name": "mintWithKlay", "outputs": [ { "name": "", "type": "bool" } ], "payable": true, "stateMutability": "payable", "type": "function" }]';
 
 //vote abi
-export const proposeMenuABI = 
+export const proposeMenuABI =
   '[{ "constant": false, "inputs": [ { "name": "_name", "type": "string" }, { "name": "_nftAddress", "type": "address" } ], "name": "proposeMenu", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }]';
-export const voteABI = 
+export const voteABI =
   '[{ "constant": false, "inputs": [ { "name": "_proposal", "type": "uint256" }, { "name": "_nftAddress", "type": "address" } ], "name": "vote", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }]';
