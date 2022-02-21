@@ -2,8 +2,13 @@ import React from 'react';
 import Button from '@components/Button';
 import RandomTray from '@assets/img_tray.png';
 import { RandomDrawContainer, Step } from './styles';
+import { addUserMinter } from '@api/UseCaver';
 
 function RandomDraw() {
+  const handleClickAddUserMinter = () => {
+    addUserMinter();
+  };
+
   return (
     <RandomDrawContainer>
       <div className="tray_wrapper">
@@ -22,7 +27,7 @@ function RandomDraw() {
         </Step>
         <Step>
           <span>Step 3</span>
-          <Button text="Get NFT"></Button>
+          <Button text="Get NFT" onClick={handleClickAddUserMinter}></Button>
         </Step>
       </div>
     </RandomDrawContainer>
