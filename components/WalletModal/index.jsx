@@ -5,15 +5,15 @@ import { ModalWrapper, ModalContents, ConnectKlipButton, ConnectKaikasButton } f
 import Logo_Klip from '@assets/logo_klip.svg';
 import Logo_Kaikas from '@assets/logo_kaikas.svg';
 import isMobile from '@utils/isMobile';
-import * as KaikasAPI from '@api/UseKaikas.js';
 
-
+import { kaikasLogin } from '@api/UseKaikas';
 import { KLIP_MODAL_DATA_KEY, WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
-import { kaikasLogin } from '../../api/UseKaikas';
+import { useWalletData } from '@data/wallet';
 
 export default function WalletModal() {
   const { modalData, mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
   const { mutateModalData: mutateKlipModalData } = useModalData(KLIP_MODAL_DATA_KEY);
+  const { mutateWalletData } = useWalletData();
 
   const handleClose = () => {
     mutateModalData({ open: false });
@@ -25,11 +25,13 @@ export default function WalletModal() {
       mutateKlipModalData({ open: true });
     }
   };
-  const handleOpenKaikasModal = () => {
-    if(!isMobile()){
-      KaikasAPI.kaikasLogin();
+  const handleOpenKaikasModal = async () => {
+    if (!isMobile()) {
+      const account = await kaikasLogin();
+      mutateWalletData({ account });
+      mutateModalData({ open: false });
     }
-  } 
+  };
 
   return (
     <Modal open={Boolean(modalData.open)} onClose={handleClose}>
