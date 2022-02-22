@@ -10,8 +10,8 @@ import { VOTE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 
 function Vote() {
   const { mutateModalData } = useModalData(VOTE_MODAL_DATA_KEY);
-  const handleOpenVoteModal = (menu) => () => {
-    mutateModalData({ open: true, menu });
+  const handleOpenVoteModal = (menu, menuIndex) => () => {
+    mutateModalData({ open: true, menu, menuIndex });
   };
   return (
     <Container>
@@ -28,7 +28,7 @@ function Vote() {
         }}
       >
         {proposedList.map((item, index) => (
-          <ListItem key={index + item} sx={proposedListItemStyles} onClick={handleOpenVoteModal(item)}>
+          <ListItem key={index + item} sx={proposedListItemStyles} onClick={handleOpenVoteModal(item, index)}>
             {item}
           </ListItem>
         ))}
