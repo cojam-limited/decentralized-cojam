@@ -132,11 +132,11 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
 
 export const proposeMenu = async (name) => {
   try {
-    const estimatedGas = await NFTContract.methods.proposeMenu(name, NFT_ADDRESS).estimateGas({
+    const estimatedGas = await VoteContract.methods.proposeMenu(name, NFT_ADDRESS).estimateGas({
       from: window.klaytn.selectedAddress,
     });
 
-    const encodedData = NFTContract.methods.proposeMenu(name, NFT_ADDRESS).encodeABI();
+    const encodedData = VoteContract.methods.proposeMenu(name, NFT_ADDRESS).encodeABI();
 
     caver.klay
       .sendTransaction({
@@ -165,10 +165,10 @@ export const proposeMenu = async (name) => {
 
 export const vote = async (proposal) => {
   try {
-    const estimatedGas = await NFTContract.methods.vote(proposal, NFT_ADDRESS).estimateGas({
+    const estimatedGas = await VoteContract.methods.vote(proposal, NFT_ADDRESS).estimateGas({
       from: window.klaytn.selectedAddress,
     });
-    const encodedData = NFTContract.methods.vote(proposal, NFT_ADDRESS).encodeABI();
+    const encodedData = VoteContract.methods.vote(proposal, NFT_ADDRESS).encodeABI();
 
     caver.klay
       .sendTransaction({
@@ -225,6 +225,18 @@ export const isBadgemealMasterNFTholder = async () => {
     const receipt = await VoteContract.methods.isMasterNFTholder(NFT_ADDRESS).call({
       from: window.klaytn.selectedAddress,
       gas: estimatedGas,
+    });
+
+    return receipt;
+  } catch (error) {
+    console.log('isBadgemealNFTholder', error);
+  }
+};
+
+export const getProposalListLength = async () => {
+  try {
+    const receipt = await VoteContract.methods.getProposedMenuListLength().call({
+      from: window.klaytn.selectedAddress,
     });
 
     return receipt;
