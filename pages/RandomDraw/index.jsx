@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '@components/Button';
 import RandomTray from '@assets/img_tray.png';
 import { RandomDrawContainer, Step } from './styles';
-import { addMinter, removeMinter } from '@api/UseCaver';
+import { addMinter, removeMinter } from '@api/UseCaverForOwner';
 import { mintWithTokenURI } from '@api/UseKaikas';
 import { useWalletData } from '@data/wallet';
 
