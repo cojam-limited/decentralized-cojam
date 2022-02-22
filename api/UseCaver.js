@@ -54,7 +54,7 @@ export const removeMinter = async (account) => {
       from: deployer.address, // owner 주소
       gas: String(estimatedGas), // 수수료
     });
-    console.log(receipt);
+    console.log('receipt', receipt);
   } catch (e) {
     console.log(`[ERROR_removeBadgemealMinter]${e}`);
   }

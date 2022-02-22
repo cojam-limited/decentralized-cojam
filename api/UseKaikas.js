@@ -53,7 +53,7 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
     })
     .on('receipt', (receipt) => {
       // success
-      console.log(`succes ${receipt}`);
+      console.log(`succes`, receipt);
     })
     .on('error', (e) => {
       // failed
@@ -80,7 +80,7 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
     })
     .on('receipt', (receipt) => {
       // success
-      console.log(`succes ${receipt}`);
+      console.log(`succes`, receipt);
     })
     .on('error', (e) => {
       // failed
@@ -105,7 +105,7 @@ export const proposeMenu = async (name, nftAddress) => {
     })
     .on('receipt', (receipt) => {
       // success
-      console.log(`succes ${receipt}`);
+      console.log(`succes`, receipt);
     })
     .on('error', (e) => {
       // failed
@@ -130,7 +130,7 @@ export const vote = async (proposal, nftAddress) => {
     })
     .on('receipt', (receipt) => {
       // success
-      console.log(`succes ${receipt}`);
+      console.log(`succes`, receipt);
     })
     .on('error', (e) => {
       // failed
