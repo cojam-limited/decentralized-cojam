@@ -229,7 +229,7 @@ export const isBadgemealMasterNFTholder = async () => {
 
     return receipt;
   } catch (error) {
-    console.log('isBadgemealNFTholder', error);
+    console.log('isBadgemealMasterNFTholder', error);
   }
 };
 
@@ -241,6 +241,50 @@ export const getProposalListLength = async () => {
 
     return receipt;
   } catch (error) {
-    console.log('isBadgemealNFTholder', error);
+    console.log('getProposalListLength', error);
+  }
+};
+
+export const getProposalList = async () => {
+  try {
+    const list = [];
+    const length = await getProposalListLength();
+    for (let i = 0; i < length; i++) {
+      const id = await VoteContract.methods.proposals(i).call({
+        from: window.klaytn.selectedAddress,
+      });
+      list.push(id);
+    }
+    return list;
+  } catch (error) {
+    console.log('getProposalList', error);
+  }
+};
+
+export const getWinnerProposalListLength = async () => {
+  try {
+    const receipt = await VoteContract.methods.getwinnerProposalsLength().call({
+      from: window.klaytn.selectedAddress,
+    });
+
+    return receipt;
+  } catch (error) {
+    console.log('getWinnerProposalListLength', error);
+  }
+};
+
+export const getWinnerProposalList = async () => {
+  try {
+    const list = [];
+    const length = await getWinnerProposalListLength();
+    for (let i = 0; i < length; i++) {
+      const id = await VoteContract.methods.winnerProposals(i).call({
+        from: window.klaytn.selectedAddress,
+      });
+      list.push(id);
+    }
+    return list;
+  } catch (error) {
+    console.log('getWinnerProposalList', error);
   }
 };
