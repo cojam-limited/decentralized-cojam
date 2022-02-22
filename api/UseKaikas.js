@@ -38,21 +38,22 @@ export const isKaikasEnabled = async () => {
 };
 
 export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
-  const contract = caver.contract.create([JSON.parse(mintWithTokenURIABI)], process.env.REACT_APP_NFT_CONTRACT_ADDRESS);
   const estimatedGas = await NFTContract.methods
     .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
     .estimateGas({
       from: window.klaytn.selectedAddress,
     });
 
+  const encodedData = NFTContract.methods
+    .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
+    .encodeABI();
+
   caver.klay
     .sendTransaction({
       type: 'SMART_CONTRACT_EXECUTION',
       from: window.klaytn.selectedAddress,
       to: process.env.REACT_APP_NFT_CONTRACT_ADDRESS,
-      data: contract.methods
-        .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
-        .encodeABI(),
+      data: encodedData,
       value: '0x00',
       gas: estimatedGas,
     })
@@ -70,21 +71,21 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
 };
 
 export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
-  const contract = caver.contract.create([JSON.parse(mintWithklayABI)], process.env.REACT_APP_NFT_CONTRACT_ADDRESS);
   const estimatedGas = await NFTContract.methods
     .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
     .estimateGas({
       from: window.klaytn.selectedAddress,
     });
+  const encodedData = NFTContract.methods
+    .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
+    .encodeABI();
 
   caver.klay
     .sendTransaction({
       type: 'SMART_CONTRACT_EXECUTION',
       from: window.klaytn.selectedAddress,
       to: process.env.REACT_APP_NFT_CONTRACT_ADDRESS,
-      data: contract.methods
-        .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
-        .encodeABI(),
+      data: encodedData,
       value: '500000000000000000',
       gas: estimatedGas,
     })
@@ -102,17 +103,18 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
 };
 
 export const proposeMenu = async (name, nftAddress) => {
-  const contract = caver.contract.create([JSON.parse(proposeMenuABI)], process.env.REACT_APP_VOTE_CONTRACT_ADDRESS);
   const estimatedGas = await NFTContract.methods.proposeMenu(name, nftAddress).estimateGas({
     from: window.klaytn.selectedAddress,
   });
+
+  const encodedData = NFTContract.methods.proposeMenu(name, nftAddress).encodeABI();
 
   caver.klay
     .sendTransaction({
       type: 'SMART_CONTRACT_EXECUTION',
       from: window.klaytn.selectedAddress,
       to: process.env.REACT_APP_VOTE_CONTRACT_ADDRESS,
-      data: contract.methods.proposeMenu(name, nftAddress).encodeABI(),
+      data: encodedData,
       value: '0x00',
       gas: estimatedGas,
     })
@@ -130,17 +132,17 @@ export const proposeMenu = async (name, nftAddress) => {
 };
 
 export const vote = async (proposal, nftAddress) => {
-  const contract = caver.contract.create([JSON.parse(voteABI)], process.env.REACT_APP_VOTE_CONTRACT_ADDRESS);
   const estimatedGas = await NFTContract.methods.vote(proposal, nftAddress).estimateGas({
     from: window.klaytn.selectedAddress,
   });
+  const encodedData = NFTContract.methods.vote(proposal, nftAddress).encodeABI();
 
   caver.klay
     .sendTransaction({
       type: 'SMART_CONTRACT_EXECUTION',
       from: window.klaytn.selectedAddress,
       to: process.env.REACT_APP_VOTE_CONTRACT_ADDRESS,
-      data: contract.methods.vote(proposal, nftAddress).encodeABI(),
+      data: encodedData,
       value: '0x00',
       gas: estimatedGas,
     })
