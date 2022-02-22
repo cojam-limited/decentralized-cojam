@@ -1,5 +1,6 @@
 import Caver from 'caver-js';
 import NFTABI from '@abi/NFT.json';
+import axios from 'axios';
 
 //KAS API 호출 시 필요한 헤더
 const option = {
@@ -8,9 +9,9 @@ const option = {
       name: 'Authorization',
       value:
         'Basic ' +
-        Buffer.from(
-          process.env.REACT_APP_KAS_ACCESS_KEY_ID + ':' + process.env.REACT_APP_KAS_SECRET_ACCESS_KEY,
-        ).toString('base64'),
+        Buffer.from(process.env.REACT_APP_ACCESS_KEY_ID + ':' + process.env.REACT_APP_SECRET_ACCESS_KEY).toString(
+          'base64',
+        ),
     },
     { name: 'x-chain-id', value: process.env.REACT_APP_CHAIN_ID },
   ],
@@ -30,7 +31,7 @@ caver.wallet.add(deployer);
 export const addMinter = async (account) => {
   try {
     //예상 가스
-    const estimatedGas = await caver.klay.estimateGas(NFTContract.methods.addBadgemealMinter(account));
+    const estimatedGas = await caver.rpc.klay.estimateGas(NFTContract.methods.addBadgemealMinter(account));
 
     //addBadgemealMinter 실행
     const receipt = await NFTContract.methods.addBadgemealMinter(account).send({
@@ -47,7 +48,7 @@ export const addMinter = async (account) => {
 export const removeMinter = async (account) => {
   try {
     //예상 가스
-    const estimatedGas = await caver.klay.estimateGas(NFTContract.methods.removeBadgemealMinter(account));
+    const estimatedGas = await caver.rpc.klay.estimateGas(NFTContract.methods.removeBadgemealMinter(account));
 
     //removeBadgemealMinter 실행
     const receipt = await NFTContract.methods.removeBadgemealMinter(account).send({
