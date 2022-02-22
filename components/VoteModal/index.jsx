@@ -6,7 +6,7 @@ import Button from '@components/Button';
 import { ModalWrapper, ModalContents } from './styles';
 import { VOTE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import { useWalletData } from '@data/wallet';
-import { vote, isBadgemealNFTholder, getProposalListLength } from '@api/UseKaikas';
+import { vote, isBadgemealNFTholder } from '@api/UseKaikas';
 
 export default function VoteModal() {
   const { modalData, mutateModalData } = useModalData(VOTE_MODAL_DATA_KEY);

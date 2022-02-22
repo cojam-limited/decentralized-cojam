@@ -1,19 +1,28 @@
-import React, { useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AlertIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import Button from '@components/Button';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import { Container, UploadContainer } from './styles';
+import { Container, UploadContainer, noListStyles, proposedListItemStyles } from './styles';
 
 import toastNotify from '@utils/toast';
 import { useWalletData } from '@data/wallet';
-import { proposeMenu, isBadgemealMasterNFTholder } from '@api/UseKaikas';
+import { proposeMenu, isBadgemealMasterNFTholder, getProposalList } from '@api/UseKaikas';
 
 function ProposeMenu() {
   const inputRef = useRef();
   const { walletData } = useWalletData();
+  const [proposedList, setProposedList] = useState([]);
 
-  //🔥API 연동: DB에서 메뉴 리스트 조회
+  const getProposals = async () => {
+    try {
+      const res = await getProposalList();
+      setProposedList(res);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const checkWalletConnection = () => {
     if (!walletData?.account) {
@@ -34,7 +43,6 @@ function ProposeMenu() {
       4. 마스터 배지 NFT 소유자가 아닐 경우 에러가 발생하는데 토스트메세지로 에러를 보여준다.
       5. 소유자라면 메뉴 추가 함수를 실행한다.
      */
-
       if (!checkWalletConnection()) return;
 
       if (!inputRef.current.value) {
@@ -60,6 +68,10 @@ function ProposeMenu() {
     }
   };
 
+  useEffect(() => {
+    getProposals();
+  }, []);
+
   return (
     <Container>
       <h1>Current Proposed List</h1>
@@ -69,11 +81,15 @@ function ProposeMenu() {
           overflowY: 'scroll',
         }}
       >
-        {proposedList.map((item, index) => (
-          <ListItem key={index + item} sx={{ backgroundColor: '#F0F0F0', borderRadius: '5px', margin: '5px 0' }}>
-            {item}
-          </ListItem>
-        ))}
+        {!proposedList.length ? (
+          <div style={noListStyles}>There is no Proposed List.</div>
+        ) : (
+          proposedList.map((item) => (
+            <ListItem key={item.name + item.proposer} sx={proposedListItemStyles}>
+              {item.name}
+            </ListItem>
+          ))
+        )}
       </List>
 
       <UploadContainer>
@@ -89,18 +105,3 @@ function ProposeMenu() {
 }
 
 export default ProposeMenu;
-
-const proposedList = [
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-];

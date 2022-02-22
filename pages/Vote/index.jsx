@@ -1,18 +1,45 @@
-import React, { useRef } from 'react';
-import AlertIcon from '@mui/icons-material/ErrorOutlineOutlined';
-import Button from '@components/Button';
+import React, { useState, useEffect } from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import FoodBankIcon from '@mui/icons-material/FoodBankOutlined';
-import { Container, proposedListItemStyles, lastWinnerListItemStyles } from './styles';
+import { Container, proposedListItemStyles, winnerListItemStyles, noListStyles } from './styles';
 import { VOTE_MODAL_DATA_KEY, useModalData } from '@data/modal';
+import { getProposalList, getWinnerProposalList } from '@api/UseKaikas';
 
 function Vote() {
   const { mutateModalData } = useModalData(VOTE_MODAL_DATA_KEY);
+  const [proposedList, setProposedList] = useState([]);
+  const [winnerProposalList, setWinnerProposalList] = useState([]);
+
+  const getProposals = async () => {
+    try {
+      const res = await getProposalList();
+      setProposedList(res);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const getWinnerProposals = async () => {
+    try {
+      const res = await getWinnerProposalList();
+      setWinnerProposalList(res);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleOpenVoteModal = (menu, menuIndex) => () => {
     mutateModalData({ open: true, menu, menuIndex });
   };
+
+  useEffect(() => {
+    getProposals();
+    getWinnerProposals();
+  }, []);
+
   return (
     <Container>
       <h1>
@@ -27,11 +54,15 @@ function Vote() {
           marginBottom: '30px',
         }}
       >
-        {proposedList.map((item, index) => (
-          <ListItem key={index + item} sx={proposedListItemStyles} onClick={handleOpenVoteModal(item, index)}>
-            {item}
-          </ListItem>
-        ))}
+        {!proposedList.length ? (
+          <div style={noListStyles}>There is no Proposed List.</div>
+        ) : (
+          proposedList.map((item) => (
+            <ListItem onClick={handleOpenVoteModal} key={item.name + item.proposer} sx={proposedListItemStyles}>
+              {item.name}
+            </ListItem>
+          ))
+        )}
       </List>
 
       <h1>
@@ -44,29 +75,18 @@ function Vote() {
           overflowY: 'scroll',
         }}
       >
-        {proposedList.map((item, index) => (
-          <ListItem key={index + item} sx={lastWinnerListItemStyles}>
-            {item}
-          </ListItem>
-        ))}
+        {!winnerProposalList.length ? (
+          <div style={noListStyles}>There is no Winner.</div>
+        ) : (
+          winnerProposalList.map((item) => (
+            <ListItem onClick={handleOpenVoteModal} key={item.name + item.proposer} sx={winnerListItemStyles}>
+              {item.name}
+            </ListItem>
+          ))
+        )}
       </List>
     </Container>
   );
 }
 
 export default Vote;
-
-const proposedList = [
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-];
