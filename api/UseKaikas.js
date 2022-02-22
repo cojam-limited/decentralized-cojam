@@ -1,8 +1,10 @@
 import Caver from 'caver-js';
 import toastNotify from '@utils/toast';
 import { mintWithTokenURIABI, mintWithklayABI, proposeMenuABI, voteABI } from '@config/index';
+import NFTABI from '@abi/NFT.json';
 
 const caver = new Caver(window.klaytn);
+const NFTContract = new caver.contract(NFTABI, process.env.REACT_APP_NFT_CONTRACT_ADDRESS);
 
 export const kaikasLogin = async () => {
   if (typeof window.klaytn !== 'undefined') {
@@ -37,6 +39,11 @@ export const isKaikasEnabled = async () => {
 
 export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
   const contract = caver.contract.create([JSON.parse(mintWithTokenURIABI)], process.env.REACT_APP_NFT_CONTRACT_ADDRESS);
+  const estimatedGas = await NFTContract.methods
+    .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
+    .estimateGas({
+      from: window.klaytn.selectedAddress,
+    });
 
   caver.klay
     .sendTransaction({
@@ -47,7 +54,7 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
         .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
         .encodeABI(),
       value: '0x00',
-      gas: '8000000',
+      gas: estimatedGas,
     })
     .on('transactionHash', (hash) => {
       console.log(`transactionHash ${hash}`);
@@ -64,6 +71,11 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
 
 export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
   const contract = caver.contract.create([JSON.parse(mintWithklayABI)], process.env.REACT_APP_NFT_CONTRACT_ADDRESS);
+  const estimatedGas = await NFTContract.methods
+    .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
+    .estimateGas({
+      from: window.klaytn.selectedAddress,
+    });
 
   caver.klay
     .sendTransaction({
@@ -74,7 +86,7 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
         .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
         .encodeABI(),
       value: '500000000000000000',
-      gas: '8000000',
+      gas: estimatedGas,
     })
     .on('transactionHash', (hash) => {
       console.log(`transactionHash ${hash}`);
@@ -91,6 +103,9 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
 
 export const proposeMenu = async (name, nftAddress) => {
   const contract = caver.contract.create([JSON.parse(proposeMenuABI)], process.env.REACT_APP_VOTE_CONTRACT_ADDRESS);
+  const estimatedGas = await NFTContract.methods.proposeMenu(name, nftAddress).estimateGas({
+    from: window.klaytn.selectedAddress,
+  });
 
   caver.klay
     .sendTransaction({
@@ -99,7 +114,7 @@ export const proposeMenu = async (name, nftAddress) => {
       to: process.env.REACT_APP_VOTE_CONTRACT_ADDRESS,
       data: contract.methods.proposeMenu(name, nftAddress).encodeABI(),
       value: '0x00',
-      gas: '8000000',
+      gas: estimatedGas,
     })
     .on('transactionHash', (hash) => {
       console.log(`transactionHash ${hash}`);
@@ -116,6 +131,9 @@ export const proposeMenu = async (name, nftAddress) => {
 
 export const vote = async (proposal, nftAddress) => {
   const contract = caver.contract.create([JSON.parse(voteABI)], process.env.REACT_APP_VOTE_CONTRACT_ADDRESS);
+  const estimatedGas = await NFTContract.methods.vote(proposal, nftAddress).estimateGas({
+    from: window.klaytn.selectedAddress,
+  });
 
   caver.klay
     .sendTransaction({
@@ -124,7 +142,7 @@ export const vote = async (proposal, nftAddress) => {
       to: process.env.REACT_APP_VOTE_CONTRACT_ADDRESS,
       data: contract.methods.vote(proposal, nftAddress).encodeABI(),
       value: '0x00',
-      gas: '8000000',
+      gas: estimatedGas,
     })
     .on('transactionHash', (hash) => {
       console.log(`transactionHash ${hash}`);
