@@ -32,6 +32,7 @@ function Vote() {
   };
 
   const handleOpenVoteModal = (menu, menuIndex) => () => {
+    console.log(menu);
     mutateModalData({ open: true, menu, menuIndex });
   };
 
@@ -57,8 +58,12 @@ function Vote() {
         {!proposedList.length ? (
           <div style={noListStyles}>There is no Proposed List.</div>
         ) : (
-          proposedList.map((item) => (
-            <ListItem onClick={handleOpenVoteModal} key={item.name + item.proposer} sx={proposedListItemStyles}>
+          proposedList.map((item, index) => (
+            <ListItem
+              onClick={handleOpenVoteModal(item.name, index)}
+              key={item.name + item.proposer}
+              sx={proposedListItemStyles}
+            >
               {item.name}
             </ListItem>
           ))

@@ -7,6 +7,7 @@ import { ModalWrapper, ModalContents } from './styles';
 import { VOTE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import { useWalletData } from '@data/wallet';
 import { vote, isBadgemealNFTholder } from '@api/UseKaikas';
+import toastNotify from '@utils/toast';
 
 export default function VoteModal() {
   const { modalData, mutateModalData } = useModalData(VOTE_MODAL_DATA_KEY);
