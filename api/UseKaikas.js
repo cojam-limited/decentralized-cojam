@@ -130,13 +130,13 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
   }
 };
 
-export const proposeMenu = async (name, nftAddress) => {
+export const proposeMenu = async (name) => {
   try {
-    const estimatedGas = await NFTContract.methods.proposeMenu(name, nftAddress).estimateGas({
+    const estimatedGas = await NFTContract.methods.proposeMenu(name, NFT_ADDRESS).estimateGas({
       from: window.klaytn.selectedAddress,
     });
 
-    const encodedData = NFTContract.methods.proposeMenu(name, nftAddress).encodeABI();
+    const encodedData = NFTContract.methods.proposeMenu(name, NFT_ADDRESS).encodeABI();
 
     caver.klay
       .sendTransaction({
@@ -163,12 +163,12 @@ export const proposeMenu = async (name, nftAddress) => {
   }
 };
 
-export const vote = async (proposal, nftAddress) => {
+export const vote = async (proposal) => {
   try {
-    const estimatedGas = await NFTContract.methods.vote(proposal, nftAddress).estimateGas({
+    const estimatedGas = await NFTContract.methods.vote(proposal, NFT_ADDRESS).estimateGas({
       from: window.klaytn.selectedAddress,
     });
-    const encodedData = NFTContract.methods.vote(proposal, nftAddress).encodeABI();
+    const encodedData = NFTContract.methods.vote(proposal, NFT_ADDRESS).encodeABI();
 
     caver.klay
       .sendTransaction({
