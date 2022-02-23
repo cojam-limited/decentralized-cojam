@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Carousel from '@components/Carousel';
 import FoodCard from '@components/FoodCard';
 import CopyIcon from '@mui/icons-material/ContentCopy';
@@ -13,19 +13,29 @@ import Sushi from '@assets/img_sushi.jpg';
 import useDrawerData from '@data/drawer';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import toastNotify from '@utils/toast';
+import { ownNftList } from '../../api/UseKAS';
 
 function User() {
   const { drawerData, mutateDrawerData } = useDrawerData();
   const { mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
   const accountRef = useRef();
-  const address = '0x9bf610E09D53F1A884BECaA43F94a04948285600';
+  const address = '0xCEEc60Cbc7307d22d500aA368B3640197E9C9497';
   const balance = 15;
   const [walletConnection, setWalletConnection] = useState(false);
+  const [userNftList, setUserNftList] = useState([]);
 
+  const getUserNftList = async () =>{
+    try{
+      const list = await ownNftList(address);
+      setUserNftList(list);
+    }catch(error){
+      console.error(error);
+    }
+  }
   const handleClose = () => {
     mutateDrawerData({ open: false });
   };
-
+  
   const handleCopy = () => {
     navigator.clipboard.writeText(accountRef.current.value);
     toastNotify({
@@ -37,6 +47,10 @@ function User() {
   const handleConnectWallet = () => {
     mutateModalData({ open: true });
   };
+
+  useEffect(()=> {
+    getUserNftList();
+  }, []);
   return (
     <Container>
       <UserContainer>
@@ -67,11 +81,15 @@ function User() {
       <NFTContainer>
         <h1>My NFT Collection</h1>
         <Carousel>
-          <FoodCard img={Pizza} title="Pizza" />
-          <FoodCard img={Burger} title="Burger" />
-          <FoodCard img={Salad} title="Salad" />
-          <FoodCard img={Sushi} title="Sushi" />
-          <FoodCard img={Chicken} title="Chicken" />
+          {userNftList.length ? (
+            <div>There is no NFT</div>
+           ):(
+            <FoodCard img={Pizza} title="Pizza" />
+            )}
+            {/* <FoodCard img={Burger} title="Burger"/>
+            <FoodCard img={Salad} title="Salad" />
+            <FoodCard img={Sushi} title="Sushi" />
+            <FoodCard img={Chicken} title="Chicken" /> */}
         </Carousel>
       </NFTContainer>
     </Container>

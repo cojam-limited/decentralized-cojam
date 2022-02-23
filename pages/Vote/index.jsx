@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import AlertIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import Button from '@components/Button';
 import List from '@mui/material/List';
@@ -10,6 +10,7 @@ import { VOTE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 
 function Vote() {
   const { mutateModalData } = useModalData(VOTE_MODAL_DATA_KEY);
+  const [userNftList, setUserNftList] = useState([]);
   const handleOpenVoteModal = (menu) => () => {
     mutateModalData({ open: true, menu });
   };
