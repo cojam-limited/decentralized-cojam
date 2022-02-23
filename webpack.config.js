@@ -18,6 +18,7 @@ const config = {
       '@pages': path.resolve(__dirname, 'pages'),
       '@utils': path.resolve(__dirname, 'utils'),
       '@api': path.resolve(__dirname, 'api'),
+      '@abi': path.resolve(__dirname, 'abi'),
       '@data': path.resolve(__dirname, 'data'),
       '@config': path.resolve(__dirname, 'config'),
       '@assets': path.resolve(__dirname, 'assets'),
