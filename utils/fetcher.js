@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { API_BASE_URL } from '@config/index';
 
 const Axios = axios.create({
-  baseURL: 'https://pokeapi.co/api/v2/', // API URL 샘플
+  baseURL: API_BASE_URL, // API URL 샘플
   timeout: 10000,
 });
 
@@ -13,6 +14,10 @@ export const getDataFetcher = (url) => Axios.get(url).then((response) => respons
  * @dev POST는 SWR과 쓰지 않아도 상관 없음
  */
 export const postDataFetcher = (url, body) => Axios.post(url, body).then((response) => response.data);
+/**
+ * @dev PUT은 SWR과 쓰지 않아도 상관 없음
+ */
+export const putDataFetcher = (url, body) => Axios.put(url, body).then((response) => response.data);
 /**
  * @dev 전역 데이터 상태 관리할 때 사용하는 fetcher
  */
