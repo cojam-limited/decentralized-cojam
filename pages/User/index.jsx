@@ -4,37 +4,27 @@ import FoodCard from '@components/FoodCard';
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import Button from '@components/Button';
 import { Container, UserContainer, AccountCard, NFTContainer } from './styles';
-import Pizza from '@assets/img_pizza.jpg';
-import Burger from '@assets/img_burger.jpg';
-import Salad from '@assets/img_salad.jpg';
-import Chicken from '@assets/img_chicken.jpg';
-import Sushi from '@assets/img_sushi.jpg';
 
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import toastNotify from '@utils/toast';
-import { ownNftList } from '../../api/UseKAS';
+import { ownNftList } from '@api/UseKAS';
 import { kaikasLogin, kaikasGetBalance, isKaikasUnlocked } from '@api/UseKaikas';
 import { useWalletData } from '@data/wallet';
 
 function User() {
   const { mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
   const accountRef = useRef();
-  const address = '0xCEEc60Cbc7307d22d500aA368B3640197E9C9497';
-  const balance = 15;
-  const [walletConnection, setWalletConnection] = useState(false);
   const [userNftList, setUserNftList] = useState([]);
   const { walletData, mutateWalletData } = useWalletData();
+  const [balance, setBalance] = useState(0);
 
   const getUserNftList = async () => {
     try {
-      const list = await ownNftList(address);
+      const list = await ownNftList(walletData?.account);
       setUserNftList(list);
     } catch (error) {
       console.error(error);
     }
-  };
-  const handleClose = () => {
-    mutateDrawerData({ open: false });
   };
 
   const handleCopy = () => {
@@ -91,6 +81,7 @@ function User() {
       });
     }
   }, []);
+  console.log('userNftList', userNftList);
 
   return (
     <Container>
@@ -123,13 +114,15 @@ function User() {
 
       <NFTContainer>
         <h1>My NFT Collection</h1>
-        <Carousel>
-          {userNftList.length ? <div>There is no NFT</div> : <FoodCard img={Pizza} title="Pizza" />}
-          {/* <FoodCard img={Burger} title="Burger"/>
-            <FoodCard img={Salad} title="Salad" />
-            <FoodCard img={Sushi} title="Sushi" />
-            <FoodCard img={Chicken} title="Chicken" /> */}
-        </Carousel>
+        {!userNftList.length ? (
+          <div>There is no NFT</div>
+        ) : (
+          <Carousel>
+            {userNftList.map((item) => (
+              <FoodCard key={item.tokenId} img={item.imageUri} title={item.menuType} />
+            ))}
+          </Carousel>
+        )}
       </NFTContainer>
     </Container>
   );

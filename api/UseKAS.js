@@ -1,62 +1,54 @@
-import axios from "axios";
-import Caver from "caver-js";
-import NFTABI from "../abi/NFT.json";
+import axios from 'axios';
+import Caver from 'caver-js';
 const option = {
-    headers: {
-        Authorization: "Basic " + Buffer.from(process.env.REACT_APP_ACCESS_KEY_ID + ":" + process.env.REACT_APP_SECRET_ACCESS_KEY).toString("base64"),
-        "x-chain-id" : process.env.REACT_APP_CHAIN_ID,
-        "content-type" : "application/json"
-        
-    }
-}
+  headers: {
+    Authorization:
+      'Basic ' +
+      Buffer.from(process.env.REACT_APP_ACCESS_KEY_ID + ':' + process.env.REACT_APP_SECRET_ACCESS_KEY).toString(
+        'base64',
+      ),
+    'x-chain-id': process.env.REACT_APP_CHAIN_ID,
+    'content-type': 'application/json',
+  },
+};
 
 const caver = new Caver(window.klaytn);
-const NFTContract = new caver.contract(NFTABI, process.env.REACT_APP_NFT_CONTRACT_ADDRESS);
 
-
-export const ownNftList = async (ownaddress) =>{
-    try{
-        const reponse = await axios.get(`https://th-api.klaytnapi.com/v2/contract/nft/${process.env.REACT_APP_NFT_CONTRACT_ADDRESS}/owner/${ownaddress}`, option);
-        // const jsonReponse = JSON.stringify(reponse);
-        const data = reponse.data.items;
-        let nfts = [];
-        for(let i = 0; i < data.length; i++) {
-            const _tokenId = parseInt(data[i].tokenId,16);
-            const _menuType = await NFTContract.methods.menuType(_tokenId).call();
-
-            console.log(_menuType);
-            nfts.push({tokenId: _tokenId, uri: data[i].tokenUri, menuType: _menuType})
+export const ownNftList = async (ownaddress) => {
+  try {
+    const response = await axios.get(
+      `https://th-api.klaytnapi.com/v2/contract/nft/${process.env.REACT_APP_NFT_CONTRACT_ADDRESS}/owner/${ownaddress}`,
+      option,
+    );
+    /* ✨response.data.items
+        [{createdAt: 1645595613
+        owner: "0x9bf610e09d53f1a884becaa43f94a04948285600"
+        previousOwner: "0x0000000000000000000000000000000000000000"
+        tokenId: "0x1e"
+        tokenUri: "qwer"
+        transactionHash: "0x9df54c25aa4869f7aa4c708d4d361bd5de5d2707aff03866929e1b546e9b8f36"
+        updatedAt: 1645595613}]
+    */
+    const data = response.data.items;
+    let nfts = [];
+    for (let i = 0; i < data.length; i++) {
+      const response = await axios.get(data[i].tokenUri); // JSON 형식 메타데이터가 들어옴
+      const uriJSON = response.data;
+      /** ✨uriJSON 샘플
+       {
+        "name": "Puppy Heaven NFT",
+        "description": "This is a sample description",
+        "imageUrl": "https://metadata-store.klaytnapi.com/e2d83vdb-c108-823c-d5f3-69vdf2d871c51/4a85e6be-3215-93e6-d8a9-3a7d633584e7.png"
         }
-        console.log(nfts);
-        //console.log(reponse.data);
-        return nfts;
-    }catch(e){
-        console.log(e);
-        return false;
-    }
-}
+       */
 
-export const masterNftList = async () =>{
-    try{
-        const reponse = await axios.get(`https://th-api.klaytnapi.com/v2/contract/nft/${process.env.REACT_APP_NFT_CONTRACT_ADDRESS}/token`, option);
-        // const jsonReponse = JSON.stringify(reponse);
-        const data = reponse.data.items;
-        // let temp = new Array(data.length);
-        let nfts = [];
-        for(let i = 0; i < data.length; i++) {
-            const _tokenId = parseInt(data[i].tokenId,16);
-            const _nftType = await NFTContract.methods.nftType(_tokenId).call();
-            if(nftType != 2){
-                continue;
-            }
-            const _menuType = await NFTContract.methods.menuType(_tokenId).call();
-            nfts.push({tokenId: _tokenId, uri: data[i].tokenUri, menuType: _menuType});
-        }
-        console.log(`materNFT, ${nfts}`);
-        //console.log(reponse.data);
-        return nfts;
-    }catch(e){
-        console.log(e);
-        return false;
+      //🔥uriJSON 타입이 결정되면 푸쉬 데이터 변경
+      nfts.push({ tokenId: data[i].tokenId, imageUri: uriJSON.imageUri, menuType: uriJSON.name });
     }
-}
+    console.log(nfts);
+    return nfts;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
