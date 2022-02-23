@@ -41,7 +41,6 @@ function Vote() {
   };
 
   const handleOpenVoteModal = (menu, menuIndex) => () => {
-    console.log(menu);
     mutateModalData({ open: true, menu, menuIndex });
   };
 

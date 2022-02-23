@@ -67,6 +67,9 @@ function ProposeMenu() {
         return;
       } else {
         await proposeMenu(inputRef.current.value);
+        inputRef.current.value = '';
+        //메뉴 리스트 상태 업데이트
+        getProposals();
       }
     } catch (error) {
       console.log(error);

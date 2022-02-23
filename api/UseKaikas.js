@@ -1,6 +1,5 @@
 import Caver from 'caver-js';
 import toastNotify from '@utils/toast';
-import { mintWithTokenURIABI, mintWithklayABI, proposeMenuABI, voteABI } from '@config/index';
 import NFTABI from '@abi/NFT.json';
 import VOTEABI from '@abi/Vote.json';
 
@@ -69,7 +68,7 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
       .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
       .encodeABI();
 
-    caver.klay
+    await caver.klay
       .sendTransaction({
         type: 'SMART_CONTRACT_EXECUTION',
         from: window.klaytn.selectedAddress,
@@ -83,11 +82,19 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
       })
       .on('receipt', (receipt) => {
         // success
-        console.log(`succes`, receipt);
+        toastNotify({
+          state: 'success',
+          message: 'Got BadgeMeal NFT!',
+        });
+        console.log(`success`, receipt);
       })
       .on('error', (e) => {
         // failed
-        console.log(`error ${e}`);
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
+        console.error(`error ${e}`);
       });
   } catch (error) {
     console.error('mintWithTokenURI', error);
@@ -105,7 +112,7 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
       .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
       .encodeABI();
 
-    caver.klay
+    await caver.klay
       .sendTransaction({
         type: 'SMART_CONTRACT_EXECUTION',
         from: window.klaytn.selectedAddress,
@@ -119,10 +126,18 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
       })
       .on('receipt', (receipt) => {
         // success
-        console.log(`succes`, receipt);
+        toastNotify({
+          state: 'success',
+          message: 'Got BadgeMeal NFT!',
+        });
+        console.log(`success`, receipt);
       })
       .on('error', (e) => {
         // failed
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
         console.log(`error ${e}`);
       });
   } catch (error) {
@@ -138,7 +153,7 @@ export const proposeMenu = async (name) => {
 
     const encodedData = VoteContract.methods.proposeMenu(name, NFT_ADDRESS).encodeABI();
 
-    caver.klay
+    await caver.klay
       .sendTransaction({
         type: 'SMART_CONTRACT_EXECUTION',
         from: window.klaytn.selectedAddress,
@@ -152,10 +167,18 @@ export const proposeMenu = async (name) => {
       })
       .on('receipt', (receipt) => {
         // success
-        console.log(`succes`, receipt);
+        toastNotify({
+          state: 'success',
+          message: 'Uploaded!',
+        });
+        console.log(`success`, receipt);
       })
       .on('error', (e) => {
         // failed
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
         console.log(`error ${e}`);
       });
   } catch (error) {
@@ -165,12 +188,9 @@ export const proposeMenu = async (name) => {
 
 export const vote = async (proposal) => {
   try {
-    const estimatedGas = await VoteContract.methods.vote(proposal, NFT_ADDRESS).estimateGas({
-      from: window.klaytn.selectedAddress,
-    });
     const encodedData = VoteContract.methods.vote(proposal, NFT_ADDRESS).encodeABI();
-
-    caver.klay
+    const estimatedGas = await VoteContract.methods.vote(proposal, NFT_ADDRESS).estimateGas();
+    await caver.klay
       .sendTransaction({
         type: 'SMART_CONTRACT_EXECUTION',
         from: window.klaytn.selectedAddress,
@@ -184,10 +204,18 @@ export const vote = async (proposal) => {
       })
       .on('receipt', (receipt) => {
         // success
-        console.log(`succes`, receipt);
+        toastNotify({
+          state: 'success',
+          message: 'Voted!',
+        });
+        console.log(`success`, receipt);
       })
       .on('error', (e) => {
         // failed
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
         console.log(`error ${e}`);
       });
   } catch (error) {
