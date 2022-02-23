@@ -5,9 +5,11 @@ import { RandomDrawContainer, Step } from './styles';
 
 import toastNotify from '@utils/toast';
 import { useWalletData } from '@data/wallet';
-import { addMinter, removeMinter, mintWithTokenURI, mintWithKlay } from '@api/UseCaverForOwner';
+import { addMinter, removeMinter } from '@api/UseCaverForOwner';
+import { mintWithTokenURI, mintWithKlay } from '@api/UseKaikas';
 import { useMenusData } from '@api/menus';
 import { useDrawResultData } from '@api/draw';
+import { useMintCountData } from '@api/nft';
 import { postDataFetcher } from '@utils/fetcher';
 
 function RandomDraw() {
@@ -16,6 +18,7 @@ function RandomDraw() {
   const { walletData } = useWalletData();
   const { menusData } = useMenusData();
   const { drawResultData } = useDrawResultData(walletData?.account);
+  const { mintCountData } = useMintCountData(walletData?.account);
 
   const getRandomMenuIndex = () => {
     return Math.floor(Math.random() * menusData.length);
@@ -83,25 +86,37 @@ function RandomDraw() {
   };
 
   const handleClickMintNFT = async () => {
-    //🔥지갑 연동: 1.지갑 연동 여부 체크
-    if (!checkWalletConnection()) return;
+    try {
+      //1.지갑 연동 여부 체크
+      if (!checkWalletConnection()) return;
 
-    //🔥API 연동: 2.DB에 저장된 mintData를 조회
+      //🔥API 연동: 2.DB에 저장된 mintData를 조회
 
-    //🔥API 연동: 3.하루에 NFT 발급 받은 횟수를 조회
+      //4.mint 권한을 유저에게 임시로 준다.
+      await addMinter(walletData?.account);
+      //5-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
+      //5-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
+      if (mintCountData < 3) {
+        //mintData를 가져와서 인자로 넘김
+        // await mintWithTokenURI(30, 'test_genralTokenURI', 'test_masterTokenURI', 'pizza');
+      } else {
+        //mintData를 가져와서 인자로 넘김
+        //mintWithKlay
+      }
 
-    //4.mint 권한을 유저에게 임시로 준다.
-    await addMinter(walletData?.account);
-    //5-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
+      //6.발행이 완료되면 유저의 mint 권한을 제거한다.
+      await removeMinter(walletData?.account);
 
-    //5-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
+      //🔥API 연동: 7.발행이 완료되면 mintData 초기화
 
-    //6.발행이 완료되면 유저의 mint 권한을 제거한다.
-    await removeMinter(walletData?.account);
+      //🔥API 연동: 8.발행이 완료되면 drawResult 초기화
 
-    //🔥API 연동: 7.발행이 완료되면 mintData 초기화
-
-    //🔥API 연동: 8.발행이 완료되면 drawResult 초기화
+      //🔥API 연동: 9.발행이 완료되면 mintCountData++
+      await postDataFetcher(`/nft/mintCount?address=${walletData?.account}&count=${mintCountData + 1}`);
+    } catch (error) {
+      removeMinter(walletData?.account);
+      console.error(error);
+    }
   };
 
   return (

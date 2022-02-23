@@ -6,7 +6,7 @@ const URL_RESULT = 'draw/result?address=';
 // SWR 데이터 키
 const DATA_KEY_RESULT = 'data/draw/result';
 
-//res : { "verification": "FALSE" }
+//res.data : { "verification": "FALSE" }
 const resultFetcher = async (address) => {
   const res = await getDataFetcher(URL_RESULT + address);
   if (res && res.data) {
@@ -15,7 +15,7 @@ const resultFetcher = async (address) => {
 };
 
 const option = {
-  fallbackData: [], // 에러 방지 초기 데이터 삽입
+  fallbackData: {}, // 에러 방지 초기 데이터 삽입
   revalidateOnFocus: false, // 포커스 시에 자동 갱신 비활성화
 };
 
