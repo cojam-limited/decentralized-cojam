@@ -3,6 +3,7 @@ import AlertIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import Button from '@components/Button';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import CircularProgress from '@mui/material/CircularProgress';
 import { Container, UploadContainer, noListStyles, proposedListItemStyles } from './styles';
 
 import toastNotify from '@utils/toast';
@@ -13,14 +14,18 @@ function ProposeMenu() {
   const inputRef = useRef();
   const { walletData } = useWalletData();
   const [proposedList, setProposedList] = useState([]);
+  const [proposedListLoading, setProposedListLoading] = useState(false);
 
   const getProposals = async () => {
     try {
+      setProposedListLoading(() => true);
       const res = await getProposalList();
-      setProposedList(res);
+      setProposedListLoading(() => false);
+      setProposedList(() => res);
       console.log(res);
     } catch (error) {
       console.error(error);
+      setProposedListLoading(() => false);
     }
   };
 
@@ -81,7 +86,9 @@ function ProposeMenu() {
           overflowY: 'scroll',
         }}
       >
-        {!proposedList.length ? (
+        {proposedListLoading ? (
+          <CircularProgress />
+        ) : !proposedList.length ? (
           <div style={noListStyles}>There is no Proposed List.</div>
         ) : (
           proposedList.map((item) => (

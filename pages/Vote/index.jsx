@@ -3,6 +3,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import FoodBankIcon from '@mui/icons-material/FoodBankOutlined';
+import CircularProgress from '@mui/material/CircularProgress';
 import { Container, proposedListItemStyles, winnerListItemStyles, noListStyles } from './styles';
 import { VOTE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import { getProposalList, getWinnerProposalList } from '@api/UseKaikas';
@@ -11,23 +12,31 @@ function Vote() {
   const { mutateModalData } = useModalData(VOTE_MODAL_DATA_KEY);
   const [proposedList, setProposedList] = useState([]);
   const [winnerProposalList, setWinnerProposalList] = useState([]);
+  const [proposedListLoading, setProposedListLoading] = useState(false);
+  const [winnerProposalListLoading, setWinnerProposalListLoading] = useState(false);
 
   const getProposals = async () => {
     try {
+      setProposedListLoading(() => true);
       const res = await getProposalList();
-      setProposedList(res);
+      setProposedListLoading(() => false);
+      setProposedList(() => res);
       console.log(res);
     } catch (error) {
       console.error(error);
+      setProposedListLoading(() => false);
     }
   };
   const getWinnerProposals = async () => {
     try {
+      setWinnerProposalListLoading(() => true);
       const res = await getWinnerProposalList();
-      setWinnerProposalList(res);
+      setWinnerProposalListLoading(() => false);
+      setWinnerProposalList(() => res);
       console.log(res);
     } catch (error) {
       console.error(error);
+      setWinnerProposalListLoading(() => false);
     }
   };
 
@@ -55,7 +64,9 @@ function Vote() {
           marginBottom: '30px',
         }}
       >
-        {!proposedList.length ? (
+        {proposedListLoading ? (
+          <CircularProgress />
+        ) : !proposedList.length ? (
           <div style={noListStyles}>There is no Proposed List.</div>
         ) : (
           proposedList.map((item, index) => (
@@ -80,7 +91,9 @@ function Vote() {
           overflowY: 'scroll',
         }}
       >
-        {!winnerProposalList.length ? (
+        {winnerProposalListLoading ? (
+          <CircularProgress />
+        ) : !winnerProposalList.length ? (
           <div style={noListStyles}>There is no Winner.</div>
         ) : (
           winnerProposalList.map((item) => (
