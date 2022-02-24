@@ -102,23 +102,23 @@ function RandomDraw() {
       //1.지갑 연동 여부 체크
       if (!checkWalletConnection()) return;
 
-      //🔥API 연동: 2.DB에 저장된 mintData를 조회
-      // if (!checkMintData()) return;
+      //2.DB에 저장된 mintData를 조회
+      if (!checkMintData()) return;
 
       //4.mint 권한을 유저에게 임시로 준다.
-      // await addMinter(walletData?.account);
+      await addMinter(walletData?.account);
       //5-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
       //5-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
       if (mintCountData < 3) {
         //mintData를 가져와서 인자로 넘김
-        // await mintWithTokenURI(30, 'test_genralTokenURI', 'test_masterTokenURI', 'pizza');
+        await mintWithTokenURI(mintData.tokenId, mintData.metadataUri, 'test_masterTokenURI', mintData.menuType);
       } else {
         //mintData를 가져와서 인자로 넘김
-        //mintWithKlay
+        await mintWithKlay(mintData.tokenId, mintData.metadataUri, 'test_masterTokenURI', mintData.menuType);
       }
 
       //6.발행이 완료되면 유저의 mint 권한을 제거한다.
-      // await removeMinter(walletData?.account);
+      await removeMinter(walletData?.account);
 
       //7.발행이 완료되면 mintData 초기화
       initMintData(walletData?.account);
