@@ -1,160 +1,318 @@
 import Caver from 'caver-js';
 import toastNotify from '@utils/toast';
-import { mintWithTokenURIABI, mintWithklayABI, proposeMenuABI, voteABI } from '@config/index';
 import NFTABI from '@abi/NFT.json';
+import VOTEABI from '@abi/Vote.json';
 
 const caver = new Caver(window.klaytn);
-const NFTContract = new caver.contract(NFTABI, process.env.REACT_APP_NFT_CONTRACT_ADDRESS);
+const NFT_ADDRESS = process.env.REACT_APP_NFT_CONTRACT_ADDRESS;
+const VOTE_ADDRESS = process.env.REACT_APP_VOTE_CONTRACT_ADDRESS;
+const NFTContract = new caver.contract(NFTABI, NFT_ADDRESS);
+const VoteContract = new caver.contract(VOTEABI, VOTE_ADDRESS);
 
 export const kaikasLogin = async () => {
-  if (typeof window.klaytn !== 'undefined') {
-    const accounts = await window.klaytn.enable();
-    const account = accounts[0]; // We currently only ever provide a single account,
-    console.log(`지갑주소 : ${account}`);
-    console.log(`네트워크 주소 : ${window.klaytn.networkVersion}`);
-    return account;
-  } else {
-    toastNotify({
-      state: 'error',
-      message: 'Please install Kaikas wallet.',
-    });
+  try {
+    if (typeof window.klaytn !== 'undefined') {
+      const accounts = await window.klaytn.enable();
+      const account = accounts[0]; // We currently only ever provide a single account,
+      console.log(`지갑주소 : ${account}`);
+      console.log(`네트워크 주소 : ${window.klaytn.networkVersion}`);
+      return account;
+    } else {
+      toastNotify({
+        state: 'error',
+        message: 'Please install Kaikas wallet.',
+      });
+    }
+  } catch (error) {
+    console.error('kaikasLogin', error);
   }
 };
 
 export const kaikasGetBalance = async (address) => {
-  const balance = await caver.rpc.klay.getBalance(address);
-  console.log(`현재 잔액 : ${balance / 10 ** 18}`);
-  return balance;
+  try {
+    const balance = await caver.rpc.klay.getBalance(address);
+    console.log(`현재 잔액 : ${balance / 10 ** 18}`);
+    return balance;
+  } catch (error) {
+    console.error('kaikasGetBalance', error);
+  }
 };
 
 export const isKaikasUnlocked = async () => {
-  const result = await window.klaytn._kaikas.isUnlocked();
-  return result; //잠금상태: false, 열린상태: true
+  try {
+    const result = await window.klaytn._kaikas.isUnlocked();
+    return result; //잠금상태: false, 열린상태: true
+  } catch (error) {
+    console.error('isKaikasUnlocked', error);
+  }
 };
 
 export const isKaikasEnabled = async () => {
-  const result = await window.klaytn._kaikas.isEnabled();
-  return result;
+  try {
+    const result = await window.klaytn._kaikas.isEnabled();
+    return result;
+  } catch (error) {
+    console.error('isKaikasEnabled', error);
+  }
 };
 
 export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
-  const estimatedGas = await NFTContract.methods
-    .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
-    .estimateGas({
-      from: window.klaytn.selectedAddress,
-    });
+  try {
+    const estimatedGas = await NFTContract.methods
+      .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
+      .estimateGas({
+        from: window.klaytn.selectedAddress,
+      });
 
-  const encodedData = NFTContract.methods
-    .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
-    .encodeABI();
+    const encodedData = NFTContract.methods
+      .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
+      .encodeABI();
 
-  caver.klay
-    .sendTransaction({
-      type: 'SMART_CONTRACT_EXECUTION',
-      from: window.klaytn.selectedAddress,
-      to: process.env.REACT_APP_NFT_CONTRACT_ADDRESS,
-      data: encodedData,
-      value: '0x00',
-      gas: estimatedGas,
-    })
-    .on('transactionHash', (hash) => {
-      console.log(`transactionHash ${hash}`);
-    })
-    .on('receipt', (receipt) => {
-      // success
-      console.log(`succes`, receipt);
-    })
-    .on('error', (e) => {
-      // failed
-      console.log(`error ${e}`);
-    });
+    await caver.klay
+      .sendTransaction({
+        type: 'SMART_CONTRACT_EXECUTION',
+        from: window.klaytn.selectedAddress,
+        to: process.env.REACT_APP_NFT_CONTRACT_ADDRESS,
+        data: encodedData,
+        value: '0x00',
+        gas: estimatedGas,
+      })
+      .on('transactionHash', (hash) => {
+        console.log(`transactionHash ${hash}`);
+      })
+      .on('receipt', (receipt) => {
+        // success
+        toastNotify({
+          state: 'success',
+          message: 'Got BadgeMeal NFT!',
+        });
+        console.log(`success`, receipt);
+      })
+      .on('error', (e) => {
+        // failed
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
+        console.error(`error ${e}`);
+      });
+  } catch (error) {
+    console.error('mintWithTokenURI', error);
+  }
 };
 
 export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
-  const estimatedGas = await NFTContract.methods
-    .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
-    .estimateGas({
-      from: window.klaytn.selectedAddress,
-    });
-  const encodedData = NFTContract.methods
-    .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
-    .encodeABI();
+  try {
+    const estimatedGas = await NFTContract.methods
+      .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
+      .estimateGas({
+        from: window.klaytn.selectedAddress,
+      });
+    const encodedData = NFTContract.methods
+      .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
+      .encodeABI();
 
-  caver.klay
-    .sendTransaction({
-      type: 'SMART_CONTRACT_EXECUTION',
-      from: window.klaytn.selectedAddress,
-      to: process.env.REACT_APP_NFT_CONTRACT_ADDRESS,
-      data: encodedData,
-      value: '500000000000000000',
-      gas: estimatedGas,
-    })
-    .on('transactionHash', (hash) => {
-      console.log(`transactionHash ${hash}`);
-    })
-    .on('receipt', (receipt) => {
-      // success
-      console.log(`succes`, receipt);
-    })
-    .on('error', (e) => {
-      // failed
-      console.log(`error ${e}`);
-    });
+    await caver.klay
+      .sendTransaction({
+        type: 'SMART_CONTRACT_EXECUTION',
+        from: window.klaytn.selectedAddress,
+        to: process.env.REACT_APP_NFT_CONTRACT_ADDRESS,
+        data: encodedData,
+        value: '500000000000000000',
+        gas: estimatedGas,
+      })
+      .on('transactionHash', (hash) => {
+        console.log(`transactionHash ${hash}`);
+      })
+      .on('receipt', (receipt) => {
+        // success
+        toastNotify({
+          state: 'success',
+          message: 'Got BadgeMeal NFT!',
+        });
+        console.log(`success`, receipt);
+      })
+      .on('error', (e) => {
+        // failed
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
+        console.log(`error ${e}`);
+      });
+  } catch (error) {
+    console.error('mintWithKlay', error);
+  }
 };
 
-export const proposeMenu = async (name, nftAddress) => {
-  const estimatedGas = await NFTContract.methods.proposeMenu(name, nftAddress).estimateGas({
-    from: window.klaytn.selectedAddress,
-  });
-
-  const encodedData = NFTContract.methods.proposeMenu(name, nftAddress).encodeABI();
-
-  caver.klay
-    .sendTransaction({
-      type: 'SMART_CONTRACT_EXECUTION',
+export const proposeMenu = async (name) => {
+  try {
+    const estimatedGas = await VoteContract.methods.proposeMenu(name, NFT_ADDRESS).estimateGas({
       from: window.klaytn.selectedAddress,
-      to: process.env.REACT_APP_VOTE_CONTRACT_ADDRESS,
-      data: encodedData,
-      value: '0x00',
-      gas: estimatedGas,
-    })
-    .on('transactionHash', (hash) => {
-      console.log(`transactionHash ${hash}`);
-    })
-    .on('receipt', (receipt) => {
-      // success
-      console.log(`succes`, receipt);
-    })
-    .on('error', (e) => {
-      // failed
-      console.log(`error ${e}`);
     });
+
+    const encodedData = VoteContract.methods.proposeMenu(name, NFT_ADDRESS).encodeABI();
+
+    await caver.klay
+      .sendTransaction({
+        type: 'SMART_CONTRACT_EXECUTION',
+        from: window.klaytn.selectedAddress,
+        to: process.env.REACT_APP_VOTE_CONTRACT_ADDRESS,
+        data: encodedData,
+        value: '0x00',
+        gas: estimatedGas,
+      })
+      .on('transactionHash', (hash) => {
+        console.log(`transactionHash ${hash}`);
+      })
+      .on('receipt', (receipt) => {
+        // success
+        toastNotify({
+          state: 'success',
+          message: 'Uploaded!',
+        });
+        console.log(`success`, receipt);
+      })
+      .on('error', (e) => {
+        // failed
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
+        console.log(`error ${e}`);
+      });
+  } catch (error) {
+    console.error('proposeMenu', error);
+  }
 };
 
-export const vote = async (proposal, nftAddress) => {
-  const estimatedGas = await NFTContract.methods.vote(proposal, nftAddress).estimateGas({
-    from: window.klaytn.selectedAddress,
-  });
-  const encodedData = NFTContract.methods.vote(proposal, nftAddress).encodeABI();
+export const vote = async (proposal) => {
+  try {
+    const encodedData = VoteContract.methods.vote(proposal, NFT_ADDRESS).encodeABI();
+    const estimatedGas = await VoteContract.methods.vote(proposal, NFT_ADDRESS).estimateGas();
+    await caver.klay
+      .sendTransaction({
+        type: 'SMART_CONTRACT_EXECUTION',
+        from: window.klaytn.selectedAddress,
+        to: process.env.REACT_APP_VOTE_CONTRACT_ADDRESS,
+        data: encodedData,
+        value: '0x00',
+        gas: estimatedGas,
+      })
+      .on('transactionHash', (hash) => {
+        console.log(`transactionHash ${hash}`);
+      })
+      .on('receipt', (receipt) => {
+        // success
+        toastNotify({
+          state: 'success',
+          message: 'Voted!',
+        });
+        console.log(`success`, receipt);
+      })
+      .on('error', (e) => {
+        // failed
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
+        console.log(`error ${e}`);
+      });
+  } catch (error) {
+    console.error('vote', error);
+  }
+};
 
-  caver.klay
-    .sendTransaction({
-      type: 'SMART_CONTRACT_EXECUTION',
+// NFT 소유자인지 검증: true,false
+export const isBadgemealNFTholder = async () => {
+  try {
+    //예상 가스
+    const estimatedGas = await VoteContract.methods.isNFTholder(NFT_ADDRESS).estimateGas({
       from: window.klaytn.selectedAddress,
-      to: process.env.REACT_APP_VOTE_CONTRACT_ADDRESS,
-      data: encodedData,
-      value: '0x00',
-      gas: estimatedGas,
-    })
-    .on('transactionHash', (hash) => {
-      console.log(`transactionHash ${hash}`);
-    })
-    .on('receipt', (receipt) => {
-      // success
-      console.log(`succes`, receipt);
-    })
-    .on('error', (e) => {
-      // failed
-      console.log(`error ${e}`);
     });
+
+    const receipt = await VoteContract.methods.isNFTholder(NFT_ADDRESS).call({
+      from: window.klaytn.selectedAddress,
+      gas: estimatedGas,
+    });
+
+    return receipt;
+  } catch (error) {
+    console.log('isBadgemealNFTholder', error);
+  }
+};
+
+// Master NFT 소유자인지 검증: true,false
+export const isBadgemealMasterNFTholder = async () => {
+  try {
+    //예상 가스
+    const estimatedGas = await VoteContract.methods.isMasterNFTholder(NFT_ADDRESS).estimateGas({
+      from: window.klaytn.selectedAddress,
+    });
+
+    const receipt = await VoteContract.methods.isMasterNFTholder(NFT_ADDRESS).call({
+      from: window.klaytn.selectedAddress,
+      gas: estimatedGas,
+    });
+
+    return receipt;
+  } catch (error) {
+    console.log('isBadgemealMasterNFTholder', error);
+  }
+};
+
+export const getProposalListLength = async () => {
+  try {
+    const receipt = await VoteContract.methods.getProposedMenuListLength().call({
+      from: window.klaytn.selectedAddress,
+    });
+
+    return receipt;
+  } catch (error) {
+    console.log('getProposalListLength', error);
+  }
+};
+
+export const getProposalList = async () => {
+  try {
+    const list = [];
+    const length = await getProposalListLength();
+    for (let i = 0; i < length; i++) {
+      const id = await VoteContract.methods.proposals(i).call({
+        from: window.klaytn.selectedAddress,
+      });
+      list.push(id);
+    }
+    return list;
+  } catch (error) {
+    console.log('getProposalList', error);
+  }
+};
+
+export const getWinnerProposalListLength = async () => {
+  try {
+    const receipt = await VoteContract.methods.getwinnerProposalsLength().call({
+      from: window.klaytn.selectedAddress,
+    });
+
+    return receipt;
+  } catch (error) {
+    console.log('getWinnerProposalListLength', error);
+  }
+};
+
+export const getWinnerProposalList = async () => {
+  try {
+    const list = [];
+    const length = await getWinnerProposalListLength();
+    for (let i = 0; i < length; i++) {
+      const id = await VoteContract.methods.winnerProposals(i).call({
+        from: window.klaytn.selectedAddress,
+      });
+      list.push(id);
+    }
+    return list;
+  } catch (error) {
+    console.log('getWinnerProposalList', error);
+  }
 };

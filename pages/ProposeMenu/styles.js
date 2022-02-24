@@ -28,3 +28,11 @@ export const UploadContainer = styled.div`
     font-size: 15px;
   }
 `;
+
+export const proposedListItemStyles = {
+  backgroundColor: '#F0F0F0',
+  borderRadius: '5px',
+  margin: '5px 0',
+  '&:hover': { backgroundColor: '#494949', color: '#fff' },
+};
+export const noListStyles = { backgroundColor: '#fcc7c7', padding: '10px', borderRadius: '5px' };
