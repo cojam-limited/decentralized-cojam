@@ -10,6 +10,7 @@ import { mintWithTokenURI, mintWithKlay } from '@api/UseKaikas';
 import { useMenusData } from '@api/menus';
 import { useDrawResultData } from '@api/draw';
 import { useMintCountData } from '@api/nft';
+import { initMintData, useMintData } from '@api/mintData';
 import { postDataFetcher } from '@utils/fetcher';
 
 function RandomDraw() {
@@ -19,6 +20,7 @@ function RandomDraw() {
   const { menusData } = useMenusData();
   const { drawResultData } = useDrawResultData(walletData?.account);
   const { mintCountData } = useMintCountData(walletData?.account);
+  const { mintData } = useMintData(walletData?.account);
 
   const getRandomMenuIndex = () => {
     return Math.floor(Math.random() * menusData.length);
@@ -52,6 +54,16 @@ function RandomDraw() {
     } else return false;
   };
 
+  const checkMintData = () => {
+    if (!mintData?.metadataUri) {
+      toastNotify({
+        state: 'warn',
+        message: 'Upload Receipt first!',
+      });
+      return false;
+    } else return true;
+  };
+
   const handleClickPickRandomly = async () => {
     //1.drawResult 초기화
     setCurrentDrawResult({});
@@ -74,7 +86,7 @@ function RandomDraw() {
     const randomMenu = menusData[getRandomMenuIndex()];
     setCurrentDrawResult(randomMenu);
     //6.뽑기 결과 index에 해당하는 메뉴이름, 인증여부(false)를 DB에 저장
-    await postDataFetcher(`/draw/result?address=${walletData?.account}&menuNo=${randomMenu.menuNo}`);
+    await postDataFetcher(`draw/result?address=${walletData?.account}&menuNo=${randomMenu.menuNo}`);
   };
 
   const handleUploadReceipt = async () => {
@@ -91,9 +103,10 @@ function RandomDraw() {
       if (!checkWalletConnection()) return;
 
       //🔥API 연동: 2.DB에 저장된 mintData를 조회
+      // if (!checkMintData()) return;
 
       //4.mint 권한을 유저에게 임시로 준다.
-      await addMinter(walletData?.account);
+      // await addMinter(walletData?.account);
       //5-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
       //5-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
       if (mintCountData < 3) {
@@ -105,14 +118,14 @@ function RandomDraw() {
       }
 
       //6.발행이 완료되면 유저의 mint 권한을 제거한다.
-      await removeMinter(walletData?.account);
+      // await removeMinter(walletData?.account);
 
-      //🔥API 연동: 7.발행이 완료되면 mintData 초기화
+      //7.발행이 완료되면 mintData 초기화
+      initMintData(walletData?.account);
 
       //🔥API 연동: 8.발행이 완료되면 drawResult 초기화
-
-      //🔥API 연동: 9.발행이 완료되면 mintCountData++
-      await postDataFetcher(`/nft/mintCount?address=${walletData?.account}&count=${mintCountData + 1}`);
+      //9.발행이 완료되면 mintCountData++
+      postDataFetcher(`nft/mintCount?address=${walletData?.account}&count=${mintCountData + 1}`);
     } catch (error) {
       removeMinter(walletData?.account);
       console.error(error);

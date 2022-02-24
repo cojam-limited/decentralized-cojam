@@ -27,7 +27,7 @@ export const getDataFetcher = async (url) => {
     }
   });
 
-  return res.data;
+  return res?.data;
 };
 /**
  * @dev POST는 SWR과 쓰지 않아도 상관 없음
@@ -50,7 +50,7 @@ export const postDataFetcher = async (url, body) => {
     }
   });
 
-  return res.data;
+  return res?.data;
 };
 /**
  * @dev PUT은 SWR과 쓰지 않아도 상관 없음
@@ -73,7 +73,7 @@ export const putDataFetcher = async (url, body) => {
     }
   });
 
-  return res.data;
+  return res?.data;
 };
 /**
  * @dev 전역 데이터 상태 관리할 때 사용하는 fetcher
