@@ -11,6 +11,7 @@ import { useMenusData } from '@api/menus';
 import { initDrawResult, useDrawResultData } from '@api/draw';
 import { useMintCountData } from '@api/nft';
 import { initMintData, useMintData } from '@api/mintData';
+import { useMasterMetadataURLData } from '@api/ipfs';
 import { postDataFetcher } from '@utils/fetcher';
 
 function RandomDraw() {
@@ -21,6 +22,7 @@ function RandomDraw() {
   const { drawResultData } = useDrawResultData(walletData?.account);
   const { mintCountData } = useMintCountData(walletData?.account);
   const { mintData } = useMintData(walletData?.account);
+  const { masterMetadataURL } = useMasterMetadataURLData(drawResultData?.menuNo);
 
   const getRandomMenuIndex = () => {
     return Math.floor(Math.random() * menusData.length);
@@ -111,10 +113,10 @@ function RandomDraw() {
       //5-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
       if (mintCountData < 3) {
         //mintData를 가져와서 인자로 넘김
-        await mintWithTokenURI(mintData.tokenId, mintData.metadataUri, 'test_masterTokenURI', mintData.menuType);
+        await mintWithTokenURI(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
       } else {
         //mintData를 가져와서 인자로 넘김
-        await mintWithKlay(mintData.tokenId, mintData.metadataUri, 'test_masterTokenURI', mintData.menuType);
+        await mintWithKlay(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
       }
 
       //6.발행이 완료되면 유저의 mint 권한을 제거한다.
