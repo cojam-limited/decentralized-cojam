@@ -1,4 +1,4 @@
-import { getDataFetcher } from '@utils/fetcher';
+import { getDataFetcher, postDataFetcher } from '@utils/fetcher';
 import useSWR from 'swr';
 
 // API URL
@@ -37,3 +37,6 @@ export const useMintCountData = (address) => {
 
   return { mintCountData, mintCountDataIsValidating, error };
 };
+
+export const updateMintCount = (address, countData) =>
+  postDataFetcher(`nft/mintCount?address=${address}&count=${countData + 1}`);

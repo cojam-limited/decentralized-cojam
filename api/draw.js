@@ -3,6 +3,7 @@ import useSWR from 'swr';
 
 // API URL
 const URL_RESULT = 'draw/result?address=';
+const URL_RESULT_INIT = 'draw/result/init?address=';
 // SWR 데이터 키
 const DATA_KEY_RESULT = 'data/draw/result';
 
@@ -37,3 +38,6 @@ export const useDrawResultData = (address) => {
 
   return { drawResultData, drawResultDataIsValidating, error };
 };
+
+//주소에 매핑된 draw result 초기화
+export const initDrawResult = (address) => getDataFetcher(`${URL_RESULT_INIT + address}`);

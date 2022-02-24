@@ -8,7 +8,7 @@ import { useWalletData } from '@data/wallet';
 import { addMinter, removeMinter } from '@api/UseCaverForOwner';
 import { mintWithTokenURI, mintWithKlay } from '@api/UseKaikas';
 import { useMenusData } from '@api/menus';
-import { useDrawResultData } from '@api/draw';
+import { initDrawResult, useDrawResultData } from '@api/draw';
 import { useMintCountData } from '@api/nft';
 import { initMintData, useMintData } from '@api/mintData';
 import { postDataFetcher } from '@utils/fetcher';
@@ -123,11 +123,12 @@ function RandomDraw() {
       //7.발행이 완료되면 mintData 초기화
       initMintData(walletData?.account);
 
-      //🔥API 연동: 8.발행이 완료되면 drawResult 초기화
+      //8.발행이 완료되면 drawResult 초기화
+      initDrawResult(walletData?.account);
+
       //9.발행이 완료되면 mintCountData++
-      postDataFetcher(`nft/mintCount?address=${walletData?.account}&count=${mintCountData + 1}`);
+      updateMintCount(walletData?.account, mintCountData);
     } catch (error) {
-      removeMinter(walletData?.account);
       console.error(error);
     }
   };

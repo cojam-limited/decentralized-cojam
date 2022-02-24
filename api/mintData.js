@@ -3,6 +3,7 @@ import useSWR from 'swr';
 
 // API URL
 const URL = 'mintData?address=';
+const URL_INIT = 'mintData/init?address=';
 // SWR 데이터 키
 const DATA_KEY = 'data/mintData';
 
@@ -39,4 +40,4 @@ export const useMintData = (address) => {
 };
 
 //주소에 매핑된 mint data 초기화
-export const initMintData = (address) => getDataFetcher(`mintData/init?=${address}`);
+export const initMintData = (address) => getDataFetcher(`${URL_INIT + address}`);
