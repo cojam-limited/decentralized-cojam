@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from '@components/Button';
 import RandomTray from '@assets/img_tray.png';
 import Modal from '@mui/material/Modal';
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from '@components/CloseIcon';
 import { ModalWrapper, ModalContents } from '@components/VoteModal/styles';
 import { RandomDrawContainer, Step } from './styles';
 
@@ -16,7 +16,7 @@ import { useMintCountData } from '@api/nft';
 import { initMintData, useMintData } from '@api/mintData';
 import { useMasterMetadataURLData } from '@api/ipfs';
 import { postDataFetcher } from '@utils/fetcher';
-import { MINT_CONFIRM_DATA_KEY, useModalData } from '@data/modal';
+import { MINT_CONFIRM_MODAL_DATA_KEY, UPLOAD_IMAGE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 
 function RandomDraw() {
   const [drawingState, setDrawingState] = useState(false);
@@ -27,7 +27,9 @@ function RandomDraw() {
   const { mintCountData } = useMintCountData(walletData?.account);
   const { mintData } = useMintData(walletData?.account);
   const { masterMetadataURL } = useMasterMetadataURLData(drawResultData?.menuNo);
-  const { modalData, mutateModalData } = useModalData(MINT_CONFIRM_DATA_KEY);
+  const { modalData, mutateModalData } = useModalData(MINT_CONFIRM_MODAL_DATA_KEY);
+
+  const { mutateModalData: mutateImageModalData } = useModalData(UPLOAD_IMAGE_MODAL_DATA_KEY);
 
   const handleCloseModal = () => {
     mutateModalData({ open: false });
@@ -102,6 +104,7 @@ function RandomDraw() {
 
   const handleUploadReceipt = async () => {
     try {
+      mutateImageModalData({ open: true });
       console.log('upload');
     } catch (error) {
       console.error(error);
@@ -205,14 +208,9 @@ function RandomDraw() {
               Will you Pay
               <span style={{ color: 'red', margin: '0 5px' }}>0.5 KLAY</span> for minting NFT?
             </h1>
-            <CloseIcon
-              onClick={handleCloseModal}
-              sx={{
-                position: 'fixed',
-                top: '25px',
-                right: '30px',
-              }}
-            />
+
+            <CloseIcon handleClose={handleCloseModal} />
+
             <Button text="Mint" onClick={handleClickMintNFTwithKLAY} />
             <button type="button" className="btn_cancel" onClick={handleCloseModal}>
               Cancel

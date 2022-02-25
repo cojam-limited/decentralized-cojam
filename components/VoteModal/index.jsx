@@ -1,6 +1,6 @@
 import React from 'react';
 import Modal from '@mui/material/Modal';
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from '@components/CloseIcon';
 import Button from '@components/Button';
 
 import { ModalWrapper, ModalContents, QRCodeContainer } from './styles';
@@ -17,14 +17,8 @@ export default function VoteModal() {
       <ModalWrapper>
         <ModalContents>
           <h1>Do you really want to vote for {modalData.menu}?</h1>
-          <CloseIcon
-            onClick={handleClose}
-            sx={{
-              position: 'fixed',
-              top: '25px',
-              right: '30px',
-            }}
-          />
+          <CloseIcon handleClose={handleClose} />
+
           <Button text="Vote" />
           <button type="button" className="btn_cancel" onClick={handleClose}>
             Cancel

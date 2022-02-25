@@ -39,4 +39,4 @@ export const useMintCountData = (address) => {
 };
 
 export const updateMintCount = (address, countData) =>
-  postDataFetcher(`nft/mintCount?address=${address}&count=${countData + 1}`);
+  putDataFetcher(`nft/mintCount?address=${address}&count=${countData + 1}`);
