@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import Button from '@components/Button';
 import RandomTray from '@assets/img_tray.png';
+import Modal from '@mui/material/Modal';
+import CloseIcon from '@mui/icons-material/Close';
+import { ModalWrapper, ModalContents } from '@components/VoteModal/styles';
 import { RandomDrawContainer, Step } from './styles';
 
 import toastNotify from '@utils/toast';
@@ -13,6 +16,7 @@ import { useMintCountData } from '@api/nft';
 import { initMintData, useMintData } from '@api/mintData';
 import { useMasterMetadataURLData } from '@api/ipfs';
 import { postDataFetcher } from '@utils/fetcher';
+import { MINT_CONFIRM_DATA_KEY, useModalData } from '@data/modal';
 
 function RandomDraw() {
   const [drawingState, setDrawingState] = useState(false);
@@ -23,6 +27,11 @@ function RandomDraw() {
   const { mintCountData } = useMintCountData(walletData?.account);
   const { mintData } = useMintData(walletData?.account);
   const { masterMetadataURL } = useMasterMetadataURLData(drawResultData?.menuNo);
+  const { modalData, mutateModalData } = useModalData(MINT_CONFIRM_DATA_KEY);
+
+  const handleCloseModal = () => {
+    mutateModalData({ open: false });
+  };
 
   const getRandomMenuIndex = () => {
     return Math.floor(Math.random() * menusData.length);
@@ -108,15 +117,17 @@ function RandomDraw() {
       if (!checkMintData()) return;
 
       //4.mint 권한을 유저에게 임시로 준다.
-      await addMinter(walletData?.account);
       //5-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
       //5-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
       if (mintCountData < 3) {
+        await addMinter(walletData?.account);
+
         //mintData를 가져와서 인자로 넘김
         await mintWithTokenURI(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
       } else {
-        //mintData를 가져와서 인자로 넘김
-        await mintWithKlay(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
+        //mint confirm 모달 띄우기
+        mutateModalData({ open: true });
+        return;
       }
 
       //6.발행이 완료되면 유저의 mint 권한을 제거한다.
@@ -135,6 +146,26 @@ function RandomDraw() {
     }
   };
 
+  const handleClickMintNFTwithKLAY = async () => {
+    try {
+      await addMinter(walletData?.account);
+      await mintWithKlay(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
+
+      //6.발행이 완료되면 유저의 mint 권한을 제거한다.
+      await removeMinter(walletData?.account);
+
+      //7.발행이 완료되면 mintData 초기화
+      initMintData(walletData?.account);
+
+      //8.발행이 완료되면 drawResult 초기화
+      initDrawResult(walletData?.account);
+
+      //9.발행이 완료되면 mintCountData++
+      updateMintCount(walletData?.account, mintCountData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <RandomDrawContainer>
       <div className="tray_wrapper ">
@@ -165,6 +196,30 @@ function RandomDraw() {
           <Button text="Get NFT" onClick={handleClickMintNFT} />
         </Step>
       </div>
+
+      <Modal open={Boolean(modalData.open)} onClose={handleCloseModal}>
+        <ModalWrapper>
+          <ModalContents>
+            <h1>The cost will be incurred from the 4th minting.</h1>
+            <h1>
+              Will you Pay
+              <span style={{ color: 'red', margin: '0 5px' }}>0.5 KLAY</span> for minting NFT?
+            </h1>
+            <CloseIcon
+              onClick={handleCloseModal}
+              sx={{
+                position: 'fixed',
+                top: '25px',
+                right: '30px',
+              }}
+            />
+            <Button text="Mint" onClick={handleClickMintNFTwithKLAY} />
+            <button type="button" className="btn_cancel" onClick={handleCloseModal}>
+              Cancel
+            </button>
+          </ModalContents>
+        </ModalWrapper>
+      </Modal>
     </RandomDrawContainer>
   );
 }
