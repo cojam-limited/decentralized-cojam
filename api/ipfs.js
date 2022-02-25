@@ -32,8 +32,9 @@ export const useMasterMetadataURLData = (menu_no) => {
   const {
     data: masterMetadataURL,
     isValidating: masterMetadataURLIsValidating,
+    mutate: mutateMasterMetadata,
     error,
   } = useSWR(menu_no >= 0 ? DATA_KEY : null, () => masterMetadataURLFetcher(menu_no), option);
 
-  return { masterMetadataURL, masterMetadataURLIsValidating, error };
+  return { masterMetadataURL, masterMetadataURLIsValidating, error, mutateMasterMetadata };
 };

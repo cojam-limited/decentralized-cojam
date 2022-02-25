@@ -26,7 +26,7 @@ function RandomDraw() {
   const { drawResultData } = useDrawResultData(walletData?.account);
   const { mintCountData } = useMintCountData(walletData?.account);
   const { mintData } = useMintData(walletData?.account);
-  const { masterMetadataURL } = useMasterMetadataURLData(drawResultData?.menuNo);
+  const { masterMetadataURL, mutateMasterMetadata } = useMasterMetadataURLData(drawResultData?.menuNo);
   const { modalData, mutateModalData } = useModalData(MINT_CONFIRM_MODAL_DATA_KEY);
 
   const { mutateModalData: mutateImageModalData } = useModalData(UPLOAD_IMAGE_MODAL_DATA_KEY);
@@ -121,6 +121,7 @@ function RandomDraw() {
 
       //2.DB에 저장된 mintData를 조회
       if (!checkMintData()) return;
+      mutateMasterMetadata(drawResultData?.menuNo);
 
       //4.mint 권한을 유저에게 임시로 준다.
       //5-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
@@ -155,6 +156,7 @@ function RandomDraw() {
   const handleClickMintNFTwithKLAY = async () => {
     try {
       await addMinter(walletData?.account);
+      //tokenID, genralTokenURI, masterTokenURI, menuType
       await mintWithKlay(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
 
       //6.발행이 완료되면 유저의 mint 권한을 제거한다.
