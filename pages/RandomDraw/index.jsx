@@ -128,7 +128,18 @@ function RandomDraw() {
       //3.mint 권한을 유저에게 임시로 준다.
       //4-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
       //4-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
-      if (mintCountData < 3) {
+      await addMinter(walletData?.account);
+      await mintWithTokenURI({
+        tokenID: mintData.tokenId,
+        genralTokenURI: mintData.metadataUri,
+        masterTokenURI: masterMetadataURL,
+        menuType: mintData.menuType,
+        walletData,
+        mintCountData,
+      });
+
+      /**🔥임시 주석 처리🔥
+       if (mintCountData < 3) {
         await addMinter(walletData?.account);
 
         //mintData를 가져와서 인자로 넘김
@@ -142,8 +153,9 @@ function RandomDraw() {
         });
       } else {
         //mint confirm 모달 띄우기
-        mutateModalData({ open: true });
+        mutateModalData({ open: true }); 
       }
+       */
     } catch (error) {
       console.error(error);
     }
