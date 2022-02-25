@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Carousel from '@components/Carousel';
 import FoodCard from '@components/FoodCard';
-import Pizza from '@assets/img_pizza.jpg';
-import Burger from '@assets/img_burger.jpg';
-import Salad from '@assets/img_salad.jpg';
-import Chicken from '@assets/img_chicken.jpg';
-import Sushi from '@assets/img_sushi.jpg';
 import Receipt from '@assets/img_receipt.png';
 import RandomTray from '@assets/img_tray.png';
 import NFT from '@assets/NFT.png';
