@@ -4,11 +4,3 @@
   from = "/*"
   to = "/index.html"
   status = 200
-[context.production.environment]
-  TOML_ENV_VAR = "From netlify.toml"
-  REACT_APP_DEPLOYER_PRIVATE_KEY = "From netlify.toml (REACTAPP)"
-  REACT_APP_NFT_CONTRACT_ADDRESS = "From netlify.toml (REACTAPP)" 
-  REACT_APP_VOTE_CONTRACT_ADDRESS = "From netlify.toml (REACTAPP)" 
-  REACT_APP_ACCESS_KEY_ID = "From netlify.toml (REACTAPP)"
-  REACT_APP_SECRET_ACCESS_KEY = "From netlify.toml (REACTAPP)"
-  REACT_APP_CHAIN_ID = "From netlify.toml (REACTAPP)"
