@@ -3,7 +3,7 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
-export default function Carousel({ children }) {
+export default function Carousel({ optionalSetting = {}, children }) {
   const settings = {
     infinite: false,
     speed: 500,
@@ -25,6 +25,7 @@ export default function Carousel({ children }) {
         },
       },
     ],
+    ...optionalSetting,
   };
   return (
     <div style={{ height: 'fit-content' }}>

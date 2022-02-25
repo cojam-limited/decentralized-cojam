@@ -1,11 +1,12 @@
 import styled from '@emotion/styled';
 
 export const DrawerContents = styled.div`
-  padding: 10px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  min-width: 300px;
 `;
 export const UserContainer = styled.div``;
 

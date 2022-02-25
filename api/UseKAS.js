@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Caver from 'caver-js';
+
 const option = {
   headers: {
     Authorization:
@@ -12,7 +12,6 @@ const option = {
   },
 };
 
-const caver = new Caver(window.klaytn);
 
 export const ownNftList = async (ownaddress) => {
   try {
@@ -44,10 +43,51 @@ export const ownNftList = async (ownaddress) => {
 
       nfts.push({ imageUri: uriJSON.image, menuType: uriJSON.name });
     }
-    console.log(nfts);
     return nfts;
-  } catch (e) {
-    console.log(e);
-    return false;
+  } catch (error) {
+    console.log(error);
   }
 };
+
+//발행된 NFT 정보를 100개까지만 불러오는 함수
+export const getNFTList = async() => {
+  try {
+    const response = await axios.get(
+      `https://th-api.klaytnapi.com/v2/contract/nft/${process.env.REACT_APP_NFT_CONTRACT_ADDRESS}/token`,
+      option,
+    );
+
+    /**
+     * [{
+      "tokenId": "0x9",
+      "owner": "0x36884a060be5438226c4deaf799b0f7de5abd5df",
+      "previousOwner": "0x0000000000000000000000000000000000000000",
+      "tokenUri": "http://ec2-13-125-244-0.ap-northeast-2.compute.amazonaws.com:8080/meta/item9",
+      "transactionHash": "0x2f6e8113862c1dbdc76a2fb29cda2dbefeca5878897af0bb3df6822323e89440",
+      "createdAt": 1597718863,
+      "updatedAt": 1597718863
+      }],
+     */
+
+    const data = response.data.items;
+    let nfts = [];
+    for (let i = 0; i < data.length; i++) {
+      const response = await axios.get(data[i].tokenUri); // JSON 형식 메타데이터가 들어옴
+      const uriJSON = response.data;
+      /** ✨uriJSON 샘플
+       {
+          "name": "Magic Sword",
+          "description" : "게임 내에서 마법 속성을 띈 마검을 소환할 수 있습니다.",
+          "image": "https://path_to_image/image.png"
+        } 
+       */
+
+      nfts.push({ imageUri: uriJSON.image, menuType: uriJSON.name });
+    }
+    return nfts;
+
+  } catch (error) {
+    console.log(error);
+    
+  }
+}

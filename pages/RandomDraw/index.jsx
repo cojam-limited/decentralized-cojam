@@ -104,8 +104,11 @@ function RandomDraw() {
 
   const handleUploadReceipt = async () => {
     try {
+      //1.지갑 연동 여부 체크
+      if (!checkWalletConnection()) return;
+
+      //2.영수증 업로드 팝업
       mutateImageModalData({ open: true });
-      console.log('upload');
     } catch (error) {
       console.error(error);
     }

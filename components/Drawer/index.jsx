@@ -102,11 +102,11 @@ export default function SideDrawer() {
           <Button text={walletData?.account ? 'Disconnect Wallet' : 'Connect Wallet'} onClick={handleConnectWallet} />
         </UserContainer>
 
-        <ServiceContainer>
+        {/* <ServiceContainer>
           <li>About</li>
           <li>Terms of Service</li>
           <li>Privacy Policy</li>
-        </ServiceContainer>
+        </ServiceContainer> */}
       </DrawerContents>
     </Drawer>
   );
