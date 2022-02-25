@@ -1,4 +1,4 @@
-import { getDataFetcher, postDataFetcher } from '@utils/fetcher';
+import { getDataFetcher, putDataFetcher } from '@utils/fetcher';
 import useSWR from 'swr';
 
 // API URL
