@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Carousel from '@components/Carousel';
 import FoodCard from '@components/FoodCard';
 import Pizza from '@assets/img_pizza.jpg';
@@ -12,7 +12,10 @@ import NFT from '@assets/NFT.png';
 import NFT_group from '@assets/NFT_group.png';
 import { Reveal, Slide } from 'react-awesome-reveal';
 import { keyframes } from '@emotion/react';
-import { HomeContainer, Intro, FlexContainer, MenuListContainer } from './styles';
+import { HomeContainer, Intro, FlexContainer, MenuListContainer, NFTContainer } from './styles';
+
+import { getNFTList } from '@api/UseKAS';
+import { useMenusData } from '@api/menus';
 
 const customAnimation = keyframes`
 from {
@@ -26,6 +29,18 @@ to {
 `;
 
 function Home() {
+  const [nftList, setNftList] = useState([]);
+  const { menusData } = useMenusData();
+
+  const getNFT = async () => {
+    const res = await getNFTList();
+    setNftList(res);
+  };
+
+  useEffect(() => {
+    getNFT();
+  }, []);
+
   return (
     <HomeContainer>
       <Intro>
@@ -56,16 +71,31 @@ function Home() {
           <img src={NFT} alt="BadgeMeal NFT" />
         </FlexContainer>
       </Reveal>
+
+      <NFTContainer>
+        <h1>Discover NFT Collection</h1>
+        {!nftList.length ? (
+          <div>There is no NFT</div>
+        ) : (
+          <Carousel>
+            {nftList.map((item) => (
+              <FoodCard key={item.imageUri} img={item.imageUri} title={item.menuType} />
+            ))}
+          </Carousel>
+        )}
+      </NFTContainer>
+
       <MenuListContainer>
         <h1>Discover Menu</h1>
-        {/** 메뉴 api 연동 필요 */}
-        <Carousel>
-          <FoodCard img={Pizza} title="Pizza" />
-          <FoodCard img={Burger} title="Burger" />
-          <FoodCard img={Salad} title="Salad" />
-          <FoodCard img={Sushi} title="Sushi" />
-          <FoodCard img={Chicken} title="Chicken" />
-        </Carousel>
+        {!menusData.length ? (
+          <div>There is no Menus</div>
+        ) : (
+          <Carousel>
+            {menusData.map((item) => (
+              <FoodCard key={item.imageUrl} img={item.imageUrl} title={item.type} />
+            ))}
+          </Carousel>
+        )}
       </MenuListContainer>
     </HomeContainer>
   );

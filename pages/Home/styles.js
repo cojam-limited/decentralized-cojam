@@ -15,6 +15,12 @@ export const Intro = styled.div`
   }
   > strong {
     font-size: 45px;
+    text-align: center;
+    padding: 20px 30px;
+    border-radius: 30px;
+    background: rgb(255 182 0 / 50%);
+    display: inline-block;
+    margin: auto;
   }
 
   > h1 {
@@ -112,11 +118,38 @@ export const FlexContainer = styled.div`
   }
 `;
 
+export const NFTContainer = styled.div`
+  margin-top: 100px;
+  text-align: center;
+  > h1 {
+    font-size: 30px;
+    text-align: center;
+    padding: 20px 30px;
+    border-radius: 20px;
+    background: rgb(255 182 0 / 50%);
+    display: inline-block;
+    margin: auto;
+    margin-bottom: 20px;
+    @media screen and (max-width: 768px) {
+      font-size: 20px;
+    }
+  }
+`;
+
 export const MenuListContainer = styled.div`
   margin-top: 100px;
-
+  text-align: center;
   > h1 {
-    font-size: 25px;
-    margin: 10px 0;
+    font-size: 30px;
+    text-align: center;
+    padding: 20px 30px;
+    border-radius: 20px;
+    background: rgb(255 182 0 / 50%);
+    display: inline-block;
+    margin: auto;
+    margin-bottom: 20px;
+    @media screen and (max-width: 768px) {
+      font-size: 20px;
+    }
   }
 `;
