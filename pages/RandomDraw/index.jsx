@@ -12,7 +12,7 @@ import { addMinter, removeMinter } from '@api/UseCaverForOwner';
 import { mintWithTokenURI, mintWithKlay } from '@api/UseKaikas';
 import { useMenusData } from '@api/menus';
 import { initDrawResult, useDrawResultData } from '@api/draw';
-import { useMintCountData } from '@api/nft';
+import { useMintCountData, updateMintCount } from '@api/nft';
 import { initMintData, useMintData } from '@api/mintData';
 import { useMasterMetadataURLData } from '@api/ipfs';
 import { postDataFetcher } from '@utils/fetcher';
