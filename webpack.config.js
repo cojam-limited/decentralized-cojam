@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const Dotenv = require('dotenv-webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
@@ -8,7 +9,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const config = {
   name: 'badgemeal',
   mode: isDevelopment ? 'development' : 'production',
-  devtool: isDevelopment ? 'hidden-source-map' : 'inline-source-map',
+  devtool: isDevelopment ? 'eval-cheap-module-source-map' : false,
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
     alias: {
@@ -17,9 +18,11 @@ const config = {
       '@pages': path.resolve(__dirname, 'pages'),
       '@utils': path.resolve(__dirname, 'utils'),
       '@api': path.resolve(__dirname, 'api'),
+      '@abi': path.resolve(__dirname, 'abi'),
       '@data': path.resolve(__dirname, 'data'),
       '@config': path.resolve(__dirname, 'config'),
       '@assets': path.resolve(__dirname, 'assets'),
+      '@theme': path.resolve(__dirname, 'theme'),
     },
     fallback: {
       fs: false,
@@ -67,11 +70,21 @@ const config = {
         test: /\.(gif|jpg|png|webp)$/,
         loader: 'file-loader',
       },
+      {
+        test: /\.svg$/,
+        use: [
+          '@svgr/webpack',
+          {
+            loader: 'file-loader',
+          },
+        ],
+      },
     ],
   },
   plugins: [
     new webpack.EnvironmentPlugin({ NODE_ENV: isDevelopment ? 'development' : 'production' }),
     new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
+    new Dotenv({ path: isDevelopment ? './.env.development' : './.env.production' }),
   ],
   output: {
     path: path.join(__dirname, 'dist'),

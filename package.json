@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "cross-env webpack serve --env development --open",
-    "build": "cross-env NODE_ENV=production webpack"
+    "build": "cross-env NODE_ENV=production webpack",
+    "lint": "eslint --fix --ext .js,.jsx ."
   },
   "dependencies": {
     "@emotion/babel-plugin": "^11.1.2",
@@ -16,9 +17,14 @@
     "caver-js": "^1.6.7",
     "caver-js-ext-kas": "^1.9.0",
     "cross-env": "^7.0.3",
+    "qrcode.react": "^1.0.1",
     "react": "^17.0.1",
+    "react-awesome-reveal": "^3.8.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^6.2.1",
+    "react-slick": "^0.28.1",
+    "react-toastify": "^8.2.0",
+    "slick-carousel": "^1.8.1",
     "swr": "^1.2.1"
   },
   "devDependencies": {
@@ -26,8 +32,10 @@
     "@babel/preset-env": "^7.13.8",
     "@babel/preset-react": "^7.12.13",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.0-rc.5",
+    "@svgr/webpack": "^6.2.1",
     "babel-loader": "^8.2.2",
     "css-loader": "^6.2.0",
+    "dotenv-webpack": "^7.1.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.4.1",
