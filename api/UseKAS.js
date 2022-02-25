@@ -12,7 +12,6 @@ const option = {
   },
 };
 
-
 export const ownNftList = async (ownaddress) => {
   try {
     const response = await axios.get(
@@ -50,7 +49,7 @@ export const ownNftList = async (ownaddress) => {
 };
 
 //발행된 NFT 정보를 100개까지만 불러오는 함수
-export const getNFTList = async() => {
+export const getNFTList = async () => {
   try {
     const response = await axios.get(
       `https://th-api.klaytnapi.com/v2/contract/nft/${process.env.REACT_APP_NFT_CONTRACT_ADDRESS}/token`,
@@ -85,9 +84,7 @@ export const getNFTList = async() => {
       nfts.push({ imageUri: uriJSON.image, menuType: uriJSON.name });
     }
     return nfts;
-
   } catch (error) {
     console.log(error);
-    
   }
-}
+};

@@ -2,6 +2,10 @@ import Caver from 'caver-js';
 import toastNotify from '@utils/toast';
 import NFTABI from '@abi/NFT.json';
 import VOTEABI from '@abi/Vote.json';
+import { initDrawResult } from '@api/draw';
+import { updateMintCount } from '@api/nft';
+import { initMintData } from '@api/mintData';
+import { removeMinter } from '@api/UseCaverForOwner';
 
 const caver = new Caver(window.klaytn);
 const NFT_ADDRESS = process.env.REACT_APP_NFT_CONTRACT_ADDRESS;
@@ -56,8 +60,16 @@ export const isKaikasEnabled = async () => {
   }
 };
 
-export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
+export const mintWithTokenURI = async ({
+  tokenID,
+  genralTokenURI,
+  masterTokenURI,
+  menuType,
+  walletData,
+  mintCountData,
+}) => {
   try {
+    console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
     const estimatedGas = await NFTContract.methods
       .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
       .estimateGas({
@@ -86,6 +98,14 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
           state: 'success',
           message: 'Got BadgeMeal NFT!',
         });
+        //발행이 완료되면 유저의 mint 권한을 제거한다.
+        removeMinter(walletData?.account);
+        //발행이 완료되면 mintData 초기화
+        initMintData(walletData?.account);
+        //발행이 완료되면 drawResult 초기화
+        initDrawResult(walletData?.account);
+        //9.발행이 완료되면 mintCountData++
+        updateMintCount(walletData?.account, mintCountData);
         console.log(`success`, receipt);
       })
       .on('error', (e) => {
@@ -101,8 +121,16 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
   }
 };
 
-export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
+export const mintWithKlay = async ({
+  tokenID,
+  genralTokenURI,
+  masterTokenURI,
+  menuType,
+  walletData,
+  mintCountData,
+}) => {
   try {
+    console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
     const estimatedGas = await NFTContract.methods
       .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
       .estimateGas({
@@ -130,6 +158,19 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
           state: 'success',
           message: 'Got BadgeMeal NFT!',
         });
+
+        //발행이 완료되면 유저의 mint 권한을 제거한다.
+        removeMinter(walletData?.account);
+
+        //발행이 완료되면 mintData 초기화
+        initMintData(walletData?.account);
+
+        //발행이 완료되면 drawResult 초기화
+        initDrawResult(walletData?.account);
+
+        //발행이 완료되면 mintCountData++
+        updateMintCount(walletData?.account, mintCountData);
+
         console.log(`success`, receipt);
       })
       .on('error', (e) => {
@@ -141,6 +182,7 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
         console.log(`error ${e}`);
       });
   } catch (error) {
+    await removeMinter(walletData?.account);
     console.error('mintWithKlay', error);
   }
 };

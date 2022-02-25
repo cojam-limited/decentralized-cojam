@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSWRConfig } from 'swr';
 import Button from '@components/Button';
 import RandomTray from '@assets/img_tray.png';
 import Modal from '@mui/material/Modal';
@@ -8,13 +9,13 @@ import { RandomDrawContainer, Step } from './styles';
 
 import toastNotify from '@utils/toast';
 import { useWalletData } from '@data/wallet';
-import { addMinter, removeMinter } from '@api/UseCaverForOwner';
+import { addMinter } from '@api/UseCaverForOwner';
 import { mintWithTokenURI, mintWithKlay } from '@api/UseKaikas';
 import { useMenusData } from '@api/menus';
-import { initDrawResult, useDrawResultData } from '@api/draw';
-import { useMintCountData, updateMintCount } from '@api/nft';
-import { initMintData, useMintData } from '@api/mintData';
-import { useMasterMetadataURLData } from '@api/ipfs';
+import { useDrawResultData } from '@api/draw';
+import { useMintCountData } from '@api/nft';
+import { useMintData } from '@api/mintData';
+import { useMasterMetadataURLData, DATA_KEY as MasterNftKey } from '@api/ipfs';
 import { postDataFetcher } from '@utils/fetcher';
 import { MINT_CONFIRM_MODAL_DATA_KEY, UPLOAD_IMAGE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 
@@ -28,6 +29,7 @@ function RandomDraw() {
   const { mintData } = useMintData(walletData?.account);
   const { masterMetadataURL } = useMasterMetadataURLData(drawResultData?.menuNo);
   const { modalData, mutateModalData } = useModalData(MINT_CONFIRM_MODAL_DATA_KEY);
+  const { mutate } = useSWRConfig();
 
   const { mutateModalData: mutateImageModalData } = useModalData(UPLOAD_IMAGE_MODAL_DATA_KEY);
 
@@ -109,6 +111,7 @@ function RandomDraw() {
 
       //2.영수증 업로드 팝업
       mutateImageModalData({ open: true });
+      mutate(MasterNftKey);
     } catch (error) {
       console.error(error);
     }
@@ -122,31 +125,37 @@ function RandomDraw() {
       //2.DB에 저장된 mintData를 조회
       if (!checkMintData()) return;
 
-      //4.mint 권한을 유저에게 임시로 준다.
-      //5-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
-      //5-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
-      if (mintCountData < 3) {
+      //3.mint 권한을 유저에게 임시로 준다.
+      //4-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
+      //4-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
+      await addMinter(walletData?.account);
+      await mintWithTokenURI({
+        tokenID: mintData.tokenId,
+        genralTokenURI: mintData.metadataUri,
+        masterTokenURI: masterMetadataURL,
+        menuType: mintData.menuType,
+        walletData,
+        mintCountData,
+      });
+
+      /**🔥임시 주석 처리🔥
+       if (mintCountData < 3) {
         await addMinter(walletData?.account);
 
         //mintData를 가져와서 인자로 넘김
-        await mintWithTokenURI(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
+        await mintWithTokenURI({
+          tokenID: mintData.tokenId,
+          genralTokenURI: mintData.metadataUri,
+          masterTokenURI: masterMetadataURL,
+          menuType: mintData.menuType,
+          walletData,
+          mintCountData,
+        });
       } else {
         //mint confirm 모달 띄우기
-        mutateModalData({ open: true });
-        return;
+        mutateModalData({ open: true }); 
       }
-
-      //6.발행이 완료되면 유저의 mint 권한을 제거한다.
-      await removeMinter(walletData?.account);
-
-      //7.발행이 완료되면 mintData 초기화
-      initMintData(walletData?.account);
-
-      //8.발행이 완료되면 drawResult 초기화
-      initDrawResult(walletData?.account);
-
-      //9.발행이 완료되면 mintCountData++
-      updateMintCount(walletData?.account, mintCountData);
+       */
     } catch (error) {
       console.error(error);
     }
@@ -155,23 +164,19 @@ function RandomDraw() {
   const handleClickMintNFTwithKLAY = async () => {
     try {
       await addMinter(walletData?.account);
-      await mintWithKlay(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
-
-      //6.발행이 완료되면 유저의 mint 권한을 제거한다.
-      await removeMinter(walletData?.account);
-
-      //7.발행이 완료되면 mintData 초기화
-      initMintData(walletData?.account);
-
-      //8.발행이 완료되면 drawResult 초기화
-      initDrawResult(walletData?.account);
-
-      //9.발행이 완료되면 mintCountData++
-      updateMintCount(walletData?.account, mintCountData);
+      await mintWithKlay({
+        tokenID: mintData.tokenId,
+        genralTokenURI: mintData.metadataUri,
+        masterTokenURI: masterMetadataURL,
+        menuType: mintData.menuType,
+        walletData,
+        mintCountData,
+      });
     } catch (error) {
       console.error(error);
     }
   };
+
   return (
     <RandomDrawContainer>
       <div className="tray_wrapper ">
@@ -195,7 +200,11 @@ function RandomDraw() {
         </Step>
         <Step>
           <span>Step 2</span>
-          <Button text="Upload Receipt" onClick={handleUploadReceipt} />
+          <Button
+            text="Upload Receipt"
+            disabled={drawResultData?.menuNo ? false : true}
+            onClick={handleUploadReceipt}
+          />
         </Step>
         <Step>
           <span>Step 3</span>

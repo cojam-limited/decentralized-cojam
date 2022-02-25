@@ -20,8 +20,10 @@ function User() {
 
   const getUserNftList = async () => {
     try {
-      const list = await ownNftList(walletData?.account);
-      setUserNftList(list);
+      if (walletData?.account) {
+        const list = await ownNftList(walletData.account);
+        setUserNftList(list);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -113,7 +115,7 @@ function User() {
 
       <NFTContainer>
         <h1>My NFT Collection</h1>
-        {!userNftList.length ? (
+        {!userNftList?.length ? (
           <div>There is no NFT</div>
         ) : (
           <Carousel>

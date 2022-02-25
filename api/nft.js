@@ -1,4 +1,4 @@
-import { getDataFetcher, postDataFetcher } from '@utils/fetcher';
+import { getDataFetcher, putDataFetcher } from '@utils/fetcher';
 import useSWR from 'swr';
 
 // API URL
@@ -16,6 +16,7 @@ const mintCountFetcher = async (address) => {
 
 const option = {
   fallbackData: 0, // 에러 방지 초기 데이터 삽입
+  revalidateOnFocus: false, // 포커스 시에 자동 갱신 비활성화
   onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
     console.log(key, ':', error.message);
     // 404에서 재시도 안함

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSWRConfig } from 'swr';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import Button from '@components/Button';
 import { Container, BoxUpload, ImagePreview, DeleteFileButton } from './styles';
@@ -7,7 +8,7 @@ import { Axios } from '@utils/fetcher';
 import toastNotify from '@utils/toast';
 import { useWalletData } from '@data/wallet';
 import { UPLOAD_IMAGE_MODAL_DATA_KEY, useModalData } from '@data/modal';
-import { useMintData } from '@api/mintData';
+import { DATA_KEY as mintDataKey } from '@api/mintData';
 import { useDrawMenuNumberData } from '@api/draw';
 
 function UploadImage() {
@@ -17,7 +18,8 @@ function UploadImage() {
   const { walletData } = useWalletData();
   const { menuNoData } = useDrawMenuNumberData(walletData?.account);
   const { mutateModalData: mutateImageModalData } = useModalData(UPLOAD_IMAGE_MODAL_DATA_KEY);
-  const { mutateMintData } = useMintData(walletData?.account);
+
+  const { mutate } = useSWRConfig();
 
   function handleImageChange(e) {
     if (e.target.files && e.target.files[0]) {
@@ -66,7 +68,7 @@ function UploadImage() {
             state: 'success',
             message: 'The receipt has been verified.',
           });
-          mutateMintData(walletData.account);
+          mutate(mintDataKey);
         }
       } else {
         toastNotify({

@@ -5,7 +5,7 @@ import useSWR from 'swr';
 const URL = 'mintData?address=';
 const URL_INIT = 'mintData/init?address=';
 // SWR 데이터 키
-const DATA_KEY = 'data/mintData';
+export const DATA_KEY = 'data/mintData';
 
 /**
 {menuType: "김치찌개"
@@ -44,10 +44,9 @@ export const useMintData = (address) => {
     data: mintData,
     isValidating: mintDataIsValidating,
     error,
-    mutate :mutateMintData
   } = useSWR(address ? DATA_KEY : null, () => mintDataFetcher(address), option);
 
-  return { mintData, mintDataIsValidating, error,mutateMintData };
+  return { mintData, mintDataIsValidating, error };
 };
 
 //주소에 매핑된 mint data 초기화
