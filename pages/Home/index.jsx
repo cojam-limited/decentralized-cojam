@@ -27,13 +27,17 @@ function Home() {
   const [nftList, setNftList] = useState([]);
   const { menusData } = useMenusData();
 
-  const getNFT = async () => {
-    const res = await getNFTList();
-    setNftList(res);
+  const getMintedNftList = async () => {
+    try {
+      const list = await getNFTList();
+      setNftList(list);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
-    getNFT();
+    getMintedNftList();
   }, []);
 
   return (
