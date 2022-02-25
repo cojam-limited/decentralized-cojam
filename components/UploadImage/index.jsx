@@ -41,7 +41,7 @@ function UploadImage() {
       const formData = new FormData();
       formData.append('address', walletData.account);
       formData.append('image', content);
-      formData.append('menuNo', 0);
+      formData.append('menuNo', menuNoData?.menuNo);
 
       const res = await Axios.post('verify/receipt', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       /** response
