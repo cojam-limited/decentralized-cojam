@@ -7,6 +7,7 @@ import Drawer from '@components/Drawer';
 import WalletModal from '@components/WalletModal';
 import KlipQRModal from '@components/KlipQRModal';
 import VoteModal from '@components/VoteModal';
+import UploadImageModal from '@components/UploadImageModal';
 import Header from '@components/Header';
 import Loading from '@components/Loading';
 import 'react-toastify/dist/ReactToastify.css';
@@ -39,6 +40,7 @@ const Router = () => {
       <WalletModal />
       <KlipQRModal />
       <VoteModal />
+      <UploadImageModal />
       <ToastContainer />
     </BrowserRouter>
   );

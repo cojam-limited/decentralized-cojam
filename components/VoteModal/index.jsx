@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Modal from '@mui/material/Modal';
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from '@components/CloseIcon';
 import AlertIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import Button from '@components/Button';
 
@@ -57,18 +57,15 @@ export default function VoteModal() {
       <ModalWrapper>
         <ModalContents>
           <h1>Do you really want to vote for {modalData.menu}?</h1>
+
+          <Button text="Vote" />
           <div className="onlyNFTholder">
             <AlertIcon color="warning" />
             <h2> Only NFT Owner</h2>
           </div>
-          <CloseIcon
-            onClick={handleClose}
-            sx={{
-              position: 'fixed',
-              top: '25px',
-              right: '30px',
-            }}
-          />
+
+          <CloseIcon handleClose={handleClose} />
+
           <Button text="Vote" onClick={handleClickVote} />
           <button type="button" className="btn_cancel" onClick={handleClose}>
             Cancel
