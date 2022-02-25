@@ -1,26 +1,54 @@
 import React, { useState } from 'react';
 import Button from '@components/Button';
 import RandomTray from '@assets/img_tray.png';
+import Modal from '@mui/material/Modal';
+import CloseIcon from '@components/CloseIcon';
+import { ModalWrapper, ModalContents } from '@components/VoteModal/styles';
 import { RandomDrawContainer, Step } from './styles';
+
 import toastNotify from '@utils/toast';
+import { useWalletData } from '@data/wallet';
+import { addMinter, removeMinter } from '@api/UseCaverForOwner';
+import { mintWithTokenURI, mintWithKlay } from '@api/UseKaikas';
+import { useMenusData } from '@api/menus';
+import { initDrawResult, useDrawResultData } from '@api/draw';
+import { useMintCountData } from '@api/nft';
+import { initMintData, useMintData } from '@api/mintData';
+import { useMasterMetadataURLData } from '@api/ipfs';
+import { postDataFetcher } from '@utils/fetcher';
+import { MINT_CONFIRM_MODAL_DATA_KEY, UPLOAD_IMAGE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 
 function RandomDraw() {
   const [drawingState, setDrawingState] = useState(false);
   const [currentDrawResult, setCurrentDrawResult] = useState({});
+  const { walletData } = useWalletData();
+  const { menusData } = useMenusData();
+  const { drawResultData } = useDrawResultData(walletData?.account);
+  const { mintCountData } = useMintCountData(walletData?.account);
+  const { mintData } = useMintData(walletData?.account);
+  const { masterMetadataURL } = useMasterMetadataURLData(drawResultData?.menuNo);
+  const { modalData, mutateModalData } = useModalData(MINT_CONFIRM_MODAL_DATA_KEY);
+
+  const { mutateModalData: mutateImageModalData } = useModalData(UPLOAD_IMAGE_MODAL_DATA_KEY);
+
+  const handleCloseModal = () => {
+    mutateModalData({ open: false });
+  };
 
   const getRandomMenuIndex = () => {
-    //🔥API 연동: DB에서 메뉴 리스트 조회
-    const menuList = mockMenuList;
-    return Math.floor(Math.random() * menuList.length);
+    return Math.floor(Math.random() * menusData.length);
   };
 
   const getDrawResult = () => {
-    //🔥API 연동: 뽑기 결과를 이미 사진 업로드해서 인증했는지 여부 출력
+    //뽑기 결과를 이미 사진 업로드해서 인증했는지 여부 출력 => 인증:"TRUE", 인증안함:"FALSE"
+    if (drawResultData.verification === 'TRUE') {
+      return true;
+    }
     return false;
   };
 
   const checkWalletConnection = () => {
-    if (!address.length) {
+    if (!walletData?.account) {
       toastNotify({
         state: 'error',
         message: 'Please connect wallet.',
@@ -35,18 +63,29 @@ function RandomDraw() {
         state: 'warn',
         message: 'Already uploaded Receipt. Please Get NFT first!',
       });
+      return true;
+    } else return false;
+  };
+
+  const checkMintData = () => {
+    if (!mintData?.metadataUri) {
+      toastNotify({
+        state: 'warn',
+        message: 'Upload Receipt first!',
+      });
       return false;
     } else return true;
   };
 
   const handleClickPickRandomly = async () => {
-    //drawResult 초기화
+    //1.drawResult 초기화
     setCurrentDrawResult({});
-    //🔥지갑 연동: 지갑 연동 여부 체크
+    //2.지갑 연동 여부 체크
     if (!checkWalletConnection()) return;
-    //🔥API 연동: 인증 여부 체크
-    if (!checkDrawResultVerification()) return;
+    //3.인증 여부 체크
+    if (checkDrawResultVerification()) return;
 
+    //4.이미지 애니메이션 진행
     setDrawingState(true);
     const DrawPromise = new Promise((resolve, reject) => {
       setTimeout(function () {
@@ -56,34 +95,86 @@ function RandomDraw() {
     await DrawPromise;
     setDrawingState(false);
 
-    //🔥API 연동: 메뉴 리스트에서 랜덤 index 뽑기
-    setCurrentDrawResult(mockMenuList[getRandomMenuIndex()]);
-    //🔥API 연동: 뽑기 결과 index에 해당하는 메뉴이름, 인증여부(false)를 DB에 저장
+    //5.메뉴 리스트에서 랜덤 index 뽑기
+    const randomMenu = menusData[getRandomMenuIndex()];
+    setCurrentDrawResult(randomMenu);
+    //6.뽑기 결과 index에 해당하는 메뉴이름, 인증여부(false)를 DB에 저장
+    await postDataFetcher(`draw/result?address=${walletData?.account}&menuNo=${randomMenu.menuNo}`);
   };
 
-  const handleClickMintNFT = () => {
-    //🔥지갑 연동: 지갑 연동 여부 체크
-    if (!checkWalletConnection()) return;
-
-    //🔥API 연동: DB에 저장된 mintData를 조회
-
-    //🔥API 연동: 하루에 NFT 발급 받은 횟수를 조회
-
-    //하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
-
-    //하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
-
-    //🔥API 연동: mintData 초기화
-
-    //🔥API 연동: drawResult 초기화
+  const handleUploadReceipt = async () => {
+    try {
+      mutateImageModalData({ open: true });
+      console.log('upload');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
+  const handleClickMintNFT = async () => {
+    try {
+      //1.지갑 연동 여부 체크
+      if (!checkWalletConnection()) return;
+
+      //2.DB에 저장된 mintData를 조회
+      if (!checkMintData()) return;
+
+      //4.mint 권한을 유저에게 임시로 준다.
+      //5-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
+      //5-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
+      if (mintCountData < 3) {
+        await addMinter(walletData?.account);
+
+        //mintData를 가져와서 인자로 넘김
+        await mintWithTokenURI(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
+      } else {
+        //mint confirm 모달 띄우기
+        mutateModalData({ open: true });
+        return;
+      }
+
+      //6.발행이 완료되면 유저의 mint 권한을 제거한다.
+      await removeMinter(walletData?.account);
+
+      //7.발행이 완료되면 mintData 초기화
+      initMintData(walletData?.account);
+
+      //8.발행이 완료되면 drawResult 초기화
+      initDrawResult(walletData?.account);
+
+      //9.발행이 완료되면 mintCountData++
+      updateMintCount(walletData?.account, mintCountData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleClickMintNFTwithKLAY = async () => {
+    try {
+      await addMinter(walletData?.account);
+      await mintWithKlay(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
+
+      //6.발행이 완료되면 유저의 mint 권한을 제거한다.
+      await removeMinter(walletData?.account);
+
+      //7.발행이 완료되면 mintData 초기화
+      initMintData(walletData?.account);
+
+      //8.발행이 완료되면 drawResult 초기화
+      initDrawResult(walletData?.account);
+
+      //9.발행이 완료되면 mintCountData++
+      updateMintCount(walletData?.account, mintCountData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <RandomDrawContainer>
       <div className="tray_wrapper ">
         {/**뽑기 결과 출력 */}
-        {currentDrawResult?.imageURL ? (
-          <img src={currentDrawResult?.imageURL || RandomTray} className="img_food" alt={currentDrawResult?.name} />
+        {currentDrawResult?.imageUrl ? (
+          <img src={currentDrawResult?.imageUrl || RandomTray} className="img_food" alt={currentDrawResult?.name} />
         ) : (
           <img
             src={RandomTray}
@@ -91,7 +182,7 @@ function RandomDraw() {
             alt="random tray"
           />
         )}
-        <h1>{currentDrawResult?.name ? currentDrawResult?.name : 'Pick what you want to eat!'}</h1>
+        <h1>{currentDrawResult?.type ? currentDrawResult?.type : 'Pick what you want to eat!'}</h1>
       </div>
 
       <div className="step_wrapper">
@@ -101,39 +192,34 @@ function RandomDraw() {
         </Step>
         <Step>
           <span>Step 2</span>
-          <Button text="Upload Receipt" />
+          <Button text="Upload Receipt" onClick={handleUploadReceipt} />
         </Step>
         <Step>
           <span>Step 3</span>
-          <Button text="Get NFT" />
+          <Button text="Get NFT" onClick={handleClickMintNFT} />
         </Step>
       </div>
+
+      <Modal open={Boolean(modalData.open)} onClose={handleCloseModal}>
+        <ModalWrapper>
+          <ModalContents>
+            <h1>The cost will be incurred from the 4th minting.</h1>
+            <h1>
+              Will you Pay
+              <span style={{ color: 'red', margin: '0 5px' }}>0.5 KLAY</span> for minting NFT?
+            </h1>
+
+            <CloseIcon handleClose={handleCloseModal} />
+
+            <Button text="Mint" onClick={handleClickMintNFTwithKLAY} />
+            <button type="button" className="btn_cancel" onClick={handleCloseModal}>
+              Cancel
+            </button>
+          </ModalContents>
+        </ModalWrapper>
+      </Modal>
     </RandomDrawContainer>
   );
 }
 
 export default RandomDraw;
-
-//목업메뉴
-const mockMenuList = [
-  {
-    name: 'pizza',
-    imageURL:
-      'https://images.unsplash.com/photo-1590947132387-155cc02f3212?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-  },
-  {
-    name: 'burger',
-    imageURL:
-      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2799&q=80',
-  },
-  {
-    name: 'salad',
-    imageURL:
-      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80',
-  },
-  {
-    name: 'chicken',
-    imageURL:
-      'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2940&q=80',
-  },
-];

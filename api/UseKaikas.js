@@ -40,7 +40,7 @@ export const kaikasGetBalance = async (address) => {
 
 export const isKaikasUnlocked = async () => {
   try {
-    const result = await window.klaytn._kaikas.isUnlocked();
+    const result = await window.klaytn?._kaikas.isUnlocked();
     return result; //잠금상태: false, 열린상태: true
   } catch (error) {
     console.error('isKaikasUnlocked', error);
@@ -49,7 +49,7 @@ export const isKaikasUnlocked = async () => {
 
 export const isKaikasEnabled = async () => {
   try {
-    const result = await window.klaytn._kaikas.isEnabled();
+    const result = await window.klaytn?._kaikas.isEnabled();
     return result;
   } catch (error) {
     console.error('isKaikasEnabled', error);

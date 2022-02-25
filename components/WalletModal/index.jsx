@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from '@mui/material/Modal';
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from '@components/CloseIcon';
 import { ModalWrapper, ModalContents, ConnectKlipButton, ConnectKaikasButton } from './styles';
 import Logo_Klip from '@assets/logo_klip.svg';
 import Logo_Kaikas from '@assets/logo_kaikas.svg';
@@ -44,14 +44,7 @@ export default function WalletModal() {
       <ModalWrapper>
         <ModalContents>
           <h1>Connect Wallet</h1>
-          <CloseIcon
-            onClick={handleClose}
-            sx={{
-              position: 'fixed',
-              top: '25px',
-              right: '30px',
-            }}
-          />
+          <CloseIcon handleClose={handleClose} />
           <ConnectKlipButton onClick={handleOpenKlipModal}>
             <img src={Logo_Klip} style={{ marginRight: '5px' }} alt="connect Klip" />
             <span>Connect Klip via Kakao</span>
