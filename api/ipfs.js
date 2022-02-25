@@ -2,7 +2,7 @@ import { getDataFetcher } from '@utils/fetcher';
 import useSWR from 'swr';
 
 // API URL
-const URL = 'https://tostit.i234.me:5005/ipfs/getMasterNftMetadata?menu_no=';
+const URL = 'http://tostit.i234.me:5005/ipfs/getMasterNftMetadata?menu_no=';
 // SWR 데이터 키
 const DATA_KEY = 'data/ipfs/MasterNFTmetadataURL';
 
