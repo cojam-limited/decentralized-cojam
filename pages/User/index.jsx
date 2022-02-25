@@ -20,8 +20,10 @@ function User() {
 
   const getUserNftList = async () => {
     try {
-      const list = await ownNftList(walletData?.account);
-      setUserNftList(list);
+      if (walletData?.account) {
+        const list = await ownNftList(walletData.account);
+        setUserNftList(list);
+      }
     } catch (error) {
       console.error(error);
     }
