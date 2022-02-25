@@ -44,10 +44,10 @@ export const useMintData = (address) => {
     data: mintData,
     isValidating: mintDataIsValidating,
     error,
-    mutate :mutateMintData
+    mutate: mutateMintData,
   } = useSWR(address ? DATA_KEY : null, () => mintDataFetcher(address), option);
 
-  return { mintData, mintDataIsValidating, error,mutateMintData };
+  return { mintData, mintDataIsValidating, error, mutateMintData };
 };
 
 //주소에 매핑된 mint data 초기화

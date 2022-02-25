@@ -51,6 +51,7 @@ export const ownNftList = async (ownaddress) => {
 //발행된 NFT 정보를 100개까지만 불러오는 함수
 export const getNFTList = async () => {
   try {
+    console.log('REACT_APP_NFT_CONTRACT_ADDRESS', process.env.REACT_APP_NFT_CONTRACT_ADDRESS);
     const response = await axios.get(
       `https://th-api.klaytnapi.com/v2/contract/nft/${process.env.REACT_APP_NFT_CONTRACT_ADDRESS}/token`,
       option,
