@@ -2,6 +2,10 @@ import Caver from 'caver-js';
 import toastNotify from '@utils/toast';
 import NFTABI from '@abi/NFT.json';
 import VOTEABI from '@abi/Vote.json';
+import { initDrawResult } from '@api/draw';
+import { updateMintCount } from '@api/nft';
+import { initMintData } from '@api/mintData';
+import { removeMinter } from '@api/UseCaverForOwner';
 
 const caver = new Caver(window.klaytn);
 const NFT_ADDRESS = process.env.REACT_APP_NFT_CONTRACT_ADDRESS;
@@ -87,6 +91,14 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
           state: 'success',
           message: 'Got BadgeMeal NFT!',
         });
+        //발행이 완료되면 유저의 mint 권한을 제거한다.
+        removeMinter(walletData?.account);
+        //발행이 완료되면 mintData 초기화
+        initMintData(walletData?.account);
+        //발행이 완료되면 drawResult 초기화
+        initDrawResult(walletData?.account);
+        //9.발행이 완료되면 mintCountData++
+        updateMintCount(walletData?.account, mintCountData);
         console.log(`success`, receipt);
       })
       .on('error', (e) => {
@@ -132,6 +144,19 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
           state: 'success',
           message: 'Got BadgeMeal NFT!',
         });
+
+        //발행이 완료되면 유저의 mint 권한을 제거한다.
+        removeMinter(walletData?.account);
+
+        //발행이 완료되면 mintData 초기화
+        initMintData(walletData?.account);
+
+        //발행이 완료되면 drawResult 초기화
+        initDrawResult(walletData?.account);
+
+        //발행이 완료되면 mintCountData++
+        updateMintCount(walletData?.account, mintCountData);
+
         console.log(`success`, receipt);
       })
       .on('error', (e) => {
@@ -143,8 +168,8 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
         console.log(`error ${e}`);
       });
   } catch (error) {
+    await removeMinter(walletData?.account);
     console.error('mintWithKlay', error);
-    return;
   }
 };
 
@@ -186,7 +211,6 @@ export const proposeMenu = async (name) => {
       });
   } catch (error) {
     console.error('proposeMenu', error);
-    return;
   }
 };
 
@@ -224,7 +248,6 @@ export const vote = async (proposal) => {
       });
   } catch (error) {
     console.error('vote', error);
-    return;
   }
 };
 
@@ -244,7 +267,6 @@ export const isBadgemealNFTholder = async () => {
     return receipt;
   } catch (error) {
     console.log('isBadgemealNFTholder', error);
-    return;
   }
 };
 
@@ -264,7 +286,6 @@ export const isBadgemealMasterNFTholder = async () => {
     return receipt;
   } catch (error) {
     console.log('isBadgemealMasterNFTholder', error);
-    return;
   }
 };
 
@@ -277,7 +298,6 @@ export const getProposalListLength = async () => {
     return receipt;
   } catch (error) {
     console.log('getProposalListLength', error);
-    return;
   }
 };
 
@@ -294,7 +314,6 @@ export const getProposalList = async () => {
     return list;
   } catch (error) {
     console.log('getProposalList', error);
-    return;
   }
 };
 
@@ -307,7 +326,6 @@ export const getWinnerProposalListLength = async () => {
     return receipt;
   } catch (error) {
     console.log('getWinnerProposalListLength', error);
-    return;
   }
 };
 
@@ -324,6 +342,5 @@ export const getWinnerProposalList = async () => {
     return list;
   } catch (error) {
     console.log('getWinnerProposalList', error);
-    return;
   }
 };
