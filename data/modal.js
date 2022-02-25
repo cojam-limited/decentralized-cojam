@@ -5,6 +5,8 @@ import { localDataFetcher } from '@utils/fetcher';
 export const WALLET_MODAL_DATA_KEY = 'data/modal-wallet';
 export const KLIP_MODAL_DATA_KEY = 'data/modal-klip';
 export const VOTE_MODAL_DATA_KEY = 'data/modal-vote';
+export const MINT_CONFIRM_MODAL_DATA_KEY = 'data/modal-mint-confirm';
+export const UPLOAD_IMAGE_MODAL_DATA_KEY = 'data/modal-upload-image';
 
 const option = {
   fallbackData: {}, // 에러 방지 초기 데이터 삽입

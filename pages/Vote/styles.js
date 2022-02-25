@@ -20,5 +20,5 @@ export const proposedListItemStyles = {
   margin: '5px 0',
   '&:hover': { backgroundColor: '#4b209b', color: '#fff', cursor: 'pointer' },
 };
-
-export const lastWinnerListItemStyles = { backgroundColor: '#F0F0F0', borderRadius: '5px', margin: '5px 0' };
+export const winnerListItemStyles = { backgroundColor: '#F0F0F0', borderRadius: '5px', margin: '5px 0' };
+export const noListStyles = { backgroundColor: '#fcc7c7', padding: '10px', borderRadius: '5px' };

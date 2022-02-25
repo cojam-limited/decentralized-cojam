@@ -1,6 +1,5 @@
 import Caver from 'caver-js';
 import NFTABI from '@abi/NFT.json';
-import axios from 'axios';
 
 //KAS API 호출 시 필요한 헤더
 const option = {
@@ -21,7 +20,8 @@ const option = {
 const caver = new Caver(new Caver.providers.HttpProvider('https://node-api.klaytnapi.com/v1/klaytn', option));
 
 //참조 ABI와 스마트컨트랙트 주소를 통해 스마트컨트랙트 연동
-const NFTContract = new caver.contract(NFTABI, process.env.REACT_APP_NFT_CONTRACT_ADDRESS);
+const NFT_ADDRESS = process.env.REACT_APP_NFT_CONTRACT_ADDRESS;
+const NFTContract = new caver.contract(NFTABI, NFT_ADDRESS);
 
 //owner account 설정
 const deployer = caver.wallet.keyring.createFromPrivateKey(process.env.REACT_APP_DEPLOYER_PRIVATE_KEY);
