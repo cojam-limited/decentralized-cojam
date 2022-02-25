@@ -1,6 +1,5 @@
 import Caver from 'caver-js';
 import toastNotify from '@utils/toast';
-import { mintWithTokenURIABI, mintWithklayABI, proposeMenuABI, voteABI } from '@config/index';
 import NFTABI from '@abi/NFT.json';
 import VOTEABI from '@abi/Vote.json';
 
@@ -69,7 +68,7 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
       .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
       .encodeABI();
 
-    caver.klay
+    await caver.klay
       .sendTransaction({
         type: 'SMART_CONTRACT_EXECUTION',
         from: window.klaytn.selectedAddress,
@@ -83,11 +82,19 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
       })
       .on('receipt', (receipt) => {
         // success
-        console.log(`succes`, receipt);
+        toastNotify({
+          state: 'success',
+          message: 'Got BadgeMeal NFT!',
+        });
+        console.log(`success`, receipt);
       })
       .on('error', (e) => {
         // failed
-        console.log(`error ${e}`);
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
+        console.error(`error ${e}`);
       });
   } catch (error) {
     console.error('mintWithTokenURI', error);
@@ -105,7 +112,7 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
       .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
       .encodeABI();
 
-    caver.klay
+    await caver.klay
       .sendTransaction({
         type: 'SMART_CONTRACT_EXECUTION',
         from: window.klaytn.selectedAddress,
@@ -119,10 +126,18 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
       })
       .on('receipt', (receipt) => {
         // success
-        console.log(`succes`, receipt);
+        toastNotify({
+          state: 'success',
+          message: 'Got BadgeMeal NFT!',
+        });
+        console.log(`success`, receipt);
       })
       .on('error', (e) => {
         // failed
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
         console.log(`error ${e}`);
       });
   } catch (error) {
@@ -132,13 +147,13 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
 
 export const proposeMenu = async (name) => {
   try {
-    const estimatedGas = await NFTContract.methods.proposeMenu(name, NFT_ADDRESS).estimateGas({
+    const estimatedGas = await VoteContract.methods.proposeMenu(name, NFT_ADDRESS).estimateGas({
       from: window.klaytn.selectedAddress,
     });
 
-    const encodedData = NFTContract.methods.proposeMenu(name, NFT_ADDRESS).encodeABI();
+    const encodedData = VoteContract.methods.proposeMenu(name, NFT_ADDRESS).encodeABI();
 
-    caver.klay
+    await caver.klay
       .sendTransaction({
         type: 'SMART_CONTRACT_EXECUTION',
         from: window.klaytn.selectedAddress,
@@ -152,10 +167,18 @@ export const proposeMenu = async (name) => {
       })
       .on('receipt', (receipt) => {
         // success
-        console.log(`succes`, receipt);
+        toastNotify({
+          state: 'success',
+          message: 'Uploaded!',
+        });
+        console.log(`success`, receipt);
       })
       .on('error', (e) => {
         // failed
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
         console.log(`error ${e}`);
       });
   } catch (error) {
@@ -165,12 +188,9 @@ export const proposeMenu = async (name) => {
 
 export const vote = async (proposal) => {
   try {
-    const estimatedGas = await NFTContract.methods.vote(proposal, NFT_ADDRESS).estimateGas({
-      from: window.klaytn.selectedAddress,
-    });
-    const encodedData = NFTContract.methods.vote(proposal, NFT_ADDRESS).encodeABI();
-
-    caver.klay
+    const encodedData = VoteContract.methods.vote(proposal, NFT_ADDRESS).encodeABI();
+    const estimatedGas = await VoteContract.methods.vote(proposal, NFT_ADDRESS).estimateGas();
+    await caver.klay
       .sendTransaction({
         type: 'SMART_CONTRACT_EXECUTION',
         from: window.klaytn.selectedAddress,
@@ -184,10 +204,18 @@ export const vote = async (proposal) => {
       })
       .on('receipt', (receipt) => {
         // success
-        console.log(`succes`, receipt);
+        toastNotify({
+          state: 'success',
+          message: 'Voted!',
+        });
+        console.log(`success`, receipt);
       })
       .on('error', (e) => {
         // failed
+        toastNotify({
+          state: 'error',
+          message: 'An Error is occurred.',
+        });
         console.log(`error ${e}`);
       });
   } catch (error) {
@@ -229,6 +257,62 @@ export const isBadgemealMasterNFTholder = async () => {
 
     return receipt;
   } catch (error) {
-    console.log('isBadgemealNFTholder', error);
+    console.log('isBadgemealMasterNFTholder', error);
+  }
+};
+
+export const getProposalListLength = async () => {
+  try {
+    const receipt = await VoteContract.methods.getProposedMenuListLength().call({
+      from: window.klaytn.selectedAddress,
+    });
+
+    return receipt;
+  } catch (error) {
+    console.log('getProposalListLength', error);
+  }
+};
+
+export const getProposalList = async () => {
+  try {
+    const list = [];
+    const length = await getProposalListLength();
+    for (let i = 0; i < length; i++) {
+      const id = await VoteContract.methods.proposals(i).call({
+        from: window.klaytn.selectedAddress,
+      });
+      list.push(id);
+    }
+    return list;
+  } catch (error) {
+    console.log('getProposalList', error);
+  }
+};
+
+export const getWinnerProposalListLength = async () => {
+  try {
+    const receipt = await VoteContract.methods.getwinnerProposalsLength().call({
+      from: window.klaytn.selectedAddress,
+    });
+
+    return receipt;
+  } catch (error) {
+    console.log('getWinnerProposalListLength', error);
+  }
+};
+
+export const getWinnerProposalList = async () => {
+  try {
+    const list = [];
+    const length = await getWinnerProposalListLength();
+    for (let i = 0; i < length; i++) {
+      const id = await VoteContract.methods.winnerProposals(i).call({
+        from: window.klaytn.selectedAddress,
+      });
+      list.push(id);
+    }
+    return list;
+  } catch (error) {
+    console.log('getWinnerProposalList', error);
   }
 };

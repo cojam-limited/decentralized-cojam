@@ -1,19 +1,33 @@
-import React, { useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AlertIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import Button from '@components/Button';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import { Container, UploadContainer } from './styles';
+import CircularProgress from '@mui/material/CircularProgress';
+import { Container, UploadContainer, noListStyles, proposedListItemStyles } from './styles';
 
 import toastNotify from '@utils/toast';
 import { useWalletData } from '@data/wallet';
-import { proposeMenu, isBadgemealMasterNFTholder } from '@api/UseKaikas';
+import { proposeMenu, isBadgemealMasterNFTholder, getProposalList } from '@api/UseKaikas';
 
 function ProposeMenu() {
   const inputRef = useRef();
   const { walletData } = useWalletData();
+  const [proposedList, setProposedList] = useState([]);
+  const [proposedListLoading, setProposedListLoading] = useState(false);
 
-  //🔥API 연동: DB에서 메뉴 리스트 조회
+  const getProposals = async () => {
+    try {
+      setProposedListLoading(() => true);
+      const res = await getProposalList();
+      setProposedListLoading(() => false);
+      setProposedList(() => res);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+      setProposedListLoading(() => false);
+    }
+  };
 
   const checkWalletConnection = () => {
     if (!walletData?.account) {
@@ -34,7 +48,6 @@ function ProposeMenu() {
       4. 마스터 배지 NFT 소유자가 아닐 경우 에러가 발생하는데 토스트메세지로 에러를 보여준다.
       5. 소유자라면 메뉴 추가 함수를 실행한다.
      */
-
       if (!checkWalletConnection()) return;
 
       if (!inputRef.current.value) {
@@ -54,11 +67,18 @@ function ProposeMenu() {
         return;
       } else {
         await proposeMenu(inputRef.current.value);
+        inputRef.current.value = '';
+        //메뉴 리스트 상태 업데이트
+        getProposals();
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    getProposals();
+  }, []);
 
   return (
     <Container>
@@ -69,11 +89,17 @@ function ProposeMenu() {
           overflowY: 'scroll',
         }}
       >
-        {proposedList.map((item, index) => (
-          <ListItem key={index + item} sx={{ backgroundColor: '#F0F0F0', borderRadius: '5px', margin: '5px 0' }}>
-            {item}
-          </ListItem>
-        ))}
+        {proposedListLoading ? (
+          <CircularProgress />
+        ) : !proposedList.length ? (
+          <div style={noListStyles}>There is no Proposed List.</div>
+        ) : (
+          proposedList.map((item) => (
+            <ListItem key={item.name + item.proposer} sx={proposedListItemStyles}>
+              {item.name}
+            </ListItem>
+          ))
+        )}
       </List>
 
       <UploadContainer>
@@ -89,18 +115,3 @@ function ProposeMenu() {
 }
 
 export default ProposeMenu;
-
-const proposedList = [
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-  'blabla',
-];

@@ -22,6 +22,16 @@ export const ModalContents = styled.div`
     margin-bottom: 30px;
   }
 
+  .onlyNFTholder {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    h2 {
+      font-size: 13px;
+      color: #b20303;
+    }
+  }
+
   .btn_cancel {
     text-align: center;
     font-size: 15px;
