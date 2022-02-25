@@ -28,7 +28,6 @@ const mintDataFetcher = async (address) => {
 
 const option = {
   fallbackData: {}, // 에러 방지 초기 데이터 삽입
-  revalidateOnFocus: false, // 포커스 시에 자동 갱신 비활성화,
   onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
     console.log(key, ':', error.message);
     // 404에서 재시도 안함
@@ -45,9 +44,10 @@ export const useMintData = (address) => {
     data: mintData,
     isValidating: mintDataIsValidating,
     error,
+    mutate :mutateMintData
   } = useSWR(address ? DATA_KEY : null, () => mintDataFetcher(address), option);
 
-  return { mintData, mintDataIsValidating, error };
+  return { mintData, mintDataIsValidating, error,mutateMintData };
 };
 
 //주소에 매핑된 mint data 초기화

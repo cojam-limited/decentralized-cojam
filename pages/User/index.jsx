@@ -118,7 +118,7 @@ function User() {
         ) : (
           <Carousel>
             {userNftList.map((item) => (
-              <FoodCard key={imageUri} img={item.imageUri} title={item.menuType} />
+              <FoodCard key={item.imageUri} img={item.imageUri} title={item.menuType} />
             ))}
           </Carousel>
         )}
