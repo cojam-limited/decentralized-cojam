@@ -104,6 +104,7 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
 
 export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
   try {
+    console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
     const estimatedGas = await NFTContract.methods
       .mintWithKlay(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
       .estimateGas({
@@ -143,6 +144,7 @@ export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menu
       });
   } catch (error) {
     console.error('mintWithKlay', error);
+    return;
   }
 };
 
@@ -184,6 +186,7 @@ export const proposeMenu = async (name) => {
       });
   } catch (error) {
     console.error('proposeMenu', error);
+    return;
   }
 };
 
@@ -221,6 +224,7 @@ export const vote = async (proposal) => {
       });
   } catch (error) {
     console.error('vote', error);
+    return;
   }
 };
 
@@ -240,6 +244,7 @@ export const isBadgemealNFTholder = async () => {
     return receipt;
   } catch (error) {
     console.log('isBadgemealNFTholder', error);
+    return;
   }
 };
 
@@ -259,6 +264,7 @@ export const isBadgemealMasterNFTholder = async () => {
     return receipt;
   } catch (error) {
     console.log('isBadgemealMasterNFTholder', error);
+    return;
   }
 };
 
@@ -271,6 +277,7 @@ export const getProposalListLength = async () => {
     return receipt;
   } catch (error) {
     console.log('getProposalListLength', error);
+    return;
   }
 };
 
@@ -287,6 +294,7 @@ export const getProposalList = async () => {
     return list;
   } catch (error) {
     console.log('getProposalList', error);
+    return;
   }
 };
 
@@ -299,6 +307,7 @@ export const getWinnerProposalListLength = async () => {
     return receipt;
   } catch (error) {
     console.log('getWinnerProposalListLength', error);
+    return;
   }
 };
 
@@ -315,5 +324,6 @@ export const getWinnerProposalList = async () => {
     return list;
   } catch (error) {
     console.log('getWinnerProposalList', error);
+    return;
   }
 };

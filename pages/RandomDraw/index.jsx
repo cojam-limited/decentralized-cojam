@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSWRConfig } from 'swr';
 import Button from '@components/Button';
 import RandomTray from '@assets/img_tray.png';
 import Modal from '@mui/material/Modal';
@@ -14,7 +15,7 @@ import { useMenusData } from '@api/menus';
 import { initDrawResult, useDrawResultData } from '@api/draw';
 import { useMintCountData, updateMintCount } from '@api/nft';
 import { initMintData, useMintData } from '@api/mintData';
-import { useMasterMetadataURLData } from '@api/ipfs';
+import { useMasterMetadataURLData, DATA_KEY as MasterNftKey } from '@api/ipfs';
 import { postDataFetcher } from '@utils/fetcher';
 import { MINT_CONFIRM_MODAL_DATA_KEY, UPLOAD_IMAGE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 
@@ -26,8 +27,9 @@ function RandomDraw() {
   const { drawResultData } = useDrawResultData(walletData?.account);
   const { mintCountData } = useMintCountData(walletData?.account);
   const { mintData } = useMintData(walletData?.account);
-  const { masterMetadataURL, mutateMasterMetadata } = useMasterMetadataURLData(drawResultData?.menuNo);
+  const { masterMetadataURL } = useMasterMetadataURLData(drawResultData?.menuNo);
   const { modalData, mutateModalData } = useModalData(MINT_CONFIRM_MODAL_DATA_KEY);
+  const { mutate } = useSWRConfig();
 
   const { mutateModalData: mutateImageModalData } = useModalData(UPLOAD_IMAGE_MODAL_DATA_KEY);
 
@@ -109,7 +111,7 @@ function RandomDraw() {
 
       //2.영수증 업로드 팝업
       mutateImageModalData({ open: true });
-      mutateMasterMetadata(drawResultData?.menuNo);
+      mutate(MasterNftKey);
     } catch (error) {
       console.error(error);
     }
@@ -174,6 +176,7 @@ function RandomDraw() {
       console.error(error);
     }
   };
+
   return (
     <RandomDrawContainer>
       <div className="tray_wrapper ">
