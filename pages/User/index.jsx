@@ -115,7 +115,7 @@ function User() {
 
       <NFTContainer>
         <h1>My NFT Collection</h1>
-        {!userNftList.length ? (
+        {!userNftList?.length ? (
           <div>There is no NFT</div>
         ) : (
           <Carousel>

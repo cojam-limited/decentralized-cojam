@@ -58,6 +58,7 @@ export const isKaikasEnabled = async () => {
 
 export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
   try {
+    console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
     const estimatedGas = await NFTContract.methods
       .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
       .estimateGas({

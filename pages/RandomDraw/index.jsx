@@ -109,6 +109,7 @@ function RandomDraw() {
 
       //2.영수증 업로드 팝업
       mutateImageModalData({ open: true });
+      mutateMasterMetadata(drawResultData?.menuNo);
     } catch (error) {
       console.error(error);
     }
@@ -121,7 +122,6 @@ function RandomDraw() {
 
       //2.DB에 저장된 mintData를 조회
       if (!checkMintData()) return;
-      mutateMasterMetadata(drawResultData?.menuNo);
 
       //4.mint 권한을 유저에게 임시로 준다.
       //5-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출

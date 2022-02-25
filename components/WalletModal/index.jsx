@@ -45,10 +45,10 @@ export default function WalletModal() {
         <ModalContents>
           <h1>Connect Wallet</h1>
           <CloseIcon handleClose={handleClose} />
-          <ConnectKlipButton onClick={handleOpenKlipModal}>
+          {/* <ConnectKlipButton onClick={handleOpenKlipModal}>
             <img src={Logo_Klip} style={{ marginRight: '5px' }} alt="connect Klip" />
             <span>Connect Klip via Kakao</span>
-          </ConnectKlipButton>
+          </ConnectKlipButton> */}
           <ConnectKaikasButton onClick={handleOpenKaikasModal}>
             <img src={Logo_Kaikas} style={{ marginRight: '5px' }} alt="connect Kaikas" />
             <span>Kaikas by Klaytn</span>

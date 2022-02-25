@@ -73,7 +73,7 @@ function Home() {
 
       <NFTContainer>
         <h1>Discover NFT Collection</h1>
-        {!nftList.length ? (
+        {!nftList?.length ? (
           <div>There is no NFT</div>
         ) : (
           <Carousel>
