@@ -10,21 +10,20 @@ import Receipt from '@assets/img_receipt.png';
 import RandomTray from '@assets/img_tray.png';
 import NFT from '@assets/NFT.png';
 import NFT_group from '@assets/NFT_group.png';
-import Reveal from 'react-awesome-reveal';
+import { Reveal, Slide } from 'react-awesome-reveal';
 import { keyframes } from '@emotion/react';
+import { HomeContainer, Intro, FlexContainer, MenuListContainer } from './styles';
 
 const customAnimation = keyframes`
 from {
 	opacity: 0;
-	transform: translateY(80px);
+	transform: translateY(150px);
 }
 to {
 	opacity: 1;
 	transform: translateY(0);
 }
 `;
-
-import { HomeContainer, Intro, FlexContainer } from './styles';
 
 function Home() {
   return (
@@ -39,32 +38,35 @@ function Home() {
 
       <Reveal keyframes={customAnimation}>
         <FlexContainer className="draw">
-          <h1>#1. 식사 메뉴를 뽑아보세요!</h1>
-          <div style={{ width: '500px' }}>
-            <img src={RandomTray} className="img_randomtray rotateAnimation" alt="random tray" />
-          </div>
+          <h1>#1. 오늘의 식사 메뉴를 뽑아보세요!</h1>
+          <img src={RandomTray} className="img_randomtray rotateAnimation" alt="random tray" />
         </FlexContainer>
       </Reveal>
       <Reveal keyframes={customAnimation}>
         <FlexContainer className="wrap_reverse">
-          <img src={Receipt} alt="receipt" style={{ width: '500px' }} />
+          <Slide>
+            <img src={Receipt} alt="receipt" />
+          </Slide>
           <h1>#2. 식사를 맛있게 하고 영수증으로 인증해보세요!</h1>
         </FlexContainer>
       </Reveal>
       <Reveal keyframes={customAnimation}>
         <FlexContainer>
           <h1>#3. 식사 후 NFT를 가지는 기쁨을 누려보세요!</h1>
-          <img src={NFT} alt="BadgeMeal NFT" style={{ width: '500px' }} />
+          <img src={NFT} alt="BadgeMeal NFT" />
         </FlexContainer>
       </Reveal>
-      <h1>Discover Menu</h1>
-      <Carousel>
-        <FoodCard img={Pizza} title="Pizza" />
-        <FoodCard img={Burger} title="Burger" />
-        <FoodCard img={Salad} title="Salad" />
-        <FoodCard img={Sushi} title="Sushi" />
-        <FoodCard img={Chicken} title="Chicken" />
-      </Carousel>
+      <MenuListContainer>
+        <h1>Discover Menu</h1>
+        {/** 메뉴 api 연동 필요 */}
+        <Carousel>
+          <FoodCard img={Pizza} title="Pizza" />
+          <FoodCard img={Burger} title="Burger" />
+          <FoodCard img={Salad} title="Salad" />
+          <FoodCard img={Sushi} title="Sushi" />
+          <FoodCard img={Chicken} title="Chicken" />
+        </Carousel>
+      </MenuListContainer>
     </HomeContainer>
   );
 }

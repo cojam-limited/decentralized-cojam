@@ -10,7 +10,7 @@ export const StyledHeader = styled.header`
   padding: 10px;
   box-shadow: 0px 0px 12px -3px rgba(0, 0, 0, 0.3);
   background-color: #fff;
-  z-index: 9999;
+  z-index: 1000;
 `;
 
 export const LogoContainer = styled.div`
