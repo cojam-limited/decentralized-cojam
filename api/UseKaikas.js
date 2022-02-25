@@ -60,7 +60,14 @@ export const isKaikasEnabled = async () => {
   }
 };
 
-export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
+export const mintWithTokenURI = async ({
+  tokenID,
+  genralTokenURI,
+  masterTokenURI,
+  menuType,
+  walletData,
+  mintCountData,
+}) => {
   try {
     console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
     const estimatedGas = await NFTContract.methods
@@ -114,7 +121,14 @@ export const mintWithTokenURI = async (tokenID, genralTokenURI, masterTokenURI, 
   }
 };
 
-export const mintWithKlay = async (tokenID, genralTokenURI, masterTokenURI, menuType) => {
+export const mintWithKlay = async ({
+  tokenID,
+  genralTokenURI,
+  masterTokenURI,
+  menuType,
+  walletData,
+  mintCountData,
+}) => {
   try {
     console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
     const estimatedGas = await NFTContract.methods

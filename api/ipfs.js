@@ -15,7 +15,7 @@ const masterMetadataURLFetcher = async (menu_no) => {
 };
 
 const option = {
-  fallbackData: {}, // 에러 방지 초기 데이터 삽입
+  fallbackData: '', // 에러 방지 초기 데이터 삽입
   onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
     console.log(key, ':', error.message);
     // 404에서 재시도 안함

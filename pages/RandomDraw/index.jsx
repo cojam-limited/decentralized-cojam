@@ -9,12 +9,12 @@ import { RandomDrawContainer, Step } from './styles';
 
 import toastNotify from '@utils/toast';
 import { useWalletData } from '@data/wallet';
-import { addMinter, removeMinter } from '@api/UseCaverForOwner';
+import { addMinter } from '@api/UseCaverForOwner';
 import { mintWithTokenURI, mintWithKlay } from '@api/UseKaikas';
 import { useMenusData } from '@api/menus';
-import { initDrawResult, useDrawResultData } from '@api/draw';
-import { useMintCountData, updateMintCount } from '@api/nft';
-import { initMintData, useMintData } from '@api/mintData';
+import { useDrawResultData } from '@api/draw';
+import { useMintCountData } from '@api/nft';
+import { useMintData } from '@api/mintData';
 import { useMasterMetadataURLData, DATA_KEY as MasterNftKey } from '@api/ipfs';
 import { postDataFetcher } from '@utils/fetcher';
 import { MINT_CONFIRM_MODAL_DATA_KEY, UPLOAD_IMAGE_MODAL_DATA_KEY, useModalData } from '@data/modal';
@@ -132,7 +132,14 @@ function RandomDraw() {
         await addMinter(walletData?.account);
 
         //mintData를 가져와서 인자로 넘김
-        await mintWithTokenURI(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
+        await mintWithTokenURI({
+          tokenID: mintData.tokenId,
+          genralTokenURI: mintData.metadataUri,
+          masterTokenURI: masterMetadataURL,
+          menuType: mintData.menuType,
+          walletData,
+          mintCountData,
+        });
       } else {
         //mint confirm 모달 띄우기
         mutateModalData({ open: true });
@@ -145,7 +152,14 @@ function RandomDraw() {
   const handleClickMintNFTwithKLAY = async () => {
     try {
       await addMinter(walletData?.account);
-      await mintWithKlay(mintData.tokenId, mintData.metadataUri, masterMetadataURL, mintData.menuType);
+      await mintWithKlay({
+        tokenID: mintData.tokenId,
+        genralTokenURI: mintData.metadataUri,
+        masterTokenURI: masterMetadataURL,
+        menuType: mintData.menuType,
+        walletData,
+        mintCountData,
+      });
     } catch (error) {
       console.error(error);
     }
@@ -174,7 +188,11 @@ function RandomDraw() {
         </Step>
         <Step>
           <span>Step 2</span>
-          <Button text="Upload Receipt" onClick={handleUploadReceipt} />
+          <Button
+            text="Upload Receipt"
+            disabled={drawResultData?.menuNo ? false : true}
+            onClick={handleUploadReceipt}
+          />
         </Step>
         <Step>
           <span>Step 3</span>
