@@ -81,7 +81,6 @@ function User() {
       });
     }
   }, []);
-  console.log('userNftList', userNftList);
 
   return (
     <Container>
@@ -119,7 +118,7 @@ function User() {
         ) : (
           <Carousel>
             {userNftList.map((item) => (
-              <FoodCard key={item.tokenId} img={item.imageUri} title={item.menuType} />
+              <FoodCard key={imageUri} img={item.imageUri} title={item.menuType} />
             ))}
           </Carousel>
         )}

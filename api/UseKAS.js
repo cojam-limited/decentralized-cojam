@@ -36,14 +36,13 @@ export const ownNftList = async (ownaddress) => {
       const uriJSON = response.data;
       /** ✨uriJSON 샘플
        {
-        "name": "Puppy Heaven NFT",
-        "description": "This is a sample description",
-        "imageUrl": "https://metadata-store.klaytnapi.com/e2d83vdb-c108-823c-d5f3-69vdf2d871c51/4a85e6be-3215-93e6-d8a9-3a7d633584e7.png"
-        }
+          "name": "Magic Sword",
+          "description" : "게임 내에서 마법 속성을 띈 마검을 소환할 수 있습니다.",
+          "image": "https://path_to_image/image.png"
+        } 
        */
 
-      //🔥uriJSON 타입이 결정되면 푸쉬 데이터 변경
-      nfts.push({ tokenId: data[i].tokenId, imageUri: uriJSON.imageUri, menuType: uriJSON.name });
+      nfts.push({ imageUri: uriJSON.image, menuType: uriJSON.name });
     }
     console.log(nfts);
     return nfts;

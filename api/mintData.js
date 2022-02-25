@@ -7,11 +7,22 @@ const URL_INIT = 'mintData/init?address=';
 // SWR 데이터 키
 const DATA_KEY = 'data/mintData';
 
-//res : { address: "string", metadataUri: "string", tokenId: 0 }
+/**
+{menuType: "김치찌개"
+mintdata: {
+  address: "0x9bf610e09d53f1a884becaa43f94a04948285600"
+  metadataUri: "https://metadata-store.klaytnapi.com/7f4f7e2f-fc73-884b-b43f-b26cf625f31f/6197b696-1213-9ec8-b8dc-eb5886d73c73.json"
+  tokenId: 96602955
+  }
+}
+ */
 const mintDataFetcher = async (address) => {
   const res = await getDataFetcher(URL + address);
-  if (res && res.data) {
-    return res.data;
+  if (res) {
+    return {
+      menuType: res.menuType,
+      ...res.mintdata,
+    };
   }
 };
 
