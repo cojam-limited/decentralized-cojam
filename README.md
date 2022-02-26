@@ -8,10 +8,14 @@
 
 <br/>
 
-**# 점심메뉴 추천**을 언제 어디서나 해주는 **# BadgeMeal**에서 해결하세요!
+**# 식사 메뉴 추천**을 언제 어디서나 해주는 **# BadgeMeal**에서 해결하세요!
 메뉴를 추천받고 먹은 것을 인증 하면 NFT 뱃지를 얻을 수 있어요! <br/>
 👉 [뱃지밀 BadgeMeal](http://tostit.i234.me:5007/)
 
+
+<br/>
+
+<img width="1042" alt="image" src="https://user-images.githubusercontent.com/51507260/155835450-062d63e0-7e42-49d0-96d2-c82181e08303.png">
 
 <br/>
 
@@ -29,9 +33,16 @@
 * 👀 **비즈니스 모델**
 
   * 음식 브랜드 광고 수익
-  * 랜덤 돌리기 비용
+  * NFT 발행 유료화
 
-## Member & Role
+<br/>
+
+## 프로젝트 구조 & 유저 플로우
+<img width="904" alt="image" src="https://user-images.githubusercontent.com/51507260/155834611-b709b193-fe05-449f-aff7-29a7ce52473e.png">
+
+<br/>
+
+## Member
 
 <table>
   <tr>
