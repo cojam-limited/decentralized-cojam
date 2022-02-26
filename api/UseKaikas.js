@@ -104,7 +104,7 @@ export const mintWithTokenURI = async ({
         initMintData(walletData?.account);
         //발행이 완료되면 drawResult 초기화
         initDrawResult(walletData?.account);
-        //9.발행이 완료되면 mintCountData++
+        //발행이 완료되면 mintCountData++
         updateMintCount(walletData?.account, mintCountData);
         console.log(`success`, receipt);
       })

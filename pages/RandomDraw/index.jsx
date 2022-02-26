@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSWRConfig } from 'swr';
 import Button from '@components/Button';
 import RandomTray from '@assets/img_tray.png';
@@ -15,7 +15,7 @@ import { useMenusData } from '@api/menus';
 import { useDrawResultData } from '@api/draw';
 import { useMintCountData } from '@api/nft';
 import { useMintData } from '@api/mintData';
-import { useMasterMetadataURLData, DATA_KEY as MasterNftKey } from '@api/ipfs';
+import { masterMetadataURLFetcher } from '@api/ipfs';
 import { postDataFetcher } from '@utils/fetcher';
 import { MINT_CONFIRM_MODAL_DATA_KEY, UPLOAD_IMAGE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 
@@ -27,7 +27,6 @@ function RandomDraw() {
   const { drawResultData } = useDrawResultData(walletData?.account);
   const { mintCountData } = useMintCountData(walletData?.account);
   const { mintData } = useMintData(walletData?.account);
-  const { masterMetadataURL } = useMasterMetadataURLData(drawResultData?.menuNo);
   const { modalData, mutateModalData } = useModalData(MINT_CONFIRM_MODAL_DATA_KEY);
   const { mutate } = useSWRConfig();
 
@@ -129,6 +128,7 @@ function RandomDraw() {
       //4-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
       //4-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
       await addMinter(walletData?.account);
+      const masterMetadataURL = await masterMetadataURLFetcher(drawResultData?.menuNo);
       await mintWithTokenURI({
         tokenID: mintData.tokenId,
         genralTokenURI: mintData.metadataUri,
