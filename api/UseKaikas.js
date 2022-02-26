@@ -6,6 +6,7 @@ import { initDrawResult } from '@api/draw';
 import { updateMintCount } from '@api/nft';
 import { initMintData } from '@api/mintData';
 import { removeMinter } from '@api/UseCaverForOwner';
+import { setMintedMasterNftFetcher } from '@api/ipfs';
 
 const caver = new Caver(window.klaytn);
 const NFT_ADDRESS = process.env.REACT_APP_NFT_CONTRACT_ADDRESS;
@@ -67,6 +68,7 @@ export const mintWithTokenURI = async ({
   menuType,
   walletData,
   mintCountData,
+  cid,
 }) => {
   try {
     console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
@@ -110,11 +112,12 @@ export const mintWithTokenURI = async ({
       })
       .on('error', (e) => {
         // failed
+        setMintedMasterNftFetcher(cid);
         toastNotify({
           state: 'error',
           message: 'An Error is occurred.',
         });
-        console.error(`error ${e}`);
+        console.error('mintWithTokenURI error', e);
       });
   } catch (error) {
     console.error('mintWithTokenURI', error);
@@ -128,6 +131,7 @@ export const mintWithKlay = async ({
   menuType,
   walletData,
   mintCountData,
+  cid,
 }) => {
   try {
     console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
@@ -175,11 +179,12 @@ export const mintWithKlay = async ({
       })
       .on('error', (e) => {
         // failed
+        setMintedMasterNftFetcher(cid);
         toastNotify({
           state: 'error',
           message: 'An Error is occurred.',
         });
-        console.log(`error ${e}`);
+        console.log('mintWithKlay error', e);
       });
   } catch (error) {
     await removeMinter(walletData?.account);
@@ -221,7 +226,7 @@ export const proposeMenu = async (name) => {
           state: 'error',
           message: 'An Error is occurred.',
         });
-        console.log(`error ${e}`);
+        console.log('proposeMenu error', e);
       });
   } catch (error) {
     console.error('proposeMenu', error);
@@ -258,7 +263,7 @@ export const vote = async (proposal) => {
           state: 'error',
           message: 'An Error is occurred.',
         });
-        console.log(`error ${e}`);
+        console.log('vote error', e);
       });
   } catch (error) {
     console.error('vote', error);
