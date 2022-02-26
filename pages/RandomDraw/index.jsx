@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSWRConfig } from 'swr';
 import Button from '@components/Button';
 import RandomTray from '@assets/img_tray.png';
 import Modal from '@mui/material/Modal';
@@ -29,7 +28,7 @@ function RandomDraw() {
   const { mintCountData } = useMintCountData(walletData?.account);
   const { mintData } = useMintData(walletData?.account);
   const { modalData, mutateModalData } = useModalData(MINT_CONFIRM_MODAL_DATA_KEY);
-  const { mutate } = useSWRConfig();
+  const [mintingLoading, setMintingLoading] = useState(false);
 
   const { mutateModalData: mutateImageModalData } = useModalData(UPLOAD_IMAGE_MODAL_DATA_KEY);
 
@@ -124,6 +123,8 @@ function RandomDraw() {
       //2.DB에 저장된 mintData를 조회
       if (!checkMintData()) return;
 
+      setMintingLoading(true);
+
       //3.mint 권한을 유저에게 임시로 준다.
       //4-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
       //4-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
@@ -139,6 +140,7 @@ function RandomDraw() {
         mintCountData,
         cid: masterNftMetadata.cid,
       });
+      setMintingLoading(false);
 
       /**🔥임시 주석 처리🔥
        if (mintCountData < 3) {
@@ -159,6 +161,7 @@ function RandomDraw() {
       }
        */
     } catch (error) {
+      setMintingLoading(false);
       console.error(error);
     }
   };
@@ -210,7 +213,11 @@ function RandomDraw() {
         </Step>
         <Step>
           <span>Step 3</span>
-          <Button text="Get NFT" onClick={handleClickMintNFT} />
+          <Button
+            text={mintingLoading ? 'Minting is in progress.' : 'Get NFT'}
+            disabled={mintingLoading ? true : false}
+            onClick={handleClickMintNFT}
+          />
         </Step>
       </div>
 
