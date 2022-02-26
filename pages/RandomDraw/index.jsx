@@ -37,7 +37,7 @@ function RandomDraw() {
   };
 
   const getRandomMenuIndex = () => {
-    return Math.floor(Math.random() * menusData.length);
+    return Math.floor(Math.random() * menusData?.length);
   };
 
   const getDrawResult = () => {
