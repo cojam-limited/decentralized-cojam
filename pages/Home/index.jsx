@@ -86,7 +86,7 @@ function Home() {
 
       <MenuListContainer>
         <h1>Discover Menu</h1>
-        {!menusData.length ? (
+        {!menusData?.length ? (
           <div>There is no Menus</div>
         ) : (
           <Carousel>

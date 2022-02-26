@@ -91,7 +91,7 @@ function ProposeMenu() {
       >
         {proposedListLoading ? (
           <CircularProgress />
-        ) : !proposedList.length ? (
+        ) : !proposedList?.length ? (
           <div style={noListStyles}>There is no Proposed List.</div>
         ) : (
           proposedList.map((item) => (
