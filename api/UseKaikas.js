@@ -6,7 +6,6 @@ import { initDrawResult } from '@api/draw';
 import { updateMintCount } from '@api/nft';
 import { initMintData } from '@api/mintData';
 import { removeMinter } from '@api/UseCaverForOwner';
-import { setMintedMasterNftFetcher } from '@api/ipfs';
 
 const caver = new Caver(window.klaytn);
 const NFT_ADDRESS = process.env.REACT_APP_NFT_CONTRACT_ADDRESS;
@@ -68,7 +67,6 @@ export const mintWithTokenURI = async ({
   menuType,
   walletData,
   mintCountData,
-  cid,
 }) => {
   try {
     console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
@@ -77,6 +75,8 @@ export const mintWithTokenURI = async ({
       .estimateGas({
         from: window.klaytn.selectedAddress,
       });
+
+    console.log('estimatedGas', estimatedGas);
 
     const encodedData = NFTContract.methods
       .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
@@ -89,7 +89,7 @@ export const mintWithTokenURI = async ({
         to: process.env.REACT_APP_NFT_CONTRACT_ADDRESS,
         data: encodedData,
         value: '0x00',
-        gas: estimatedGas,
+        gas: estimatedGas + 100000, //🔥estimatedGas보다 실제 gas가 더 많이 드는 이슈 발생해서 우선 더 높은 값을 주는 것으로 세팅
       })
       .on('transactionHash', (hash) => {
         console.log(`transactionHash ${hash}`);
@@ -112,7 +112,6 @@ export const mintWithTokenURI = async ({
       })
       .on('error', (e) => {
         // failed
-        setMintedMasterNftFetcher(cid);
         toastNotify({
           state: 'error',
           message: 'An Error is occurred.',
@@ -131,7 +130,6 @@ export const mintWithKlay = async ({
   menuType,
   walletData,
   mintCountData,
-  cid,
 }) => {
   try {
     console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
@@ -179,7 +177,6 @@ export const mintWithKlay = async ({
       })
       .on('error', (e) => {
         // failed
-        setMintedMasterNftFetcher(cid);
         toastNotify({
           state: 'error',
           message: 'An Error is occurred.',
