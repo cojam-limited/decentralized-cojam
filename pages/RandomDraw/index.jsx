@@ -15,7 +15,7 @@ import { useMenusData } from '@api/menus';
 import { useDrawResultData } from '@api/draw';
 import { useMintCountData } from '@api/nft';
 import { useMintData } from '@api/mintData';
-import { masterMetadataURLFetcher } from '@api/ipfs';
+import { getMasterNftMetadataFetcher } from '@api/ipfs';
 import { postDataFetcher } from '@utils/fetcher';
 import { MINT_CONFIRM_MODAL_DATA_KEY, UPLOAD_IMAGE_MODAL_DATA_KEY, useModalData } from '@data/modal';
 
@@ -128,14 +128,15 @@ function RandomDraw() {
       //4-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
       //4-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
       await addMinter(walletData?.account);
-      const masterMetadataURL = await masterMetadataURLFetcher(drawResultData?.menuNo);
+      const masterNftMetadata = await getMasterNftMetadataFetcher(drawResultData?.menuNo);
       await mintWithTokenURI({
         tokenID: mintData.tokenId,
         genralTokenURI: mintData.metadataUri,
-        masterTokenURI: masterMetadataURL,
+        masterTokenURI: masterNftMetadata.metaData,
         menuType: mintData.menuType,
         walletData,
         mintCountData,
+        cid: masterNftMetadata.cid,
       });
 
       /**🔥임시 주석 처리🔥
