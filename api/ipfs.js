@@ -7,7 +7,7 @@ const URL = 'http://tostit.i234.me:5005/ipfs/getMasterNftMetadata?menu_no=';
 export const DATA_KEY = 'data/ipfs/MasterNFTmetadataURL';
 
 //res : { address: "string", metadataUri: "string", tokenId: 0 }
-const masterMetadataURLFetcher = async (menu_no) => {
+export const masterMetadataURLFetcher = async (menu_no) => {
   const res = await getDataFetcher(URL + menu_no);
   if (res && res.data) {
     return res.data.result;
