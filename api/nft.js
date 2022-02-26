@@ -2,7 +2,7 @@ import { getDataFetcher, putDataFetcher } from '@utils/fetcher';
 import useSWR from 'swr';
 
 // API URL
-const URL_MINTCOUNT = '/nft/mintCount?address=';
+const URL_MINTCOUNT = 'api/nft/mintCount?address=';
 // SWR 데이터 키
 const DATA_KEY_MINTCOUNT = 'data/nft/mintCount';
 
@@ -39,4 +39,4 @@ export const useMintCountData = (address) => {
 };
 
 export const updateMintCount = (address, countData) =>
-  putDataFetcher(`nft/mintCount?address=${address}&count=${countData + 1}`);
+  putDataFetcher(`${URL_MINTCOUNT + address}&count=${countData + 1}`);

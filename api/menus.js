@@ -2,7 +2,7 @@ import { getDataFetcher } from '@utils/fetcher';
 import useSWR from 'swr';
 
 // API URL
-const URL = 'menus';
+const URL = 'api/menus';
 // SWR 데이터 키
 const DATA_KEY = 'data/menus';
 

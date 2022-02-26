@@ -2,8 +2,8 @@ import { getDataFetcher } from '@utils/fetcher';
 import useSWR from 'swr';
 
 // API URL
-const URL = 'mintData?address=';
-const URL_INIT = 'mintData/init?address=';
+const URL = 'api/mintData?address=';
+const URL_INIT = 'api/mintData/init?address=';
 // SWR 데이터 키
 export const DATA_KEY = 'data/mintData';
 
