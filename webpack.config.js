@@ -96,6 +96,12 @@ const config = {
     port: 3000,
     devMiddleware: { publicPath: '/dist/' },
     static: { directory: path.resolve(__dirname) },
+    proxy: {
+      '/api/': {
+        target: 'http://tostit.i234.me:5005/',
+        changeOrigin: true,
+      },
+    },
   },
 };
 
