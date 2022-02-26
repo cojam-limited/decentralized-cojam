@@ -47,7 +47,9 @@ function UploadImage() {
       formData.append('image', content);
       formData.append('menuNo', menuNoData?.menuNo);
 
-      const res = await Axios.post('verify/receipt', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const res = await Axios.post('api/verify/receipt', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       /** response
        * //인증 로직까지 전부 정상적으로 실행되었을때는 인증이 되거나 안되었을 때 둘다 status가 "SUCCESS"로 떨어지고 verification: "FALSE" 나 "TRUE" 로 구분
        * //중간에 API실패나 NULL에러떴을땐 400이상 에러로 떨어지거나 status: "FAILED"

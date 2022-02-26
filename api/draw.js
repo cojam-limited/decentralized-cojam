@@ -2,9 +2,9 @@ import { getDataFetcher, postDataFetcher } from '@utils/fetcher';
 import useSWR from 'swr';
 
 // API URL
-const URL_RESULT = 'draw/result?address=';
-const URL_MENU_NUMBER = 'draw/menuNo?address=';
-const URL_RESULT_INIT = 'draw/result/init?address=';
+const URL_RESULT = 'api/draw/result?address=';
+const URL_MENU_NUMBER = 'api/draw/menuNo?address=';
+const URL_RESULT_INIT = 'api/draw/result/init?address=';
 
 // SWR 데이터 키
 const DATA_KEY_RESULT = 'data/draw/result';
@@ -18,7 +18,7 @@ const resultFetcher = async (address) => {
   }
 };
 //res.data :  {"verification": "FALSE","menuNo": 0}
-const menuNumberFetcher = async (address) => {
+export const menuNumberFetcher = async (address) => {
   const res = await getDataFetcher(URL_MENU_NUMBER + address);
   if (res && res.data) {
     return res.data;

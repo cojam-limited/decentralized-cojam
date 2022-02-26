@@ -18,6 +18,7 @@ import { useMintData } from '@api/mintData';
 import { getMasterNftMetadataFetcher } from '@api/ipfs';
 import { postDataFetcher } from '@utils/fetcher';
 import { MINT_CONFIRM_MODAL_DATA_KEY, UPLOAD_IMAGE_MODAL_DATA_KEY, useModalData } from '@data/modal';
+import { menuNumberFetcher } from '@api/draw';
 
 function RandomDraw() {
   const [drawingState, setDrawingState] = useState(false);
@@ -100,7 +101,7 @@ function RandomDraw() {
     const randomMenu = menusData[getRandomMenuIndex()];
     setCurrentDrawResult(randomMenu);
     //6.뽑기 결과 index에 해당하는 메뉴이름, 인증여부(false)를 DB에 저장
-    await postDataFetcher(`draw/result?address=${walletData?.account}&menuNo=${randomMenu.menuNo}`);
+    await postDataFetcher(`api/draw/result?address=${walletData?.account}&menuNo=${randomMenu.menuNo}`);
   };
 
   const handleUploadReceipt = async () => {
@@ -110,7 +111,6 @@ function RandomDraw() {
 
       //2.영수증 업로드 팝업
       mutateImageModalData({ open: true });
-      mutate(MasterNftKey);
     } catch (error) {
       console.error(error);
     }
@@ -128,7 +128,8 @@ function RandomDraw() {
       //4-1.하루에 NFT 발급 받은 횟수가 3 미만이면 mintWithTokenURI 호출
       //4-2.하루에 NFT 발급 받은 횟수가 3 이상이면 mintWithKlay 호출
       await addMinter(walletData?.account);
-      const masterNftMetadata = await getMasterNftMetadataFetcher(drawResultData?.menuNo);
+      const menuNoData = await menuNumberFetcher(walletData?.account);
+      const masterNftMetadata = await getMasterNftMetadataFetcher(menuNoData?.menuNo);
       await mintWithTokenURI({
         tokenID: mintData.tokenId,
         genralTokenURI: mintData.metadataUri,

@@ -101,6 +101,10 @@ const config = {
         target: 'http://tostit.i234.me:5005/',
         changeOrigin: true,
       },
+      '/ipfs/': {
+        target: 'http://tostit.i234.me:5005/',
+        changeOrigin: true,
+      },
     },
   },
 };
