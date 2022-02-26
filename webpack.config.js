@@ -84,7 +84,7 @@ const config = {
   plugins: [
     new webpack.EnvironmentPlugin({ NODE_ENV: isDevelopment ? 'development' : 'production' }),
     new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
-    new Dotenv({ path: isDevelopment ? './.env.development' : './.env.production', systemvars: true }),
+    new Dotenv({ path: isDevelopment ? './.env.development' : './.env.production' }),
   ],
   output: {
     path: path.join(__dirname, 'dist'),
