@@ -13,6 +13,19 @@ const VOTE_ADDRESS = process.env.REACT_APP_VOTE_CONTRACT_ADDRESS;
 const NFTContract = new caver.contract(NFTABI, NFT_ADDRESS);
 const VoteContract = new caver.contract(VOTEABI, VOTE_ADDRESS);
 
+// Websocket 사용하여 연결  wss://api.baobab.klaytn.net:8652 , wss://api.cypress.klaytn.net:8652
+const caverSocket = new Caver('wss://api.baobab.klaytn.net:8652');
+const NFTContractSocket = new caverSocket.contract(NFTABI, NFT_ADDRESS);
+let masterTokenURI = '';
+
+NFTContractSocket.events
+  .MintMasterNFT()
+  .on('data', function (event) {
+    console.log('MintMasterNFT event');
+    masterTokenURI = event.returnValues.tokenURI;
+  })
+  .on('error', console.error);
+
 export const kaikasLogin = async () => {
   try {
     if (typeof window.klaytn !== 'undefined') {
@@ -67,9 +80,11 @@ export const mintWithTokenURI = async ({
   menuType,
   walletData,
   mintCountData,
+  cid,
 }) => {
   try {
     console.log(tokenID, genralTokenURI, masterTokenURI, menuType);
+
     const estimatedGas = await NFTContract.methods
       .mintWithTokenURI(window.klaytn.selectedAddress, tokenID, genralTokenURI, masterTokenURI, menuType)
       .estimateGas({
@@ -108,6 +123,12 @@ export const mintWithTokenURI = async ({
         initDrawResult(walletData?.account);
         //발행이 완료되면 mintCountData++
         updateMintCount(walletData?.account, mintCountData);
+
+        if (masterTokenURI) {
+          //마스터 NFT 발행이 완료되면 마스터 NFT DB업데이트
+          setMintedMasterNftFetcher(cid);
+          masterTokenURI = '';
+        }
         console.log(`success`, receipt);
       })
       .on('error', (e) => {
@@ -117,9 +138,11 @@ export const mintWithTokenURI = async ({
           message: 'An Error is occurred.',
         });
         console.error('mintWithTokenURI error', e);
+        masterTokenURI = '';
       });
   } catch (error) {
     console.error('mintWithTokenURI', error);
+    masterTokenURI = '';
   }
 };
 
