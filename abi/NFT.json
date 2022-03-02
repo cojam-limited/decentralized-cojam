@@ -310,12 +310,7 @@
 			}
 		],
 		"name": "mintWithKlay",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
+		"outputs": [],
 		"payable": true,
 		"stateMutability": "payable",
 		"type": "function"
@@ -604,12 +599,7 @@
 			}
 		],
 		"name": "mintWithTokenURI",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
+		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -790,12 +780,24 @@
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": true,
-				"name": "tokenURI",
+				"indexed": false,
+				"name": "typeString",
 				"type": "string"
 			}
 		],
 		"name": "MintMasterNFT",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "typeString",
+				"type": "string"
+			}
+		],
+		"name": "MintGeneralNFT",
 		"type": "event"
 	},
 	{
