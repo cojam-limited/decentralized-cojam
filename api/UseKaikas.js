@@ -127,7 +127,7 @@ export const mintWithTokenURI = async ({
 
         if (decodedMintMasterNFTeventLog?.typeString === 'MintMasterNFT') {
           //마스터 NFT 발행이 완료되면 마스터 NFT DB업데이트
-          setMintedMasterNftFetcher(cid);
+          updateMintedMasterNft(cid);
         }
         console.log(`mintWithTokenURI success`, receipt);
       })
