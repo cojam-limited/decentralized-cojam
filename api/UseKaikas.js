@@ -5,7 +5,7 @@ import VOTEABI from '@abi/Vote.json';
 import { initDrawResult } from '@api/draw';
 import { updateMintCount } from '@api/nft';
 import { initMintData } from '@api/mintData';
-import { removeMinter } from '@api/UseCaverForOwner';
+//import { removeMinter } from '@api/UseCaverForOwner';
 
 const caver = new Caver(window.klaytn);
 const NFT_ADDRESS = process.env.REACT_APP_NFT_CONTRACT_ADDRESS;
@@ -17,8 +17,11 @@ export const kaikasLogin = async () => {
   try {
     if (typeof window.klaytn !== 'undefined') {
       const accounts = await window.klaytn.enable();
+
+      console.log('account ?? ', accounts);
       const account = accounts[0]; // We currently only ever provide a single account,
       console.log(`지갑주소 : ${account}`);
+      console.log(window.klaytn);
       console.log(`네트워크 주소 : ${window.klaytn.networkVersion}`);
       return account;
     } else {
@@ -103,7 +106,7 @@ export const mintWithTokenURI = async ({
           message: 'Got BadgeMeal NFT!',
         });
         //발행이 완료되면 유저의 mint 권한을 제거한다.
-        removeMinter(walletData?.account);
+        //removeMinter(walletData?.account);
         //발행이 완료되면 mintData 초기화
         initMintData(walletData?.account);
         //발행이 완료되면 drawResult 초기화
@@ -183,7 +186,7 @@ export const mintWithKlay = async ({
         });
 
         //발행이 완료되면 유저의 mint 권한을 제거한다.
-        removeMinter(walletData?.account);
+        //removeMinter(walletData?.account);
 
         //발행이 완료되면 mintData 초기화
         initMintData(walletData?.account);
@@ -205,7 +208,7 @@ export const mintWithKlay = async ({
         console.log('mintWithKlay error', e);
       });
   } catch (error) {
-    await removeMinter(walletData?.account);
+    //await removeMinter(walletData?.account);
     console.error('mintWithKlay', error);
   }
 };

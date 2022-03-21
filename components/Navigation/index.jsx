@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import HomeIcon from '@mui/icons-material/Home';
@@ -10,10 +10,10 @@ import { NavigationContainer } from './styles';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Navigation() {
-  const { pathname } = useLocation();
+  //const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const [value, setValue] = useState(pathname.replace('/', ''));
+  //const [value, setValue] = useState(pathname.replace('/', ''));
   const handleClickNav = (location) => () => {
     navigate(location);
   };

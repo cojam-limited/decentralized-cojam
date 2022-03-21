@@ -26,6 +26,7 @@ export default function WalletModal() {
       mutateKlipModalData({ open: true });
     }
   };
+  
   const handleOpenKaikasModal = async () => {
     if (!isMobile()) {
       const account = await kaikasLogin();

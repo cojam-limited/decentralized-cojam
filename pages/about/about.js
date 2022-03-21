@@ -1,0 +1,137 @@
+//import { Link } from 'react-router-dom'
+import React from 'react';
+
+import serviceIcn04 from '../../assets/image/content/service_icn04.png'
+import serviceIcn06 from '../../assets/image/content/service_icn06.png'
+import serviceIcn08 from '../../assets/image/content/service_icn08.png'
+import serviceIcn09 from '../../assets/image/content/service_icn09.png'
+import serviceIcn10 from '../../assets/image/content/service_icn10.png'
+import serviceIcn11 from '../../assets/image/content/service_icn11.png'
+import aboutContatIcn01 from '../../assets/image/content/about_contat_icn01.png'
+import aboutContatIcn04 from '../../assets/image/content/about_contat_icn04.png'
+import snsIconNaver from '../../assets/image/content/sns_icon_naver.png'
+import snsIconMedium from '../../assets/image/content/sns_icon_medium.png'
+import snsIconInstagram from '../../assets/image/content/sns_icon_instagram.png'
+import snsIconTwiter from '../../assets/image/content/sns_icon_twiter.png'
+import snsIconFacebook from '../../assets/image/content/sns_icon_facebook.png'
+import snsIconKakao from '../../assets/image/content/sns_icon_kakao.png'
+
+import aboutMovie from '../../assets/image/content/about_movie.mp4'
+
+import backgroundImage from '@assets/body_about.jpg';
+import historyBackgroundImage from '@assets/about_history_img01.svg';
+
+function Index() {
+  return (
+	<div className="bg-about" style={{background: `url('${backgroundImage}') center -590px no-repeat, #fff`}}>
+		{/* 타이틀영역 */}
+		<div className="title-area">
+			About the Company
+		</div>
+		{/* 타이틀영역 끝 */}
+
+		<div className="container-top-round">
+		<div className="about-cojam">
+			<h2>Introduce COJAM</h2>
+			<video width="100%" autoPlay muted controls playsInLine>
+				<source src={aboutMovie} type="video/mp4" />
+				Your browser does not support HTML5 video.
+			</video>
+			<h3>What is Cojam</h3>
+			<p>Can you predict? <br />This is a reward-type prediction platform where users who produce content and those who participate solve the answers, compete, and receive compensation based on the results.</p>
+			<p>Start Prediction with COJAM!</p>
+		</div>
+		<div className="service-content1">
+			<h2>Whitepapers</h2>
+			<p>Click your country to download the white paper for each country.</p>
+			<ul className="sc1-top">
+				<li>
+					<p><img src={serviceIcn04} alt="" title="" /></p>
+					<h3>COJAM<br />WHITEPAPERS</h3>
+					<a href="../../assets/pdf/COJAM WP_v2.0.pdf" target="_blank"><img src={serviceIcn09} alt="" title="" /> KOR DOWNLOAD <i className="uil uil-import"></i></a>
+				</li>
+				<li>
+					<p><img src={serviceIcn04} alt="" title="" /></p>
+					<h3>COJAM<br />WHITEPAPERS</h3>
+					<a href="../../assets/pdf/COJAM WP_v2.0_EN.pdf" target="_blank"><img src={serviceIcn06} alt="" title="" />	ENG DOWNLOAD <i className="uil uil-import"></i></a>
+				</li>
+				<li>
+					<p><img src={serviceIcn04} alt="" title="" /></p>
+					<h3>COJAM<br />WHITEPAPERS</h3>
+					<a href="../../assets/pdf/COJAM WP_v2.0_TH.pdf" target="_blank"><img src={serviceIcn11} alt="" title="" /> THAI DOWNLOAD <i className="uil uil-import"></i></a>
+				</li>
+			</ul>
+			<ul className="sc1-bottom">
+				<li>
+					<p><img src={serviceIcn04} alt="" title="" /></p>
+					<h3>COJAM<br />WHITEPAPERS</h3>
+					<a href="../../assets/pdf/COJAM WP_v2.0_CN.pdf" target="_blank"><img src={serviceIcn08} alt="" title="" /> CHN DOWNLOAD <i className="uil uil-import"></i></a>
+				</li>
+				<li>
+					<p><img src={serviceIcn04} alt="" title="" /></p>
+					<h3>COJAM<br />WHITEPAPERS</h3>
+					<a href="../../assets/pdf/COJAM WP_v2.0_JP.pdf" target="_blank"><img src={serviceIcn10} alt="" title="" /> JPN DOWNLOAD <i className="uil uil-import"></i></a>
+				</li>
+			</ul>
+		</div>
+		
+		<div className="about-history">
+			<h2>Road Map</h2>
+			<p>In everyday life, we always predict something.<br /></p>
+			<div style={{background: `url('${historyBackgroundImage}') no-repeat`}}></div>
+		</div>
+	</div>
+
+		<div className="about-contact">
+			<h2>Contact Us</h2>
+			<p>We'd love to hear from you<br />we like to create contents with fun, open-minded people.<br />Feel free to say hello!</p>
+			{/* <div><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2381.7918151963217!2d-6.257478683484973!3d53.34698277997919!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48670e85677f5bbd%3A0x52de8be53512895!2sThe%20Tara%20Building%20-%20Coworking%20Dublin%202!5e0!3m2!1sko!2skr!4v1612514538649!5m2!1sko!2skr" width="100%" height="600" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe></div> */}
+			<div className="about-contact-content">
+				<div>
+					<ul>
+						<li>
+							<a target="_blank" href="https://www.google.com/maps/place/The+Tara+Building+-+Coworking+%26+Office+Spaces+Dublin+2/@53.3469828,-6.2574787,17z/data=!3m1!4b1!4m5!3m4!1s0x48670e85677f5bbd:0x52de8be53512895!8m2!3d53.3469828!4d-6.25529" rel="noreferrer"><img src={aboutContatIcn01} alt="" title="" />	The Tara Building, Tara Street, Dublin 2</a>
+						</li>
+						<li>
+							<a target="_blank" href="https://t.me/cojamkorea" rel="noreferrer"><img src={aboutContatIcn04} alt="" title="" />Telegram @cojamkorea</a>
+						</li>
+						<li>
+							<a target="_blank" href="mailto: ask@cojam.io" rel="noreferrer"><img src={aboutContatIcn04} alt="" title="" />ask@cojam.io</a>
+						</li>
+					</ul>
+				</div>
+				<div>
+					<ul>
+						<li>
+							<a target="_blank" href="https://blog.naver.com/cojam_limited" rel="noreferrer"><img src={snsIconNaver} alt="" title="" />Naver Blog</a>
+						</li>
+						<li>
+							<a target="_blank" href="https://cojam-official.medium.com/" rel="noreferrer"><img src={snsIconMedium} alt="" title="" />Medium</a>
+						</li>
+						<li>
+							<a target="_blank" href="https://www.instagram.com/cojam_official/" rel="noreferrer"><img src={snsIconInstagram} alt="" title="" />Instagram</a>
+						</li>
+					</ul>
+				</div>
+				<div>
+					<ul>
+						<li>
+							<a target="_blank" href="https://twitter.com/OfficialCojam" rel="noreferrer"><img src={snsIconTwiter} alt="" title="" />Twitter</a>
+						</li>
+						<li>
+							<a target="_blank" href="https://www.facebook.com/cojam.limited/" rel="noreferrer"><img src={snsIconFacebook} alt="" title="" />Facebook</a>
+						</li>
+						<li>
+							<a target="_blank" href="https://open.kakao.com/o/gVOJyBad" rel="noreferrer"><img src={snsIconKakao} alt="" title="" />KaKao</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+    </div>
+  );
+}
+
+
+
+export default Index;
