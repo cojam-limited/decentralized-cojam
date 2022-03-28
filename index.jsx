@@ -7,7 +7,9 @@ import theme from './theme';
 import { useWalletData } from '@data/wallet';
 import toastNotify from '@utils/toast';
 
-import '@assets/css/style.css';
+import './assets/css/style.css'
+
+//import '@assets/css/style.css';
 
 const App = () => {
   const { mutateWalletData } = useWalletData();
@@ -34,7 +36,7 @@ const App = () => {
   }, []);
 
   return (
-    <div style={{ paddingBottom: '60px', height: '100%' }}>
+    <div style={{ paddingBottom: '60px', height: 'auto' }}>
         <Router />
     </div>
   );

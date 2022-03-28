@@ -13,7 +13,7 @@ import backgroundImage from '@assets/body_quest.jpg';
 
 import { useLoadingState } from "@assets/context/LoadingContext";
 import Pagination from "react-sanity-pagination";
-import createNewQuest from './createNewQuest';
+import createNewQuest from './createNewQuest';``
 
 import "swiper/css";
 import "react-responsive-modal/styles.css";
@@ -25,6 +25,7 @@ function Index() {
   const [ openQuestAdd, modalQuestAdd ] = useState(false);
   const [ openQuestSeason, modalQuestSeason ] = useState(false);
 
+  const [ seasonInfos, setSeasonInfos ] = useState([]);
   const [ categories, setCategories ] = useState([]);
   const [ activeCategory, setActiveCategory ] = useState('All');
 
@@ -48,19 +49,29 @@ function Index() {
   // modal values
 
   useEffect(() => {
+    /**
+     * 시즌 카테고리 리스트 조회
+     */
 		const seasonCategoryQuery = `*[_type == 'season' && isActive == true] {seasonCategories[] -> {seasonCategoryName, _id}}`;
 		client.fetch(seasonCategoryQuery).then((datas) => {
       if(datas) {
-        const localCategories = [{seasonCategoryName: 'All'}];
+        const localCategories = [{ seasonCategoryName: 'All' }];
         datas[0].seasonCategories.forEach((category) => ( localCategories.push(category) ));
         setCategories(localCategories);
       }
     });
+    /**
+     * 시즌 카테고리 리스트 조회
+     */
   }, []);
 
   useEffect(() => {
-    //setLoading(true);
-    const condition = `${activeCategory === 'All' ? '' : `&& seasonCategory._ref in *[_type=="seasonCategories" && seasonCategoryName=='${activeCategory}']._id`}`;
+    setLoading(true);
+
+    /**
+     * Quest 리스트 & 데이터 조회
+     */
+    const condition = `${activeCategory === 'All' ? '' : `&& seasonCategory._ref in *[_type == "seasonCategories" && seasonCategoryName == '${activeCategory}']._id`}`;
     const questQuery = `*[_type == 'quests' && isActive == true ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
 		client.fetch(questQuery).then((datas) => {
       datas.forEach((quest) => {
@@ -95,9 +106,35 @@ function Index() {
       document.querySelectorAll('.pagePagination button').forEach((button) => button.classList.remove("active"));
       document.querySelector('.pagePagination :nth-child(2) > button') && document.querySelector('.pagePagination :nth-child(2) > button').classList.add("active");
 
-      //setLoading(false);
-		});    
+      setLoading(false);
+		});   
+    /**
+     * Quest 리스트 & 데이터 조회
+     */ 
+
+    const seasonInfoQuery = `*[_type == 'season' && isActive == true] {
+      'quests': *[_type == 'quests' && ^._id == season._ref] 
+      {'categoryName': *[_type == 'seasonCategories' && _id == ^.seasonCategory._ref] {seasonCategoryName} [0] }
+    }`;
+
+    const querySeasonInfos = [];
+    client.fetch(seasonInfoQuery).then((seasonInfos) => {
+      // category name, percentage
+      const categoryAggr = {};
+      seasonInfos[0].quests?.forEach((quest) => {
+        const categoryName = quest.categoryName.seasonCategoryName;
+        console.log('category name', categoryName);
+        categoryAggr[categoryName] = categoryAggr[categoryName] ? Number(categoryAggr[categoryName]) + 1 : 1;
+      });
+
+      console.log('categoryAggr', categoryAggr);
+
+      seasonInfos[0]['caregoryAggr'] = categoryAggr;
+      setSeasonInfos(seasonInfos);
+    });
   }, [activeCategory]);
+
+  console.log('seasonInfos', seasonInfos);
 
   return (
   <div className="bg-quest" style={{background: `url('${backgroundImage}') center -150px no-repeat, #fff`}}>
@@ -156,7 +193,7 @@ function Index() {
           {
             items && items.map((quest, index) => {
               return (
-                <li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} history.push({ pathname: `/QuestView`, state: {quest: quest, answerTotalAmounts: answerTotalAmounts, answerPercents: answerPercents, answerAllocations: answerAllocations}}) }}>
+                <li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} history.push({ pathname: `/QuestView`, state: {questId: quest._id}}) }}>
                   { quest.dDay === 'expired' && <div>CLOSE</div> }
                   <h2>
                     Total <span>{quest.totalAmount && addComma(quest.totalAmount)}</span> CT
@@ -231,14 +268,14 @@ function Index() {
                     </dd>
                   </dl>
                   <ul className="mqa-content2">
-                    <li>
+                    <li key='1'>
                       <select className="w100p" name="languageSelect" onChange={(e) => setModalValues({...modalValues, 'questLanguage': e.target.value})}>
                         <option value="EN">&nbsp;🇺🇸&nbsp;&nbsp;English</option>
                         <option value="KR">&nbsp;🇰🇷&nbsp;&nbsp;Korean</option>
                         <option value="CH">&nbsp;🇨🇳&nbsp;&nbsp;Chinese</option>
                       </select>
                     </li>
-                    <li>
+                    <li key='2'>
                       <textarea
                         name="title"
                         type="text"
@@ -247,19 +284,19 @@ function Index() {
                         onChange={(e) => setModalValues({...modalValues, 'title': e.target.value})}
                       ></textarea>
                     </li>
-                    <li>
+                    <li key='3'>
                       <select name="name" title="" className="w100p" defaultValue="" onChange={(e) => setModalValues({...modalValues, 'seasonCategory': { _type: 'reference', _ref: e.target.value }})}>
                         <option value="">
                           Please select a category
                         </option>
                         {
-                          categories && categories.filter((category) => category.seasonCategoryName !== 'All').map((category, index) => (
+                          categories?.filter((category) => category.seasonCategoryName !== 'All').map((category, index) => (
                             <option key={index} value={category._id}>{category.seasonCategoryName}</option>
                           ))
                         }
                       </select>
                     </li>
-                    <li>
+                    <li key='4'>
                       <DatePicker
                         dateFormat="yyyy-MM-dd HH:mm:ss"
                         selected={endDateTime}
@@ -267,7 +304,7 @@ function Index() {
                         showTimeInput
                       />
                     </li>
-                    <li>
+                    <li key='5'>
                       <select name="questType" title="" className="w100p" onChange={(e) => setModalValues({...modalValues, 'questType': e.target.files})} >
                         <option value="I" selected>
                           Image
@@ -275,7 +312,7 @@ function Index() {
                         <option value="S">SNS url</option>
                       </select>
                     </li>
-                    <li>
+                    <li key='6'>
                       <div className="input-file">
                         <label>
                           File Attach
@@ -292,7 +329,7 @@ function Index() {
                         />
                       </div>
                     </li>
-                    <li>
+                    <li key='7'>
                       <input
                         name="name"
                         type="text"
@@ -303,8 +340,8 @@ function Index() {
                     </li>
                   </ul>
                   <ol className="mqa-content1">
-                    <li>Select a Type</li>
-                    <li>
+                    <li key='1'>Select a Type</li>
+                    <li key='2'>
                       <Link to="#">
                         <i className="uil uil-plus-circle" onClick={() => { if(document.querySelectorAll('.mqa-answers li').length > 5) {return;} document.querySelector('.mqa-answers').insertAdjacentHTML('beforeend', `<li> <input name="name" type="text" className="w100p" placeholder="" /> </li>`)}}></i>
                       </Link>
@@ -314,7 +351,7 @@ function Index() {
                     </li>
                   </ol>
                   <ul className="mqa-content2 mqa-answers">
-                    <li>
+                    <li key='1'> 
                       <input
                         name="name"
                         type="text"
@@ -322,7 +359,7 @@ function Index() {
                         placeholder=""
                       />
                     </li>
-                    <li>
+                    <li key='2'>
                       <input
                         name="name"
                         type="text"
@@ -355,71 +392,48 @@ function Index() {
                   <i className="uil uil-times"></i>
                 </dd>
               </dl>
-              <div className="mqs-date">
-                <i className="uil uil-calendar-alt"></i> 2021.01.4 ~ 2021.12.31
-                (331)
-              </div>
-              <ul className="mqs-content">
-                <li>
-                  <h3>ART</h3>
-                  <div>
-                    <div style={{ width: `30%` }}></div>
-                    <p>1 / 100</p>
-                  </div>
-                </li>
-                <li>
-                  <h3>Science</h3>
-                  <div>
-                    <div style={{ width: `10%` }}></div>
-                    <p>1 / 100</p>
-                  </div>
-                </li>
-                <li>
-                  <h3>Crowdsolving</h3>
-                  <div>
-                    <div style={{ width: `60%` }}></div>
-                    <p>1 / 100</p>
-                  </div>
-                </li>
-                <li>
-                  <h3>Competition</h3>
-                  <div>
-                    <div style={{ width: `50%` }}></div>
-                    <p>1 / 100</p>
-                  </div>
-                </li>
-                <li>
-                  <h3>Economy</h3>
-                  <div>
-                    <div style={{ width: `3%` }}></div>
-                    <p>1 / 100</p>
-                  </div>
-                </li>
-                <li>
-                  <h3>Community</h3>
-                  <div>
-                    <div style={{ width: `10%` }}></div>
-                    <p>1 / 100</p>
-                  </div>
-                </li>
-              </ul>
-              <div className="mqs-info">
-                <h2>Titel : Create Season of COJAM Service!</h2>
-                <h2>Description : Create Season of COJAM Service!</h2>
-                <div>
-                  COJAM Fee : <span>8%</span>
-                  <br />
-                  Charity Fee : <span>2%</span>
-                  <br />
-                  Creator Fee : <span>5%</span>
-                  <br />
-                  Creator Pay : <span>0CT</span>
-                  <br />
-                  Minimum Pay : <span>5,000CT</span>
-                  <br />
-                  Maximum Pay : <span>300,000CT</span>
-                </div>
-              </div>
+              {
+                seasonInfos?.map((seasonInfo) => (
+                  <>
+                    <div className="mqs-date">
+                    <i className="uil uil-calendar-alt"></i> {Moment(seasonInfo.startDate).format('YYYY-MM-DD HH:mm:ss')} ~ {Moment(seasonInfo.endDate).format('YYYY-MM-DD HH:mm:ss')}
+                    ({ Moment(seasonInfo.endDate).diff(Moment(seasonInfo.startDate), 'days')})
+                    </div>
+
+                    <ul className="mqs-content">
+                      {
+                        categories?.map((category, index) => (
+                          <li key={index}>
+                            <h3>{category.seasonCategoryName}</h3>
+                            <div>
+                              <div style={{ width: `${seasonInfo.caregoryAggr && seasonInfo.caregoryAggr[category.seasonCategoryName] || 0}%` }}></div>
+                              <p>{seasonInfo.caregoryAggr && seasonInfo.caregoryAggr[category.seasonCategoryName] || 0} / 100</p>
+                            </div>
+                          </li>
+                        ))
+                      }
+                    </ul>
+
+                    <div className="mqs-info">
+                      <h2>Title : Create Season of COJAM Service!</h2>
+                      <h2>Description : Create Season of COJAM Service!</h2>
+                      <div>
+                        COJAM Fee : <span>{seasonInfo.cojamFee}%</span>
+                        <br />
+                        Charity Fee : <span>{seasonInfo.charityFee}%</span>
+                        <br />
+                        Creator Fee : <span>{seasonInfo.creatorFee}%</span>
+                        <br />
+                        Creator Pay : <span>{addComma(seasonInfo.creatorPay)} CT</span>
+                        <br />
+                        Minimum Pay : <span>{addComma(seasonInfo.minimumPay)} CT</span>
+                        <br />
+                        Maximum Pay : <span>{addComma(seasonInfo.maximumPay)} CT</span>
+                      </div>
+                    </div>
+                  </>                  
+                ))  
+              }
             </div>
           </div>
         </Modal>
@@ -431,6 +445,8 @@ function Index() {
 }
 
 function addComma(data) {
+  if(!data) return '';
+
 	return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 

@@ -1,34 +1,28 @@
 import React, { useState, useEffect } from 'react'; 
 import { useHistory } from 'react-router-dom'
 
-import mainVisualScroll from '@assets/image/content/main_visual_scroll02.png'
-// import mainQuestIcon01 from '../../assets/image/content/main_quest_icon01.svg'
-// import mainQuestIcon02 from '../../assets/image/content/main_quest_icon02.svg'
-// import mainQuestIcon03 from '../../assets/image/content/main_quest_icon03.svg'
-// import mainQuestIcon04 from '../../assets/image/content/main_quest_icon04.svg'
-// import mainQuestIcon05 from '../../assets/image/content/main_quest_icon05.svg'
-// import mainQuestIcon06 from '../../assets/image/content/main_quest_icon06.svg'
-import mainServiceIcon01 from '@assets/image/content/main_service_icon01.svg'
-import mainServiceIcon02 from '@assets/image/content/main_service_icon02.svg'
-import mainServiceIcon03 from '@assets/image/content/main_service_icon03.svg'
-import mainServiceIcon04 from '@assets/image/content/main_service_icon04.svg'
-import mainServiceIcon05 from '@assets/image/content/main_service_icon05.svg'
-import mainServiceIcon06 from '@assets/image/content/main_service_icon06.svg'
+import mainVisualScroll from '@assets/main_visual_scroll02.png'
+import mainServiceIcon01 from '@assets/main_service_icon01.svg'
+import mainServiceIcon02 from '@assets/main_service_icon02.svg'
+import mainServiceIcon03 from '@assets/main_service_icon03.svg'
+import mainServiceIcon04 from '@assets/main_service_icon04.svg'
+import mainServiceIcon05 from '@assets/main_service_icon05.svg'
+import mainServiceIcon06 from '@assets/main_service_icon06.svg'
 
 import mainBackGround from '@assets/main_visual_img02.jpg';
-import serviceBackground from '@assets/image/content/main_service_bg.png';
-import phoneBackground from '@assets/image/content/main_service_phone.png';
-import qnaBackground from '@assets/image/content/main_qna_bg.jpg';
+import serviceBackground from '@assets/main_service_bg.png';
+import phoneBackground from '@assets/main_service_phone.png';
+import qnaBackground from '@assets/main_qna_bg.jpg';
 
 import { urlFor, client } from "../../sanity";
 
 import Moment from 'moment';
 import Accordion from '../../components/Accordion';
-//import { useLoadingState } from "@assets//LoadingContext";
+import { useLoadingState } from "../../assets/context/LoadingContext";
 
 function Index() {
 	const history = useHistory();
-	//const { setLoading } = useLoadingState();
+	const { setLoading } = useLoadingState();
 	const [ quests, setQuests ] = useState([]);
 	const [ qnas, setQnas ] = useState([]);
 	
@@ -36,7 +30,18 @@ function Index() {
 	const [ answerPercents, setAnswerPercents] = useState({});
 	const [ answerAllocations, setAnswerAllocations ] = useState({});
 
+	const resizeFunc = () => {
+		//창크기 변화 감지
+		if(this.window.innerWidth < 992) {
+			document.querySelector('.main-service > div').style.background = 'none';
+		} else {
+			document.querySelector('.main-service > div').style.background = `url('${phoneBackground}') -280px no-repeat`;
+		}
+	}
+
 	useEffect(() => {
+		window.addEventListener('resize', resizeFunc);
+
 		const loadDatas = async () => {
 			const questQuery = `*[_type == 'quests' && isActive == true] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
 			await client.fetch(questQuery).then((datas) => {
@@ -80,9 +85,11 @@ function Index() {
 			});
 		}
 
-		//setLoading(true);
+		setLoading(true);
 		loadDatas();
-		//setLoading(false);
+		setLoading(false);
+
+		return window.removeEventListener('resize', resizeFunc);
 	}, []);
 
 	return (
@@ -151,143 +158,9 @@ function Index() {
 			{/* 리스트 끝 */}
 
 
-			{/* 퀘스트 - 카타고리 */}
-			{/* <div className="main-quest">
-				<div>
-					<h2>Ongoing Vote 6</h2>
-					<h3>Convergence Platform of Knowledge based on Prediction</h3>
-					<ul>
-						<li>
-							<p><img src={mainQuestIcon01} width="90" alt="" title="" /> </p>
-							<h2>Art & Culture</h2>
-							<h3>Add your opinion to the new daily predictive Ground and you get COJAM Point(CP)!</h3>
-						</li>
-						<li>
-							<p><img src={mainQuestIcon02} width="90" alt="" title="" /> </p>
-							<h2>Community</h2>
-							<h3>Add your opinion to the new daily predictive Ground and you get COJAM Point(CP)!</h3>
-						</li>
-						<li>
-							<p><img src={mainQuestIcon03} width="90" alt="" title="" /></p>
-							<h2>Competition</h2>
-							<h3>Add your opinion to the new daily predictive Ground and you get COJAM Point(CP)!</h3>
-						</li>
-						<li>
-							<p><img src={mainQuestIcon04} width="90" alt="" title="" /></p>
-							<h2>Crowd Solving</h2>
-							<h3>Add your opinion to the new daily predictive Ground and you get COJAM Point(CP)!</h3>
-						</li>
-						<li>
-							<p><img src={mainQuestIcon05} width="90" alt="" title="" /></p>
-							<h2>Economy</h2>
-							<h3>Add your opinion to the new daily predictive Ground and you get COJAM Point(CP)!</h3>
-						</li>
-						<li>
-							<p><img src={mainQuestIcon06} width="90" alt="" title="" /></p>
-							<h2>Sience</h2>
-							<h3>Add your opinion to the new daily predictive Ground and you get COJAM Point(CP)!</h3>
-						</li>
-					</ul>
-				</div>
-			</div> */}
-			{/* 퀘스트 - 카타고리 끝 */}
-
-
-			{/* 시즌 */}
-			{/* <div className="main-season">
-				<div>
-					<h2>Cojam Active Season</h2>
-					<h3>Create Season of Cojam Service!</h3>
-					<ul>
-						<li>
-							<div>
-								<h2>128</h2>
-								<h3>Day</h3>
-							</div>
-						</li>
-						<li>
-							<div>
-								<h2>25</h2>
-								<h3>Charity Fee(%)</h3>
-							</div>
-						</li>
-						<li>
-							<div>
-								<h2>69</h2>
-								<h3>Charity Fee(%)</h3>
-							</div>
-						</li>
-						<li>
-							<div>
-								<h2>17</h2>
-								<h3>Cojam Fee(%)</h3>
-							</div>
-						</li>
-					</ul>
-				</div>
-			</div> */}
-			{/* 시즌 끝 */}
-
-
-			{/* 공지사항 */}
-			{/* <div className="main-notice">
-				<div>
-					<h2>Notice & News</h2>
-					<h3>Sharing News, Issues, Histories of COJAM!</h3>
-					<ul>
-						<li className="item">
-							<p>
-								<span style={{ backgroundImage: `url('https://i.pinimg.com/564x/7b/ca/5d/7bca5db2b4767e9e0c9440142e6f65bf.jpg')`, backgroundPosition: `center`, backgroundSize: `cover` }}></span>
-							</p>
-							<div>
-								<dl>
-									<dt><i className="uil uil-calendar-alt"></i> 2021.01.10 10:00</dt>
-									<dd><span>Notice</span></dd>
-									<dd><em>News</em></dd>
-								</dl>
-								<h2>Simple Manual Of Cojam Service</h2>
-							</div>
-						</li>
-						<li className="item">
-							<p>
-								<span style={{ backgroundImage: `url('https://i.pinimg.com/564x/7b/ca/5d/7bca5db2b4767e9e0c9440142e6f65bf.jpg')`, backgroundPosition: `center`, backgroundSize: `cover` }}></span>
-							</p>
-							<div>
-								<dl>
-									<dt><i className="uil uil-calendar-alt"></i> 2021.01.10 10:00</dt>
-									<dd><em>News</em></dd>
-								</dl>
-								<h2>블록체인 예측시스템 코잼, 블록체인 혁신을 실험한다</h2>
-							</div>
-						</li>
-						<li className="item">
-							<p>
-								<span style={{ backgroundImage: `url('https://i.pinimg.com/564x/7b/ca/5d/7bca5db2b4767e9e0c9440142e6f65bf.jpg')`, backgroundPosition: `center`, backgroundSize: `cover` }}></span>
-							</p>
-							<div>
-								<dl>
-									<dt><i className="uil uil-calendar-alt"></i> 2021.01.10 10:00</dt>
-									<dd><em>News</em></dd>
-								</dl>
-								<h2>블록체인 예측시스템 플랫폼 코잼, 손흥민 득점 순위 예측 진행</h2>
-							</div>
-						</li>
-					</ul>
-					<div><Link to="/">More</Link></div>
-				</div>
-
-
-.main-service {width:100%; background:url('@assets/main_service_bg.png') center -50px no-repeat;}
-.main-service > div {width:1300px; margin:0 auto; padding:170px 0 100px 0; background:url('@assets/main_service_phone.png') -280px 80px no-repeat; overflow:hidden;}
-
-			</div> */}
-			{/* 공지사항 끝 */}
-
-
-
 			{/* 서비스 */}
-			<div className="main-service" style={{background: `url('${serviceBackground}') center no-repeat;`}}>
-				<div style= {{background: `url('${phoneBackground}') center no-repeat;`}} >
+			<div className="main-service" style={{background: `url('${serviceBackground}') center no-repeat`}}>
+				<div style= {{background: `url('${phoneBackground}') -280px no-repeat`}} >
 					<h2>Cojam Service</h2>
 					<h3>Operate the Service Through Advanced Technology</h3>
 					<dl>
@@ -343,7 +216,7 @@ function Index() {
 
 			
 			{/* 질문답변 */}
-			<div className="main-qna" style={{background: `url('${qnaBackground}') center -50px no-repeat;`}}>
+			<div className="main-qna" style={{background: `url('${qnaBackground}') center -50px no-repeat`}}>
 				<div>
 					<h2>Q&A</h2>
 					<h3>If you have any other questions, please feel free to ask us!</h3>
@@ -376,7 +249,12 @@ function Index() {
 }
 
 function addComma(data) {
+	if(!data) return '';
+
 	return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+
+
 
 export default Index;

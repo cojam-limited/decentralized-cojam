@@ -3,14 +3,16 @@ import { Link } from 'react-router-dom'
 
 import { urlFor, client } from "../../sanity";
 
+import { useLoadingState } from "../../assets/context/LoadingContext";
 import backgroundImage from '@assets/body_notice.jpg';
 
 function Index(props) {
 	const [ post, setPost ] = useState(props.location.state.post);
 	const [ postView, setPostView ] = useState([]);
-
+	const { setLoading } = useLoadingState();
 
 	useEffect(() => {
+		setLoading(true);
 		const query = `*[_type == "postView" && title == "${post.title}"]`;
 		client.fetch(query).then((data) => {
 			console.log('query data', data);
@@ -18,6 +20,7 @@ function Index(props) {
 			setPostView(data && data[0]);
 			console.log('post view', data[0]);
 		});
+		setLoading(false);
 	}, [post]);
 
   	return (

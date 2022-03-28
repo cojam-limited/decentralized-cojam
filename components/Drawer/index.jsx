@@ -95,18 +95,12 @@ export default function SideDrawer() {
           <AccountCard>
             <h1>Balance</h1>
             <div className="address" onClick={handleCopy}>
-              {walletData?.account ? <span>{balance} KLAY</span> : 'Please connect wallet'}
+              {walletData?.account ? <span>{balance? balance.toFixed(5) : 0} KLAY</span> : 'Please connect wallet'}
             </div>
           </AccountCard>
 
           <Button text={walletData?.account ? 'Disconnect Wallet' : 'Connect Wallet'} onClick={handleConnectWallet} />
         </UserContainer>
-
-        {/* <ServiceContainer>
-          <li>About</li>
-          <li>Terms of Service</li>
-          <li>Privacy Policy</li>
-        </ServiceContainer> */}
       </DrawerContents>
     </Drawer>
   );

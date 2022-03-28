@@ -676,6 +676,8 @@
 .quest-view > dl > dt > div div {margin-top:10px;}
 .quest-view > dl > dt > div div a {display:inline-block; width:100%; text-align:center; padding:15px 15px; font-weight:600; font-size:13px; line-height:13px; color:#fff; border-radius:10px; background:#8950fc;}
 .quest-view > dl > dt > div div a:hover {box-shadow:inset 0 0 5px rgba(0,0,0,0.1);}
+.quest-view > dl > dt > div div div {display:inline-block; width:100%; text-align:center; padding:15px 15px; font-weight:600; font-size:13px; line-height:13px; color:#fff; border-radius:10px; background:#8950fc;}
+.quest-view > dl > dt > div div div:hover {box-shadow:inset 0 0 5px rgba(0,0,0,0.1);}
 .quest-view > dl > dd {width:63%; margin-bottom:20px; padding:25px 25px 40px 25px; border:#e5e5e5 0.5px solid; border-radius:10px; background:#fff; box-shadow:0 0 10px 0 rgba(0,0,0,0.1);}
 .quest-view > dl > dd > ul {display:flex; align-items:center; border-bottom:#e9e9e9 1px solid;}
 .quest-view > dl > dd > ul li {display:flex; align-items:center; margin-right:30px; padding:5px 3px 14px 3px; font-weight:600; font-size:16px; line-height:20px; border-bottom:#fff 3px solid; cursor:pointer; transition:all 0.3s;}
@@ -1050,6 +1052,111 @@
 @media all and (min-width:1200px) {
 
 }
+
+/* Market */
+.market-content {width:1300px; margin:-1px auto 0 auto; padding:50px 40px 40px 40px; border:#e5e5e5 1px solid; border-top-left-radius:0; border-top-right-radius:10px; border-bottom-left-radius:10px; border-bottom-right-radius:10px; background:#fff; box-shadow:0 0 10px 0 rgba(0,0,0,0.1);}
+.market-content > div {display:none;}
+.market-content > div > h2 {text-align:center; font-weight:700; font-size:22px; line-height:22px; color:#222;}
+.market-content > div > h2 span {border-bottom:#222 2px solid;}
+.market-content > div > div {margin-top:35px;}
+.market-content > div.mc-votings {display:block;}
+
+.mc-markets > div > ul > li > p.false {width: 30px; height: 30px;  color:#ef168f ; font-weight:700; border-radius:30px; line-height: 30px; margin: auto;} 
+.mc-markets > div > ul > li > p.true {width: 30px; height: 30px; color:#8950fc; font-weight:700; border-radius:30px; line-height: 30px; margin: auto;} 
+
+.mc-markets > div > ul {display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; position:relative; width:100%; padding:15px 0; border-bottom:#e9e9e9 1px solid; overflow:hidden;}
+.mc-markets > div > ul > li {position:relative; padding:0 15px; text-align:center; font-size:12px; text-overflow:ellipsis; white-space:nowrap; border-left:#e9e9e9 1px solid; overflow:hidden;}
+.mc-markets > div > ul > li:nth-child(1) {width:3%; border-left:none;}
+.mc-markets > div > ul > li:nth-child(2) {width:5%; border-right:#e9e9e9 1px solid;}
+.mc-markets > div > ul > li:nth-child(3) {width:10%; border-left:none;}
+.mc-markets > div > ul > li:nth-child(4) {width:'*'; text-align:right;}
+.mc-markets > div > ul > li:nth-child(5) {width:12%; text-align:right;}
+.mc-markets > div > ul > li:nth-child(6) {width:10%; text-align:right;}
+.mc-markets > div > ul > li:nth-child(7) {width:8%; text-align:right;}
+.mc-markets > div > ul > li:nth-child(8) {width:8%; text-align:right;}
+.mc-markets > div > ul > li > strong {text-align:center; font-weight:600; color:#222;}
+.mc-markets > div > ul > li > span {display:none; font-weight:600; color:#222;}
+.mc-markets > div > ul > li > ul {display:flex; justify-content:space-between; align-items:center;}
+.mc-markets > div > ul > li > ul li span {display:inline-block; width:20px; height:20px; border-radius:50%; background:#999;}
+.mc-markets > div > ul > li > ul li h2 {margin-top:2px; font-size:9px; line-height:12px;}
+.mc-markets > div > ul > li > ul li.ing span {background:#ef168f;}
+.mc-markets > div > ul > li > ul li.ing h2 {color:#ef168f;}
+.mc-markets > div > ul > li > ul li.complete span {background:#8950fc;}
+.mc-markets > div > ul > li > ul li.complete h2 {color:#8950fc;}
+.mc-markets > div > ul > li > p {position:absolute; width:90%; height:100%; padding-top:3px; font-weight:700; font-size:14px; color:#fff; background:rgba(0,0,0,0.7);}
+
+.mc-markets > div > ul > li > ol {display:flex; justify-content:space-between; align-items:center; border:#e5e5e5 1px solid; border-radius:5px; overflow:hidden;}
+.mc-markets > div > ul > li > ol.fourstep li {width:25%;}
+.mc-markets > div > ul > li > ol li {width:20%; padding:8px 0; text-align:center; border-left:#e5e5e5 1px solid;}
+.mc-markets > div > ul > li > ol li:nth-child(1) {border-left:none;}
+.mc-markets > div > ul > li > ol li h2 {font-size:9px; line-height:9px;}
+.mc-markets > div > ul > li > ol li.complete {background:#8950fc;}
+.mc-markets > div > ul > li > ol li.complete h2 {color:#fff;}
+
+@media all and (max-width:479px) {
+  .market-content {width:100%; padding:30px 20px 80px 20px;}
+  .market-content > div > h2 {font-size:18px; line-height:18px;}
+  .market-content > div > div {margin-top:25px;}
+
+  .mc-markets > div > ul {margin-bottom:15px; padding:15px; border:#e9e9e9 1px solid; border-radius:10px; overflow:hidden;}
+  .mc-markets > div > ul:first-child {display:none;}
+  .mc-markets > div > ul > li {padding:4px 0;}
+  .mc-markets > div > ul > li > span {display:inline-block; padding-right:5px;}
+  .mc-markets > div > ul > li:nth-child(1) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(2) {width:100%; text-align:left; border-left:none; border-right:none;}
+  .mc-markets > div > ul > li:nth-child(3) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(4) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(5) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(6) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li > ul {margin-top:8px;}
+  .mc-markets > div > ul > li > p {padding-top:25px; text-align:center;}
+
+  .mc-markets > div > ul > li.pending {display:flex; justify-content:center; align-items:center; position:absolute; width:100%; height:100%; margin-left:-15px; font-weight:700; font-size:14px; color:#fff; background:rgba(0,0,0,0.7); z-index:99;}
+}
+
+@media all and (min-width:480px) and (max-width:767px) {
+  .market-content {width:100%; padding:30px 20px 80px 20px;}
+  .market-content > div > h2 {font-size:18px; line-height:18px;}
+  .market-content > div > div {margin-top:25px;}
+
+  .mc-markets > div > ul {margin-bottom:15px; padding:15px; border:#e9e9e9 1px solid; border-radius:10px; overflow:hidden;}
+  .mc-markets > div > ul:first-child {display:none;}
+  .mc-markets > div > ul > li {padding:4px 0;}
+  .mc-markets > div > ul > li > span {display:inline-block; padding-right:5px;}
+  .mc-markets > div > ul > li:nth-child(1) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(2) {width:100%; text-align:left; border-left:none; border-right:none;}
+  .mc-markets > div > ul > li:nth-child(3) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(4) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(5) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(6) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li > ul {margin-top:8px;}
+  .mc-markets > div > ul > li > p {padding-top:25px; text-align:center;}
+  .mc-markets > div > ul > li.pending {display:flex; justify-content:center; align-items:center; position:absolute; width:100%; height:100%; margin-left:-15px; font-weight:700; font-size:14px; color:#fff; background:rgba(0,0,0,0.7); z-index:999;}
+}
+@media all and (min-width:768px) and (max-width:991px) {
+  .market-content {width:750px; padding:50px 40px 80px 40px;}
+
+  .mc-markets > div > ul {margin-bottom:15px; padding:25px; border:#e9e9e9 1px solid; border-radius:10px; overflow:hidden;}
+  .mc-markets > div > ul:first-child {display:none;}
+  .mc-markets > div > ul > li {padding:4px 0;}
+  .mc-markets > div > ul > li > span {display:inline-block; padding-right:5px;}
+  .mc-markets > div > ul > li:nth-child(1) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(2) {width:100%; text-align:left; border-left:none; border-right:none;}
+  .mc-markets > div > ul > li:nth-child(3) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(4) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(5) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li:nth-child(6) {width:100%; text-align:left; border-left:none;}
+  .mc-markets > div > ul > li > ul {margin-top:8px;}
+  .mc-markets > div > ul > li > p {padding-top:25px; text-align:center;}
+}
+@media all and (min-width:992px) and (max-width:1199px) {
+  .mc-markets > div > ul > li:nth-child(2) {width:24%;}
+  .mc-markets > div > ul > li:nth-child(3) {width:30%;}
+}
+
+
+
+
 
 
 /* 내용 */

@@ -15,18 +15,26 @@ import 'react-responsive-modal/styles.css';
 
 import doBetting from './doBetting';
 import { urlFor, client } from "../../sanity";
+import { useWalletData } from '@data/wallet';
+
+import { kaikasGetBalance } from '@api/UseKaikas';
+
 import backgroundImage from '@assets/body_quest.jpg';
 
 function Index(props) {
-	//const { setLoading } = useLoadingState();
-	const [ quest ] = useState(props.location.state.quest);
-	const [ selectedAnswer, setSelectedAnswer ] = useState(props.location.state.quest.answers[0]);
-	const [ questTotalAmount ] = useState(props.location.state.quest.totalAmount);
-	const [ answerTotalAmounts ] = useState(props.location.state.answerTotalAmounts);
-	const [ answerPercents ] = useState(props.location.state.answerPercents);
-	const [ answerAllocations ] = useState(props.location.state.answerAllocations);
-	const [ answerColors, setAnswerColors ] = useState({});
+	const [ onBetting, setOnBetting ] = useState();
+	const { setLoading } = useLoadingState();
+	const [ selectedAnswer, setSelectedAnswer ] = useState();
+	const { walletData } = useWalletData();
 
+	const [ questId ] = useState(props.location.state.questId);
+	const [ quest, setQuest ] = useState();
+	const [ questTotalAmount, setQuestTotalAmount ] = useState();
+	const [ answerTotalAmounts, setAnswerTotalAmounts ] = useState({});
+	const [ answerPercents, setAnswerPercents ] = useState({});
+	const [ answerAllocations, setAnswerAllocations ] = useState({});
+
+	const [ answerColors, setAnswerColors ] = useState({});
 	const [ openQuestAdd, modalQuestAdd ] = useState(false);
 	const [ openQuestSeason, modalQuestSeason ] = useState(false);
 
@@ -43,81 +51,134 @@ function Index(props) {
 	// modal values
 
 	const setBetting = async () => {
-		//setLoading(true);
-		if(!quest || !selectedAnswer) {
+		setLoading(true);
+		if(!selectedAnswer) {
 			alert('choice the answer !');
-			//setLoading(false);
+			setLoading(false);
 			return;
 		}
 
 		try {
 			const questAnswerId = quest.answerIds.filter((answerId) => answerId.title === selectedAnswer);
+			const curBalance = await kaikasGetBalance(walletData.account);
+
 			const betting = {
 				'bettingCoin': Number(bettingCoin),
 				'spenderAddress': '',
 				'transactionId': '',
 				'bettingStatus': '',
-				'questKey': quest.questKey,
+				'questKey': quest?.questKey,
 				'questAnswerKey': questAnswerId[0], // TODO answer key
 				'memberKey': '',
 				'receiveAddress': '',
 				'answerTitle': selectedAnswer,
+				'curBalance': curBalance / 10 ** 18
 			}
 
 			await doBetting(betting);
+			
 			alert('betting success.');
+			setOnBetting('bet');
 		} catch(error) {
 			console.log('betting error', error);
 		}
 
-		//setLoading(false);
+		setLoading(false);
 	}
 
 	useEffect(() => {
-		//setLoading(true);
-		const answerHistoryQuery = `*[_type == 'betting' && questKey == ${props.location.state.quest.questKey}] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey]{color}[0] } | order(createdDateTime asc)`;
-		client.fetch(answerHistoryQuery).then((answerHist) => {
-			// group by date
-			const graphGroupData = answerHist.reduce((group, answer) => {
-				const { bettingCoin, createdDateTime, answerTitle, answerColor } = answer;
+		console.log('new load');
 
-				answerColors[answerTitle] = answerColor.color.value;
-				setAnswerColors(answerColors);
+		setLoading(true);
+		/**
+		 * Quest 리스트 & 데이터 조회
+		 */
+		if(!questId) {
+			alert('error. pick the quest again. please');
+			setLoading(false);
+			return;
+		}
 
-				const date = Moment(createdDateTime).format('YYYY-MM-DD');
-				group[answerTitle] = group[answerTitle] || {};
-				group[answerTitle][date] = group[answerTitle][date] ? Number(group[answerTitle][date]) + Number(bettingCoin) : Number(bettingCoin);
-				return group;
-			}, {});
+		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} [0]`;
+		client.fetch(questQuery).then((quest) => {
+			const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
+			if(diff === 0) { 
+				quest.dDay = 'D-0';
+			} else {
+				quest.dDay = diff > 0 ? 'expired' : `D${diff}`;
+			}
+
+			quest.startDateTime = Moment(quest.startDateTime).format('yyyy-MM-DD HH:mm:ss');
+			quest.endDateTime = Moment(quest.endDateTime).format('yyyy-MM-DD HH:mm:ss');
 			
-			const graphKeys = [];
-			const graphData = {};
-			for (const [key, value] of Object.entries(graphGroupData)) {
-				graphKeys.push(key);
-				for(const [k, v] of Object.entries(graphGroupData[key])) {
-					graphData[key] = graphData[key] || [];
-					graphData[key].push({x: k, y: v});
+			console.log('quest', quest);
+
+			setQuest(quest);
+			setQuestTotalAmount(quest.totalAmount);
+			setSelectedAnswer(quest.answers[0]);
+
+			const questTotalAmount = quest.totalAmount;
+			const answers = quest.answerIds;
+			answers.forEach((answer) => {
+				console.log('answer', answer);
+
+				const resultPercent = answer.totalAmount / questTotalAmount;
+				const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
+				answerTotalAmounts[answer.title] = answer.totalAmount;
+				answerPercents[answer.title] = resultPercent * 100;
+				answerAllocations[answer.title] = allocation;
+	
+				setAnswerTotalAmounts(answerTotalAmounts);
+				setAnswerPercents(answerPercents);
+				setAnswerAllocations(answerAllocations);
+			});
+
+			const creteriaDate = Moment().subtract(5, 'days').format('YYYY-MM-DD');
+			console.log('creteriaDate', creteriaDate);
+			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey]{color}[0] } | order(createdDateTime asc)`;
+			client.fetch(answerHistoryQuery).then((answerHist) => {
+				// group by date
+				const graphGroupData = answerHist.reduce((group, answer) => {
+					const { bettingCoin, createdDateTime, answerTitle, answerColor } = answer;
+
+					answerColors[answerTitle] = answerColor.color.value;
+					setAnswerColors(answerColors);
+
+					const date = Moment(createdDateTime).format('YYYY-MM-DD');
+					group[answerTitle] = group[answerTitle] || {};
+					group[answerTitle][date] = group[answerTitle][date] ? Number(group[answerTitle][date]) + Number(bettingCoin) : Number(bettingCoin);
+					return group;
+				}, {});
+				
+				const graphKeys = [];
+				const graphData = {};
+				for (const [key, value] of Object.entries(graphGroupData)) {
+					graphKeys.push(key);
+					for(const [k, v] of Object.entries(graphGroupData[key])) {
+						graphData[key] = graphData[key] || [];
+						graphData[key].push({x: k, y: v});
+					}
 				}
-			}
 
-			console.log('answerColors', answerColors);
-			console.log('answerHist', answerHist);
-			console.log('graphData', graphData);
-			setHistoryGraph(graphData);
-			setAnswerHistory(answerHist);
-		});
+				setHistoryGraph(graphData);
+				setAnswerHistory(answerHist);
+			});
 
-		const seasonCategoryQuery = `*[_type == 'season' && isActive == true] {seasonCategories[] -> {seasonCategoryName, _id}}`;
-		client.fetch(seasonCategoryQuery).then((datas) => {
-			if(datas) {
-				const localCategories = [{seasonCategoryName: 'All'}];
-				datas[0].seasonCategories.forEach((category) => ( localCategories.push(category) ));
-				setCategories(localCategories);
-			}
-		});
+			const seasonCategoryQuery = `*[_type == 'season' && isActive == true] {seasonCategories[] -> {seasonCategoryName, _id}}`;
+			client.fetch(seasonCategoryQuery).then((datas) => {
+				if(datas) {
+					const localCategories = [{seasonCategoryName: 'All'}];
+					datas[0].seasonCategories.forEach((category) => ( localCategories.push(category) ));
+					setCategories(localCategories);
+				}
+			});
 
-		//setLoading(false);
-	}, []);
+			setLoading(false);
+		});  
+		/**
+		 * Quest 리스트 & 데이터 조회
+		 */ 
+	}, [onBetting]);
 
 	useEffect(() => {
 		if(!bettingCoin) {
@@ -146,10 +207,7 @@ function Index(props) {
 					<h2>{quest && quest.category}</h2>
 					<h3><i className="uil uil-estate"></i> Home · <span>{quest && quest.category}</span></h3>
 				</dt>
-				<dd>
-					<Link onClick={() => modalQuestAdd(true)}><i className="uil uil-plus-circle"></i> <span>Create New Prediction</span></Link>
-					<Link onClick={() => modalQuestSeason(true)}><i className="uil uil-info-circle"></i> <span>Season Info</span></Link>
-				</dd>
+				
 			</dl>
 			{/* 기본영역 끝 */}
 
@@ -187,7 +245,7 @@ function Index(props) {
 										<legend>CT</legend>
 										<p><input type="text" name="string" title="CT" defaultValue="" placeholder="CT Input" onChange={(e) => setBettingCoin(e.target.value)} /></p>
 										<div>
-											<Link onClick={() => setBetting()}>My Choice : {selectedAnswer}</Link>
+											<div style={{cursor: 'pointer'}} onClick={() => setBetting()}>My Choice : {selectedAnswer}</div>
 										</div>
 									</fieldset>
 								</form>
@@ -283,7 +341,7 @@ function Index(props) {
 
 				{/* 등록버튼 */}
 				<div className="add-btn">
-					<Link onClick={() => modalQuestAdd(true)}><i className="uil uil-plus"></i></Link>
+					<Link to="#" onClick={() => modalQuestAdd(true)}><i className="uil uil-plus"></i></Link>
 				</div>
 				{/* 등록버튼 끝 */}
 
@@ -403,7 +461,7 @@ function Index(props) {
 								</li>
 							</ul>
 							<p className="mqa-btn">
-								<Link onClick={() => createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'))}>Complete</Link>
+								<Link to='#' onClick={() => createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'))}>Complete</Link>
 							</p>
 							</div>
 						</fieldset>
@@ -501,6 +559,8 @@ function tabOpen(target) {
 }
 
 function addComma(data) {
+	if(!data) return '';
+
 	return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 

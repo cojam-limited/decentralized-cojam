@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Modal } from 'react-responsive-modal';
 
 import 'react-responsive-modal/styles.css';
-
+import backgroundImage from '@assets/body_mypage.jpg';
 
 function Index() {
 	const [openSendCT, modalSendCT] = useState(false);
@@ -12,7 +12,7 @@ function Index() {
 	const [openMypageTransfer, modalMypageTransfer] = useState(false);
 
   return (
-    <div className="bg-mypage">
+    <div className="bg-mypage" style={{background: `url('${backgroundImage}') center -590px no-repeat, #eef0f8 `}}>
 
 			{/* 타이틀영역 */}
 			<div className="title-area">

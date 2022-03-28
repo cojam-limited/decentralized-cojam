@@ -5,7 +5,7 @@ export const DrawerContents = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
+  height: auto;
   min-width: 300px;
 `;
 export const UserContainer = styled.div``;

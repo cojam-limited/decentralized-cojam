@@ -83,11 +83,7 @@ const createNewQuest = (modalValues, answers) => {
     
     const quest = {'answers': [], ...modalValues};
 
-    console.log('answers ??????', answers);
-
     answers && answers.forEach((answer) => quest.answers.push(answer.value));
-
-    console.log('quest');
 
     // TODO REMOVE TEST
     //const questId = 'urOzoAW0aX4fcoOr4DwDhx';
@@ -107,12 +103,9 @@ const createNewQuest = (modalValues, answers) => {
         console.log('get seasons key', seasons[0]._id);
         quest['seasonKey'] = seasons[0].seasonKey;
 
-        // TODO ADD member key로 Wallet address 가져와야함
-        // TODO ADD member key로 Wallet address 가져와야함
-        // TODO ADD member key로 Wallet address 가져와야함
         const accounts = await window.klaytn.enable();
         const walletAddress = accounts[0];
-        const memberKey = "test_member_key";
+        //const memberKey = "test_member_key";
 
         if(!walletAddress) {
             console.log('You do not have a wallet.');
@@ -120,13 +113,6 @@ const createNewQuest = (modalValues, answers) => {
         }
 
         quest['creatorAddress'] = walletAddress;
-        quest['memberKey'] = memberKey;
-
-        // TODO ADD member key로 Wallet address 가져와야함
-        // TODO ADD member key로 Wallet address 가져와야함
-        // TODO ADD member key로 Wallet address 가져와야함
-
-
 
         //파일 업로드 
         if(modalValues && modalValues.imageFile) {

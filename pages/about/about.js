@@ -1,22 +1,22 @@
 //import { Link } from 'react-router-dom'
 import React from 'react';
 
-import serviceIcn04 from '../../assets/image/content/service_icn04.png'
-import serviceIcn06 from '../../assets/image/content/service_icn06.png'
-import serviceIcn08 from '../../assets/image/content/service_icn08.png'
-import serviceIcn09 from '../../assets/image/content/service_icn09.png'
-import serviceIcn10 from '../../assets/image/content/service_icn10.png'
-import serviceIcn11 from '../../assets/image/content/service_icn11.png'
-import aboutContatIcn01 from '../../assets/image/content/about_contat_icn01.png'
-import aboutContatIcn04 from '../../assets/image/content/about_contat_icn04.png'
-import snsIconNaver from '../../assets/image/content/sns_icon_naver.png'
-import snsIconMedium from '../../assets/image/content/sns_icon_medium.png'
-import snsIconInstagram from '../../assets/image/content/sns_icon_instagram.png'
-import snsIconTwiter from '../../assets/image/content/sns_icon_twiter.png'
-import snsIconFacebook from '../../assets/image/content/sns_icon_facebook.png'
-import snsIconKakao from '../../assets/image/content/sns_icon_kakao.png'
+import serviceIcn04 from '@assets/service_icn04.png'
+import serviceIcn06 from '@assets/service_icn06.png'
+import serviceIcn08 from '@assets/service_icn08.png'
+import serviceIcn09 from '@assets/service_icn09.png'
+import serviceIcn10 from '@assets/service_icn10.png'
+import serviceIcn11 from '@assets/service_icn11.png'
+import aboutContatIcn01 from '@assets/about_contat_icn01.png'
+import aboutContatIcn04 from '@assets/about_contat_icn04.png'
+import snsIconNaver from '@assets/sns_icon_naver.png'
+import snsIconMedium from '@assets/sns_icon_medium.png'
+import snsIconInstagram from '@assets/sns_icon_instagram.png'
+import snsIconTwiter from '@assets/sns_icon_twiter.png'
+import snsIconFacebook from '@assets/sns_icon_facebook.png'
+import snsIconKakao from '@assets/sns_icon_kakao.png'
 
-import aboutMovie from '../../assets/image/content/about_movie.mp4'
+import aboutMovie from '@assets/about_movie.mp4'
 
 import backgroundImage from '@assets/body_about.jpg';
 import historyBackgroundImage from '@assets/about_history_img01.svg';
@@ -33,7 +33,7 @@ function Index() {
 		<div className="container-top-round">
 		<div className="about-cojam">
 			<h2>Introduce COJAM</h2>
-			<video width="100%" autoPlay muted controls playsInLine>
+			<video width="100%" autoPlay muted controls playsInline>
 				<source src={aboutMovie} type="video/mp4" />
 				Your browser does not support HTML5 video.
 			</video>
@@ -45,29 +45,29 @@ function Index() {
 			<h2>Whitepapers</h2>
 			<p>Click your country to download the white paper for each country.</p>
 			<ul className="sc1-top">
-				<li>
+				<li key="1">
 					<p><img src={serviceIcn04} alt="" title="" /></p>
 					<h3>COJAM<br />WHITEPAPERS</h3>
 					<a href="../../assets/pdf/COJAM WP_v2.0.pdf" target="_blank"><img src={serviceIcn09} alt="" title="" /> KOR DOWNLOAD <i className="uil uil-import"></i></a>
 				</li>
-				<li>
+				<li key="2">
 					<p><img src={serviceIcn04} alt="" title="" /></p>
 					<h3>COJAM<br />WHITEPAPERS</h3>
 					<a href="../../assets/pdf/COJAM WP_v2.0_EN.pdf" target="_blank"><img src={serviceIcn06} alt="" title="" />	ENG DOWNLOAD <i className="uil uil-import"></i></a>
 				</li>
-				<li>
+				<li key="3">
 					<p><img src={serviceIcn04} alt="" title="" /></p>
 					<h3>COJAM<br />WHITEPAPERS</h3>
 					<a href="../../assets/pdf/COJAM WP_v2.0_TH.pdf" target="_blank"><img src={serviceIcn11} alt="" title="" /> THAI DOWNLOAD <i className="uil uil-import"></i></a>
 				</li>
 			</ul>
 			<ul className="sc1-bottom">
-				<li>
+				<li key="1">
 					<p><img src={serviceIcn04} alt="" title="" /></p>
 					<h3>COJAM<br />WHITEPAPERS</h3>
 					<a href="../../assets/pdf/COJAM WP_v2.0_CN.pdf" target="_blank"><img src={serviceIcn08} alt="" title="" /> CHN DOWNLOAD <i className="uil uil-import"></i></a>
 				</li>
-				<li>
+				<li key="2">
 					<p><img src={serviceIcn04} alt="" title="" /></p>
 					<h3>COJAM<br />WHITEPAPERS</h3>
 					<a href="../../assets/pdf/COJAM WP_v2.0_JP.pdf" target="_blank"><img src={serviceIcn10} alt="" title="" /> JPN DOWNLOAD <i className="uil uil-import"></i></a>
@@ -89,39 +89,39 @@ function Index() {
 			<div className="about-contact-content">
 				<div>
 					<ul>
-						<li>
+						<li key="1">
 							<a target="_blank" href="https://www.google.com/maps/place/The+Tara+Building+-+Coworking+%26+Office+Spaces+Dublin+2/@53.3469828,-6.2574787,17z/data=!3m1!4b1!4m5!3m4!1s0x48670e85677f5bbd:0x52de8be53512895!8m2!3d53.3469828!4d-6.25529" rel="noreferrer"><img src={aboutContatIcn01} alt="" title="" />	The Tara Building, Tara Street, Dublin 2</a>
 						</li>
-						<li>
+						<li key="2">
 							<a target="_blank" href="https://t.me/cojamkorea" rel="noreferrer"><img src={aboutContatIcn04} alt="" title="" />Telegram @cojamkorea</a>
 						</li>
-						<li>
+						<li key="3">
 							<a target="_blank" href="mailto: ask@cojam.io" rel="noreferrer"><img src={aboutContatIcn04} alt="" title="" />ask@cojam.io</a>
 						</li>
 					</ul>
 				</div>
 				<div>
 					<ul>
-						<li>
+						<li key="1">
 							<a target="_blank" href="https://blog.naver.com/cojam_limited" rel="noreferrer"><img src={snsIconNaver} alt="" title="" />Naver Blog</a>
 						</li>
-						<li>
+						<li  key="2">
 							<a target="_blank" href="https://cojam-official.medium.com/" rel="noreferrer"><img src={snsIconMedium} alt="" title="" />Medium</a>
 						</li>
-						<li>
+						<li  key="3">
 							<a target="_blank" href="https://www.instagram.com/cojam_official/" rel="noreferrer"><img src={snsIconInstagram} alt="" title="" />Instagram</a>
 						</li>
 					</ul>
 				</div>
 				<div>
 					<ul>
-						<li>
+						<li  key="1">
 							<a target="_blank" href="https://twitter.com/OfficialCojam" rel="noreferrer"><img src={snsIconTwiter} alt="" title="" />Twitter</a>
 						</li>
-						<li>
+						<li  key="2">
 							<a target="_blank" href="https://www.facebook.com/cojam.limited/" rel="noreferrer"><img src={snsIconFacebook} alt="" title="" />Facebook</a>
 						</li>
-						<li>
+						<li  key="3">
 							<a target="_blank" href="https://open.kakao.com/o/gVOJyBad" rel="noreferrer"><img src={snsIconKakao} alt="" title="" />KaKao</a>
 						</li>
 					</ul>

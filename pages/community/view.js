@@ -13,21 +13,21 @@ const override = css`
   margin: 0 auto;
   border-color: red;
 `;
-
+import { useLoadingState } from "../../assets/context/LoadingContext";
 import backgroundImage from '@assets/body_service.jpg';
 
 function Index(props) {
+	const { setLoading } = useLoadingState();
 	const [post, setPost] = useState(props.location.state.post);
 	const [postView, setPostView] = useState([]);
 
-	console.log('input post', props.location.state.post);
-
 	useEffect(() => {
+		setLoading(true);
 		const query = `*[_type == "communityView" && title == "${post.title}"]`;
 		client.fetch(query).then((data) => {
 			setPostView(data && data[0]);
-			console.log('community view', data[0]);
 		});
+		setLoading(false);
 	}, [post]);
 
   return (

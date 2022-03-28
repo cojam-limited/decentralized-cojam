@@ -7,7 +7,7 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const config = {
-  name: 'badgemeal',
+  name: 'cojam-v2',
   mode: isDevelopment ? 'development' : 'production',
   devtool: isDevelopment ? 'eval-cheap-module-source-map' : false,
   resolve: {

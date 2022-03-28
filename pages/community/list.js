@@ -6,11 +6,12 @@ import { urlFor, client } from "../../sanity";
 import Moment from 'moment';
 
 import Pagination from "react-sanity-pagination";
-
+import { useLoadingState } from "../../assets/context/LoadingContext";
 import backgroundImage from '@assets/body_service.jpg';
 
 function Index() {
 	const history = useHistory();
+	const { setLoading } = useLoadingState();
 	const [categories, setCategories] = useState(['All', 'News', 'Notice']);
 	const [activeCategory, setActiveCategory] = useState('All');
 
@@ -27,8 +28,7 @@ function Index() {
 	{/* 페이지네이션 세팅 끝 */}
 	
 	useEffect(() => {
-		console.log('effect', activeCategory);
-		
+		setLoading(true);
 		const query = `*[_type == 'communityList' ${activeCategory == 'All' ? '' : `&& type == '${activeCategory}'`}]`;
 		client.fetch(query).then((datas) => {
 			console.log('query data', datas);
@@ -39,9 +39,10 @@ function Index() {
 			setItemsToSend(datas);
 			setItems(datas.slice(0, postsPerPage));
 			
-			document.querySelectorAll('.pagePagination button').forEach((button) => button.classList.remove("active"));
-			document.querySelector('.pagePagination :nth-child(2) > button').classList.add("active");
+			document.querySelectorAll('.pagePagination button').forEach((button) => button?.classList.remove("active"));
+			document.querySelector('.pagePagination :nth-child(2) > button')?.classList.add("active");
 		});
+		setLoading(false);
 	}, [activeCategory]);
 
 

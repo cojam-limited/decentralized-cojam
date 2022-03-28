@@ -15,6 +15,7 @@ import About from '../pages/about/about'
 import CommunityList from '../pages/community/list'
 import CommunityView from '../pages/community/view'
 import Mypage from '../pages/mypage/mypage'
+import Market from '../pages/market/market'
 
 const Routers = () => {
   return (
@@ -32,6 +33,7 @@ const Routers = () => {
               <Route path='/CommunityList' exact component={CommunityList} />
               <Route path='/CommunityView' exact component={CommunityView} />
               <Route path='/Mypage' exact component={Mypage} />
+              <Route path='/Market' exact component={Market} />
             </Switch>
           </Layout>
         </Route>

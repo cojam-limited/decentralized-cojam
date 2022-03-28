@@ -6,11 +6,12 @@ import { urlFor, client } from "../../sanity";
 import Moment from 'moment';
 
 import Pagination from "react-sanity-pagination";
-
+import { useLoadingState } from "../../assets/context/LoadingContext";
 import backgroundImage from '@assets/body_notice.jpg';
 
 function Index() {
 	const history = useHistory();
+	const { setLoading } = useLoadingState();
 	
 	{/* 페이지네이션 세팅 */}
 	let postsPerPage = 3;
@@ -24,7 +25,8 @@ function Index() {
 	};
 	{/* 페이지네이션 세팅 끝 */}
 
-	useEffect(() => {		
+	useEffect(() => {
+		setLoading(true);
 		const query = `*[_type == 'post']`;
 		client.fetch(query).then((datas) => {
 			console.log('query data', datas);
@@ -36,8 +38,9 @@ function Index() {
 			setItems(datas.slice(0, postsPerPage));
 			
 			document.querySelectorAll('.pagePagination button').forEach((button) => button.classList.remove("active"));
-			document.querySelector('.pagePagination :nth-child(2) > button').classList.add("active");
+			document.querySelector('.pagePagination :nth-child(2) > button')?.classList.add("active");
 		});
+		setLoading(false);
 	}, []);
 	
 	return (
@@ -89,8 +92,8 @@ function Index() {
 				<Pagination
 						nextButton={true}
 						prevButton={true}
-						nextButtonLabel={"➡️"}
-						prevButtonLabel={"⬅️"}
+						nextButtonLabel={">"}
+						prevButtonLabel={"<"}
 						items={itemsToSend}
 						action={action}
 						postsPerPage={postsPerPage}
