@@ -42,38 +42,4 @@ const Routers = () => {
   );
 };
 
-/*
-const Home = React.lazy(() => import('@pages/Home'));
-const RandomDraw = React.lazy(() => import('@pages/RandomDraw'));
-const ProposeMenu = React.lazy(() => import('@pages/ProposeMenu'));
-const Vote = React.lazy(() => import('@pages/Vote'));
-const User = React.lazy(() => import('@pages/User'));
-const NotFound = React.lazy(() => import('@pages/NotFound'));
-
-const Router = () => {
-  return (
-    <BrowserRouter>
-      <Header />
-      <Suspense fallback={<Loading />}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/randomdraw" element={<RandomDraw />} />
-          <Route path="/propose" element={<ProposeMenu />} />
-          <Route path="/vote" element={<Vote />} />
-          <Route path="/user" element={<User />} />
-          <Route path="/*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
-      <Navigation />
-      <Drawer />
-      <WalletModal />
-      <KlipQRModal />
-      <VoteModal />
-      <UploadImageModal />
-      <ToastContainer />
-    </BrowserRouter>
-  );
-};
-*/
-
 export default Routers;

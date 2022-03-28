@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useHistory } from 'react-router-dom'
 import { Modal } from 'react-responsive-modal';
-import LogoWhite from '../assets/image/common/logo_white.png'
-import LogoBlack from '../assets/image/common/logo_black.png'
+import LogoWhite from '../assets/logo_white.png'
+import LogoBlack from '../assets/logo_black.png'
 
 import CloseIcon from '@components/CloseIcon';
 import { ModalWrapper, ModalContents, ConnectKlipButton, ConnectKaikasButton } from './styles';
-import Logo_Kaikas from '@assets/image/common/logo_kaikas.svg';
+import Logo_Kaikas from '@assets/logo_kaikas.svg';
 import isMobile from '@utils/isMobile';
 import { KLIP_MODAL_DATA_KEY, WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import { kaikasLogin, kaikasGetBalance, isKaikasUnlocked, lockKaikas } from '@api/UseKaikas';

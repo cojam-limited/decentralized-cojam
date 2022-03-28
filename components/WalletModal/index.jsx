@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import Modal from '@mui/material/Modal';
 import CloseIcon from '@components/CloseIcon';
 import { ModalWrapper, ModalContents, ConnectKlipButton, ConnectKaikasButton } from './styles';
-import Logo_Klip from '@assets/logo_klip.svg';
-import Logo_Kaikas from '@assets/image/common/logo_kaikas.svg';
+import Logo_Kaikas from '@assets/logo_kaikas.svg';
 import isMobile from '@utils/isMobile';
 
 import { kaikasLogin } from '@api/UseKaikas';

@@ -359,13 +359,13 @@
 
 
 /* 시즌 */
-.main-season {width:100%; background:url('../image/content/main_season_bg.jpg') center no-repeat; background-size:cover;}
+.main-season {width:100%; background:url('../main_season_bg.jpg') center no-repeat; background-size:cover;}
 .main-season > div {width:1300px; margin:0 auto; padding:120px 0; text-align:center; overflow:hidden;}
 .main-season > div > h2 {font-weight:700; font-size:40px; line-height:40px; color:#fff;}
 .main-season > div > h3 {margin-top:20px; font-size:20px; line-height:28px; color:#9695C8;}
 .main-season > div > ul {display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%; margin-top:70px; padding:0 10px; overflow:hidden;}
 .main-season > div > ul > li {width:25%;}
-.main-season > div > ul > li div {display:flex; justify-content:center; align-items:center; flex-direction:column; width:239px; height:239px; margin:0 auto; border-radius:50%; background:url('../image/content/main_season_circle.svg') center no-repeat; background-size:cover; transition:all 0.7s;}
+.main-season > div > ul > li div {display:flex; justify-content:center; align-items:center; flex-direction:column; width:239px; height:239px; margin:0 auto; border-radius:50%; background:url('../main_season_circle.svg') center no-repeat; background-size:cover; transition:all 0.7s;}
 .main-season > div > ul > li div h2 {width:100%; font-weight:700; font-size:50px; line-height:50px; color:#fff; transition:all 0.7s;}
 .main-season > div > ul > li div h3 {width:100%; margin-top:10px; font-weight:600; font-size:14px; transition:all 0.7s;}
 /* .main-season > div > ul > li:hover div {background:#730C8A;}
@@ -504,7 +504,7 @@
   .main-service > div > dl > dd div p span {margin:0 auto;}
 }
 @media all and (min-width:992px) and (max-width:1299px) {
-  .main-service > div {width:1024px; background:url('../image/content/main_service_phone.png') -300px 100px no-repeat;}
+  .main-service > div {width:1024px; background:url('../main_service_phone.png') -300px 100px no-repeat;}
 }
 @media all and (min-width:1300px) {
 
@@ -1448,7 +1448,7 @@
 
 /* 회원관련 //////////////////////////////////////////////////////////////////////////////////////////*/
 /* 로그인 */
-.login-area {width:100%; height:100%; background:url('../image/content/member_visual_bg.png') center center no-repeat; background-size:cover;}
+.login-area {width:100%; height:100%; background:url('../member_visual_bg.png') center center no-repeat; background-size:cover;}
 .login-area > div {position:absolute; top:50%; left:50%; width:550px; margin:-250px 0 0 -275px; padding:50px; border-radius:15px; box-shadow:0 0 25px rgba(0,0,0,0.1); background:#fff;}
 .login-area > div h2 {text-align:center;}
 .login-area > div div {display:flex; justify-content:space-between; align-items:center; margin-top:50px;}
@@ -1460,8 +1460,8 @@
 .login-area > div ul > li {padding-bottom:10px;}
 .login-area > div ul > li input {width:100%; height:52px; padding:5px 25px 5px 40px; font-size:13px; color:#777; border:#e5e5e5 1px solid; border-radius:7px; background:#fff;}
 .login-area > div ul > li input::placeholder {color:#999;}
-.login-area > div ul > li input.id-icn {background:url('../image/content/login_id_icn.png') 15px center no-repeat, #f9f9f9;}
-.login-area > div ul > li input.pw-icn {background:url('../image/content/login_pw_icn.png') 15px center no-repeat, #f9f9f9}
+.login-area > div ul > li input.id-icn {background:url('../login_id_icn.png') 15px center no-repeat, #f9f9f9;}
+.login-area > div ul > li input.pw-icn {background:url('../login_pw_icn.png') 15px center no-repeat, #f9f9f9}
 .login-area > div h3 {margin-top:5px; }
 .login-area > div p {margin-top:20px;}
 .login-area > div p a {display:inline-block; width:100%; padding:20px; text-align:center; font-weight:600; font-size:16px; line-height:16px; color:#fff; border-radius:7px; background:#222; overflow:hidden;}
@@ -1496,7 +1496,7 @@
 
 
 /* 회원가입 */
-.join-area {width:100%; height:100%; background:url('../image/content/member_visual_bg.png') center center no-repeat; background-size:cover;}
+.join-area {width:100%; height:100%; background:url('../member_visual_bg.png') center center no-repeat; background-size:cover;}
 .join-area > div {position:absolute; top:50px; left:50%; width:550px; margin:0 0 0 -275px; padding:50px; border-radius:15px; box-shadow:0 0 25px rgba(0,0,0,0.1); background:#fff;}
 .join-area > div h2 {text-align:center;}
 .join-area > div div {display:flex; justify-content:space-between; align-items:center; margin-top:50px;}
@@ -1508,10 +1508,10 @@
 .join-area > div ul > li {padding-bottom:10px;}
 .join-area > div ul > li input {width:100%; height:52px; padding:5px 25px 5px 40px; font-size:13px; color:#777; border:#e5e5e5 1px solid; border-radius:7px; background:#fff;}
 .join-area > div ul > li input::placeholder {color:#999;}
-.join-area > div ul > li input.id-icn {background:url('../image/content/login_id_icn.png') 15px center no-repeat, #f9f9f9;}
-.join-area > div ul > li input.pw-icn {background:url('../image/content/login_pw_icn.png') 15px center no-repeat, #f9f9f9}
-.join-area > div ul > li input.email-icn {background:url('../image/content/login_email_icn.png') 15px center no-repeat, #f9f9f9}
-.join-area > div ul > li input.name-icn {background:url('../image/content/login_name_icn.png') 15px center no-repeat, #f9f9f9}
+.join-area > div ul > li input.id-icn {background:url('../login_id_icn.png') 15px center no-repeat, #f9f9f9;}
+.join-area > div ul > li input.pw-icn {background:url('../login_pw_icn.png') 15px center no-repeat, #f9f9f9}
+.join-area > div ul > li input.email-icn {background:url('../login_email_icn.png') 15px center no-repeat, #f9f9f9}
+.join-area > div ul > li input.name-icn {background:url('../login_name_icn.png') 15px center no-repeat, #f9f9f9}
 .join-area > div ol {width:100%; margin-top:10px; overflow:hidden;}
 .join-area > div ol li {padding-bottom:10px;}
 .join-area > div ol li label {font-weight:600; font-size:12px; color:#222;}
@@ -1546,7 +1546,7 @@
 
 
 /* 회원가입완료 */
-.join-complete-area {width:100%; height:100%; background:url('../image/content/member_visual_bg.png') center center no-repeat; background-size:cover;}
+.join-complete-area {width:100%; height:100%; background:url('../member_visual_bg.png') center center no-repeat; background-size:cover;}
 .join-complete-area > div {position:absolute; top:50%; left:50%; width:550px; margin:-300px 0 0 -275px; padding:50px; text-align:center; border-radius:15px; box-shadow:0 0 25px rgba(0,0,0,0.1); background:#fff;}
 .join-complete-area > div h2 {margin-top:35px; font-weight:600; font-size:20px; line-height:28px; color:#222;}
 .join-complete-area > div h3 {margin-top:40px;}
@@ -1578,7 +1578,7 @@
 
 
 /* 아이디/비번 관련 */
-.idpw-area {width:100%; height:100%; background:url('../image/content/member_visual_bg.png') center center no-repeat; background-size:cover;}
+.idpw-area {width:100%; height:100%; background:url('../member_visual_bg.png') center center no-repeat; background-size:cover;}
 .idpw-area > div {position:absolute; top:50%; left:50%; width:550px; padding:50px; border-radius:15px; box-shadow:0 0 25px rgba(0,0,0,0.1); background:#fff;}
 .idpw-area > div.pos-pw-email {margin:-225px 0 0 -275px;}
 .idpw-area > div.pos-pw-change {margin:-257px 0 0 -275px;}
@@ -1592,9 +1592,9 @@
 .idpw-area > div ul > li {padding-bottom:10px;}
 .idpw-area > div ul > li input {width:100%; height:52px; padding:5px 25px 5px 40px; font-size:13px; color:#777; border:#e5e5e5 1px solid; border-radius:7px; background:#fff;}
 .idpw-area > div ul > li input::placeholder {color:#999;}
-.idpw-area > div ul > li input.email-icn {background:url('../image/content/login_email_icn.png') 15px center no-repeat, #f9f9f9;}
-.idpw-area > div ul > li input.pw-icn {background:url('../image/content/login_pw_icn.png') 15px center no-repeat, #f9f9f9}
-.idpw-area > div ul > li input.name-icn {background:url('../image/content/login_name_icn.png') 15px center no-repeat, #f9f9f9}
+.idpw-area > div ul > li input.email-icn {background:url('../login_email_icn.png') 15px center no-repeat, #f9f9f9;}
+.idpw-area > div ul > li input.pw-icn {background:url('../login_pw_icn.png') 15px center no-repeat, #f9f9f9}
+.idpw-area > div ul > li input.name-icn {background:url('../login_name_icn.png') 15px center no-repeat, #f9f9f9}
 .idpw-area > div div {width:100%; margin-top:10px; text-align:right; overflow:hidden;}
 .idpw-area > div div a {font-weight:600; color:#222;}
 .idpw-area > div div a:hover {color:#8950fc;}
