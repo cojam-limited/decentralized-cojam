@@ -95,8 +95,7 @@ function Index() {
 	return (
     	<div>
 			{/* 비주얼영역 */}
-			<div className="main-vegas" >
-				<img src={mainBackGround} />
+			<div className="main-vegas" style={{background: `url('${mainBackGround}') center no-repeat`, backgroundSize: 'cover'}}>
 				<div className="mv-btm"><img src={mainVisualScroll} width="30" alt="" title="" /></div>
 				<div className="mv-copy">
 					<h2>COJAM</h2>
@@ -116,7 +115,7 @@ function Index() {
 						{ 
 						quests.map((quest, index) => {
 							return (
-								<li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} history.push({ pathname: `/QuestView`, state: {quest: quest, answerTotalAmounts: answerTotalAmounts, answerPercents: answerPercents, answerAllocations: answerAllocations}}) }}>
+								<li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} history.push({pathname: `/QuestView`, state: {questId: quest._id}}) }}>
                 					{ quest.dDay === 'expired' && <div>CLOSE</div> }
 									<h2>
 										Total <span>{quest.totalAmount && addComma(quest.totalAmount)}</span> CT

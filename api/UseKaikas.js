@@ -48,6 +48,8 @@ const abiJson2 = [{
 
 export const kaikasLogin = async () => {
   try {
+    console.log('login', window.klaytn, (typeof window.klaytn !== 'undefined'));
+
     if (typeof window.klaytn !== 'undefined') {
       const accounts = await window.klaytn.enable();
 

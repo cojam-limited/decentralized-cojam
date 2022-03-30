@@ -193,7 +193,7 @@ function Index() {
           {
             items && items.map((quest, index) => {
               return (
-                <li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} history.push({ pathname: `/QuestView`, state: {questId: quest._id}}) }}>
+                <li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} history.push({pathname: `/QuestView`, state: {questId: quest._id}}) }}>
                   { quest.dDay === 'expired' && <div>CLOSE</div> }
                   <h2>
                     Total <span>{quest.totalAmount && addComma(quest.totalAmount)}</span> CT

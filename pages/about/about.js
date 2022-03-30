@@ -33,6 +33,7 @@ function Index() {
 		<div className="container-top-round">
 		<div className="about-cojam">
 			<h2>Introduce COJAM</h2>
+
 			<video width="100%" autoPlay muted controls playsInline>
 				<source src={aboutMovie} type="video/mp4" />
 				Your browser does not support HTML5 video.

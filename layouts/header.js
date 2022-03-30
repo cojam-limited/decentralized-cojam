@@ -1,12 +1,14 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom'
 import { Modal } from 'react-responsive-modal';
-import LogoWhite from '../assets/logo_white.png'
-import LogoBlack from '../assets/logo_black.png'
+import LogoWhite from '@assets/logo_white.png'
+import LogoBlack from '@assets/logo_black.png'
 
-import CloseIcon from '@components/CloseIcon';
-import { ModalWrapper, ModalContents, ConnectKlipButton, ConnectKaikasButton } from './styles';
+import iconKlip from '@assets//icon_klip.svg'
+import iconMetamask from '@assets/icon_metamask.svg'
 import Logo_Kaikas from '@assets/logo_kaikas.svg';
+
+import { ConnectKaikasButton } from './styles';
 import isMobile from '@utils/isMobile';
 import { KLIP_MODAL_DATA_KEY, WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import { kaikasLogin, kaikasGetBalance, isKaikasUnlocked, lockKaikas } from '@api/UseKaikas';
@@ -38,6 +40,9 @@ function Header() {
 
   const checkWalletConnection = () => {
     let result = true;
+
+    console.log('check wallet connect', !walletData?.account, !isNumber(balance));
+    console.log('check wallet connect', walletData, balance);
     if (!walletData?.account || !isNumber(balance)) {
       result = false;
     }
@@ -56,6 +61,7 @@ function Header() {
         const account = await kaikasLogin();
         mutateWalletData({ account });
         mutateModalData({ open: false });
+        modalKlipAdd(false);
     } else {
         toastNotify({
           state: 'error',
@@ -207,17 +213,34 @@ function Header() {
       <Modal open={openKlipAdd} onClose={() => modalKlipAdd(false)} center>
         <div className="modal-klip">
           <dl>
-            <h1>Connect Wallet</h1>
-            <CloseIcon handleClose={handleClose} />
-            {/* <ConnectKlipButton onClick={handleOpenKlipModal}>
-              <img src={Logo_Klip} style={{ marginRight: '5px' }} alt="connect Klip" />
-              <span>Connect Klip via Kakao</span>
-            </ConnectKlipButton> */}
-            <ConnectKaikasButton onClick={handleOpenKaikasModal}>
-              <img src={Logo_Kaikas} style={{ marginRight: '5px' }} alt="connect Kaikas" />
-              <span>Kaikas by Klaytn</span>
-            </ConnectKaikasButton>
+            <dt>클레이스왑 시작하기</dt>
+            <dd onClick={() => modalKlipAdd(false)}><i className="uil uil-times"></i></dd>
           </dl>
+          <div>
+            <h2>내 카카오톡으로 간편하고 안전하게 시작할 수 있습니다.</h2>
+            <h3>
+              <a href="#none"><img src={iconKlip} alt="" title="" />카카오톡으로 Klip 지갑 연결</a>
+            </h3>
+            <h4>
+              <a href="#none">내 손안의 디지털 지갑, Klip 안내 <i className="uil uil-angle-right"></i></a>
+            </h4>
+            <dl>
+              <dt></dt>
+              <dd>또는</dd>
+              <dt></dt>
+            </dl>
+            <ul>
+              <li>
+                <ConnectKaikasButton onClick={handleOpenKaikasModal}>
+                  <img src={Logo_Kaikas} style={{ marginRight: '5px' }} alt="connect Kaikas" />
+                  <span>카이카스 지갑 연결</span>
+                </ConnectKaikasButton>
+              </li>
+              <li>
+                <a href="#none"><img src={iconMetamask} alt="" title="" width="20px" /> Metamask 지갑 연결</a>
+              </li>
+            </ul>
+          </div>
         </div>
       </Modal>
       {/* 모달 - 클레이트 연결 끝 */}
