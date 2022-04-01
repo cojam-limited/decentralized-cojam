@@ -41,8 +41,8 @@ function Index() {
 			
 			document.querySelectorAll('.pagePagination button').forEach((button) => button?.classList.remove("active"));
 			document.querySelector('.pagePagination :nth-child(2) > button')?.classList.add("active");
+			setLoading(false);
 		});
-		setLoading(false);
 	}, [activeCategory]);
 
 
@@ -72,8 +72,8 @@ function Index() {
 					{items && items.map((post, index) => (
 							<li key={index} onClick={()=>{ history.push({ pathname: '/CommunityView', state: {post: post}}) }}>
 								<p>
-									<span 
-									style={{  
+									<span
+									style={{
 										backgroundImage: post.mainImage && `url('${urlFor(post.mainImage)}')`,
 										backgroundPosition: `center`, 
 										backgroundSize: `cover` 

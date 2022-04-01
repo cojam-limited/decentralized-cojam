@@ -48,8 +48,6 @@ const abiJson2 = [{
 
 export const kaikasLogin = async () => {
   try {
-    console.log('login', window.klaytn, (typeof window.klaytn !== 'undefined'));
-
     if (typeof window.klaytn !== 'undefined') {
       const accounts = await window.klaytn.enable();
 
@@ -104,6 +102,241 @@ export const lockKaikas = async () => {
   }
 }
 
+/**
+ * Ground Status 변경 Functions 시작
+ */
+export const draftMarket = async ({
+  marketKey,
+  creator,
+  title,
+  creatorFee,
+  creatorFeePercentage,
+  cojamFeePercentage,
+  charityFeePercentage
+}) => {
+  const contractABI = [{
+    name: 'draftMarket',
+    type: 'function',
+    inputs: [
+      {
+        type: 'uint256',
+        name: 'marketKey'
+      },
+      {
+        type: 'address',
+        name: 'creator'
+      },
+      {
+        type: 'string',
+        name: 'title'
+      },
+      {
+        type: 'uint256',
+        name: 'creatorFee'
+      },
+      {
+        type: 'uint256',
+        name: 'creatorFeePercentage'
+      },
+      {
+        type: 'uint256',
+        name: 'cojamFeePercentage'
+      },
+      {
+        type: 'uint256',
+        name: 'charityFeePercentage'
+      }
+    ]
+  }];
+
+  if(!klaytn.selectedAddress) {
+    return {
+      status: false,
+    }
+  }
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(contractABI, contractAddress)
+
+  let result = { spenderAddress: cojamMarketAddress };
+  await contract.methods.draftMarket(
+    marketKey, creator, title, creatorFee, creatorFeePercentage, cojamFeePercentage, charityFeePercentage
+  )
+  .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('draft receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
+}
+
+export const approveMarket = async ({
+  marketKey
+}) => {
+  const contractABI = [{
+    name: 'approveMarket',
+    type: 'function',
+    inputs: [
+      {
+        type: 'uint256',
+        name: 'marketKey'
+      }
+    ]
+  }];
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(contractABI, contractAddress)
+
+  let result = { spenderAddress: cojamMarketAddress };
+  await contract.methods.approveMarket(
+    marketKey
+  )
+  .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('approve receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
+}
+
+export const adjournMarket = async ({
+  marketKey
+}) => {
+  const contractABI = [{
+    name: 'adjournMarket',
+    type: 'function',
+    inputs: [
+      {
+        type: 'uint256',
+        name: 'marketKey'
+      }
+    ]
+  }];
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(contractABI, contractAddress)
+
+  let result = { spenderAddress: cojamMarketAddress };
+  await contract.methods.adjournMarket(
+    marketKey
+  )
+  .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('adjourn receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
+}
+
+export const finishMarket = async ({
+  marketKey
+}) => {
+  const contractABI = [{
+    name: 'finishMarket',
+    type: 'function',
+    inputs: [
+      {
+        type: 'uint256',
+        name: 'marketKey'
+      }
+    ]
+  }];
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(contractABI, contractAddress)
+
+  let result = { spenderAddress: cojamMarketAddress };
+  await contract.methods.finishMarket(
+    marketKey
+  )
+  .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('finish receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
+}
+
+export const addAnswerKeys = async ({
+  marketKey,
+  answerKeys
+}) => {
+  const contractABI = [{
+    name: 'addAnswerKeys',
+    type: 'function',
+    inputs: [
+      {
+        type: 'uint256',
+        name: 'marketKey'
+      },
+      {
+        type: 'uint256[]',
+        name: 'answerKeys'
+      }
+    ]
+  }];
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(contractABI, contractAddress)
+
+  let result = { spenderAddress: cojamMarketAddress };
+  await contract.methods.addAnswerKeys(
+    marketKey, answerKeys
+  )
+  .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('addAnswerKeys receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
+}
+
+
+export const retrieveMarket = async ({
+  marketKey
+}) => {
+  const contractABI = [{
+    name: 'retrieveMarket',
+    type: 'function',
+    inputs: [
+      {
+        type: 'uint256',
+        name: 'marketKey'
+      }
+    ]
+  }];
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(contractABI, contractAddress)
+
+  let result = { spenderAddress: cojamMarketAddress };
+  await contract.methods.retrieveMarket(
+    marketKey
+  )
+  .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('retrieveMarket receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
+}
+/**
+ * Ground Status 변경 Functions 끝
+ */
+
+
 export const bettingCojamURI = async ({
   questKey,
   questAnswerKey,
@@ -139,10 +372,12 @@ export const bettingCojamURI = async ({
   let result = { spenderAddress: cojamMarketAddress };
   await betContract.methods.bet(
     questKey, questAnswerKey, bettingKey, caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')
-  ).send({from: klaytn.selectedAddress, gas: '9000000'},
-    function(error, transactionHash) {
-      console.log('bet result', error, transactionHash);
-      result.transactionId = transactionHash;
+  )
+  .send({from: klaytn.selectedAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('betting receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
   });
 
   return result;
@@ -172,106 +407,13 @@ export const approveCojamURI = async (
   let result = { spenderAddress: cojamTokenAddress };
   await myContract.methods.approve(
     cojamMarketAddress, caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')
-  ).send({from: klaytn.selectedAddress, gas: '9000000'},
-    function(error, transactionHash) {
-      console.log('approve result', error, transactionHash);
-      result.transactionId = transactionHash;
-    });
+  )
+  .send({from: klaytn.selectedAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('approve receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  })
 
   return result;  
 }
-
-/*
-  await caver.klay
-      .sendTransaction({
-        type: 'SMART_CONTRACT_EXECUTION',
-        from: window.klaytn.selectedAddress,
-        to: cojamTokenAddress,
-        data: encodedData,
-        value: '0x00',
-        gas: 9000000, //🔥estimatedGas보다 실제 gas가 더 많이 드는 이슈 발생해서 우선 더 높은 값을 주는 것으로 세팅
-      })
-      .on('transactionHash', (hash) => {
-        console.log(`transactionHash ${hash}`);
-      })
-      .on('receipt', (receipt) => {
-        console.log('successs', receipt);
-      })
-      .on('error', (error) => {
-        console.log(error);
-      });
-      */
-
-  //console.log(result);
-
-/*
-  const encodeResult = caver.klay.abi.encodeFunctionCall(abiJson, [cojamTokenAddress, 0]);
-  const tx = {
-    from: window.klaytn.selectedAddress,
-    to: cojamTokenAddress,
-    value: 0,
-    input: encodeResult,
-    gas: 9000000,
-    feeRatio: 99,
-    submit: true
-  }
-
-  console.log(window.klaytn);
-
-  console.log('caver', caver);
-  console.log('caverExt', caverExt);
-  const result = await caverExt.kas.wallet.requestSmartContractExecution(tx);
-
-  console.log('contract result', result);
-  */
-
-  //const contractAbi = CojamContract.methods.approve();
-
-  /*
-  const encodeResult = caver.klay.abi.encodeFunctionCall(abiJson, [cojamTokenAddress, 0]);
-  console.log('encodeResult', encodeResult);
-
-  console.log('selected address', window.klaytn.selectedAddress);
-
-  const resultData = CojamContract.methods.approve(cojamTokenAddress, 0)
-                                           .call({
-                                            type: 'SMART_CONTRACT_EXECUTION',
-                                            from: window.klaytn.selectedAddress,
-                                            to: cojamTokenAddress,
-                                            data: encodeResult,
-                                            value: '0x00',
-                                            gas: 9000000,
-                                           });
-  console.log('resultData', resultData);
-  */
-  
-
-
-  // POINT
-  /*
-  const data = caver.klay.abi.encodeFunctionCall(
-    {
-      name: 'approve',
-      type: 'function',
-      inputs: [
-        {
-          type: 'address',
-          name: 'spender'
-        },
-        {
-          type: 'uint256',
-          name: 'amount'
-        }
-      ]
-    },
-    [cojamMarketAddress, caver.utils.toPeb(amount, 'KLAY')]
-  )
-  
-  await caver.klay.sendTransaction({
-    type: 'SMART_CONTRACT_EXECUTION',
-    from: klaytn.selectedAddress,
-    to: cojamTokenAddress,
-    gas: '9000000',
-    data
-  });
-  */

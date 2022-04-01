@@ -1,13 +1,14 @@
 import { urlFor, client } from "../../sanity";
 
 import Moment, { now } from 'moment';
-import { approveCojamURI, bettingCojamURI } from "../../api/UseKaikas";
+import { approveCojamURI, bettingCojamURI } from "@api/UseKaikas";
 
-import { kaikasGetBalance } from '@api/UseKaikas';
+//import { kaikasGetBalance } from '@api/UseKaikas';
 
 const doBetting = async (betting) => {
     console.log('do bet', betting);
     
+    let result = {result: false, message: 'betting failed'};
     //현재 season 정보
     //const query = `*[_type=='quests']{season._id, season._id{title -> {...}}}`;
     //const query = `*[_type=="quests"] { seanson, "seasons": *[_type=='season' && references(^._id)]{ ... } }`
@@ -127,12 +128,14 @@ const doBetting = async (betting) => {
                         bettingKey: bettingKeyInt, 
                         bettingCoinAmount: bettingCoinAmount 
                     }).then(async (res) => {
-                        if(!res.error) {
+                        if(!res.error || !res.status) {
                             console.log('betting update !!!! ', res);
 
                             const bettingParam = {
                                 _type: 'betting',
                                 bettingKey: newBettingKey,
+                                multiply: betting.multiply,
+                                predictionFee: betting.predictionFee,
                                 bettingCoin: betting.bettingCoin,
                                 spenderAddress: '',
                                 transactionId: '',
@@ -196,15 +199,26 @@ const doBetting = async (betting) => {
                             }
         
                             await client.create(transactionSet).then((res) => {
-                                console.log('sanity - transaction id : ' + res._id);
+                                console.log('transaction add complete');
                             });
+
+                            result = {
+                                result: true,
+                                message: 'betting success'
+                            };
+                        } else {
+                            result =  {
+                                result: false,
+                                message: 'betting failed'
+                            };
                         }
                     });
                 });
             });
-
         });
     });
+
+    return result;
 }
 
 export default doBetting;

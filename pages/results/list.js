@@ -39,8 +39,9 @@ function Index() {
 			
 			document.querySelectorAll('.pagePagination button').forEach((button) => button.classList.remove("active"));
 			document.querySelector('.pagePagination :nth-child(2) > button')?.classList.add("active");
+
+			setLoading(false);
 		});
-		setLoading(false);
 	}, []);
 	
 	return (

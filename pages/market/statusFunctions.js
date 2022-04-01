@@ -1,0 +1,311 @@
+import { client } from "../../sanity";
+import { kaikasLogin, draftMarket, addAnswerKeys, approveMarket, adjournMarket, retrieveMarket, finishMarket } from "@api/UseKaikas";
+import Moment, { now } from 'moment';
+
+export const changeStateFunction = async (state, selectedQuest) => {
+    if(!state) {
+        alert('choose the quest to change the state.');
+        return;
+    }
+
+    if(!window.confirm('change ground status to [' + state + '] ?')) {
+        return;
+    }
+
+    const account = await kaikasLogin();
+    console.log('stats change account', account);
+
+    switch(state) {
+        case 'pend' :
+            client.patch(selectedQuest._id)
+                  .set({pending: true})
+                  .commit();
+
+            alert('pend success');			
+            break;
+
+        case 'unpend' :
+            client.patch(selectedQuest._id)
+                  .set({pending: false})
+                  .commit();
+
+            alert('unpend success');					  
+            break;
+
+        case 'invalid': 
+            // TODO accept description
+            client.patch(selectedQuest._id)
+                  .set({questStatus: 'INVALID', description: 'INVALID DESC'})
+                  .commit();
+            // TODO ADD mailing
+
+            alert('invalid success');			
+            break;
+            
+        case 'draft':
+            const seasonQuery = `*[_type == 'season' && isActive == true && _id == '${selectedQuest.season._ref}'][0]`;
+            client.fetch(seasonQuery).then(async (season) => {
+                if(season) {
+                    if(!selectedQuest.draftTx) {
+                        const questKey = selectedQuest.questKey;
+                        const creatorPay = Number(season.creatorPay) * 18;
+
+                        await draftMarket({
+                            marketKey: questKey, 
+                            creator: season.creatorAddress, 
+                            title: season.title, 
+                            creatorFee: creatorPay, 
+                            creatorFeePercentage: season.creatorFee, 
+                            cojamFeePercentage: season.cojamFee, 
+                            charityFeePercentage: season.charityFee
+                        }).then(async (res) => {
+                            console.log('draft done.', res, res.transactionId);
+                            
+                            if(res.status) {  // TODO , updateMember add
+                                client.patch(selectedQuest._id)
+                                        .set({statusType: 'DRAFT', draftTx: res.transactionId})
+                                      .commit();
+
+                                alert('draft success');
+                            } else {
+                                alert('draft failed');
+                            }
+                        });
+                    } else {
+                        alert('Draft is already Registerd!');
+                    }
+                }
+            });
+
+            break;
+
+        case 'answer':
+            if(!selectedQuest.isActive) {
+                alert("Don't active Season.");
+                return;
+            }
+
+            if(!selectedQuest.draftTx) {
+                alert("Draft is Null!");
+                return;
+            }
+
+            // TODO add confirm answer ?
+
+            if(selectedQuest.answerTx) {
+                alert("Answers is already Registerd!");
+                return;
+            }
+
+            const bettingKeyQuery = `*[_type == 'bettings' && questKey == ${selectedQuest.questKey} ]`;
+            const bettingKeyList = [];
+            await client.fetch(bettingKeyQuery).then((bettings) => {
+                bettings.forEach((betting) => {
+                    bettingKeyList.push(betting.questAnswerKey);
+                });
+            });
+
+            console.log('approve answer bettingKeyList', bettingKeyList);
+
+            const maxCount = 15;
+            let addAnswerRes;
+            if( bettingKeyList.length > maxCount ) {
+                const maxIndex = Math.ceil(bettingKeyList.length / maxCount);
+
+                for(let i = 0; i < maxIndex; i++) {
+                    const bettingKeyListCopy = bettingKeyList.slice();
+                    if (i > maxIndex - 1) {
+                        for (let a = 0; a < maxCount; a++) {
+                            bettingKeyListCopy.push(bettingKeyList[(i * maxCount) + a]);
+                        }
+                    } else {
+                        for (let a = 0; a < bigIntegerList.length % maxCount; a++) {
+                            bettingKeyListCopy.push(bettingKeyList[(i * maxCount) + a]);
+                        }
+                    }
+
+                    addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyListCopy});
+                }
+            } else {
+                addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyList});
+            }
+
+            console.log('add answer key result', addAnswerRes);
+            if(addAnswerRes.status) {
+                client.patch(selectedQuest._id)
+                      .set({statusType: 'ANSWER', answerTx: addAnswerRes.transactionId})
+                      .commit();
+
+                alert('Answer approve success');
+            } else {
+                alert("Answer approve fail.");
+                return;
+            }
+
+            break;
+        
+        case 'approve':
+            if(!selectedQuest.isActive) {
+                alert("Don't active Season.");
+                return;
+            }
+
+            if(!selectedQuest.answerTx) {
+                alert("Answers is not Confirmed!");
+                return;
+            }
+
+            // TODO add confirm
+
+            if(selectedQuest.approveTx) {
+                alert("Approve is already Registerd!");
+                return;
+            }
+
+            const approveMarketRes = await approveMarket({marketKey: selectedQuest.questKey});
+
+            if(approveMarketRes.status) {
+                client.patch(selectedQuest._id)
+                      .set({
+                            statusType: 'APPROVE', 
+                            questStatus: 'APPROVE',
+                            approveTx: approveMarketRes.transactionId,
+                            approveDateTime: now()
+                        })
+                      .commit();
+                
+                alert('approve market success');
+            } else {
+                alert('approve market failed');
+            }
+
+            // TODO email sending
+            break;
+
+        case 'hot':
+            client.patch(selectedQuest._id)
+                  .set({hot: true})
+                  .commit();
+            break;
+        
+        case 'finish':
+            if(selectedQuest.completed) {
+                alert("Already Finished!");
+                return;
+            }
+
+            if(selectedQuest.questStatus !== 'APPROVE') {
+                alert("Market is not approved.");
+                return;
+            }
+
+            if(selectedQuest.pending) {
+                alert("Market is pended.");
+                return;
+            }
+
+            const questKey = selectedQuest.questKey;
+            finishMarket({marketKey: questKey}).then((res) => {
+                if(res.status) {  // TODO , updateMember add
+                    client.patch(selectedQuest._id)
+                          .set({statusType: 'FINISH', finishTx: res.transactionId, completed: true})
+                          .commit();
+
+                    alert('finish success');
+                } else {
+                    alert('finish failed');
+                }
+            });
+
+            break;
+    
+        case 'adjourn':
+            if(selectedQuest.completed) {
+                alert("Market is not Finished!");
+                return;
+            }
+
+            // TODO add confirm check
+
+            if(selectedQuest.adjournTx) {
+                alert("It is already adjourn.");
+                return;
+            }
+
+            const adjournRes = await adjournMarket({ questKey: selectedQuest.questKey });
+            if(adjournRes.status) {
+                client.patch(selectedQuest._id)
+                          .set({statusType: 'ADJOURN', questStatus: 'ADJOURN', adjournTx: res.transactionId})
+                          .commit();
+
+                alert('adjourn success');
+            } else {
+                alert('adjourn market failed.');
+            }
+
+            // TODO push logic
+            break;
+            
+        case 'success':
+            if(!selectedQuest.completed) {
+                alert("Market is not Finished!");
+                return;
+            }
+
+            // TODO finish tx confirm
+
+            if(selectedQuest.successTx) {
+                alert("It is already success.");
+                return;
+            }
+
+            // TODO answerKey
+            const selectedAnswerKey = 1;
+            break;
+        
+        case 'retrieve':
+            if(!selectedQuest.completed) {
+                alert("Market is not Finished!");
+                return;
+            }
+
+            if(selectedQuest.retrieveTx) {
+                alert("Market is already retrieve!");
+                return;
+            }
+
+            if(!selectedQuest.successTx) {
+                alert("Market is not Success!");
+                return;
+            }	
+
+            const today = now();
+            const successDataTime = selectedQuest.successDataTime;
+
+            const diffDays = Moment(today).diff(Moment(successDataTime), 'days');
+            console.log(diffDays + '일 차이');
+
+            if(diffDays <= 180) {
+                alert("Market can be retrieved later 180 days from success!");
+                return;
+            }
+
+            // TODO success tx confirm
+            // TODO success tx confirm
+
+            const retrieveRes = await retrieveMarket({ questKey: selectedAnswerKey.questKey });
+            if(retrieveRes.status) {
+                client.patch(selectedQuest._id)
+                .set({statusType: 'RETRIEVE', retrieveTx: res.transactionId})
+                .commit();
+
+                alert("retrieve success");
+            } else {
+                alert("retrieve failed");
+            }
+
+            break;	
+    }
+
+
+}

@@ -6,7 +6,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from 'moment';
 import createNewQuest from './createNewQuest';
-import { useLoadingState } from "../../assets/context/LoadingContext";
+import { useLoadingState } from "@assets/context/LoadingContext";
 
 import { VictoryChart, VictoryLine, VictoryLegend } from 'victory';
 
@@ -46,8 +46,8 @@ function Index(props) {
 
 	// modal values
   	const [ categories, setCategories ] = useState([]);
-	const [endDateTime, setEndDateTime] = useState(new Date());
-	const [modalValues, setModalValues] = useState({'_type': 'quests', 'questLanguage': 'EN', 'endDateTime': endDateTime});
+	const [ endDateTime, setEndDateTime ] = useState(new Date());
+	const [ modalValues, setModalValues ] = useState({'_type': 'quests', 'questLanguage': 'EN', 'endDateTime': endDateTime});
 	// modal values
 
 	const setBetting = async () => {
@@ -72,12 +72,14 @@ function Index(props) {
 				'memberKey': '',
 				'receiveAddress': '',
 				'answerTitle': selectedAnswer,
-				'curBalance': curBalance / 10 ** 18
+				'curBalance': curBalance / 10 ** 18,
+				'multiply': rate,
+				'predictionFee': receiveToken
 			}
 
-			await doBetting(betting);
+			const betResult = await doBetting(betting);
 			
-			alert('betting success.');
+			alert(`${betResult.message}`);
 			setOnBetting('bet');
 		} catch(error) {
 			console.log('betting error', error);
@@ -204,8 +206,8 @@ function Index(props) {
 			{/* 기본영역 (타이틀/네비/버튼) */}
 			<dl className="title-section">
 				<dt>
-					<h2>{quest && quest.category}</h2>
-					<h3><i className="uil uil-estate"></i> Home · <span>{quest && quest.category}</span></h3>
+					<h2>{quest?.category}</h2>
+					<h3><i className="uil uil-estate"></i> Home · <span>{quest?.category}</span></h3>
 				</dt>
 				
 			</dl>
@@ -215,7 +217,7 @@ function Index(props) {
 				{/* 상세 */}
 				<div className="quest-view">
 					{
-						quest && quest.snsUrl && 
+						quest?.snsUrl && 
 						<div>
 							<h2><span>Confirmed</span> BTS reached #1 on the Billboard Chart with a song "Dynamite". Will BTS be able to win "The album of the year" at the Grammy Awards held on January 31, 2021?</h2>
 							<p><iframe title="movie" width="100%" height="650" src={quest.snsUrl} frameBorder="0" allow="accelerometer; autoPlay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe></p>
@@ -382,9 +384,9 @@ function Index(props) {
 									Please select a category
 									</option>
 									{
-									categories && categories.filter((category) => category.seasonCategoryName !== 'All').map((category, index) => (
-										<option key={index} value={category._id}>{category.seasonCategoryName}</option>
-									))
+										categories?.filter((category) => category.seasonCategoryName !== 'All').map((category, index) => (
+											<option key={index} value={category._id}>{category.seasonCategoryName}</option>
+										))
 									}
 								</select>
 								</li>

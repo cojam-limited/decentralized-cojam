@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
+
 import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+
 import { Modal } from "react-responsive-modal";
 import Moment from 'moment';
 
@@ -8,14 +11,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { urlFor, client } from "../../sanity";
-
 import backgroundImage from '@assets/body_quest.jpg';
-
 import { useLoadingState } from "@assets/context/LoadingContext";
 import Pagination from "react-sanity-pagination";
 import createNewQuest from './createNewQuest';``
 
-import "swiper/css";
 import "react-responsive-modal/styles.css";
 
 
@@ -113,28 +113,22 @@ function Index() {
      */ 
 
     const seasonInfoQuery = `*[_type == 'season' && isActive == true] {
+      ...,
       'quests': *[_type == 'quests' && ^._id == season._ref] 
       {'categoryName': *[_type == 'seasonCategories' && _id == ^.seasonCategory._ref] {seasonCategoryName} [0] }
     }`;
-
-    const querySeasonInfos = [];
     client.fetch(seasonInfoQuery).then((seasonInfos) => {
       // category name, percentage
       const categoryAggr = {};
       seasonInfos[0].quests?.forEach((quest) => {
         const categoryName = quest.categoryName.seasonCategoryName;
-        console.log('category name', categoryName);
         categoryAggr[categoryName] = categoryAggr[categoryName] ? Number(categoryAggr[categoryName]) + 1 : 1;
       });
-
-      console.log('categoryAggr', categoryAggr);
 
       seasonInfos[0]['caregoryAggr'] = categoryAggr;
       setSeasonInfos(seasonInfos);
     });
   }, [activeCategory]);
-
-  console.log('seasonInfos', seasonInfos);
 
   return (
   <div className="bg-quest" style={{background: `url('${backgroundImage}') center -150px no-repeat, #fff`}}>

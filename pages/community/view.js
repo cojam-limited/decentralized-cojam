@@ -26,8 +26,8 @@ function Index(props) {
 		const query = `*[_type == "communityView" && title == "${post.title}"]`;
 		client.fetch(query).then((data) => {
 			setPostView(data && data[0]);
+			setLoading(false);
 		});
-		setLoading(false);
 	}, [post]);
 
   return (

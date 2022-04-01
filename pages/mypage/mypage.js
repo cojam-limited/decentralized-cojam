@@ -1,15 +1,56 @@
 //import { Link } from 'react-router-dom'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-responsive-modal';
 
 import 'react-responsive-modal/styles.css';
 import backgroundImage from '@assets/body_mypage.jpg';
+import { useWalletData } from '@data/wallet';
+import { ClientError } from '@sanity/client';
+import { client } from '../../sanity';
 
 function Index() {
 	const [openSendCT, modalSendCT] = useState(false);
 	const [openMypageVoting, modalMypageVoting] = useState(false);
 	const [openMypageGround, modalMypageGround] = useState(false);
 	const [openMypageTransfer, modalMypageTransfer] = useState(false);
+
+	const stateList = ['ONGOING', 'INVALID', 'APPROVE', 'ADJOURN', 'SUCESS'];
+	const [ votings, setVotings ] = useState([]);
+	const { walletData } = useWalletData();
+
+
+	useEffect(() => {
+		const walletAddress = walletData.account;
+
+		console.log('mypag wallet address', walletAddress);
+		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}'] {..., 'answerNm': *[_type=='questAnswerList' && _id == ^.questAnswerKey] [0]{title} }`;
+		client.fetch(votingQuery).then((votingDatas) => {
+			console.log('mypage voting datas', votingDatas);
+
+			const votingArr = [];
+			votingDatas.forEach(async (votingData) => {
+				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey}][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
+				await client.fetch(questQuery).then((quest) => {
+					if(quest) {
+						const votingSet = {
+							categoryNm: quest.categoryNm.seasonCategoryName,
+							title: quest.title,
+							status: votingData.bettingStatus,
+							answerTitle: votingData.answerNm.title,
+							bettingCoin: votingData.bettingCoin,
+							multiply: votingData.multiply,
+							predictionFee: votingData.predictionFee
+						}
+						
+						votingArr.push(votingSet);
+					} 
+				});
+			});
+			
+			console.log('votingArr', votingArr);
+			setVotings(votingArr);
+		});
+	}, [walletData]);
 
   return (
     <div className="bg-mypage" style={{background: `url('${backgroundImage}') center -590px no-repeat, #eef0f8 `}}>
@@ -24,7 +65,6 @@ function Index() {
 			{/* 마이페이지 - 기본정보 */}
 			<div className="mypage-info">
 				<dt>
-					<div><i className="uil uil-envelope-check"></i> Email : <span>kcv5106@naver.com</span></div>
 					<div><i className="uil uil-wallet"></i> Wallet address : <span>0xe539c08cb274877d1373da2a46f04b92193bfa66</span></div>
 				</dt>
 				<dd>
@@ -58,317 +98,43 @@ function Index() {
 							<li><strong>Multiply</strong></li>
 							<li><strong>Prediction Fee</strong></li>
 						</ul>
-						<ul onClick={() => modalMypageVoting(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<p>Pending</p>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>My Answer : </span>Yes (10,000 CT)</li>
-							<li><span>Multiply : </span>0.85</li>
-							<li><span>Prediction Fee : </span>8,500 CT</li>
-						</ul>
-						<ul onClick={() => modalMypageVoting(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<p>Pending</p>
-								<span>Status Flow : </span>
-								<ol>
-									<li className="complete">
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<h2>Approve</h2>
-									</li>
-									<li>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ol>
-							</li>
-							<li><span>My Answer : </span>Yes (10,000 CT)</li>
-							<li><span>Multiply : </span>0.85</li>
-							<li><span>Prediction Fee : </span>8,500 CT</li>
-							<li className="pending">Pending</li>
-						</ul>
-						<ul onClick={() => modalMypageVoting(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ol className="fourstep">
-									<li className="complete">
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<h2>Approve</h2>
-									</li>
-									<li>
-										<h2>Adjourn</h2>
-									</li>
-								</ol>
-							</li>
-							<li><span>My Answer : </span>Yes (10,000 CT)</li>
-							<li><span>Multiply : </span>0.85</li>
-							<li><span>Prediction Fee : </span>8,500 CT</li>
-						</ul>
-						<ul onClick={() => modalMypageVoting(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>My Answer : </span>Yes (10,000 CT)</li>
-							<li><span>Multiply : </span>0.85</li>
-							<li><span>Prediction Fee : </span>8,500 CT</li>
-						</ul>
-						<ul onClick={() => modalMypageVoting(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>My Answer : </span>Yes (10,000 CT)</li>
-							<li><span>Multiply : </span>0.85</li>
-							<li><span>Prediction Fee : </span>8,500 CT</li>
-						</ul>
-						<ul onClick={() => modalMypageVoting(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>My Answer : </span>Yes (10,000 CT)</li>
-							<li><span>Multiply : </span>0.85</li>
-							<li><span>Prediction Fee : </span>8,500 CT</li>
-						</ul>
-						<ul onClick={() => modalMypageVoting(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>My Answer : </span>Yes (10,000 CT)</li>
-							<li><span>Multiply : </span>0.85</li>
-							<li><span>Prediction Fee : </span>8,500 CT</li>
-						</ul>
-						<ul onClick={() => modalMypageVoting(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>My Answer : </span>Yes (10,000 CT)</li>
-							<li><span>Multiply : </span>0.85</li>
-							<li><span>Prediction Fee : </span>8,500 CT</li>
-						</ul>
-						<ul onClick={() => modalMypageVoting(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>My Answer : </span>Yes (10,000 CT)</li>
-							<li><span>Multiply : </span>0.85</li>
-							<li><span>Prediction Fee : </span>8,500 CT</li>
-						</ul>
-						<ul onClick={() => modalMypageVoting(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>My Answer : </span>Yes (10,000 CT)</li>
-							<li><span>Multiply : </span>0.85</li>
-							<li><span>Prediction Fee : </span>8,500 CT</li>
-						</ul>
+
+						{
+							votings?.map((voting) => {
+								let statePass = false;
+								return (
+									<ul style={{ cursor: 'pointer' }} onClick={() => modalMypageVoting(true)}>
+										<li key='1'><span>Category : </span>{voting.categoryNm}</li>
+										<li key='2'><span>Title : </span>{voting.title}</li>
+										<li key='3'>
+											{voting.status === 'pending' && <p>Pending</p>}
+											<span>Status Flow : </span>
+											<ul>
+												{
+													stateList.map((state, index) => {
+														let complete = statePass ? '' : 'complete';
+														if(state === voting.status) {
+															statePass = true;
+															complete = 'ing';
+														}
+
+														return (
+															<li key={index} className={ complete }>
+																<span></span>
+																<h2>{state}</h2>
+															</li>
+														)
+													})
+												}
+											</ul>
+										</li>
+										<li key='4'><span>My Answer : </span>{voting.answerTitle} ({voting.bettingCoin} CT)</li>
+										<li key='5'><span>Multiply : </span>{voting.multiply}</li>
+										<li key='6'><span>Prediction Fee : </span>{voting.predictionFee} CT</li>
+									</ul>
+								)
+							})
+						}
 					</div>
 				</div>
 

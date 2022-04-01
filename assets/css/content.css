@@ -1053,7 +1053,7 @@
 
 }
 
-/* Market */
+/* Ground */
 .market-content {width:1300px; margin:-1px auto 0 auto; padding:50px 40px 40px 40px; border:#e5e5e5 1px solid; border-top-left-radius:0; border-top-right-radius:10px; border-bottom-left-radius:10px; border-bottom-right-radius:10px; background:#fff; box-shadow:0 0 10px 0 rgba(0,0,0,0.1);}
 .market-content > div {display:none;}
 .market-content > div > h2 {text-align:center; font-weight:700; font-size:22px; line-height:22px; color:#222;}
@@ -1066,14 +1066,13 @@
 
 .mc-markets > div > ul {display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; position:relative; width:100%; padding:15px 0; border-bottom:#e9e9e9 1px solid; overflow:hidden;}
 .mc-markets > div > ul > li {position:relative; padding:0 15px; text-align:center; font-size:12px; text-overflow:ellipsis; white-space:nowrap; border-left:#e9e9e9 1px solid; overflow:hidden;}
-.mc-markets > div > ul > li:nth-child(1) {width:3%; border-left:none;}
-.mc-markets > div > ul > li:nth-child(2) {width:5%; border-right:#e9e9e9 1px solid;}
-.mc-markets > div > ul > li:nth-child(3) {width:10%; border-left:none;}
-.mc-markets > div > ul > li:nth-child(4) {width:'*'; text-align:right;}
-.mc-markets > div > ul > li:nth-child(5) {width:12%; text-align:right;}
+.mc-markets > div > ul > li:nth-child(1) {width:5%; border-left:none;}
+.mc-markets > div > ul > li:nth-child(2) {width:10%; border-right:#e9e9e9 1px solid;}
+.mc-markets > div > ul > li:nth-child(3) {width:'*'; border-left:none;}
+.mc-markets > div > ul > li:nth-child(4) {width:15%; text-align:right;}
+.mc-markets > div > ul > li:nth-child(5) {width:15%; text-align:right;}
 .mc-markets > div > ul > li:nth-child(6) {width:10%; text-align:right;}
-.mc-markets > div > ul > li:nth-child(7) {width:8%; text-align:right;}
-.mc-markets > div > ul > li:nth-child(8) {width:8%; text-align:right;}
+.mc-markets > div > ul > li:nth-child(7) {width:10%; text-align:right;}
 .mc-markets > div > ul > li > strong {text-align:center; font-weight:600; color:#222;}
 .mc-markets > div > ul > li > span {display:none; font-weight:600; color:#222;}
 .mc-markets > div > ul > li > ul {display:flex; justify-content:space-between; align-items:center;}
@@ -1154,7 +1153,10 @@
   .mc-markets > div > ul > li:nth-child(3) {width:30%;}
 }
 
-
+.modal-mypage-view .mmv-area .mqs-info {margin-top:20px; padding:20px; border:#e5e5e5 1px solid; border-radius:10px; background:#f3f6f9;}
+.modal-mypage-view .mmv-area .mqs-info h2 {font-weight:600; line-height:24px; color:#222;}
+.modal-mypage-view .mmv-area .mqs-info div {margin-top:15px; padding-top:15px; border-top:#e5e5e5 1px solid;}
+.modal-mypage-view .mmv-area .mqs-info div span {font-weight:600; color:#222;}
 
 
 
@@ -1408,7 +1410,7 @@
 
 
 /* 모달 - 마이페이지 - 상세 */
-.modal-mypage-view {width:500px;}
+.modal-mypage-view {width:800px;}
 .modal-mypage-view .mmv-area {padding:30px;}
 .modal-mypage-view .mmv-area dl {display:flex; justify-content:space-between; align-items:center;}
 .modal-mypage-view .mmv-area dl dt {font-weight:700; font-size:20px; line-height:20px; color:#222;}

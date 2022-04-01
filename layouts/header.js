@@ -129,16 +129,16 @@ function Header() {
               isLogin
               ? /* 로그인 했을때 */
                 <>
-                  <h2><i className="uil uil-user-circle"></i> <span>({balance ? balance.toFixed(8) : 0} CT, {walletData.account})</span></h2>
+                  <h2><i className="uil uil-user-circle"></i> <span>({balance ? balance.toFixed(8) : 0} CT,  {walletData.account.substring(0, 10) + '...'})</span></h2>
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
+                    <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>
                     &nbsp;
                     <Link to="/Market"><i className="uil uil-sign-out-alt"></i>LOGOUT</Link>
                   </div>
                 </>
               : /* 로그인 안했을때 */
                 <>
-                  <Link to="#"><i className="uil uil-user-circle"></i></Link>
                   <Link to="#" onClick={() => modalKlipAdd(true)}><i className="uil uil-sign-in-alt"></i> LOGIN</Link>
                 </> 
               }
@@ -166,10 +166,8 @@ function Header() {
                 </>
               : /* 로그인 안했을때 */
                 <>
-                  <span>LOGIN</span>
-                  <Link to="#"><i className="uil uil-user-circle"></i></Link>
-                  <Link to="#" onClick={() => modalKlipAdd(true)}><i className="uil uil-sign-in-alt"></i></Link>
-                </>
+                  <Link to="#" onClick={() => modalKlipAdd(true)}><i className="uil uil-sign-in-alt"></i> LOGIN</Link>
+                </> 
             }
           </dd>
         </dl>
