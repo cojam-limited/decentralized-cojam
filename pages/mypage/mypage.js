@@ -16,6 +16,8 @@ function Index() {
 
 	const stateList = ['ONGOING', 'INVALID', 'APPROVE', 'ADJOURN', 'SUCESS'];
 	const [ votings, setVotings ] = useState([]);
+	const [ grounds, setGrounds ] = useState([]);
+
 	const { walletData } = useWalletData();
 
 
@@ -24,17 +26,19 @@ function Index() {
 
 		console.log('mypag wallet address', walletAddress);
 		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}'] {..., 'answerNm': *[_type=='questAnswerList' && _id == ^.questAnswerKey] [0]{title} }`;
-		client.fetch(votingQuery).then((votingDatas) => {
+		client.fetch(votingQuery).then(async (votingDatas) => {
 			console.log('mypage voting datas', votingDatas);
 
 			const votingArr = [];
-			votingDatas.forEach(async (votingData) => {
+			await votingDatas.forEach(async (votingData) => {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey}][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 				await client.fetch(questQuery).then((quest) => {
 					if(quest) {
 						const votingSet = {
 							categoryNm: quest.categoryNm.seasonCategoryName,
 							title: quest.title,
+							hot: quest.hot,						
+							pending: quest.pending,
 							status: votingData.bettingStatus,
 							answerTitle: votingData.answerNm.title,
 							bettingCoin: votingData.bettingCoin,
@@ -42,7 +46,7 @@ function Index() {
 							predictionFee: votingData.predictionFee
 						}
 						
-						votingArr.push(votingSet);
+						votingArr.push({ ...votingSet });
 					} 
 				});
 			});
@@ -50,6 +54,12 @@ function Index() {
 			console.log('votingArr', votingArr);
 			setVotings(votingArr);
 		});
+
+		const groundQuery = `*[_type == 'quests' && isActive == true] {..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
+		client.fetch(groundQuery).then((grounds) => {
+			setGrounds(grounds);
+		});
+
 	}, [walletData]);
 
   return (
@@ -107,7 +117,7 @@ function Index() {
 										<li key='1'><span>Category : </span>{voting.categoryNm}</li>
 										<li key='2'><span>Title : </span>{voting.title}</li>
 										<li key='3'>
-											{voting.status === 'pending' && <p>Pending</p>}
+											{voting.pending && <p>Pending</p>}
 											<span>Status Flow : </span>
 											<ul>
 												{
@@ -149,324 +159,45 @@ function Index() {
 							<li><strong>Total Creator Fee</strong></li>
 							<li><strong>Donation Fee</strong></li>
 						</ul>
-						<ul onClick={() => modalMypageGround(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<p>Pending</p>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>Total  : </span>10,000 CT</li>
-							<li><span>Total Creator Fee : </span>7472.75 CT (5%)</li>
-							<li><span>Donation Fee : </span>2989.1 CT (2%)</li>
-						</ul>
-						<ul onClick={() => modalMypageGround(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ol>
-									<li className="complete">
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<h2>Approve</h2>
-									</li>
-									<li>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ol>
-							</li>
-							<li><span>Total  : </span>10,000 CT</li>
-							<li><span>Total Creator Fee : </span>7472.75 CT (5%)</li>
-							<li><span>Donation Fee : </span>2989.1 CT (2%)</li>
-							<li className="pending">Pending</li>
-						</ul>
-						<ul onClick={() => modalMypageGround(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>Total  : </span>10,000 CT</li>
-							<li><span>Total Creator Fee : </span>7472.75 CT (5%)</li>
-							<li><span>Donation Fee : </span>2989.1 CT (2%)</li>
-						</ul>
-						<ul onClick={() => modalMypageGround(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>Total  : </span>10,000 CT</li>
-							<li><span>Total Creator Fee : </span>7472.75 CT (5%)</li>
-							<li><span>Donation Fee : </span>2989.1 CT (2%)</li>
-						</ul>
-						<ul onClick={() => modalMypageGround(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>Total  : </span>10,000 CT</li>
-							<li><span>Total Creator Fee : </span>7472.75 CT (5%)</li>
-							<li><span>Donation Fee : </span>2989.1 CT (2%)</li>
-						</ul>
-						<ul onClick={() => modalMypageGround(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>Total  : </span>10,000 CT</li>
-							<li><span>Total Creator Fee : </span>7472.75 CT (5%)</li>
-							<li><span>Donation Fee : </span>2989.1 CT (2%)</li>
-						</ul>
-						<ul onClick={() => modalMypageGround(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>Total  : </span>10,000 CT</li>
-							<li><span>Total Creator Fee : </span>7472.75 CT (5%)</li>
-							<li><span>Donation Fee : </span>2989.1 CT (2%)</li>
-						</ul>
-						<ul onClick={() => modalMypageGround(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>Total  : </span>10,000 CT</li>
-							<li><span>Total Creator Fee : </span>7472.75 CT (5%)</li>
-							<li><span>Donation Fee : </span>2989.1 CT (2%)</li>
-						</ul>
-						<ul onClick={() => modalMypageGround(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>Total  : </span>10,000 CT</li>
-							<li><span>Total Creator Fee : </span>7472.75 CT (5%)</li>
-							<li><span>Donation Fee : </span>2989.1 CT (2%)</li>
-						</ul>
-						<ul onClick={() => modalMypageGround(true)}>
-							<li><span>Category : </span>art</li>
-							<li><span>Title : </span>Will BTS be able to win "BEST POP DUO/GROUP PERFORMANCE" at the Grammy Awards held on March 14, 2021?</li>
-							<li>
-								<span>Status Flow : </span>
-								<ul>
-									<li className="complete">
-										<span></span>
-										<h2>Ongoing</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Invaild</h2>
-									</li>
-									<li className="complete">
-										<span></span>
-										<h2>Approve</h2>
-									</li>
-									<li className="ing">
-										<span></span>
-										<h2>Adjourn</h2>
-									</li>
-									<li>
-										<span></span>
-										<h2>Success</h2>
-									</li>
-								</ul>
-							</li>
-							<li><span>Total  : </span>10,000 CT</li>
-							<li><span>Total Creator Fee : </span>7472.75 CT (5%)</li>
-							<li><span>Donation Fee : </span>2989.1 CT (2%)</li>
-						</ul>
+
+						{
+							grounds?.map((ground) => {
+								let statePass = false;
+								return (
+									<ul onClick={() => modalMypageGround(true)}>
+										<li><span>Category : </span> { ground.categoryNm.seasonCategoryName } </li>
+										<li><span>Title : </span> { ground.title } </li>
+										<li>
+											{ground.pending && <p>Pending</p>}
+											{ground.questStatus === 'INVALID' && <p>INVALID</p>}
+											{ground.questStatus === 'ADJOURN' && <p>ADJOURN</p>}
+											<span>Status Flow : </span>
+											<ul>
+												{
+													stateList.map((state, index) => {
+														let complete = statePass ? '' : 'complete';
+														if(state === ground.questStatus) {
+															statePass = true;
+															complete = 'ing';
+														}
+
+														return (
+															<li key={index} className={ complete }>
+																<span></span>
+																<h2>{state}</h2>
+															</li>
+														)
+													})
+												}
+											</ul>
+										</li>
+										<li><span>Total  : </span>{ ground.totalAmount } CT</li>
+										<li><span>Total Creator Fee : </span> { ground.totalCreatorFee }  CT ({ ground.creatorFee }%)</li>
+										<li><span>Donation Fee : </span>{ ground.totalCharityFee } CT ({ ground.charityFee } %)</li>
+									</ul>
+								)
+							})
+						}
 					</div>
 				</div>
 

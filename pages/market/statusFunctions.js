@@ -3,12 +3,7 @@ import { kaikasLogin, draftMarket, addAnswerKeys, approveMarket, adjournMarket, 
 import Moment, { now } from 'moment';
 
 export const changeStateFunction = async (state, selectedQuest) => {
-    if(!state) {
-        alert('choose the quest to change the state.');
-        return;
-    }
-
-    if(!window.confirm('change ground status to [' + state + '] ?')) {
+    if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
         return;
     }
 
@@ -48,7 +43,7 @@ export const changeStateFunction = async (state, selectedQuest) => {
                 if(season) {
                     if(!selectedQuest.draftTx) {
                         const questKey = selectedQuest.questKey;
-                        const creatorPay = Number(season.creatorPay) * 18;
+                        const creatorPay = Number(season.creatorPay) / 10 ** 18;
 
                         await draftMarket({
                             marketKey: questKey, 

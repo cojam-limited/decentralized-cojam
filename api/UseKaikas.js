@@ -7,42 +7,6 @@ const caverExt = new CaverExtKAS('1001', 'KASKPNC0ZKWPYJVJEUFCQ696', 'RQCcF0L5HJ
 
 const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // contract address
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
-const approveFuncAbi = caver.klay.abi.encodeFunctionSignature({
-  name: 'approve',
-  type: 'function',
-  inputs: [{
-    type: 'address',
-    name: 'spender'
-  },{
-    type: 'uint256',
-    name: 'amount'
-  },
-  ]
-});
-
-const abiJson = {
-  name: 'approve',
-  type: 'function',
-  inputs: [{
-    type: 'address',
-    name: 'spender'
-  },{
-    type: 'uint256',
-    name: 'amount'
-  }]
-};
-
-const abiJson2 = [{
-  name: 'approve',
-  type: 'function',
-  inputs: [{
-    type: 'address',
-    name: 'spender'
-  },{
-    type: 'uint256',
-    name: 'amount'
-  }]
-}];
 
 //const CojamContract = new caver.contract(abiJson2, cojamTokenAddress);
 
@@ -93,14 +57,6 @@ export const isKaikasEnabled = async () => {
     console.error('isKaikasEnabled', error);
   }
 };
-
-export const lockKaikas = async () => {
-  console.log('lock kaikas', caver.klay.personal, window.klaytn.selectedAddress);
-
-  if( window.klaytn.selectedAddress ) {
-    caver.klay.personal.lockAccount( klaytn.selectedAddress );
-  }
-}
 
 /**
  * Ground Status 변경 Functions 시작

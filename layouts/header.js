@@ -11,7 +11,7 @@ import Logo_Kaikas from '@assets/logo_kaikas.svg';
 import { ConnectKaikasButton } from './styles';
 import isMobile from '@utils/isMobile';
 import { KLIP_MODAL_DATA_KEY, WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
-import { kaikasLogin, kaikasGetBalance, isKaikasUnlocked, lockKaikas } from '@api/UseKaikas';
+import { kaikasLogin, kaikasGetBalance, isKaikasUnlocked } from '@api/UseKaikas';
 import { useWalletData } from '@data/wallet';
 import toastNotify from '@utils/toast';
 
@@ -40,9 +40,6 @@ function Header() {
 
   const checkWalletConnection = () => {
     let result = true;
-
-    console.log('check wallet connect', !walletData?.account, !isNumber(balance));
-    console.log('check wallet connect', walletData, balance);
     if (!walletData?.account || !isNumber(balance)) {
       result = false;
     }
@@ -133,8 +130,7 @@ function Header() {
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
                     <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>
-                    &nbsp;
-                    <Link to="/Market"><i className="uil uil-sign-out-alt"></i>LOGOUT</Link>
+                    {/*<Link to="#" onClick={() => { handleConnectWallet() }}><i className="uil uil-sign-out-alt"></i>LOGOUT</Link> */}
                   </div>
                 </>
               : /* 로그인 안했을때 */
@@ -269,6 +265,8 @@ function resizeHeaderOnScroll() {
       document.querySelector('.header > dl > dd > div > a:nth-child(1)').style.background = '#edf3f8';
       document.querySelector('.header > dl > dd > div > a:nth-child(2)').style.color = '#222';
       document.querySelector('.header > dl > dd > div > a:nth-child(2)').style.background = '#edf3f8';
+      document.querySelector('.header > dl > dd > div > a:nth-child(3)').style.color = '#222';
+      document.querySelector('.header > dl > dd > div > a:nth-child(3)').style.background = '#edf3f8';
     } else {
       document.querySelector('.header').style.background = 'none';
       document.querySelector('.header').style.boxShadow = 'none';
@@ -285,6 +283,8 @@ function resizeHeaderOnScroll() {
       document.querySelector('.header > dl > dd > div > a:nth-child(1)').style.background = 'rgba(255,255,255,0.3)';
       document.querySelector('.header > dl > dd > div > a:nth-child(2)').style.color = '#fff';
       document.querySelector('.header > dl > dd > div > a:nth-child(2)').style.background = 'rgba(255,255,255,0.3)';
+      document.querySelector('.header > dl > dd > div > a:nth-child(3)').style.color = '#fff';
+      document.querySelector('.header > dl > dd > div > a:nth-child(3)').style.background = 'rgba(255,255,255,0.3)';
     }
   } catch(e) {
     // ignore

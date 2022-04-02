@@ -35,6 +35,12 @@ function Index() {
 
 	const clickStateButton = async (state) => {
 		setLoading(true);
+		if(selectedQuest.length === 0) {
+			alert('choose the quest to change the state');
+			setLoading(false);
+			return;
+		}
+
 		await changeStateFunction(state, selectedQuest);
 		setLoading(false);
 	}
@@ -121,6 +127,7 @@ function Index() {
 			});	
 		}
 
+		setSelectedQuest([]);
 		return subscription?.unsubscribe();
 	}, [walletData, activeCategory]);
 

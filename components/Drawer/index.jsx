@@ -15,7 +15,7 @@ export default function SideDrawer() {
   const { mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
   const accountRef = useRef();
   const { walletData, mutateWalletData } = useWalletData();
-  const [balance, setBalance] = useState(0);
+  const [ balance, setBalance ] = useState(0);
 
   const handleClose = () => {
     mutateDrawerData({ open: false });

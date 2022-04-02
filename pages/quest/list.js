@@ -409,8 +409,8 @@ function Index() {
                     </ul>
 
                     <div className="mqs-info">
-                      <h2>Title : Create Season of COJAM Service!</h2>
-                      <h2>Description : Create Season of COJAM Service!</h2>
+                      <h2>Title : {seasonInfo.title}</h2>
+                      <h2>Description : {seasonInfo.description}</h2>
                       <div>
                         COJAM Fee : <span>{seasonInfo.cojamFee}%</span>
                         <br />
