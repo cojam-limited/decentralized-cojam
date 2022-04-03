@@ -11,7 +11,7 @@ import Logo_Kaikas from '@assets/logo_kaikas.svg';
 import { ConnectKaikasButton } from './styles';
 import isMobile from '@utils/isMobile';
 import { KLIP_MODAL_DATA_KEY, WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
-import { kaikasLogin, kaikasGetBalance, isKaikasUnlocked } from '@api/UseKaikas';
+import { kaikasLogin, kaikasGetBalance, isKaikasUnlocked, getCojamBalance } from '@api/UseKaikas';
 import { useWalletData } from '@data/wallet';
 import toastNotify from '@utils/toast';
 
@@ -70,10 +70,10 @@ function Header() {
 
   const getBalance = async () => {
     if (walletData?.account) {
-      const curBalance = await kaikasGetBalance(walletData.account);
-      setBalance(curBalance / 10 ** 18);
+      const cojamBalance = await getCojamBalance(walletData.account);
+      setBalance(cojamBalance / 10 ** 18);
     }
-  };
+  }
 
   // header 관련 scroll listner
   useEffect(() => {
@@ -85,6 +85,7 @@ function Header() {
     getBalance();
 
     if(walletData && walletData.account) {
+
       // POINT
       const memberDoc = {
         _type: 'member',
@@ -126,7 +127,7 @@ function Header() {
               isLogin
               ? /* 로그인 했을때 */
                 <>
-                  <h2><i className="uil uil-user-circle"></i> <span>({balance ? balance.toFixed(8) : 0} CT,  {walletData.account.substring(0, 10) + '...'})</span></h2>
+                  <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(8)) : 0} CT,  {walletData.account.substring(0, 10) + '...'})</span></h2>
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
                     <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>

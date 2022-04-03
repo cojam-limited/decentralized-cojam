@@ -75,7 +75,7 @@ function Index() {
 			{/* 마이페이지 - 기본정보 */}
 			<div className="mypage-info">
 				<dt>
-					<div><i className="uil uil-wallet"></i> Wallet address : <span>0xe539c08cb274877d1373da2a46f04b92193bfa66</span></div>
+					<div><i className="uil uil-wallet"></i> Wallet address : <span> { walletData?.account }</span></div>
 				</dt>
 				<dd>
 					<a href="#" className="btn-red">Click to be Reward!</a>

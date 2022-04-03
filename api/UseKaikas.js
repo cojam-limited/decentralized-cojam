@@ -8,6 +8,9 @@ const caverExt = new CaverExtKAS('1001', 'KASKPNC0ZKWPYJVJEUFCQ696', 'RQCcF0L5HJ
 const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // contract address
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
 
+const cojamToken = new caver.kct.kip7(cojamTokenAddress);
+
+
 //const CojamContract = new caver.contract(abiJson2, cojamTokenAddress);
 
 export const kaikasLogin = async () => {
@@ -57,6 +60,18 @@ export const isKaikasEnabled = async () => {
     console.error('isKaikasEnabled', error);
   }
 };
+
+
+export const getCojamBalance = async (walletAddress) => {
+  if(walletAddress) {
+    const tokenBalance = await cojamToken.balanceOf(walletAddress).then((balance) => {
+      return balance.integerValue();
+    });
+    
+    console.log('token balance', tokenBalance);
+    return tokenBalance;  
+  }
+}
 
 /**
  * Ground Status 변경 Functions 시작
@@ -282,6 +297,45 @@ export const retrieveMarket = async ({
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
     console.log('retrieveMarket receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
+}
+
+
+export const successMarket = async ({
+  questKey,
+  questAnswerKey
+}) => {
+  const contractABI = [{
+    name: 'successMarket',
+    type: 'function',
+    inputs: [
+      {
+        type: 'uint256',
+        name: 'marketKey'
+      },
+      {
+        type: 'uint256',
+        name: 'selectedAnswerKey'
+      }
+    ]
+  }];
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(contractABI, contractAddress)
+
+  console.log('success !!!!', klaytn.selectedAddress);
+
+  let result = { spenderAddress: cojamMarketAddress };
+  await contract.methods.successMarket(
+    questKey, questAnswerKey
+  )
+  .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('successMarket receipt', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status;
   });

@@ -1,15 +1,14 @@
 import { client } from "../../sanity";
-import { kaikasLogin, draftMarket, addAnswerKeys, approveMarket, adjournMarket, retrieveMarket, finishMarket } from "@api/UseKaikas";
+import { kaikasLogin, draftMarket, addAnswerKeys, approveMarket, adjournMarket, retrieveMarket, successMarket, finishMarket } from "@api/UseKaikas";
 import Moment, { now } from 'moment';
 
-export const changeStateFunction = async (state, selectedQuest) => {
+const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
+export const changeStateFunction = async (state, selectedQuest, selectedAnswer, description) => {
     if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
         return;
     }
 
     const account = await kaikasLogin();
-    console.log('stats change account', account);
-
     switch(state) {
         case 'pend' :
             client.patch(selectedQuest._id)
@@ -242,6 +241,8 @@ export const changeStateFunction = async (state, selectedQuest) => {
             break;
             
         case 'success':
+            console.log('status function', selectedAnswer.title, selectedAnswer.questAnswerKey);
+
             if(!selectedQuest.completed) {
                 alert("Market is not Finished!");
                 return;
@@ -255,7 +256,34 @@ export const changeStateFunction = async (state, selectedQuest) => {
             }
 
             // TODO answerKey
-            const selectedAnswerKey = 1;
+
+            const successRes = await successMarket({ questKey: selectedQuest.questKey, questAnswerKey: selectedAnswer.questAnswerKey });
+            if(successRes.status) {
+                client.patch(selectedQuest._id)
+                          .set({statusType: 'SUCCESS', questStatus: 'SUCCESS', successTx: successRes.transactionId})
+                          .commit();
+
+                const market_total_ct = selectedQuest.totalAmount;
+                const creator_ct = market_total_ct * selectedQuest.creatorFee / 100 + selectedQuest.creatorPay;
+                
+                const transactionSet = {
+                    _type: 'transactions',
+                    amount: creator_ct / 10 ** 18,
+                    recipientAddress: selectedQuest.creatorAddress,
+                    spenderAddress: cojamMarketAddress,
+                    transactionId: successRes.transactionId,
+                    transactionType: 'CREATOR_F',
+                }
+
+                client.create(transactionSet);
+
+                // TODO push logic
+                
+                alert('SUCCESS MARKET success');
+            } else {
+                alert('SUCCESS MARKET failed.');
+            }
+
             break;
         
         case 'retrieve':

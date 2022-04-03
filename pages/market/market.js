@@ -25,6 +25,9 @@ function Index() {
 	const [ activeDetailData, setActiveDetailData ] = useState({});
 	const [ selectedQuest, setSelectedQuest ] = useState([]);
 
+	const [ openSuccess, modalSuccess ] = useState(false);
+	const [ selectedAnswer, setSelectedAnswer ] = useState({});
+
 	const stateButtons = {
 		ONGOING: ['pend', 'unpend', 'invalid', 'draft', 'answer', 'approve'],
 		INVALID: [],
@@ -34,24 +37,32 @@ function Index() {
 	}
 
 	const clickStateButton = async (state) => {
-		setLoading(true);
 		if(selectedQuest.length === 0) {
 			alert('choose the quest to change the state');
-			setLoading(false);
 			return;
 		}
 
+		// modal 통해서 진행해야하는 status
+		if(state === 'success') {
+			loadDetailData(selectedQuest.questKey, false);
+			modalSuccess(true);
+			return;
+		}
+
+		setLoading(true);
 		await changeStateFunction(state, selectedQuest);
 		setLoading(false);
 	}
 	
-	const loadDetailData = (questKey) => {
-		/**
-		  * Ground 디테일 조회
-		 */
+	/**
+	 * title 클릭 시, Quest 디테일 조회
+ 	*/
+	const loadDetailData = (questKey, openDetailModal) => {
 		 setLoading(true);
-		 const questQuery = `*[_type == 'quests' && questKey == ${questKey}][0]`;
+		 const questQuery = `*[_type == 'quests' && questKey == ${questKey}][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey] { title, questAnswerKey } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
+			console.log('aaaa', quest);
+
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
 			 client.fetch(seasonQuery).then((season) => {
 				const detailDatas = {
@@ -66,7 +77,10 @@ function Index() {
 					approveTx: quest.approveTx,
 					adjournTx: quest.adjournTx,
 					successTx: quest.successTx,
-					answers: quest.answers,
+					answers: quest.answerKeys,
+					totalAmount: quest.totalAmount,
+					creatorAddress: quest.creatorAddress,
+
 					seasonTitle: season.title,
 					seasonDesc : season.description,
 					cojamFee: season.cojamFee,
@@ -74,25 +88,26 @@ function Index() {
 					creatorFee: season.creatorFee,
 					creatorPay: season.creatorPay,
 					minimumPay: season.minimumPay,
-					maximumPay: season.maximumPay
+					maximumPay: season.maximumPay,
+					'openDetailModal': openDetailModal
 				}
 
 				setActiveDetailData(detailDatas);
 			 });
 		 });
-		 /**
-		  * Ground 디테일 조회
-		  */
 	}
 
-	// set loading false for detail data update
+	// loading 종료
 	useEffect(() => {
-		if(activeDetailData.questKey) {
+		if(activeDetailData['openDetailModal'] && activeDetailData.questKey) {
 			modalDetail(true);
 		}
 
 		setLoading(false);
 	}, [activeDetailData]);
+	/**
+	 *title 클릭 시, Quest 디테일 조회
+	 */
 
 	useEffect(() => {
 		const categoryQuery = `*[_type == 'marketCategories'] | order(order asc)`;
@@ -177,13 +192,13 @@ function Index() {
 					<div className="mc-markets" style={{ display: 'block' }}>
 						<div>
 							<ul>
-								<li key='2'><strong>No.</strong></li>
-								<li key='3'><strong>Category</strong></li>
-								<li key='4'><strong>Title</strong></li>
-								<li key='5'><strong>End Date</strong></li>
-								<li key='6'><strong>Total(minimum)</strong></li>
-								<li key='7'><strong>Pend </strong></li>
-								<li key='8'><strong>Hot </strong></li>
+								<li key='1'><strong>No.</strong></li>
+								<li key='2'><strong>Category</strong></li>
+								<li key='3'><strong>Title</strong></li>
+								<li key='4'><strong>End Date</strong></li>
+								<li key='5'><strong>Total(minimum)</strong></li>
+								<li key='6'><strong>Pend </strong></li>
+								<li key='7'><strong>Hot </strong></li>
 							</ul>
 
 							{
@@ -191,11 +206,11 @@ function Index() {
 									<ul onClick={() => { setSelectedQuest(transactionData); }} style={{ background: transactionData._id === selectedQuest._id ? '#2132' : '' }} >
 										<li key='1'><span>No. : </span> {index + 1} </li>
 										<li key='2'><span>Category : </span> {transactionData.categoryNm?.seasonCategoryName} </li>
-										<li key='3' onClick={() => { loadDetailData(transactionData.questKey); }} style={{ cursor: 'pointer' }}><span>Title : </span> {transactionData.title} </li>
+										<li key='3' onClick={() => { loadDetailData(transactionData.questKey, true); }} style={{ cursor: 'pointer' }}><span>Title : </span> {transactionData.title} </li>
 										<li key='4'><span>End Date : </span> {Moment(transactionData.endDateTime).format('YYYY-MM-DD HH:mm:ss')} </li>
 										<li key='5'><span>Total(minimum) : </span> {transactionData.totalAmount} ({transactionData.minimumPay})</li>
-										<li key='6'><span>Pend : </span><p className="false">F</p></li>
-										<li key='7'><span>Hot : </span><p className="true">T</p></li>
+										<li key='6'><span>Pend : </span> { transactionData.pending ? 'T' : 'F' } </li>
+										<li key='7'><span>Hot : </span> { transactionData.hot ? 'T' : 'F' } </li>
 									</ul>
 								))
 							}
@@ -270,7 +285,7 @@ function Index() {
 													<span>Answer List</span>
 													{
 														activeDetailData?.answers?.map((answer) => (
-															<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={answer}/>
+															<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={answer.title}/>
 														))
 													}
 													
@@ -306,6 +321,42 @@ function Index() {
 					</div>
 				</Modal>
 				{/* 모달 - 상세 끝 */}
+
+				{/* 모달 - SUCCESS */}
+				<Modal open={openSuccess} onClose={() => modalSuccess(false)} center>
+					<div className="modal-mypage-view">
+						<form name="addForm" method="post" action="">
+							<fieldset>
+								<legend>Success Detail</legend>
+								<div className="mmv-area">
+									<dl>
+										<dt>Success Detail</dt>
+										<dd><i className="uil uil-times" onClick={() => modalSuccess(false)}></i></dd>
+									</dl>
+									<ul>
+										{
+											activeDetailData &&
+											<>
+												<li>
+													<span>Answer List</span>
+													{
+														activeDetailData?.answers?.map((answer) => (
+															<input name="name" type="text" className="w100p" placeholder="" style={{ cursor: 'pointer', background: answer.title === selectedAnswer.title ? '#8950fc' : '' }} onClick={() => {setSelectedAnswer(answer)}} readonly defaultValue={answer.title}/>
+														))
+													}	
+												</li>
+											</>
+										}
+									</ul>
+									<p>
+										<a href="#" onClick={() => { changeStateFunction('success', selectedQuest, selectedAnswer); modalSuccess(false) }}>Confirm</a>
+									</p>
+								</div>
+							</fieldset>
+						</form>
+					</div>
+				</Modal>
+				{/* 모달 - SUCCESS 끝 */}
 
 				<div className="h70"></div>
 		</div>
