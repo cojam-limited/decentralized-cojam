@@ -337,7 +337,7 @@ function Index() {
                     <li key='1'>Select a Type</li>
                     <li key='2'>
                       <Link to="#">
-                        <i className="uil uil-plus-circle" onClick={() => { if(document.querySelectorAll('.mqa-answers li').length > 5) {return;} document.querySelector('.mqa-answers').insertAdjacentHTML('beforeend', `<li> <input name="name" type="text" className="w100p" placeholder="" /> </li>`)}}></i>
+                        <i className="uil uil-plus-circle" onClick={() => { if(document.querySelectorAll('.mqa-answers li').length > 5) {return;} document.querySelector('.mqa-answers').insertAdjacentHTML('beforeend', `<li> <input name="name" type="text" className="w100p" style="width: 100%" placeholder="" /> </li>`)}}></i>
                       </Link>
                       <Link to="#">
                         <i className="uil uil-minus-circle"onClick={() => { if(document.querySelectorAll('.mqa-answers li').length < 2) {return;} document.querySelector('.mqa-answers').removeChild(document.querySelector('.mqa-answers').lastChild)}}></i>

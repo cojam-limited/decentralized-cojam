@@ -20,13 +20,12 @@ function Index() {
 
 	const { walletData } = useWalletData();
 
-
-	useEffect(() => {
+	const loadVotings = async () => {
 		const walletAddress = walletData.account;
 
 		console.log('mypag wallet address', walletAddress);
 		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}'] {..., 'answerNm': *[_type=='questAnswerList' && _id == ^.questAnswerKey] [0]{title} }`;
-		client.fetch(votingQuery).then(async (votingDatas) => {
+		await client.fetch(votingQuery).then(async (votingDatas) => {
 			console.log('mypage voting datas', votingDatas);
 
 			const votingArr = [];
@@ -54,6 +53,10 @@ function Index() {
 			console.log('votingArr', votingArr);
 			setVotings(votingArr);
 		});
+	}
+
+	useEffect(() => {
+		loadVotings();
 
 		const groundQuery = `*[_type == 'quests' && isActive == true] {..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 		client.fetch(groundQuery).then((grounds) => {

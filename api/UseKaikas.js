@@ -427,3 +427,39 @@ export const approveCojamURI = async (
 
   return result;  
 }
+
+export const receiveToken = async ({
+  questKey,
+  bettingKey
+}) => {
+  const contractABI = [{
+    name: 'receiveToken',
+    type: 'function',
+    inputs: [
+      {
+        type: 'uint256',
+        name: 'marketKey'
+      },
+      {
+        type: 'uint256',
+        name: 'bettingKey'
+      }
+    ]
+  }];
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(contractABI, contractAddress);
+
+  let result = { spenderAddress: cojamMarketAddress };
+  await contract.methods.receiveToken(
+    questKey, bettingKey
+  )
+  .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('receive token receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
+}

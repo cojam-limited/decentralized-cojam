@@ -440,7 +440,7 @@ function Index(props) {
 										<i className="uil uil-plus-circle" onClick={() => { if(document.querySelectorAll('.mqa-answers li').length > 5) {return;} document.querySelector('.mqa-answers').insertAdjacentHTML('beforeend', `<li> <input name="name" type="text" className="w100p" placeholder="" /> </li>`)}}></i>
 									</Link>
 									<Link>
-										<i className="uil uil-minus-circle"onClick={() => { if(document.querySelectorAll('.mqa-answers li').length < 2) {return;} document.querySelector('.mqa-answers').removeChild(document.querySelector('.mqa-answers').lastChild)}}></i>
+										<i className="uil uil-minus-circle" onClick={() => { if(document.querySelectorAll('.mqa-answers li').length < 2) {return;} document.querySelector('.mqa-answers').removeChild(document.querySelector('.mqa-answers').lastChild)}}></i>
 									</Link>
 								</li>
 							</ol>
@@ -463,7 +463,7 @@ function Index(props) {
 								</li>
 							</ul>
 							<p className="mqa-btn">
-								<Link to='#' onClick={() => createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'))}>Complete</Link>
+								<Link to='#' onClick={() => {createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input')); modalQuestAdd(false); }}>Complete</Link>
 							</p>
 							</div>
 						</fieldset>

@@ -78,18 +78,16 @@ const getSocialMediaCheck = (snsUrl) => {
 }
 
 const createNewQuest = (modalValues, answers) => {
+    if(!window.confirm('create new quest ?')) {
+        return;
+    }
+
     console.log('create new quest', modalValues);
     console.log('answers', answers);
     
     const quest = {'answers': [], ...modalValues};
 
     answers && answers.forEach((answer) => quest.answers.push(answer.value));
-
-    // TODO REMOVE TEST
-    //const questId = 'urOzoAW0aX4fcoOr4DwDhx';
-    //client.patch(questId).set()
-
-    //drafts.4FVgAzek140CS3Cl0tpJs, drafts.4FVgAzek140CS3Cl0tpJsj
 
     //현재 season 정보
     const query = `*[_type == 'season' && isActive == true]`;
@@ -101,7 +99,7 @@ const createNewQuest = (modalValues, answers) => {
         
         console.log('seasons', seasons);
         console.log('get seasons key', seasons[0]._id);
-        quest['seasonKey'] = seasons[0].seasonKey;
+        quest['season'] = { _type: 'reference', _ref: seasons[0]._id };
 
         const accounts = await window.klaytn.enable();
         const walletAddress = accounts[0];
@@ -205,6 +203,8 @@ const createNewQuest = (modalValues, answers) => {
                         });
                     });
                 }
+
+                alert('create quest success');
             });
         });
     });
