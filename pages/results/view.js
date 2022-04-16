@@ -8,16 +8,27 @@ import backgroundImage from '@assets/body_notice.jpg';
 
 function Index(props) {
 	const [ post, setPost ] = useState(props.location.state.post);
-	const [ postView, setPostView ] = useState([]);
+	const [ relatedPosts, setRelatedPosts ] = useState([]);
 	const { setLoading } = useLoadingState();
 
 	useEffect(() => {
 		setLoading(true);
-		const query = `*[_type == "postView" && title == "${post.title}"]`;
-		client.fetch(query).then((data) => {
-			setPostView(data && data[0]);
-			setLoading(false);
-		});
+		const newRelatedPost = [];
+		post?.related?.forEach((related) => {
+			const query = `*[_type == 'resultList' && _id == '${related._ref}'][0]`;
+			client.fetch(query).then((res) => {
+				if(res) {
+					newRelatedPost.push(res);
+					setRelatedPosts([...newRelatedPost]);
+				}
+			});
+		})
+			
+		if(!post?.related) {
+			setRelatedPosts([]);
+		}
+
+		setLoading(false);
 	}, [post]);
 
   	return (
@@ -33,13 +44,13 @@ function Index(props) {
 				<div className="notice-view">
 					<dl>
 						<dt>
-							<h2><span>[{post.type}]</span> {post.title}</h2>
-							<h3><i className="uil uil-calendar-alt"></i> {post.postDate}</h3>
+							<h2><span>[{post?.type}]</span> {post?.title}</h2>
+							<h3><i className="uil uil-calendar-alt"></i> {post?.postDate}</h3>
 							<div>
-								<p>{post.mainImage && <img src={urlFor(post.mainImage)} width="100%" alt="" title="" />}</p>
+								<p>{post?.mainImage && <img src={urlFor(post?.mainImage)} width="100%" alt="" title="" />}</p>
 								<br /><br />
 								<div>
-									{postView && postView.description}
+									{post?.description}
 								</div>
 							</div>
 						</dt>
@@ -47,18 +58,18 @@ function Index(props) {
 							<h2>Related</h2>
 							<ul>
 								{
-									postView && postView.related && postView.related.map((relatedPost, index) => (
+									relatedPosts.map((relatedPost, index) => (
 										<li key={index} onClick={() => setPost(relatedPost)}>
 											<p>
 												<span 
 												style={{ 
-													backgroundImage: relatedPost.mainImage && `url('${urlFor(relatedPost.mainImage)}')`,
+													backgroundImage: relatedPost?.mainImage && `url('${urlFor(relatedPost.mainImage)}')`,
 													backgroundPosition: `center`, 
 													backgroundSize: `cover` 
 												}}>
 												</span>
 											</p>
-											<h2>{relatedPost.title}</h2>
+											<h2>{relatedPost?.title}</h2>
 										</li>
 									))
 								}

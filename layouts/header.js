@@ -40,7 +40,7 @@ function Header() {
 
   const checkWalletConnection = () => {
     let result = true;
-    if (!walletData?.account || !isNumber(balance)) {
+    if ((walletData?.account != 0 && !walletData?.account) || !isNumber(balance)) {
       result = false;
     }
 
@@ -82,9 +82,10 @@ function Header() {
 
   // login 에 따라 wallet, balance 상태 관리
   useEffect(() => {
-    getBalance();
+    console.log('header', walletData);
 
     if(walletData && walletData.account) {
+      getBalance();
 
       // POINT
       const memberDoc = {
@@ -131,6 +132,7 @@ function Header() {
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
                     <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>
+                    <Link to="/Account"><i className="uil uil-user-circle"></i> ACCOUNT</Link>
                     {/*<Link to="#" onClick={() => { handleConnectWallet() }}><i className="uil uil-sign-out-alt"></i>LOGOUT</Link> */}
                   </div>
                 </>

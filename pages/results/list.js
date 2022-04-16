@@ -27,7 +27,7 @@ function Index() {
 
 	useEffect(() => {
 		setLoading(true);
-		const query = `*[_type == 'post']`;
+		const query = `*[_type == 'resultList' && isActive == true]`;
 		client.fetch(query).then((datas) => {
 			console.log('query data', datas);
 			datas.forEach((data) => {

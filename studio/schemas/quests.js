@@ -267,6 +267,11 @@ export default {
       type: "number",
     },
     {
+      name: "answerTx",
+      title: "answer tx",
+      type: "string"
+    },
+    {
       name: "answersStr",
       title: "Answers Str",
       type: "string",

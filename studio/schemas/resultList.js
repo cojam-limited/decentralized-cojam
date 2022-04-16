@@ -1,6 +1,6 @@
 export default {
-  name: "post",
-  title: "post",
+  name: "resultList",
+  title: "ResultList",
   type: "document",
   fields: [
     {
@@ -26,5 +26,25 @@ export default {
       title: "Post Date",
       type: "datetime",
     },
+    {
+      name: "description",
+      title: "Description",
+      type: "text",
+    },
+    {
+      name: "isActive",
+      title: "isActive",
+      type: "boolean",
+    },
+    {
+      name: "related",
+      title: "Related posts",
+      type: "array",
+      of: [ 
+        { type: "reference",
+          to: [{type: 'resultList'}]
+        } 
+      ]
+    }
   ],
 };

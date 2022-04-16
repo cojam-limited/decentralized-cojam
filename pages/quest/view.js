@@ -89,6 +89,19 @@ function Index(props) {
 	}
 
 	useEffect(() => {
+		console.log('update listen ', questId);
+		const query = `*[_type == 'quests' && _id == $questId]`;
+		const params = { questId: questId }
+
+		const subscription = client.listen(query, params).subscribe((update) => {
+			const comment = update.result
+			console.log(`update !!!!! ${comment}`)
+		})
+
+		return subscription?.unsubscribe();
+	}, []);
+
+	useEffect(() => {
 		console.log('new load');
 
 		setLoading(true);
@@ -265,8 +278,9 @@ function Index(props) {
 								<p> 
 								<VictoryChart>
 									{
-										Object.keys(historyGraph).map((graphKey) => (
+										Object.keys(historyGraph).map((graphKey, index) => (
 											<VictoryLine
+												key={index}
 												style={{
 													data: { stroke: `${answerColors[graphKey]}` }
 												}}

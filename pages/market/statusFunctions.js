@@ -3,6 +3,7 @@ import { kaikasLogin, draftMarket, addAnswerKeys, approveMarket, adjournMarket, 
 import Moment, { now } from 'moment';
 
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
+
 export const changeStateFunction = async (state, selectedQuest, selectedAnswer, description) => {
     if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
         return;

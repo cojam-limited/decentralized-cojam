@@ -64,13 +64,13 @@ export default {
       type: "datetime",
     },
     {
-      name: "bettingAvg",
-      title: "Betting Avg",
+      name: "multiply",
+      title: "Multiply",
       type: "string",
     },
     {
-      name: "receiveAmount",
-      title: "Receive Amount",
+      name: "predictionFee",
+      title: "Prediction Fee",
       type: "string",
     },
   ],

@@ -43,6 +43,11 @@ export default {
       type: "string",
     },
     {
+      name: "creatorAddress",
+      title: "Creator Address",
+      type: "string",
+    },
+    {
       name: "minimumPay",
       title: "minimumPay",
       type: "string",

@@ -19,6 +19,11 @@ export default {
       type: "number",
     },
     {
+      name: 'status',
+      title: 'Status',
+      type: 'string'
+    },
+    {
       name: "recipientAddress",
       title: "Recipient Address",
       type: "string"

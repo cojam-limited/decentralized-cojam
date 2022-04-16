@@ -60,8 +60,7 @@ const doBetting = async (betting) => {
                     return;
                 }
 
-                // TODO === -> !==
-                if(detail.questStatus === "APPROVE") {
+                if(detail.questStatus !== "APPROVE") {
                     alert("Market is not approved.");
                     return;
                 }

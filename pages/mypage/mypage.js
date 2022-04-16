@@ -15,7 +15,7 @@ function Index() {
 	const [openMypageTransfer, modalMypageTransfer] = useState(false);
 
 	const stateList = ['ONGOING', 'INVALID', 'APPROVE', 'ADJOURN', 'SUCESS'];
-	const [ votings, setVotings ] = useState([]);
+	const [ votings, setVotings ] = useState({votingSet: []});
 	const [ grounds, setGrounds ] = useState([]);
 
 	const { walletData } = useWalletData();
@@ -23,12 +23,12 @@ function Index() {
 	const loadVotings = async () => {
 		const walletAddress = walletData.account;
 
-		console.log('mypag wallet address', walletAddress);
+		console.log('mypage wallet address', walletAddress);
+		const votingArr = [];
 		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}'] {..., 'answerNm': *[_type=='questAnswerList' && _id == ^.questAnswerKey] [0]{title} }`;
 		await client.fetch(votingQuery).then(async (votingDatas) => {
 			console.log('mypage voting datas', votingDatas);
-
-			const votingArr = [];
+			
 			await votingDatas.forEach(async (votingData) => {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey}][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 				await client.fetch(questQuery).then((quest) => {
@@ -49,14 +49,17 @@ function Index() {
 					} 
 				});
 			});
-			
-			console.log('votingArr', votingArr);
-			setVotings(votingArr);
 		});
+
+		console.log('votingArr', votingArr);
+		setVotings({votingSet: [...votings.votingSet, votingArr]});
 	}
 
 	useEffect(() => {
-		loadVotings();
+		(async () => {
+			await loadVotings();
+		})();
+		
 
 		const groundQuery = `*[_type == 'quests' && isActive == true] {..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 		client.fetch(groundQuery).then((grounds) => {
@@ -113,10 +116,10 @@ function Index() {
 						</ul>
 
 						{
-							votings?.map((voting) => {
+							votings.votingSet?.map((voting, index) => {
 								let statePass = false;
 								return (
-									<ul style={{ cursor: 'pointer' }} onClick={() => modalMypageVoting(true)}>
+									<ul key={index} style={{ cursor: 'pointer' }} onClick={() => modalMypageVoting(true)}>
 										<li key='1'><span>Category : </span>{voting.categoryNm}</li>
 										<li key='2'><span>Title : </span>{voting.title}</li>
 										<li key='3'>
@@ -164,10 +167,10 @@ function Index() {
 						</ul>
 
 						{
-							grounds?.map((ground) => {
+							grounds?.map((ground, index) => {
 								let statePass = false;
 								return (
-									<ul onClick={() => modalMypageGround(true)}>
+									<ul key={index} onClick={() => modalMypageGround(true)}>
 										<li><span>Category : </span> { ground.categoryNm.seasonCategoryName } </li>
 										<li><span>Title : </span> { ground.title } </li>
 										<li>

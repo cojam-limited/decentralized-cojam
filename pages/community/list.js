@@ -104,8 +104,8 @@ function Index() {
 				<Pagination
 						nextButton={true}
 						prevButton={true}
-						nextButtonLabel={"➡️"}
-						prevButtonLabel={"⬅️"}
+						nextButtonLabel={">"}
+						prevButtonLabel={"<"}
 						items={itemsToSend}
 						action={action}
 						postsPerPage={postsPerPage}

@@ -26,5 +26,20 @@ export default {
       title: "Post Date",
       type: "datetime",
     },
+    {
+      name: "description",
+      title: "Description",
+      type: "text",
+    },
+    {
+      name: "related",
+      title: "Related posts",
+      type: "array",
+      of: [ 
+        { type: "reference",
+          to: [{type: 'communityList'}]
+        } 
+      ]
+    }
   ],
 };
