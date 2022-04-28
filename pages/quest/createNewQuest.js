@@ -185,17 +185,19 @@ const createNewQuest = (modalValues, answers) => {
                     client.fetch(`count(*[_type == "questAnswerList"])`).then((order) => {
         
                         // create new quest answer
-                        answers.forEach((answer) => {                    
+                        answers.forEach((answer) => {   
+                            order = order + 1;
+                            
                             const questAnswer = {
                                 _type: 'questAnswerList',
-                                questAnswerKey: order + 1,
+                                questAnswerKey: order,
                                 questKey: quest.questKey,
                                 questExample: '',
                                 title: answer.value,
                                 totalAmount: 0,
                                 userCnt: 0,
                             }
-                        
+
                             console.log('questAnswer created by', questAnswer);
                             client.create(questAnswer).then((res) => {
                                 console.log('questAnswer id : ' + res.questAnswerKey);

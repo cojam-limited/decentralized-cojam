@@ -92,7 +92,7 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
                 return;
             }
 
-            const bettingKeyQuery = `*[_type == 'bettings' && questKey == ${selectedQuest.questKey} ]`;
+            const bettingKeyQuery = `*[_type == 'questAnswerList' && questKey == ${selectedQuest.questKey} ]`;
             const bettingKeyList = [];
             await client.fetch(bettingKeyQuery).then((bettings) => {
                 bettings.forEach((betting) => {
@@ -165,7 +165,7 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
                             statusType: 'APPROVE', 
                             questStatus: 'APPROVE',
                             approveTx: approveMarketRes.transactionId,
-                            approveDateTime: now()
+                            approveDateTime: now().format("yyyy-MM-dd HH:mm:ss")
                         })
                       .commit();
                 

@@ -30,7 +30,7 @@ function Index() {
   const [ activeCategory, setActiveCategory ] = useState('All');
 
 	// pagenation settings
-	let postsPerPage = 3;
+	let postsPerPage = 6;
 	const [ items, setItems ] = useState([]);
 	const [ itemsToSend, setItemsToSend ] = useState([]);
 
@@ -72,7 +72,7 @@ function Index() {
      * Quest 리스트 & 데이터 조회
      */
     const condition = `${activeCategory === 'All' ? '' : `&& seasonCategory._ref in *[_type == "seasonCategories" && seasonCategoryName == '${activeCategory}']._id`}`;
-    const questQuery = `*[_type == 'quests' && isActive == true ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
+    const questQuery = `*[_type == 'quests' && isActive == true ${condition} && approveTx != ''] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
 		client.fetch(questQuery).then((datas) => {
       datas.forEach((quest) => {
         const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
@@ -294,7 +294,7 @@ function Index() {
                       <DatePicker
                         dateFormat="yyyy-MM-dd HH:mm:ss"
                         selected={endDateTime}
-                        onChange={(date) => setEndDateTime(date)}
+                        onChange={(date) => {setEndDateTime(date); setModalValues({...modalValues, 'endDateTime': date});}}
                         showTimeInput
                       />
                     </li>

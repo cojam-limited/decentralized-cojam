@@ -14,26 +14,6 @@ export default {
       type: "string",
     },
     {
-      name: "adjournDateTime",
-      title: "Adjourn DateTime",
-      type: "datetime",
-    },
-    {
-      name: "adjournTx",
-      title: "Adjourn Tx",
-      type: "string",
-    },
-    {
-      name: "approveDateTime",
-      title: "Approve DateTime",
-      type: "datetime",
-    },
-    {
-      name: "approveTx",
-      title: "Approve Tx",
-      type: "string",
-    },
-    {
       name: "seasonCategory",
       title: "Season Category",
       type: "reference",
@@ -55,11 +35,6 @@ export default {
       type: "datetime",
     },
     {
-      name: "questTitle",
-      title: "Quest Title",
-      type: "string",
-    },
-    {
       name: "completed",
       title: "Completed",
       type: "boolean",
@@ -67,11 +42,6 @@ export default {
     {
       name: "creatorAddress",
       title: "Creator Address",
-      type: "string",
-    },
-    {
-      name: "questDesc",
-      title: "Quest Desc",
       type: "string",
     },
     {
@@ -90,6 +60,31 @@ export default {
       type: "string",
     },
     {
+      name: "approveDateTime",
+      title: "Approve DateTime",
+      type: "datetime",
+    },
+    {
+      name: "approveTx",
+      title: "Approve Tx",
+      type: "string",
+    },
+    {
+      name: "answerTx",
+      title: "answer tx",
+      type: "string"
+    },
+    {
+      name: "adjournDateTime",
+      title: "Adjourn DateTime",
+      type: "datetime",
+    },
+    {
+      name: "adjournTx",
+      title: "Adjourn Tx",
+      type: "string",
+    },
+    {
       name: "successDateTime",
       title: "Success DateTime",
       type: "datetime",
@@ -97,27 +92,6 @@ export default {
     {
       name: "successTx",
       title: "Success Tx",
-      type: "string",
-    },
-    {
-      name: "memberKey",
-      title: "Member Key",
-      type: "string",
-    },
-    {
-      name: "season",
-      title: "Season",
-      type: "reference",
-      to: [{type: 'season'}]
-    },
-    {
-      name: "finishDateTime",
-      title: "Finish DateTime",
-      type: "string",
-    },
-    {
-      name: "finishTx",
-      title: "Finish Tx",
       type: "string",
     },
     {
@@ -131,9 +105,25 @@ export default {
       type: "string",
     },
     {
-      name: "answersTx",
-      title: "Answers Tx",
+      name: "finishDateTime",
+      title: "Finish DateTime",
+      type: "datetime",
+    },
+    {
+      name: "finishTx",
+      title: "Finish Tx",
       type: "string",
+    },
+    {
+      name: "memberKey",
+      title: "Member Key",
+      type: "string",
+    },
+    {
+      name: "season",
+      title: "Season",
+      type: "reference",
+      to: [{type: 'season'}]
     },
     {
       name: "draftDateTime",
@@ -153,6 +143,21 @@ export default {
     {
       name: "snsId",
       title: "Sns Id",
+      type: "string",
+    },
+    {
+      name: "snsType",
+      title: "Sns Type",
+      type: "string",
+    },
+    {
+      name: "snsDesc",
+      title: "Sns Desc",
+      type: "string",
+    },
+    {
+      name: "snsTitle",
+      title: "Sns Title",
       type: "string",
     },
     {
@@ -182,28 +187,8 @@ export default {
       type: "string",
     },
     {
-      name: "snsType",
-      title: "Sns Type",
-      type: "string",
-    },
-    {
-      name: "snsDesc",
-      title: "Sns Desc",
-      type: "string",
-    },
-    {
-      name: "snsTitle",
-      title: "Sns Title",
-      type: "string",
-    },
-    {
       name: "categoryName",
       title: "Category Name",
-      type: "string",
-    },
-    {
-      name: "orderType",
-      title: "Order Type",
       type: "string",
     },
     {
@@ -247,11 +232,6 @@ export default {
       type: "string",
     },
     {
-      name: "description",
-      title: "Description",
-      type: "string",
-    },
-    {
       name: "creatorFee",
       title: "Creator Fee",
       type: "string",
@@ -265,21 +245,6 @@ export default {
       name: "totalAmount",
       title: "Total Amount",
       type: "number",
-    },
-    {
-      name: "answerTx",
-      title: "answer tx",
-      type: "string"
-    },
-    {
-      name: "answersStr",
-      title: "Answers Str",
-      type: "string",
-    },
-    {
-      name: "dDay",
-      title: "D Day",
-      type: "string",
     },
     {
       name: "finished",

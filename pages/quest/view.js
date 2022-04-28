@@ -17,7 +17,7 @@ import doBetting from './doBetting';
 import { urlFor, client } from "../../sanity";
 import { useWalletData } from '@data/wallet';
 
-import { kaikasGetBalance } from '@api/UseKaikas';
+import { getCojamBalance } from '@api/UseKaikas';
 
 import backgroundImage from '@assets/body_quest.jpg';
 
@@ -60,7 +60,7 @@ function Index(props) {
 
 		try {
 			const questAnswerId = quest.answerIds.filter((answerId) => answerId.title === selectedAnswer);
-			const curBalance = await kaikasGetBalance(walletData.account);
+			const curBalance = await getCojamBalance(walletData.account);
 
 			const betting = {
 				'bettingCoin': Number(bettingCoin),
@@ -83,22 +83,42 @@ function Index(props) {
 			setOnBetting('bet');
 		} catch(error) {
 			console.log('betting error', error);
+			alert(`betting failed.`);
 		}
 
 		setLoading(false);
 	}
 
 	useEffect(() => {
-		console.log('update listen ', questId);
-		const query = `*[_type == 'quests' && _id == $questId]`;
-		const params = { questId: questId }
+		//const query = `*[_type == 'quests' && _id == $questId]`;
+		//const params = { questId: questId }
 
-		const subscription = client.listen(query, params).subscribe((update) => {
-			const comment = update.result
-			console.log(`update !!!!! ${comment}`)
+		const query = `*[_type == 'questAnswerList' && questAnswerKey == 24]`;
+
+		const subscription = client.listen(query).subscribe((update) => {
+			const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} [0]`;
+			client.fetch(questQuery).then((quest) => {
+				const answers = quest.answerIds;
+				answers.forEach((answer) => {
+					if(answer.title === update.result.title) {
+						console.log('total amount is updated title : ', answer.title, update.result.title);
+						answer.totalAmount = update.result.totalAmount;
+					}
+
+					const resultPercent = answer.totalAmount / quest.totalAmount;
+					const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
+					answerTotalAmounts[answer.title] = answer.totalAmount;
+					answerPercents[answer.title] = resultPercent * 100;
+					answerAllocations[answer.title] = allocation;
+		
+					setAnswerTotalAmounts(answerTotalAmounts);
+					setAnswerPercents(answerPercents);
+					setAnswerAllocations(answerAllocations);
+				});
+			});
 		})
 
-		return subscription?.unsubscribe();
+		return () => subscription?.unsubscribe();
 	}, []);
 
 	useEffect(() => {
@@ -156,7 +176,7 @@ function Index(props) {
 				const graphGroupData = answerHist.reduce((group, answer) => {
 					const { bettingCoin, createdDateTime, answerTitle, answerColor } = answer;
 
-					answerColors[answerTitle] = answerColor.color.value;
+					answerColors[answerTitle] = answerColor.color?.value;
 					setAnswerColors(answerColors);
 
 					const date = Moment(createdDateTime).format('YYYY-MM-DD');
@@ -303,7 +323,7 @@ function Index(props) {
 								</p>
 							</div>
 							<div className="qv-vol">
-								<h2>Total {questTotalAmount} CT</h2>
+								<h2>Total {addComma(questTotalAmount)} CT</h2>
 								<ul>
 									{
 										answerHistory?.map((answerHist, index) => (

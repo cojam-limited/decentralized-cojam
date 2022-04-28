@@ -24,9 +24,8 @@ function Header() {
   const { mutateModalData: mutateKlipModalData } = useModalData(KLIP_MODAL_DATA_KEY);
   const { walletData, mutateWalletData } = useWalletData();
   const [ balance, setBalance ] = useState();
-  const [ isLogin, setIsLogin ] = useState(false);
-  //scroll 이벤트 관련
 
+  //scroll 이벤트 관련
   const isNumber = (balance) => {
     if(balance) {
       const reg = /^\d*\.?\d*$/;
@@ -38,9 +37,17 @@ function Header() {
     }
   }
 
-  const checkWalletConnection = () => {
+  const checkWalletConnection = async () => {
     let result = true;
-    if ((walletData?.account != 0 && !walletData?.account) || !isNumber(balance)) {
+    const kaikasUnlocked = await isKaikasUnlocked();
+
+    console.log('is lock?', kaikasUnlocked);
+    if(!kaikasUnlocked) {
+      mutateWalletData({ account: '' });
+      return false;
+    }
+
+    if (!walletData?.account || !isNumber(balance)) {
       result = false;
     }
 
@@ -56,15 +63,15 @@ function Header() {
       const kaikasUnlocked = await isKaikasUnlocked();
       if (!kaikasUnlocked) {
         const account = await kaikasLogin();
-        mutateWalletData({ account });
+        mutateWalletData({ account: account });
         mutateModalData({ open: false });
         modalKlipAdd(false);
-    } else {
-        toastNotify({
-          state: 'error',
-          message: 'Not Support MoblieWeb.',
-        });
       }
+    } else {
+      toastNotify({
+        state: 'error',
+        message: 'Not Support MoblieWeb.',
+      });
     }
   }
 
@@ -87,7 +94,7 @@ function Header() {
     if(walletData && walletData.account) {
       getBalance();
 
-      // POINT
+      // if new user then, add member info - start
       const memberDoc = {
         _type: 'member',
         _id: walletData.account,
@@ -98,13 +105,9 @@ function Header() {
       client.createIfNotExists(memberDoc).then((res) => {
         console.log('member create result', res);
       });
+      // if new user then, add member info - end
     }
   }, [walletData]);
-
-  // login 상태 관리 (lock & unlock)
-  useEffect(() => {
-    setIsLogin(checkWalletConnection());
-  }, [balance]);
 
   return (
     <div>
@@ -125,10 +128,10 @@ function Header() {
           </dt>
           <dd>
               {
-              isLogin
+              checkWalletConnection()
               ? /* 로그인 했을때 */
                 <>
-                  <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(8)) : 0} CT,  {walletData.account.substring(0, 10) + '...'})</span></h2>
+                  <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(8)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
                     <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>
@@ -156,7 +159,7 @@ function Header() {
           <dd>
             {}
             {
-              isLogin
+              checkWalletConnection()
               ? /* 로그인 했을때 */
                 <> 
                   <Link to="#"><i className="uil uil-wallet"></i></Link>
@@ -171,7 +174,7 @@ function Header() {
           </dd>
         </dl>
         <ul>
-          <li><i className="uil uil-coins"></i> {balance ? balance.toFixed(8) : 0} KLAY</li>
+          <li><i className="uil uil-coins"></i> {balance ? balance.toFixed(8) : 0} CT</li>
           <li><i className="uil uil-times-circle"></i></li>
         </ul>
       </div>

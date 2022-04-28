@@ -1,7 +1,7 @@
 import { urlFor, client } from "../../sanity";
 
 import Moment, { now } from 'moment';
-import { approveCojamURI, bettingCojamURI } from "@api/UseKaikas";
+import { approveCojamURI, bettingCojamURI, getMarketCojamURI } from "@api/UseKaikas";
 
 //import { kaikasGetBalance } from '@api/UseKaikas';
 
@@ -52,7 +52,7 @@ const doBetting = async (betting) => {
 
                 // TODO CHECK
                 const etherUnit = 18;
-                const amount = betting.bettingCoin * etherUnit;
+                const amount = betting.bettingCoin / 10 ** etherUnit;
                 const marketAddress = "0xC31585Bf0808Ab4aF1acC29E0AA6c68D2B4C41CD";
 
                 if(detail.finishTx) {
@@ -107,27 +107,29 @@ const doBetting = async (betting) => {
                     });
                 
                     // TODO contract 호출 확인
-                    const questKeyInt = Number(betting.questKey);
-                    const questAnswerKeyInt = Number(betting.questAnswerKey.order);
-                    const bettingKeyInt = Number(newBettingKey);
-                    const bettingCoinAmount = Number(betting.bettingCoin);
-
-                    console.log('quest keys', questKeyInt, questAnswerKeyInt, bettingKeyInt);
-                    console.log('bettingCoinAmount', bettingCoinAmount);
+                    console.log('quest keys', betting.questKey, betting.questAnswerKey.order, newBettingKey);
+                    console.log('bettingCoinAmount', betting.bettingCoin);
 
                     let approveTxReceipt;
-                    await approveCojamURI(bettingCoinAmount).then((res) => {
+                    await approveCojamURI(betting.bettingCoin).then((res) => {
                         console.log('approve tx receipt', res);
                         approveTxReceipt = res.transactionId;
                     });
 
                     await bettingCojamURI({ 
-                        questKey: questKeyInt, 
-                        questAnswerKey: questAnswerKeyInt, 
-                        bettingKey: bettingKeyInt, 
-                        bettingCoinAmount: bettingCoinAmount 
+                        questKey: betting.questKey, 
+                        questAnswerKey: betting.questAnswerKey.order, 
+                        bettingKey: newBettingKey, 
+                        bettingCoinAmount: betting.bettingCoin
                     }).then(async (res) => {
-                        if(!res.error || !res.status) {
+                        if(!res) {
+                            return result = {
+                                result: false,
+                                message: 'betting api failed'
+                            };;
+                        }
+
+                        if(res.status !== 100) {
                             console.log('betting update !!!! ', res);
 
                             const bettingParam = {
