@@ -7,8 +7,10 @@ import backgroundImage from '@assets/body_mypage.jpg';
 import { useWalletData } from '@data/wallet';
 import { ClientError } from '@sanity/client';
 import { client } from '../../sanity';
+import { useLoadingState } from "../../assets/context/LoadingContext";
 
 function Index() {
+	const { setLoading } = useLoadingState();
 	const [openSendCT, modalSendCT] = useState(false);
 	const [openMypageVoting, modalMypageVoting] = useState(false);
 	const [openMypageGround, modalMypageGround] = useState(false);
@@ -16,29 +18,36 @@ function Index() {
 
 	const stateList = ['ONGOING', 'INVALID', 'APPROVE', 'ADJOURN', 'SUCESS'];
 	const [ votings, setVotings ] = useState({votingSet: []});
+	const [ selectedVoting, setSelectedVoting ] = useState({});
 	const [ grounds, setGrounds ] = useState([]);
+	const [ selectedGround, setSelectedGround ] = useState({});
+	const [ transfers, setTransfers ] = useState([]);
 
 	const { walletData } = useWalletData();
 
 	const loadVotings = async () => {
 		const walletAddress = walletData.account;
-
-		console.log('mypage wallet address', walletAddress);
 		const votingArr = [];
+
 		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}'] {..., 'answerNm': *[_type=='questAnswerList' && _id == ^.questAnswerKey] [0]{title} }`;
 		await client.fetch(votingQuery).then(async (votingDatas) => {
-			console.log('mypage voting datas', votingDatas);
-			
-			await votingDatas.forEach(async (votingData) => {
+			votingDatas.forEach(async (votingData) => {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey}][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 				await client.fetch(questQuery).then((quest) => {
 					if(quest) {
 						const votingSet = {
-							categoryNm: quest.categoryNm.seasonCategoryName,
 							title: quest.title,
+							categoryNm: quest.categoryNm.seasonCategoryName,
+							status: votingData.bettingStatus,
+							approveTx: quest.approveTx,
+							adjournTx: quest.adjournTx,
+							successTx: quest.successTx,
+							answerList: quest.answers,
+							spenderAddress: quest.creatorAddress,
+							bettingTx: votingData.transactionId,
+
 							hot: quest.hot,						
 							pending: quest.pending,
-							status: votingData.bettingStatus,
 							answerTitle: votingData.answerNm.title,
 							bettingCoin: votingData.bettingCoin,
 							multiply: votingData.multiply,
@@ -46,24 +55,30 @@ function Index() {
 						}
 						
 						votingArr.push({ ...votingSet });
+						setVotings( {...votings, votingSet: [...votings.votingSet, ...votingArr]} );
 					} 
 				});
 			});
-		});
 
-		console.log('votingArr', votingArr);
-		setVotings({votingSet: [...votings.votingSet, votingArr]});
+			setLoading(false);
+		});
 	}
 
 	useEffect(() => {
-		(async () => {
-			await loadVotings();
-		})();
-		
+		const walletAddress = walletData.account;
 
-		const groundQuery = `*[_type == 'quests' && isActive == true] {..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
+		setLoading(true);
+		loadVotings();
+		
+		const groundQuery = `*[_type == 'quests' && isActive == true] {..., 'seasonNm': *[_type=='season' && _id == ^.season._ref]{title}[0], 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 		client.fetch(groundQuery).then((grounds) => {
 			setGrounds(grounds);
+		});
+
+		const transferQuery = `*[_type == 'transactions' && spenderAddress == '${walletAddress}' || recipientAddress == '${walletAddress}']`;
+		client.fetch(transferQuery).then((transfers) => {
+			console.log('transfers', transfers);
+			setTransfers(transfers);
 		});
 
 	}, [walletData]);
@@ -119,29 +134,31 @@ function Index() {
 							votings.votingSet?.map((voting, index) => {
 								let statePass = false;
 								return (
-									<ul key={index} style={{ cursor: 'pointer' }} onClick={() => modalMypageVoting(true)}>
+									<ul key={index} style={{ cursor: 'pointer' }} onClick={() => {setSelectedVoting(voting); modalMypageVoting(true);}}>
 										<li key='1'><span>Category : </span>{voting.categoryNm}</li>
 										<li key='2'><span>Title : </span>{voting.title}</li>
 										<li key='3'>
 											{voting.pending && <p>Pending</p>}
+											{voting.questStatus === 'INVALID' && <p>INVALID</p>}
+											{voting.questStatus === 'ADJOURN' && <p>ADJOURN</p>}
 											<span>Status Flow : </span>
 											<ul>
-												{
-													stateList.map((state, index) => {
-														let complete = statePass ? '' : 'complete';
-														if(state === voting.status) {
-															statePass = true;
-															complete = 'ing';
-														}
+											{
+												stateList.map((state, index) => {
+													let complete = statePass ? '' : 'complete';
+													if(state === voting.status) {
+														statePass = true;
+														complete = 'ing';
+													}
 
-														return (
-															<li key={index} className={ complete }>
-																<span></span>
-																<h2>{state}</h2>
-															</li>
-														)
-													})
-												}
+													return (
+														<li key={index} className={ complete }>
+															<span></span>
+															<h2>{state}</h2>
+														</li>
+													)
+												})
+											}
 											</ul>
 										</li>
 										<li key='4'><span>My Answer : </span>{voting.answerTitle} ({voting.bettingCoin} CT)</li>
@@ -170,7 +187,7 @@ function Index() {
 							grounds?.map((ground, index) => {
 								let statePass = false;
 								return (
-									<ul key={index} onClick={() => modalMypageGround(true)}>
+									<ul key={index} style={{ cursor: 'pointer' }} onClick={() => { setSelectedGround(ground); modalMypageGround(true) }}>
 										<li><span>Category : </span> { ground.categoryNm.seasonCategoryName } </li>
 										<li><span>Title : </span> { ground.title } </li>
 										<li>
@@ -216,66 +233,16 @@ function Index() {
 							<li><strong>CT Amount</strong></li>
 							<li><strong>Created DTTM</strong></li>
 						</ul>
-						<ul onClick={() => modalMypageTransfer(true)}>
-							<li><span>Spender Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>Recipient Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>CT Amount : </span>10,000 CT</li>
-							<li><span>Created DTTM : </span>2021.01.06 (14:00:00)</li>
-						</ul>
-						<ul onClick={() => modalMypageTransfer(true)}>
-							<li><span>Spender Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>Recipient Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>CT Amount : </span>10,000 CT</li>
-							<li><span>Created DTTM : </span>2021.01.06 (14:00:00)</li>
-						</ul>
-						<ul onClick={() => modalMypageTransfer(true)}>
-							<li><span>Spender Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>Recipient Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>CT Amount : </span>10,000 CT</li>
-							<li><span>Created DTTM : </span>2021.01.06 (14:00:00)</li>
-						</ul>
-						<ul onClick={() => modalMypageTransfer(true)}>
-							<li><span>Spender Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>Recipient Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>CT Amount : </span>10,000 CT</li>
-							<li><span>Created DTTM : </span>2021.01.06 (14:00:00)</li>
-						</ul>
-						<ul onClick={() => modalMypageTransfer(true)}>
-							<li><span>Spender Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>Recipient Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>CT Amount : </span>10,000 CT</li>
-							<li><span>Created DTTM : </span>2021.01.06 (14:00:00)</li>
-						</ul>
-						<ul onClick={() => modalMypageTransfer(true)}>
-							<li><span>Spender Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>Recipient Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>CT Amount : </span>10,000 CT</li>
-							<li><span>Created DTTM : </span>2021.01.06 (14:00:00)</li>
-						</ul>
-						<ul onClick={() => modalMypageTransfer(true)}>
-							<li><span>Spender Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>Recipient Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>CT Amount : </span>10,000 CT</li>
-							<li><span>Created DTTM : </span>2021.01.06 (14:00:00)</li>
-						</ul>
-						<ul onClick={() => modalMypageTransfer(true)}>
-							<li><span>Spender Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>Recipient Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>CT Amount : </span>10,000 CT</li>
-							<li><span>Created DTTM : </span>2021.01.06 (14:00:00)</li>
-						</ul>
-						<ul onClick={() => modalMypageTransfer(true)}>
-							<li><span>Spender Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>Recipient Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>CT Amount : </span>10,000 CT</li>
-							<li><span>Created DTTM : </span>2021.01.06 (14:00:00)</li>
-						</ul>
-						<ul onClick={() => modalMypageTransfer(true)}>
-							<li><span>Spender Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>Recipient Address : </span>0xe539c08cb274877d1373da2a46f04b92193bfa66</li>
-							<li><span>CT Amount : </span>10,000 CT</li>
-							<li><span>Created DTTM : </span>2021.01.06 (14:00:00)</li>
-						</ul>
+						{
+							transfers?.map((transfer, index) => (
+								<ul key={index} onClick={() => modalMypageTransfer(true)}>
+									<li key="1"><span>Spender Address : </span>{transfer.spenderAddress}</li>
+									<li key="2"><span>Recipient Address : </span>{transfer.recipientAddress}</li>
+									<li key="3"><span>CT Amount : </span>{transfer.amount} CT</li>
+									<li key="4"><span>Created DTTM : </span>{transfer.createdDateTime}</li>
+								</ul>
+							))
+						}
 					</div>
 				</div>
 			</div>
@@ -317,56 +284,56 @@ function Index() {
 							<div className="mmv-area">
 								<dl>
 									<dt>Voting Detail</dt>
-									<dd><i className="uil uil-times" onClick={() => modalMypageVoting(false)}></i></dd>
+									<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalMypageVoting(false)}></i></dd>
 								</dl>
 								<ul>
 									<li>
 										<span>Title</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.title}/>
 									</li>
 									<li>
 										<span>Category</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.categoryNm}/>
 									</li>
 									<li>
 										<span>Status</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.status}/>
 									</li>
 									<li>
 										<span>Approve Transaction</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.approveTx}/>
 									</li>
 									<li>
 										<span>Adjourn Transaction</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.adjournTx}/>
 									</li>
 									<li>
 										<span>Success Transaction</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.successTx}/>
 									</li>
 									<li>
 										<span>Answer List</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.answerList}/>
 									</li>
 									<li>
 										<span>My Answer</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.answerTitle}/>
 									</li>
 									<li>
 										<span>Selected Answer</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.selectedAnswer}/>
 									</li>
 									<li>
 										<span>Spender Address</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.spenderAddress}/>
 									</li>
 									<li>
 										<span>Betting Transaction</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.bettingTx}/>
 									</li>
 								</ul>
 								<p>
-									<a href="#">Confirm</a>
+									<a href="#" onClick={() => modalMypageVoting(false)}>Confirm</a>
 								</p>
 							</div>
 						</fieldset>
@@ -385,52 +352,52 @@ function Index() {
 							<div className="mmv-area">
 								<dl>
 									<dt>Ground Detail</dt>
-									<dd><i className="uil uil-times" onClick={() => modalMypageGround(false)}></i></dd>
+									<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalMypageGround(false)}></i></dd>
 								</dl>
 								<ul>
 									<li>
 										<span>Title</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.title} />
 									</li>
 									<li>
 										<span>Category</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.categoryNm?.seasonCategoryName} />
 									</li>
 									<li>
 										<span>Status</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.statusType} />
 									</li>
 									<li>
 										<span>Description</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.description} />
 									</li>
 									<li>
 										<span>Approve Transaction</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.approveTx} />
 									</li>
 									<li>
 										<span>Adjourn Transaction</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.adjournTx} />
 									</li>
 									<li>
 										<span>Success Transaction</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.successTx} />
 									</li>
 									<li>
 										<span>Answer List</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.answers} />
 									</li>
 									<li>
 										<span>Selected Answer</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.title} />
 									</li>
 									<li>
 										<span>Season</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.seasonNm?.title} />
 									</li>
 								</ul>
 								<p>
-									<a href="#">Confirm</a>
+									<a href="#" style={{ cursor: 'pointer' }} onClick={() => modalMypageGround(false)}>Confirm</a>
 								</p>
 							</div>
 						</fieldset>

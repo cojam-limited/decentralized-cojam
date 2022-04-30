@@ -23,7 +23,8 @@ function Header() {
   const { modalData, mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
   const { mutateModalData: mutateKlipModalData } = useModalData(KLIP_MODAL_DATA_KEY);
   const { walletData, mutateWalletData } = useWalletData();
-  const [ balance, setBalance ] = useState();
+  const [ balance, setBalance ] = useState(-1);
+  const [ isLogin, setIsLogin ] = useState(false);
 
   //scroll 이벤트 관련
   const isNumber = (balance) => {
@@ -41,13 +42,13 @@ function Header() {
     let result = true;
     const kaikasUnlocked = await isKaikasUnlocked();
 
-    console.log('is lock?', kaikasUnlocked);
+    console.log('is lock?', !kaikasUnlocked);
     if(!kaikasUnlocked) {
       mutateWalletData({ account: '' });
       return false;
     }
 
-    if (!walletData?.account || !isNumber(balance)) {
+    if (!walletData?.account || walletData?.account === '' || !isNumber(balance)) {
       result = false;
     }
 
@@ -76,9 +77,15 @@ function Header() {
   }
 
   const getBalance = async () => {
-    if (walletData?.account) {
+    if (walletData?.account && walletData?.account !== '') {
       const cojamBalance = await getCojamBalance(walletData.account);
-      setBalance(cojamBalance / 10 ** 18);
+
+      const newBalance = cojamBalance / 10 ** 18;
+      if(newBalance !== balance) {
+        setBalance(newBalance);
+      }
+    } else {
+      setBalance(-1);
     }
   }
 
@@ -91,9 +98,9 @@ function Header() {
   useEffect(() => {
     console.log('header', walletData);
 
-    if(walletData && walletData.account) {
-      getBalance();
+    getBalance();
 
+    if(walletData && walletData.account) {
       // if new user then, add member info - start
       const memberDoc = {
         _type: 'member',
@@ -107,7 +114,18 @@ function Header() {
       });
       // if new user then, add member info - end
     }
-  }, [walletData]);
+  }, [walletData, walletData.account]);
+
+  useEffect(() => {
+    //console.log('balance reset', checkWalletConnection());
+
+    checkWalletConnection().then((res) => {
+      console.log('balance reset', res);
+      setIsLogin(res);
+    });
+
+    //setIsLogin(checkWalletConnection());
+  }, [balance]);
 
   return (
     <div>
@@ -128,7 +146,7 @@ function Header() {
           </dt>
           <dd>
               {
-              checkWalletConnection()
+              isLogin
               ? /* 로그인 했을때 */
                 <>
                   <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(8)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
@@ -159,7 +177,7 @@ function Header() {
           <dd>
             {}
             {
-              checkWalletConnection()
+              isLogin
               ? /* 로그인 했을때 */
                 <> 
                   <Link to="#"><i className="uil uil-wallet"></i></Link>

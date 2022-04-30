@@ -90,18 +90,20 @@ function Index(props) {
 	}
 
 	useEffect(() => {
-		//const query = `*[_type == 'quests' && _id == $questId]`;
-		//const params = { questId: questId }
+		const questAnswerKeyArray = `["", ""]`;
+		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, questAnswerKey, totalAmount}} [0]`;
+		
+		let subscription;
+		client.fetch(questQuery).then((quest) => {
+			const answerList = quest.answerIds?.map((answerId, index) => {
+				return `${answerId.questAnswerKey}`;
+			});
 
-		const query = `*[_type == 'questAnswerList' && questAnswerKey == 24]`;
-
-		const subscription = client.listen(query).subscribe((update) => {
-			const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} [0]`;
-			client.fetch(questQuery).then((quest) => {
+			const query = `*[_type == 'questAnswerList' && (questAnswerKey in [${answerList}])]`;
+			subscription = client.listen(query).subscribe((update) => {
 				const answers = quest.answerIds;
 				answers.forEach((answer) => {
 					if(answer.title === update.result.title) {
-						console.log('total amount is updated title : ', answer.title, update.result.title);
 						answer.totalAmount = update.result.totalAmount;
 					}
 
@@ -116,14 +118,12 @@ function Index(props) {
 					setAnswerAllocations(answerAllocations);
 				});
 			});
-		})
+		});
 
 		return () => subscription?.unsubscribe();
 	}, []);
 
 	useEffect(() => {
-		console.log('new load');
-
 		setLoading(true);
 		/**
 		 * Quest 리스트 & 데이터 조회
@@ -155,8 +155,6 @@ function Index(props) {
 			const questTotalAmount = quest.totalAmount;
 			const answers = quest.answerIds;
 			answers.forEach((answer) => {
-				console.log('answer', answer);
-
 				const resultPercent = answer.totalAmount / questTotalAmount;
 				const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
 				answerTotalAmounts[answer.title] = answer.totalAmount;

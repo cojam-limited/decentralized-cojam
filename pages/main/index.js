@@ -43,19 +43,15 @@ function Index() {
 		window.addEventListener('resize', resizeFunc);
 
 		const loadDatas = async () => {
-			const questQuery = `*[_type == 'quests' && isActive == true] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
+			const questQuery = `*[_type == 'quests' && isActive == true  && defined(approveTx)] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
 			await client.fetch(questQuery).then((datas) => {
 				console.log('quest', datas);
 				setQuests(datas);
 
 				datas.forEach((quest) => {
 					const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
-					if(diff === 0) { 
-						quest.dDay = 'D-0';
-					} else {
-						quest.dDay = diff > 0 ? 'expired' : `D${diff}`;
-					}
-			
+					
+					quest.dDay = diff === 0 ? 'D-0' : diff > 0 ? 'expired' : `D${diff}`;
 					quest.startDateTime = Moment(quest.startDateTime).format('yyyy-MM-DD HH:mm:ss');
 					quest.endDateTime = Moment(quest.endDateTime).format('yyyy-MM-DD HH:mm:ss');
 			
