@@ -293,10 +293,10 @@ export const addAnswerKeys = async ({
 
 
 export const retrieveMarket = async ({
-  marketKey
+  questKey
 }) => {
   const contractABI = [{
-    name: 'retrieveMarket',
+    name: 'retrievedMarket',
     type: 'function',
     inputs: [
       {
@@ -306,12 +306,11 @@ export const retrieveMarket = async ({
     ]
   }];
 
-  const contractAddress = cojamMarketAddress;
-  const contract = new caver.klay.Contract(contractABI, contractAddress)
+  const contract = new caver.klay.Contract(contractABI, cojamMarketAddress);
 
   let result = { spenderAddress: cojamMarketAddress };
-  await contract.methods.retrieveMarket(
-    marketKey
+  await contract.methods.retrievedMarket(
+    questKey
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
@@ -345,8 +344,6 @@ export const successMarket = async ({
 
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress)
-
-  console.log('success !!!!', klaytn.selectedAddress);
 
   let result = { spenderAddress: cojamMarketAddress };
   await contract.methods.successMarket(
@@ -398,7 +395,6 @@ export const getMarketCojamURI = async ({
 }
 
 
-// POINT
 export const bettingCojamURI = async ({
   questKey,
   questAnswerKey,
@@ -478,6 +474,43 @@ export const approveCojamURI = async (
 
   return result;  
 }
+
+
+export const transferCojamURI = async ({
+  toAddress, amount
+}) => {
+  const contractABI = [{
+    name: 'transfer',
+    type: 'function',
+    inputs: [
+      {
+        type: 'address',
+        name: 'to'
+      },
+      {
+        type: 'uint256',
+        name: 'amount'
+      }
+    ]
+  }];
+
+  const contract = new caver.klay.Contract(contractABI, cojamTokenAddress);
+
+  let result = { spenderAddress: cojamTokenAddress };
+  await contract.methods.transfer(
+    toAddress, amount
+  )
+  .send({from: klaytn.selectedAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('transfer token receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
+}
+
+
 
 export const receiveToken = async ({
   questKey,

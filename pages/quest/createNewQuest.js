@@ -89,7 +89,7 @@ const createNewQuest = (modalValues, answers) => {
 
     answers && answers.forEach((answer) => quest.answers.push(answer.value));
 
-    //현재 season 정보
+    //현재 season 정보x
     const query = `*[_type == 'season' && isActive == true]`;
     client.fetch(query).then(async (seasons) => {
         if(!seasons || seasons.length == 0) {
@@ -97,14 +97,18 @@ const createNewQuest = (modalValues, answers) => {
             return;
         }
         
-        console.log('seasons', seasons);
-        console.log('get seasons key', seasons[0]._id);
-        quest['season'] = { _type: 'reference', _ref: seasons[0]._id };
+        // set season info to quest
+        const curSeason = seasons[0];
+        quest['season'] = { _type: 'reference', _ref: curSeason._id };
+        quest['cojamFee'] = curSeason.cojamFee;
+        quest['charityFee'] = curSeason.charityFee;
+        quest['creatorFee'] = curSeason.creatorFee;
+        quest['creatorPay'] = curSeason.creatorPay;
+        quest['minimumPay'] = Number(curSeason.minimumPay);
+        quest['maximumPay'] = Number(curSeason.maximumPay);
 
         const accounts = await window.klaytn.enable();
         const walletAddress = accounts[0];
-        //const memberKey = "test_member_key";
-
         if(!walletAddress) {
             console.log('You do not have a wallet.');
             return;
@@ -120,8 +124,6 @@ const createNewQuest = (modalValues, answers) => {
             quest['snsUrl'] = '';
         } else if(modalValues && modalValues.snsUrl) {
             const snsInfo = getSocialMediaCheck(modalValues.snsUrl);
-
-            console.log('snsInfo', snsInfo);
 
             if(snsInfo.check) {
                 if("Y" === snsInfo.snsType) {
@@ -159,7 +161,7 @@ const createNewQuest = (modalValues, answers) => {
                 // upload image
                 client.assets
                       .upload('image', quest.imageFile)
-                      .then((imageAsset) => { 
+                      .then((imageAsset) => {
                         client.patch(res._id)
                               .set({imageFile: {
                                         _type: 'image',
@@ -168,22 +170,20 @@ const createNewQuest = (modalValues, answers) => {
                                             _ref: imageAsset._id
                                         }
                                     }
-                                })
-                              .commit()
+                              })
+                              .commit();
 
-                          console.log('Image upload Done!');
+                        console.log('Image upload Done!');
                       })
                       .catch((err) => { 
                         console.log('err', err);
                         return { statusCode: 400 } 
                       });
 
-
                 // Answer 생성
                 if(answers) {
                     // get increment
                     client.fetch(`count(*[_type == "questAnswerList"])`).then((order) => {
-        
                         // create new quest answer
                         answers.forEach((answer) => {   
                             order = order + 1;

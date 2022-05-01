@@ -25,6 +25,7 @@ function Header() {
   const { walletData, mutateWalletData } = useWalletData();
   const [ balance, setBalance ] = useState(-1);
   const [ isLogin, setIsLogin ] = useState(false);
+  const [ memberRole, setMemberRole ] = useState('');
 
   //scroll 이벤트 관련
   const isNumber = (balance) => {
@@ -48,7 +49,7 @@ function Header() {
       return false;
     }
 
-    if (!walletData?.account || walletData?.account === '' || !isNumber(balance)) {
+    if (!walletData?.account || walletData?.account === '') {
       result = false;
     }
 
@@ -101,6 +102,11 @@ function Header() {
     getBalance();
 
     if(walletData && walletData.account) {
+      const memberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}'][0] {memberRole}`;
+      client.fetch(memberQuery).then((memberRole) => {
+        setMemberRole(memberRole.memberRole);
+      });
+
       // if new user then, add member info - start
       const memberDoc = {
         _type: 'member',
@@ -113,7 +119,10 @@ function Header() {
         console.log('member create result', res);
       });
       // if new user then, add member info - end
+    } else {
+      setMemberRole('');
     }
+
   }, [walletData, walletData.account]);
 
   useEffect(() => {
@@ -152,8 +161,8 @@ function Header() {
                   <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(8)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
-                    <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>
-                    <Link to="/Account"><i className="uil uil-user-circle"></i> ACCOUNT</Link>
+                    {memberRole === 'admin' && <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>}
+                    {/*<Link to="/Account"><i className="uil uil-user-circle"></i> ACCOUNT</Link>*/}
                     {/*<Link to="#" onClick={() => { handleConnectWallet() }}><i className="uil uil-sign-out-alt"></i>LOGOUT</Link> */}
                   </div>
                 </>
@@ -182,7 +191,8 @@ function Header() {
                 <> 
                   <Link to="#"><i className="uil uil-wallet"></i></Link>
                   <Link to="/Mypage"><i className="uil uil-user-circle"></i></Link>
-                  <Link to="/Market"><i className="uil uil-sign-out-alt"></i>LOGOUT</Link>
+                  {memberRole === 'admin' && <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>}
+                  {/*<Link to="/Market"><i className="uil uil-sign-out-alt"></i>LOGOUT</Link>*/}
                 </>
               : /* 로그인 안했을때 */
                 <>

@@ -43,7 +43,7 @@ function Index() {
 		window.addEventListener('resize', resizeFunc);
 
 		const loadDatas = async () => {
-			const questQuery = `*[_type == 'quests' && isActive == true  && defined(approveTx)] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
+			const questQuery = `*[_type == 'quests' && isActive == true  && statusType == 'APPROVE'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
 			await client.fetch(questQuery).then((datas) => {
 				console.log('quest', datas);
 				setQuests(datas);

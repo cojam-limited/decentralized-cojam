@@ -4,7 +4,7 @@ import Moment, { now } from 'moment';
 
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
 
-export const changeStateFunction = async (state, selectedQuest, selectedAnswer, description) => {
+export const changeStateFunction = async (state, walletAddress, selectedQuest, selectedAnswer, description) => {
     if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
         return;
     }
@@ -13,7 +13,7 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
     switch(state) {
         case 'pend' :
             client.patch(selectedQuest._id)
-                  .set({pending: true})
+                  .set({ pending: true })
                   .commit();
 
             alert('pend success');			
@@ -21,7 +21,7 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
 
         case 'unpend' :
             client.patch(selectedQuest._id)
-                  .set({pending: false})
+                  .set({ pending: false })
                   .commit();
 
             alert('unpend success');					  
@@ -30,7 +30,11 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
         case 'invalid': 
             // TODO accept description
             client.patch(selectedQuest._id)
-                  .set({questStatus: 'INVALID', description: 'INVALID DESC'})
+                  .set({
+                      questStatus: 'INVALID', 
+                      description: 'INVALID DESC',
+                      updateMember: walletAddress
+                  })
                   .commit();
             // TODO ADD mailing
 
@@ -56,9 +60,14 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
                         }).then(async (res) => {
                             console.log('draft done.', res, res.transactionId);
                             
-                            if(res.status) {  // TODO , updateMember add
+                            if(res.status) {
                                 client.patch(selectedQuest._id)
-                                        .set({statusType: 'DRAFT', draftTx: res.transactionId})
+                                      .set({
+                                          statusType: 'DRAFT', 
+                                          draftTx: res.transactionId,
+                                          draftDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                                          updateMember: walletAddress
+                                      })
                                       .commit();
 
                                 alert('draft success');
@@ -100,8 +109,6 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
                 });
             });
 
-            console.log('approve answer bettingKeyList', bettingKeyList);
-
             const maxCount = 15;
             let addAnswerRes;
             if( bettingKeyList.length > maxCount ) {
@@ -125,10 +132,14 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
                 addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyList});
             }
 
-            console.log('add answer key result', addAnswerRes);
             if(addAnswerRes.status) {
                 client.patch(selectedQuest._id)
-                      .set({statusType: 'ANSWER', answerTx: addAnswerRes.transactionId})
+                      .set({
+                          statusType: 'ANSWER', 
+                          answerTx: addAnswerRes.transactionId,
+                          answerDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                          updateMember: walletAddress
+                        })
                       .commit();
 
                 alert('Answer approve success');
@@ -165,7 +176,8 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
                             statusType: 'APPROVE', 
                             questStatus: 'APPROVE',
                             approveTx: approveMarketRes.transactionId,
-                            approveDateTime: now().format("yyyy-MM-dd HH:mm:ss")
+                            approveDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                            updateMember: walletAddress
                         })
                       .commit();
                 
@@ -201,9 +213,15 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
 
             const questKey = selectedQuest.questKey;
             finishMarket({marketKey: questKey}).then((res) => {
-                if(res.status) {  // TODO , updateMember add
+                if(res.status) {
                     client.patch(selectedQuest._id)
-                          .set({statusType: 'FINISH', finishTx: res.transactionId, completed: true})
+                          .set({
+                              statusType: 'FINISH', 
+                              finishTx: res.transactionId, 
+                              finishDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                              completed: true,
+                              updateMember: walletAddress
+                            })
                           .commit();
 
                     alert('finish success');
@@ -230,7 +248,13 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
             const adjournRes = await adjournMarket({ questKey: selectedQuest.questKey });
             if(adjournRes.status) {
                 client.patch(selectedQuest._id)
-                          .set({statusType: 'ADJOURN', questStatus: 'ADJOURN', adjournTx: res.transactionId})
+                          .set({
+                              statusType: 'ADJOURN', 
+                              questStatus: 'ADJOURN', 
+                              adjournTx: res.transactionId,
+                              adjournDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                              updateMember: walletAddress
+                            })
                           .commit();
 
                 alert('adjourn success');
@@ -243,7 +267,6 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
             
         case 'success':
             console.log('status function', selectedAnswer.title, selectedAnswer.questAnswerKey);
-
             if(!selectedQuest.completed) {
                 alert("Market is not Finished!");
                 return;
@@ -256,13 +279,17 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
                 return;
             }
 
-            // TODO answerKey
-
             const successRes = await successMarket({ questKey: selectedQuest.questKey, questAnswerKey: selectedAnswer.questAnswerKey });
             if(successRes.status) {
                 client.patch(selectedQuest._id)
-                          .set({statusType: 'SUCCESS', questStatus: 'SUCCESS', successTx: successRes.transactionId})
-                          .commit();
+                      .set({
+                          statusType: 'SUCCESS', 
+                          questStatus: 'SUCCESS', 
+                          successTx: successRes.transactionId,
+                          successDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                          selectedAnswer: selectedAnswer.title,
+                          updateMember: walletAddress
+                        })
 
                 const market_total_ct = selectedQuest.totalAmount;
                 const creator_ct = market_total_ct * selectedQuest.creatorFee / 100 + selectedQuest.creatorPay;
@@ -272,14 +299,13 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
                     amount: creator_ct / 10 ** 18,
                     recipientAddress: selectedQuest.creatorAddress,
                     spenderAddress: cojamMarketAddress,
+                    status: 'SUCCESS',
                     transactionId: successRes.transactionId,
                     transactionType: 'CREATOR_F',
                 }
 
                 client.create(transactionSet);
 
-                // TODO push logic
-                
                 alert('SUCCESS MARKET success');
             } else {
                 alert('SUCCESS MARKET failed.');
@@ -304,23 +330,16 @@ export const changeStateFunction = async (state, selectedQuest, selectedAnswer, 
             }	
 
             const today = now();
-            const successDataTime = selectedQuest.successDataTime;
-
-            const diffDays = Moment(today).diff(Moment(successDataTime), 'days');
-            console.log(diffDays + '일 차이');
-
+            const diffDays = Moment(today).diff(Moment(selectedQuest.successDateTime), 'days');
             if(diffDays <= 180) {
                 alert("Market can be retrieved later 180 days from success!");
                 return;
             }
 
-            // TODO success tx confirm
-            // TODO success tx confirm
-
-            const retrieveRes = await retrieveMarket({ questKey: selectedAnswerKey.questKey });
+            const retrieveRes = await retrieveMarket({ questKey: selectedQuest.questKey });
             if(retrieveRes.status) {
                 client.patch(selectedQuest._id)
-                .set({statusType: 'RETRIEVE', retrieveTx: res.transactionId})
+                .set({statusType: 'RETRIEVE', retrieveTx: retrieveRes.transactionId})
                 .commit();
 
                 alert("retrieve success");

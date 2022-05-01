@@ -8,6 +8,8 @@ import { useWalletData } from '@data/wallet';
 import { ClientError } from '@sanity/client';
 import { client } from '../../sanity';
 import { useLoadingState } from "../../assets/context/LoadingContext";
+import Moment, { now } from 'moment';
+import { transferCojamURI } from "@api/UseKaikas";
 
 function Index() {
 	const { setLoading } = useLoadingState();
@@ -22,6 +24,8 @@ function Index() {
 	const [ grounds, setGrounds ] = useState([]);
 	const [ selectedGround, setSelectedGround ] = useState({});
 	const [ transfers, setTransfers ] = useState([]);
+	const [ selectedTransfer, setSelectedTransfer ] = useState({});
+	const [ hadLoginReward, setHadLoginReward ] = useState(false);
 
 	const { walletData } = useWalletData();
 
@@ -38,20 +42,23 @@ function Index() {
 						const votingSet = {
 							title: quest.title,
 							categoryNm: quest.categoryNm.seasonCategoryName,
-							status: votingData.bettingStatus,
+							questStatus: quest.questStatus,
 							approveTx: quest.approveTx,
 							adjournTx: quest.adjournTx,
 							successTx: quest.successTx,
 							answerList: quest.answers,
 							spenderAddress: quest.creatorAddress,
-							bettingTx: votingData.transactionId,
+							selectedAnswer: quest.selectedAnswer,
 
 							hot: quest.hot,						
 							pending: quest.pending,
+
+							bettingTx: votingData.transactionId,
 							answerTitle: votingData.answerNm.title,
 							bettingCoin: votingData.bettingCoin,
 							multiply: votingData.multiply,
-							predictionFee: votingData.predictionFee
+							predictionFee: votingData.predictionFee,
+							_id: votingData._id
 						}
 						
 						votingArr.push({ ...votingSet });
@@ -62,6 +69,77 @@ function Index() {
 
 			setLoading(false);
 		});
+	}
+
+	const getLoginReward = () => {
+		const walletAddress = walletData.account;
+
+		if(walletAddress) {
+			// 9 hours after
+			const creteriaDate = Moment(now()).add('9', 'h').format("yyyy-MM-DD");
+			console.log('creatria date', walletAddress, creteriaDate);
+
+			const joinRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && loginDate == '${creteriaDate}'][0]`;
+			client.fetch(joinRewardHistQuery).then((joinRewardHistory) => {
+				console.log('joinRewardHistory & hadLoginReward', joinRewardHistory, hadLoginReward);
+
+				// check if user got join reward. before 9 hours.
+				if(joinRewardHistory || hadLoginReward) {
+					alert("you've got reward already.");
+				} else {
+					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'login'][0]`;
+					client.fetch(rewardInfoQuery).then(async (rewardInfo) => {
+						console.log('reward amount', rewardInfo.amount);
+
+						// send coin from master wallet
+						let transferRes;
+						try {
+							transferRes = await transferCojamURI({toAddress: walletAddress, amount: Number(rewardInfo.amount)});
+						} catch(error) {
+							//ignore
+							alert('transfer api error. try again.');
+							return;
+						}
+
+						console.log('transfer complete');
+
+						if(transferRes.status) {
+							// remain transfer history
+
+							const loginRewardHistoryDoc = {
+								_type: 'loginRewardHistory',
+								walletAddress: walletAddress,
+								loginDate: creteriaDate,
+								rewardAmount: Number(rewardInfo.amount),
+								transactionId: transferRes.transactionId,
+								createDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss")
+							}
+
+							client.create(loginRewardHistoryDoc).then((res) => {
+								console.log('login reward hist create result', res);
+							});
+
+							const cojamTokenAddress = '0xd6cdab407f47afaa8800af5006061db8dc92aae7';   // my cojam token address - Test 2
+							const transactionSet = {
+								_type: 'transactions',
+								amount: Number(rewardInfo.amount),
+								recipientAddress: walletAddress,
+								spenderAddress: cojamTokenAddress,
+								status: 'SUCCESS',
+								transactionId: transferRes.transactionId,
+								transactionType: 'LOGIN_REWARD',
+							}
+
+							client.create(transactionSet);
+						}
+
+						console.log('transfer history complete');
+					});
+				}
+			});
+		} else {
+			alert('login first.');
+		}
 	}
 
 	useEffect(() => {
@@ -77,14 +155,30 @@ function Index() {
 
 		const transferQuery = `*[_type == 'transactions' && spenderAddress == '${walletAddress}' || recipientAddress == '${walletAddress}']`;
 		client.fetch(transferQuery).then((transfers) => {
-			console.log('transfers', transfers);
 			setTransfers(transfers);
 		});
 
+		console.log('set subscription.', walletAddress);
+		let subscription;
+		if(walletAddress) {					   
+			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}']`;
+			subscription = client.listen(loginRewardHistQuery).subscribe((rewardHistory) => {
+				console.log('reward history update !!!', walletAddress);
+				
+				console.log('transaction rewardHistory', rewardHistory.result);
+				if(rewardHistory.result) {
+					setHadLoginReward(true);
+				} else {
+					setHadLoginReward(false);
+				}
+			});	
+		}
+
+		return () => subscription?.unsubscribe();
 	}, [walletData]);
 
-  return (
-    <div className="bg-mypage" style={{background: `url('${backgroundImage}') center -590px no-repeat, #eef0f8 `}}>
+  	return (
+    	<div className="bg-mypage" style={{background: `url('${backgroundImage}') center -590px no-repeat, #eef0f8 `}}>
 
 			{/* 타이틀영역 */}
 			<div className="title-area">
@@ -99,9 +193,9 @@ function Index() {
 					<div><i className="uil uil-wallet"></i> Wallet address : <span> { walletData?.account }</span></div>
 				</dt>
 				<dd>
-					<a href="#" className="btn-red">Click to be Reward!</a>
+					<a href="#" className="btn-red" onClick={() => getLoginReward()}>Login Reward</a>
 					<a href="#" className="btn-purple" onClick={() => modalSendCT(true)}>CT Send</a>
-					<a href="#" className="btn-blue">Click to be Reward!</a>
+					{/*<a href="#" className="btn-blue" onClick={() => getReward()}>Click to be Reward!</a>*/}
 				</dd>
 			</div>
 			{/* 마이페이지 - 기본정보 끝 */}
@@ -118,6 +212,7 @@ function Index() {
 
 			{/* 마이페이지 - 내용 */}
 			<div className="mypage-content">
+				{/* VOTINGS PAGE START */}
 				<div className="mc-votings">
 					<h2><span>Votings</span></h2>
 					<div>
@@ -133,8 +228,9 @@ function Index() {
 						{
 							votings.votingSet?.map((voting, index) => {
 								let statePass = false;
+
 								return (
-									<ul key={index} style={{ cursor: 'pointer' }} onClick={() => {setSelectedVoting(voting); modalMypageVoting(true);}}>
+									<ul key={index} style={{ cursor: 'pointer' }} onClick={() => { setSelectedVoting(voting); modalMypageVoting(true); }} >
 										<li key='1'><span>Category : </span>{voting.categoryNm}</li>
 										<li key='2'><span>Title : </span>{voting.title}</li>
 										<li key='3'>
@@ -146,7 +242,7 @@ function Index() {
 											{
 												stateList.map((state, index) => {
 													let complete = statePass ? '' : 'complete';
-													if(state === voting.status) {
+													if(state === voting.questStatus) {
 														statePass = true;
 														complete = 'ing';
 													}
@@ -161,7 +257,7 @@ function Index() {
 											}
 											</ul>
 										</li>
-										<li key='4'><span>My Answer : </span>{voting.answerTitle} ({voting.bettingCoin} CT)</li>
+										<li key='4'><span>My Answer : </span> {voting.answerTitle} ({voting.bettingCoin} CT) &nbsp; <div className='mc-votings-result' style={{ background: voting.selectedAnswer ? (voting.selectedAnswer === voting.answerTitle ? '#58D68D' : '#E74C3C') : 'white' }} ></div></li>
 										<li key='5'><span>Multiply : </span>{voting.multiply}</li>
 										<li key='6'><span>Prediction Fee : </span>{voting.predictionFee} CT</li>
 									</ul>
@@ -170,7 +266,9 @@ function Index() {
 						}
 					</div>
 				</div>
+				{/* VOTINGS PAGE END */}
 
+				{/* GROUND PAGE START */}
 				<div className="mc-grounds">
 					<h2><span>Grounds</span></h2>
 					<div>
@@ -187,10 +285,10 @@ function Index() {
 							grounds?.map((ground, index) => {
 								let statePass = false;
 								return (
-									<ul key={index} style={{ cursor: 'pointer' }} onClick={() => { setSelectedGround(ground); modalMypageGround(true) }}>
-										<li><span>Category : </span> { ground.categoryNm.seasonCategoryName } </li>
-										<li><span>Title : </span> { ground.title } </li>
-										<li>
+									<ul key={index}>
+										<li key='1'><span>Category : </span> { ground.categoryNm.seasonCategoryName } </li>
+										<li key='2' style={{ cursor: 'pointer' }} onClick={() => { setSelectedGround(ground); modalMypageGround(true); }}><span>Title : </span> { ground.title } </li>
+										<li key='3'>
 											{ground.pending && <p>Pending</p>}
 											{ground.questStatus === 'INVALID' && <p>INVALID</p>}
 											{ground.questStatus === 'ADJOURN' && <p>ADJOURN</p>}
@@ -214,28 +312,30 @@ function Index() {
 												}
 											</ul>
 										</li>
-										<li><span>Total  : </span>{ ground.totalAmount } CT</li>
-										<li><span>Total Creator Fee : </span> { ground.totalCreatorFee }  CT ({ ground.creatorFee }%)</li>
-										<li><span>Donation Fee : </span>{ ground.totalCharityFee } CT ({ ground.charityFee } %)</li>
+										<li key='4'><span>Total  : </span>{ ground.totalAmount } CT</li>
+										<li key='5'><span>Total Creator Fee : </span> { ground.totalCreatorFee }  CT ({ ground.creatorFee }%)</li>
+										<li key='6'><span>Donation Fee : </span>{ ground.totalCharityFee } CT ({ ground.charityFee } %)</li>
 									</ul>
 								)
 							})
 						}
 					</div>
 				</div>
-
+				{/* GROUND PAGE END */}
+				
+				{/* CT TRANSFER PAGE START */}
 				<div className="mc-transfer">
 					<h2><span>CT Transfer</span></h2>
 					<div>
 						<ul>
-							<li><strong>Spender Address</strong></li>
-							<li><strong>Recipient Address</strong></li>
-							<li><strong>CT Amount</strong></li>
-							<li><strong>Created DTTM</strong></li>
+							<li key='1'><strong>Spender Address</strong></li>
+							<li key='2'><strong>Recipient Address</strong></li>
+							<li key='3'><strong>CT Amount</strong></li>
+							<li key='4'><strong>Created DTTM</strong></li>
 						</ul>
 						{
 							transfers?.map((transfer, index) => (
-								<ul key={index} onClick={() => modalMypageTransfer(true)}>
+								<ul key={index} style={{ cursor: 'pointer' }} onClick={() => { setSelectedTransfer(transfer); modalMypageTransfer(true);}}>
 									<li key="1"><span>Spender Address : </span>{transfer.spenderAddress}</li>
 									<li key="2"><span>Recipient Address : </span>{transfer.recipientAddress}</li>
 									<li key="3"><span>CT Amount : </span>{transfer.amount} CT</li>
@@ -245,6 +345,7 @@ function Index() {
 						}
 					</div>
 				</div>
+				{/* CT TRANSFER PAGE END */}
 			</div>
 			{/* 마이페이지 - 내용 끝 */}
 
@@ -261,8 +362,8 @@ function Index() {
 									<dd><i className="uil uil-times" onClick={() => modalSendCT(false)}></i></dd>
 								</dl>
 								<ul>
-									<li><input name="name" type="text" className="w100p" placeholder="Enter the recipient address" /></li>
-									<li><input name="name" type="text" className="w100p" placeholder="Please enter CT amount" /></li>
+									<li key='1'><input name="name" type="text" className="w100p" placeholder="Enter the recipient address" /></li>
+									<li key='2'><input name="name" type="text" className="w100p" placeholder="Please enter CT amount" /></li>
 								</ul>
 								<p>
 									<a href="#">Send CT</a>
@@ -287,47 +388,47 @@ function Index() {
 									<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalMypageVoting(false)}></i></dd>
 								</dl>
 								<ul>
-									<li>
+									<li key='1'>
 										<span>Title</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.title}/>
 									</li>
-									<li>
+									<li key='2'>
 										<span>Category</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.categoryNm}/>
 									</li>
-									<li>
+									<li key='3'>
 										<span>Status</span>
-										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.status}/>
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.questStatus}/>
 									</li>
-									<li>
+									<li key='4'>
 										<span>Approve Transaction</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.approveTx}/>
 									</li>
-									<li>
+									<li  key='5'>
 										<span>Adjourn Transaction</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.adjournTx}/>
 									</li>
-									<li>
+									<li key='6'>
 										<span>Success Transaction</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.successTx}/>
 									</li>
-									<li>
+									<li key='7'>
 										<span>Answer List</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.answerList}/>
 									</li>
-									<li>
+									<li key='8'>
 										<span>My Answer</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.answerTitle}/>
 									</li>
-									<li>
+									<li key='9'>
 										<span>Selected Answer</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.selectedAnswer}/>
 									</li>
-									<li>
+									<li key='10'>
 										<span>Spender Address</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.spenderAddress}/>
 									</li>
-									<li>
+									<li key='11'>
 										<span>Betting Transaction</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.bettingTx}/>
 									</li>
@@ -355,43 +456,43 @@ function Index() {
 									<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalMypageGround(false)}></i></dd>
 								</dl>
 								<ul>
-									<li>
+									<li key='1'>
 										<span>Title</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.title} />
 									</li>
-									<li>
+									<li key='2'>
 										<span>Category</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.categoryNm?.seasonCategoryName} />
 									</li>
-									<li>
+									<li key='3'>
 										<span>Status</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.statusType} />
 									</li>
-									<li>
+									<li key='4'>
 										<span>Description</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.description} />
 									</li>
-									<li>
+									<li key='5'>
 										<span>Approve Transaction</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.approveTx} />
 									</li>
-									<li>
+									<li key='6'>
 										<span>Adjourn Transaction</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.adjournTx} />
 									</li>
-									<li>
+									<li key='7'>
 										<span>Success Transaction</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.successTx} />
 									</li>
-									<li>
+									<li key='8'>
 										<span>Answer List</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.answers} />
 									</li>
-									<li>
+									<li key='9'>
 										<span>Selected Answer</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.title} />
 									</li>
-									<li>
+									<li key='10'>
 										<span>Season</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.seasonNm?.title} />
 									</li>
@@ -416,36 +517,36 @@ function Index() {
 							<div className="mmv-area">
 								<dl>
 									<dt>CT Transfer Detail</dt>
-									<dd><i className="uil uil-times" onClick={() => modalMypageTransfer(false)}></i></dd>
+									<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalMypageTransfer(false)}></i></dd>
 								</dl>
 								<ul>
-									<li>
+									<li key='1'>
 										<span>Spender Address</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedTransfer.spenderAddress}/>
 									</li>
-									<li>
+									<li key='2'>
 										<span>Recipient Address</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedTransfer.recipientAddress}/>
 									</li>
-									<li>
+									<li key='3'>
 										<span>CT Amount</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedTransfer.amount}/>
 									</li>
-									<li>
+									<li key='4'>
 										<span>Transaction</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedTransfer.transactionId}/>
 									</li>
-									<li>
+									<li key='5'>
 										<span>Status</span>
-										<input name="name" type="text" className="w100p" placeholder="" />
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedTransfer.status}/>
 									</li>
-									<li>
+									<li key='6'>
 										<span>DTTM</span>
-										<input name="name" type="text" id="schDateTransfer" className="w100p date-icon" placeholder="" />
+										<input name="name" type="text" id="schDateTransfer" className="w100p date-icon" placeholder="" readOnly value={selectedTransfer.createdDateTime}/>
 									</li>
 								</ul>
 								<p>
-									<a href="#">Confirm</a>
+									<a href="#" onClick={() => modalMypageTransfer(false)}>Confirm</a>
 								</p>
 							</div>
 						</fieldset>
@@ -454,9 +555,8 @@ function Index() {
 			</Modal>
 			{/* 모달 - 마이페이지 - Transfer 상세 끝 */}
 
-
 			<div className="h70"></div>
-    </div>
+    	</div>
   );
 }
 

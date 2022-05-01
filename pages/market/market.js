@@ -50,7 +50,7 @@ function Index() {
 		}
 
 		setLoading(true);
-		await changeStateFunction(state, selectedQuest);
+		await changeStateFunction(state, walletData.account, selectedQuest);
 		setLoading(false);
 	}
 	
@@ -77,6 +77,7 @@ function Index() {
 					approveTx: quest.approveTx,
 					adjournTx: quest.adjournTx,
 					successTx: quest.successTx,
+					successDateTime: quest.successDateTime,
 					answers: quest.answerKeys,
 					totalAmount: quest.totalAmount,
 					creatorAddress: quest.creatorAddress,
@@ -119,8 +120,8 @@ function Index() {
 	useEffect(() => {
 		setLoading(true);
 		const walletAddress = walletData.account;
+		
 		let subscription;
-
 		if(walletAddress) {					   
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
 			console.log('condition', condition);
@@ -143,7 +144,7 @@ function Index() {
 		}
 
 		setSelectedQuest([]);
-		return subscription?.unsubscribe();
+		return () => subscription?.unsubscribe();
 	}, [walletData, activeCategory]);
 
 	return (
@@ -239,53 +240,53 @@ function Index() {
 												</li>
 												<li>
 													<span>Title(English)</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly/>
 												</li>
 												<li>
 													<span>Title(Korean)</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={activeDetailData.title}/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.title}/>
 												</li>
 												<li>
 													<span>Title(Chinese)</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly/>
 												</li>
 												<li>
 													<span>Category</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={activeDetailData.categoryName}/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.categoryName}/>
 												</li>
 												<li>
 													<span>Status</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={activeDetailData.status}/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.status}/>
 												</li>
 												<li>
 													<span>Description</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={activeDetailData.description}/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.description}/>
 												</li>
 												<li>
 													<span>Draft Transaction</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={activeDetailData.draftTx}/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.draftTx}/>
 												</li>
 												<li>
 													<span>Answers Transaction</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={activeDetailData.answerTx}/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.answerTx}/>
 												</li>
 												<li>
 													<span>Apporve Transaction</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={activeDetailData.approveTx}/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.approveTx}/>
 												</li>
 												<li>
 													<span>Adjourn Transaction</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={activeDetailData.adjournTx}/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.adjournTx}/>
 												</li>
 												<li>
 													<span>Success Transaction</span>
-													<input name="name" type="text" className="w100p" placeholder="" disabled defaultValue={activeDetailData.successTx}/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.successTx}/>
 												</li>
 												<li>
 													<span>Answer List</span>
 													{
 														activeDetailData?.answers?.map((answer, index) => (
-															<input key={index} name="name" type="text" className="w100p" placeholder="" disabled defaultValue={answer.title}/>
+															<input key={index} name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={answer.title}/>
 														))
 													}
 													
@@ -331,7 +332,7 @@ function Index() {
 								<div className="mmv-area">
 									<dl>
 										<dt>Success Detail</dt>
-										<dd><i className="uil uil-times" onClick={() => modalSuccess(false)}></i></dd>
+										<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalSuccess(false)}></i></dd>
 									</dl>
 									<ul>
 										{
@@ -341,7 +342,7 @@ function Index() {
 													<span>Answer List</span>
 													{
 														activeDetailData?.answers?.map((answer, index) => (
-															<input key={index} name="name" type="text" className="w100p" placeholder="" style={{ cursor: 'pointer', background: answer.title === selectedAnswer.title ? '#8950fc' : '' }} onClick={() => {setSelectedAnswer(answer)}} readonly defaultValue={answer.title}/>
+															<input key={index} name="name" type="text" className="w100p" placeholder="" style={{ color: 'black', cursor: 'pointer', background: answer.title === selectedAnswer.title ? '#8950fc' : '' }} onClick={() => {setSelectedAnswer(answer)}} readOnly defaultValue={answer.title}/>
 														))
 													}	
 												</li>
@@ -349,7 +350,7 @@ function Index() {
 										}
 									</ul>
 									<p>
-										<a href="#" onClick={() => { changeStateFunction('success', selectedQuest, selectedAnswer); modalSuccess(false) }}>Confirm</a>
+										<a href="#" onClick={() => modalSuccess(false)}>Confirm</a>
 									</p>
 								</div>
 							</fieldset>
