@@ -9,7 +9,7 @@ import { ClientError } from '@sanity/client';
 import { client } from '../../sanity';
 import { useLoadingState } from "../../assets/context/LoadingContext";
 import Moment, { now } from 'moment';
-import { transferCojamURI } from "@api/UseKaikas";
+import { transferCojamURI, transferFromCojamURI } from "@api/UseKaikas";
 
 function Index() {
 	const { setLoading } = useLoadingState();
@@ -26,6 +26,8 @@ function Index() {
 	const [ transfers, setTransfers ] = useState([]);
 	const [ selectedTransfer, setSelectedTransfer ] = useState({});
 	const [ hadLoginReward, setHadLoginReward ] = useState(false);
+
+	const [ sendCTInput ] = useState({ recipientAddress: '', amount: 0 });
 
 	const { walletData } = useWalletData();
 
@@ -71,6 +73,27 @@ function Index() {
 		});
 	}
 
+	const sendCTToAddress = async () => {
+		try {
+			if(sendCTInput.recipientAddress == '' || sendCTInput.amount == 0 ) {
+				alert('input recipientAddress or amount');
+				return;
+			}
+
+			const transferRes = await transferCojamURI({toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
+			if(transferRes.status) {
+				alert(`${amount} (CT) send to '${recipientAddress}' successfully.`);
+			} else {
+				alert('send CT error. try again please.');
+			}
+		} catch(error) {
+			console.log(error);
+			//ignore
+			alert('transfer api error. try again please.');
+			return;
+		}
+	}
+
 	const getLoginReward = () => {
 		const walletAddress = walletData.account;
 
@@ -79,23 +102,30 @@ function Index() {
 			const creteriaDate = Moment(now()).add('9', 'h').format("yyyy-MM-DD");
 			console.log('creatria date', walletAddress, creteriaDate);
 
-			const joinRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && loginDate == '${creteriaDate}'][0]`;
-			client.fetch(joinRewardHistQuery).then((joinRewardHistory) => {
-				console.log('joinRewardHistory & hadLoginReward', joinRewardHistory, hadLoginReward);
+			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && loginDate == '${creteriaDate}'][0]`;
+			client.fetch(loginRewardHistQuery).then((loginRewardHistory) => {
+				console.log('joinRewardHistory & hadLoginReward', loginRewardHistory, hadLoginReward);
 
 				// check if user got join reward. before 9 hours.
-				if(joinRewardHistory || hadLoginReward) {
+				if(loginRewardHistory || hadLoginReward) {
 					alert("you've got reward already.");
 				} else {
 					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'login'][0]`;
 					client.fetch(rewardInfoQuery).then(async (rewardInfo) => {
 						console.log('reward amount', rewardInfo.amount);
 
+						if(!rewardInfo.amount) {
+							alert('login reward amount is not exist');
+							return;
+						}
+
 						// send coin from master wallet
 						let transferRes;
 						try {
+							const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';
 							transferRes = await transferCojamURI({toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
+							console.log(error);
 							//ignore
 							alert('transfer api error. try again.');
 							return;
@@ -132,7 +162,8 @@ function Index() {
 
 							client.create(transactionSet);
 						}
-
+						
+						alert('get login reward successfully!');
 						console.log('transfer history complete');
 					});
 				}
@@ -361,12 +392,12 @@ function Index() {
 									<dt>SEND CT</dt>
 									<dd><i className="uil uil-times" onClick={() => modalSendCT(false)}></i></dd>
 								</dl>
-								<ul>
-									<li key='1'><input name="name" type="text" className="w100p" placeholder="Enter the recipient address" /></li>
-									<li key='2'><input name="name" type="text" className="w100p" placeholder="Please enter CT amount" /></li>
+								<ul> 
+									<li key='1'><input name="name" type="text" className="w100p" onChange={(e) => {sendCTInput.recipientAddress = e.target.value}} placeholder="Enter the recipient address" /></li>
+									<li key='2'><input name="name" type="text" className="w100p" onChange={(e) => {if(isNaN(e.target.value)) { return; } sendCTInput.amount = Number(e.target.value)}} placeholder="Please enter CT amount" /></li>
 								</ul>
 								<p>
-									<a href="#">Send CT</a>
+									<a href="#" onClick={() => sendCTToAddress()}>Send CT</a>
 								</p>
 							</div>
 						</fieldset>

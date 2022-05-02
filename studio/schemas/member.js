@@ -9,11 +9,6 @@ export default {
             type: 'string',
         },
         {
-            name: 'memberEmail',
-            title: 'Member Email',
-            type: 'string',
-        },
-        {
             name: 'delYn',
             title: 'delYn',
             type: 'string',

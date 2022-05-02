@@ -16,6 +16,9 @@ import pageImages from "./pageImages";
 import transactions from "./transactions";
 import marketCategories from "./marketCategories";
 import resultList from "./resultList";
+import loginRewardHistory from "./loginRewardHistory";
+import joinRewardHistory from "./joinRewardHistory";
+import rewardInfo from "./rewardInfo";
 
 {/* 새로 추가한 부분 */}
 
@@ -46,5 +49,8 @@ export default createSchema({
     pageImages,
     transactions,
     marketCategories,
+    loginRewardHistory,
+    joinRewardHistory,
+    rewardInfo,
   ]),
 });

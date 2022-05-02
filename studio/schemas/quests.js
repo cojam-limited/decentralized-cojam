@@ -40,6 +40,11 @@ export default {
       type: "boolean",
     },
     {
+      name: "selectedAnswer",
+      title: "Selected Answer",
+      type: "string"
+    },
+    {
       name: "creatorAddress",
       title: "Creator Address",
       type: "string",
@@ -68,6 +73,11 @@ export default {
       name: "approveTx",
       title: "Approve Tx",
       type: "string",
+    },
+    {
+      name: "answerDateTime",
+      title: "Answer DateTime",
+      type: "datetime",
     },
     {
       name: "answerTx",

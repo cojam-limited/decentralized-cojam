@@ -389,7 +389,7 @@ function Index(props) {
 							<div className="mqa-area">
 							<dl className="mqa-header">
 								<dt>Create New Prediction</dt>
-								<dd onClick={() => modalQuestAdd(false)}>
+								<dd style={{ cursor: 'pointer' }} onClick={() => modalQuestAdd(false)}>
 								<i className="uil uil-times"></i>
 								</dd>
 							</dl>
@@ -495,7 +495,12 @@ function Index(props) {
 								</li>
 							</ul>
 							<p className="mqa-btn">
-								<Link to='#' onClick={() => {createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input')); modalQuestAdd(false); }}>Complete</Link>
+								<Link to='#' onClick={() => {
+									setLoading(true); 
+									createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input')); 
+									modalQuestAdd(false); 
+									setLoading(false); 
+								}}>Complete</Link>
 							</p>
 							</div>
 						</fieldset>

@@ -17,9 +17,13 @@ import Pagination from "react-sanity-pagination";
 import createNewQuest from './createNewQuest';``
 
 import "react-responsive-modal/styles.css";
+import { useWalletData } from '@data/wallet';
+import { kaikasLogin, isKaikasUnlocked } from '@api/UseKaikas';
 
 
 function Index() {
+  const { walletData } = useWalletData();
+
   const { setLoading } = useLoadingState();
   const history = useHistory();
   const [ openQuestAdd, modalQuestAdd ] = useState(false);
@@ -47,6 +51,16 @@ function Index() {
   const [endDateTime, setEndDateTime] = useState(new Date());
   const [modalValues, setModalValues] = useState({'_type': 'quests', 'questLanguage': 'EN', 'endDateTime': endDateTime});
   // modal values
+
+  const handleOpenKaikasModal = async () => {
+    const kaikasUnlocked = await isKaikasUnlocked();
+    if (!kaikasUnlocked) {
+      const account = await kaikasLogin();
+      mutateWalletData({ account: account });
+      mutateModalData({ open: false });
+      modalKlipAdd(false);
+    }
+  }
 
   useEffect(() => {
     /**
@@ -187,7 +201,7 @@ function Index() {
           {
             items && items.map((quest, index) => {
               return (
-                <li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} history.push({pathname: `/QuestView`, state: {questId: quest._id}}) }}>
+                <li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} if(!walletData?.account) { handleOpenKaikasModal(); return; } history.push({pathname: `/QuestView`, state: {questId: quest._id}}) }}>
                   { quest.dDay === 'expired' && <div>CLOSE</div> }
                   <h2>
                     Total <span>{quest.totalAmount && addComma(quest.totalAmount)}</span> CT

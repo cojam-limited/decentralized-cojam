@@ -11,7 +11,8 @@ import Logo_Kaikas from '@assets/logo_kaikas.svg';
 import { ConnectKaikasButton } from './styles';
 import isMobile from '@utils/isMobile';
 import { KLIP_MODAL_DATA_KEY, WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
-import { kaikasLogin, kaikasGetBalance, isKaikasUnlocked, getCojamBalance } from '@api/UseKaikas';
+import { kaikasLogin, transferFromCojamURI, isKaikasUnlocked, getCojamBalance } from '@api/UseKaikas';
+import Moment, { now } from 'moment';
 import { useWalletData } from '@data/wallet';
 import toastNotify from '@utils/toast';
 
@@ -61,6 +62,15 @@ function Header() {
   };
 
   const handleOpenKaikasModal = async () => {
+    const kaikasUnlocked = await isKaikasUnlocked();
+    if (!kaikasUnlocked) {
+      const account = await kaikasLogin();
+      mutateWalletData({ account: account });
+      mutateModalData({ open: false });
+      modalKlipAdd(false);
+    } 
+
+    /*
     if (!isMobile()) {
       const kaikasUnlocked = await isKaikasUnlocked();
       if (!kaikasUnlocked) {
@@ -75,7 +85,83 @@ function Header() {
         message: 'Not Support MoblieWeb.',
       });
     }
+    */
   }
+
+  const getjoinReward = () => {
+		const walletAddress = walletData.account;
+
+		if(walletAddress) {
+			const joinRewardHistQuery = `*[_type == 'joinRewardHistory' && walletAddress == '${walletAddress}'][0]`;
+			client.fetch(joinRewardHistQuery).then((joinRewardHistory) => {
+				console.log('joinRewardHistory', joinRewardHistory);
+
+				if(joinRewardHistory) {
+					alert("you've got reward already.");
+				} else {
+					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'join'][0]`;
+					client.fetch(rewardInfoQuery).then(async (rewardInfo) => {
+						console.log('reward amount', rewardInfo.amount);
+
+            if(!rewardInfo.amount) {
+              alert('join reward amount is not exist');
+              return;
+            }
+
+						// send coin from master wallet
+						let transferRes;
+						try {
+              const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';
+							transferRes = await transferCojamURI({toAddress: walletAddress, amount: Number(rewardInfo.amount)});
+						} catch(error) {
+              console.log(error);
+
+							//ignore
+							alert('transfer api error. try again.');
+							return;
+						}
+
+						console.log('transfer complete');
+
+						if(transferRes.status) {
+							// remain transfer history
+
+							const joinRewardHistoryDoc = {
+								_type: 'joinRewardHistory',
+								walletAddress: walletAddress,
+								rewardAmount: Number(rewardInfo.amount),
+								transactionId: transferRes.transactionId,
+								createDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss")
+							}
+
+							client.create(joinRewardHistoryDoc).then((res) => {
+								console.log('join reward hist create result', res);
+							});
+
+              alert('get join reward successfully');
+
+							const cojamTokenAddress = '0xd6cdab407f47afaa8800af5006061db8dc92aae7';   // my cojam token address - Test 2
+							const transactionSet = {
+								_type: 'transactions',
+								amount: Number(rewardInfo.amount),
+								recipientAddress: walletAddress,
+								spenderAddress: cojamTokenAddress,
+								status: 'SUCCESS',
+								transactionId: transferRes.transactionId,
+								transactionType: 'JOIN_REWARD',
+							}
+
+							client.create(transactionSet);
+						}
+
+						console.log('transfer history complete');
+					});
+				}
+			});
+		} else {
+			alert('login first.');
+		}
+	}
 
   const getBalance = async () => {
     if (walletData?.account && walletData?.account !== '') {
@@ -104,21 +190,37 @@ function Header() {
     if(walletData && walletData.account) {
       const memberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}'][0] {memberRole}`;
       client.fetch(memberQuery).then((memberRole) => {
-        setMemberRole(memberRole.memberRole);
+        if(memberRole) {
+          setMemberRole(memberRole.memberRole);
+        }
       });
 
-      // if new user then, add member info - start
+      // if new user then, add member info & give a join reward - start
+      const getMemberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}'][0]`;
+      client.fetch(getMemberQuery).then((member) => {
+        console.log('member exist ?? ', member);
+
+        if(!member) {
+          alert('Welcome to the Cojam. Take a join reward.');
+
+          // send join reward to user
+          getjoinReward();
+        }
+      })
+
       const memberDoc = {
         _type: 'member',
         _id: walletData.account,
-        memberName: 'Unnamed',
-        walletAddress: walletData.account 
+        memberName: walletData.account,
+        walletAddress: walletData.account,
+        createdDateTime: Moment(now()).format('yyyy-MM-DD HH:mm:ss')
       }
 
       client.createIfNotExists(memberDoc).then((res) => {
         console.log('member create result', res);
       });
-      // if new user then, add member info - end
+
+      // if new user then, add member info & give a join reward - end
     } else {
       setMemberRole('');
     }
@@ -161,7 +263,7 @@ function Header() {
                   <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(8)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
-                    {memberRole === 'admin' && <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>}
+                    {memberRole?.toLowerCase === 'admin' && <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>}
                     {/*<Link to="/Account"><i className="uil uil-user-circle"></i> ACCOUNT</Link>*/}
                     {/*<Link to="#" onClick={() => { handleConnectWallet() }}><i className="uil uil-sign-out-alt"></i>LOGOUT</Link> */}
                   </div>
@@ -181,7 +283,7 @@ function Header() {
       <div className="header-mobile">
         <dl>
           <dt>
-            <Link to="../main/index.html"><img src={LogoBlack} alt="" title="" /></Link>
+            <Link to="/"><img src={LogoBlack} alt="" title="" /></Link>
           </dt>
           <dd>
             {}
@@ -191,7 +293,7 @@ function Header() {
                 <> 
                   <Link to="#"><i className="uil uil-wallet"></i></Link>
                   <Link to="/Mypage"><i className="uil uil-user-circle"></i></Link>
-                  {memberRole === 'admin' && <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>}
+                  {memberRole?.toLowerCase === 'admin' && <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>}
                   {/*<Link to="/Market"><i className="uil uil-sign-out-alt"></i>LOGOUT</Link>*/}
                 </>
               : /* 로그인 안했을때 */
@@ -202,7 +304,7 @@ function Header() {
           </dd>
         </dl>
         <ul>
-          <li><i className="uil uil-coins"></i> {balance ? balance.toFixed(8) : 0} CT</li>
+          <li><i className="uil uil-coins"></i> {balance ? balance.toFixed(3) : 0} CT</li>
           <li><i className="uil uil-times-circle"></i></li>
         </ul>
       </div>

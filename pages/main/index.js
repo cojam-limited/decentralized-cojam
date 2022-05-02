@@ -19,8 +19,11 @@ import { urlFor, client } from "../../sanity";
 import Moment from 'moment';
 import Accordion from '../../components/Accordion';
 import { useLoadingState } from "../../assets/context/LoadingContext";
+import { useWalletData } from '@data/wallet';
+import { kaikasLogin, isKaikasUnlocked } from '@api/UseKaikas';
 
 function Index() {
+	const { walletData } = useWalletData();
 	const history = useHistory();
 	const { setLoading } = useLoadingState();
 	const [ quests, setQuests ] = useState([]);
@@ -36,6 +39,16 @@ function Index() {
 			document.querySelector('.main-service > div').style.background = 'none';
 		} else {
 			document.querySelector('.main-service > div').style.background = `url('${phoneBackground}') -280px no-repeat`;
+		}
+	}
+
+	const handleOpenKaikasModal = async () => {
+		const kaikasUnlocked = await isKaikasUnlocked();
+		if (!kaikasUnlocked) {
+		  const account = await kaikasLogin();
+		  mutateWalletData({ account: account });
+		  mutateModalData({ open: false });
+		  modalKlipAdd(false);
 		}
 	}
 
@@ -91,7 +104,11 @@ function Index() {
 	return (
     	<div>
 			{/* 비주얼영역 */}
-			<div className="main-vegas" style={{background: `url('${mainBackGround}') center no-repeat`, backgroundSize: 'cover'}}>
+			<div className="main-vegas" style={{
+				background: `url('${mainBackGround}') center no-repeat`, 
+				backgroundSize: 'cover',
+				
+			}}>
 				<div className="mv-btm"><img src={mainVisualScroll} width="30" alt="" title="" /></div>
 				<div className="mv-copy">
 					<h2>COJAM</h2>
@@ -111,7 +128,7 @@ function Index() {
 						{ 
 						quests.map((quest, index) => {
 							return (
-								<li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} history.push({pathname: `/QuestView`, state: {questId: quest._id}}) }}>
+								<li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} if(!walletData?.account) { handleOpenKaikasModal(); return; } history.push({pathname: `/QuestView`, state: {questId: quest._id}}) }}>
                 					{ quest.dDay === 'expired' && <div>CLOSE</div> }
 									<h2>
 										Total <span>{quest.totalAmount && addComma(quest.totalAmount)}</span> CT
@@ -155,7 +172,9 @@ function Index() {
 
 			{/* 서비스 */}
 			<div className="main-service" style={{background: `url('${serviceBackground}') center no-repeat`}}>
-				<div style= {{background: `url('${phoneBackground}') -280px no-repeat`}} >
+				<div style= {{
+					background: window?.innerWidth > 479 ? `url('${phoneBackground}') -280px no-repeat` : 'none',
+				}}>
 					<h2>Cojam Service</h2>
 					<h3>Operate the Service Through Advanced Technology</h3>
 					<dl>

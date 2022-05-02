@@ -394,7 +394,9 @@ export const getMarketCojamURI = async ({
   return result;  
 }
 
-
+/**
+ * Quest Betting function
+ */
 export const bettingCojamURI = async ({
   questKey,
   questAnswerKey,
@@ -441,6 +443,9 @@ export const bettingCojamURI = async ({
 }
 
 
+/**
+ * Quest Betting Approve function
+ */
 export const approveCojamURI = async (
   bettingCoinAmount
 ) => { 
@@ -475,7 +480,9 @@ export const approveCojamURI = async (
   return result;  
 }
 
-
+/**
+ * Cojam Token transfer function 
+ */
 export const transferCojamURI = async ({
   toAddress, amount
 }) => {
@@ -494,15 +501,58 @@ export const transferCojamURI = async ({
     ]
   }];
 
+  const masterWalletAddress = '0x4a1667cf934796067adbddf456c95ef91658b403';
+  const recommendAddress = '0xd3b63ca1215a9f13d38e3a782672cda6ae098e40';
   const contract = new caver.klay.Contract(contractABI, cojamTokenAddress);
 
   let result = { spenderAddress: cojamTokenAddress };
   await contract.methods.transfer(
-    toAddress, amount
+    toAddress, caver.utils.toPeb(Number(amount), 'KLAY')
   )
-  .send({from: klaytn.selectedAddress, gas: '9000000'})
+  .send({from: masterWalletAddress, value: 0, gas: '9000000'})
   .then(function(receipt) {
     console.log('transfer token receipt', receipt);
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
+}
+
+/**
+ * Cojam Token transferFrom function 
+ */
+export const transferFromCojamURI = async ({
+  fromAddress, toAddress, amount
+}) => {
+  const contractABI = [{
+    name: 'transferFrom',
+    type: 'function',
+    inputs: [
+      {
+        type: 'address',
+        name: 'from'
+      },
+      {
+        type: 'address',
+        name: 'to'
+      },
+      {
+        type: 'uint256',
+        name: 'amount'
+      }
+    ]
+  }];
+
+  const contract = new caver.klay.Contract(contractABI, cojamTokenAddress);
+
+  let result = { spenderAddress: cojamTokenAddress };
+  await contract.methods.transferFrom(
+    fromAddress, toAddress, caver.utils.toPeb(Number(amount), 'KLAY')
+  )
+  .send({from: klaytn.selectedAddress, value: 0, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('transfer from token receipt', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status;
   });
