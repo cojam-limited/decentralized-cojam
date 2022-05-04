@@ -11,6 +11,8 @@ import { useLoadingState } from "../../assets/context/LoadingContext";
 import Moment, { now } from 'moment';
 import { transferCojamURI, transferFromCojamURI } from "@api/UseKaikas";
 
+//import Pagination from "react-sanity-pagination";
+
 function Index() {
 	const { setLoading } = useLoadingState();
 	const [openSendCT, modalSendCT] = useState(false);
@@ -68,19 +70,25 @@ function Index() {
 					} 
 				});
 			});
-
+			
 			setLoading(false);
 		});
 	}
 
 	const sendCTToAddress = async () => {
 		try {
+			const walletAddress = walletData.account;
 			if(sendCTInput.recipientAddress == '' || sendCTInput.amount == 0 ) {
 				alert('input recipientAddress or amount');
 				return;
 			}
 
-			const transferRes = await transferCojamURI({toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
+			if(!walletAddress || walletAddress === '') {	
+				alert('login for send CT');
+				return;
+			}
+
+			const transferRes = await transferCojamURI({fromAddress: walletAddress.account, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
 			if(transferRes.status) {
 				alert(`${amount} (CT) send to '${recipientAddress}' successfully.`);
 			} else {
@@ -119,11 +127,11 @@ function Index() {
 							return;
 						}
 
+						const recommendAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // reward wallet address
 						// send coin from master wallet
 						let transferRes;
 						try {
-							const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';
-							transferRes = await transferCojamURI({toAddress: walletAddress, amount: Number(rewardInfo.amount)});
+							transferRes = await transferCojamURI({fromAddress: recommendAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
 							console.log(error);
 							//ignore
@@ -149,12 +157,11 @@ function Index() {
 								console.log('login reward hist create result', res);
 							});
 
-							const cojamTokenAddress = '0xd6cdab407f47afaa8800af5006061db8dc92aae7';   // my cojam token address - Test 2
 							const transactionSet = {
 								_type: 'transactions',
 								amount: Number(rewardInfo.amount),
 								recipientAddress: walletAddress,
-								spenderAddress: cojamTokenAddress,
+								spenderAddress: recommendAddress,
 								status: 'SUCCESS',
 								transactionId: transferRes.transactionId,
 								transactionType: 'LOGIN_REWARD',

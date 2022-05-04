@@ -22,7 +22,7 @@ function Header() {
   const history = useHistory()
   const [openKlipAdd, modalKlipAdd] = useState(false);
   const { modalData, mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
-  const { mutateModalData: mutateKlipModalData } = useModalData(KLIP_MODAL_DATA_KEY);
+  //const { mutateModalData: mutateKlipModalData } = useModalData(KLIP_MODAL_DATA_KEY);
   const { walletData, mutateWalletData } = useWalletData();
   const [ balance, setBalance ] = useState(-1);
   const [ isLogin, setIsLogin ] = useState(false);
@@ -111,8 +111,8 @@ function Header() {
 						// send coin from master wallet
 						let transferRes;
 						try {
-              const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';
-							transferRes = await transferCojamURI({toAddress: walletAddress, amount: Number(rewardInfo.amount)});
+              const cojamRecommendAddress = '0xd3b63ca1215a9f13d38e3a782672cda6ae098e40';
+							transferRes = await transferCojamURI({fromAddress: cojamRecommendAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
               console.log(error);
 
@@ -159,7 +159,7 @@ function Header() {
 				}
 			});
 		} else {
-			alert('login first.');
+			alert('do login for get login reward.');
 		}
 	}
 

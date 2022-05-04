@@ -8,24 +8,14 @@ const caver = new Caver(window.klaytn);
 const caverExt = new CaverExtKAS('1001', 'KASKABM99U30BTVDXCYDMQQF', 'P6vSKCjKxYuXdpp7e1H7JJjQNVvjwr46FYdcZhdm');
 
 //const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // contract address - prod
-
 //const cojamTokenAddress = '0xbb1cafc1444fbd3df6d233e232463154eb17db38';   // my cojam token address - dev
 const cojamTokenAddress = '0xd6cdab407f47afaa8800af5006061db8dc92aae7';   // my cojam token address - Test 2
 
 //const cojamMarketAddress = '0x9e42C6fBB5be3994994a0a9e68Ea64a696CC6fD7';  // KAS wallet address - dev
-
-//const cojamTokenAddress = '0xd6cdab407f47afaa8800af5006061db8dc92aae7';   // token address - dev
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // klaytn contract marketAddress - dev
-
-//const cojamMarketAddress = '0x3185c5e6c5f095e484b4335d8d88d0b7aabdd97e';
-
 
 // cojam token address ?
 const cojamToken = new caver.kct.kip7(cojamTokenAddress);
-
-//const CojamContract = new caver.contract(abiJson2, cojamTokenAddress);
-
-
 
 export const kaikasLogin = async () => {
   try {
@@ -484,7 +474,7 @@ export const approveCojamURI = async (
  * Cojam Token transfer function 
  */
 export const transferCojamURI = async ({
-  toAddress, amount
+  fromAddress, toAddress, amount
 }) => {
   const contractABI = [{
     name: 'transfer',
@@ -501,15 +491,46 @@ export const transferCojamURI = async ({
     ]
   }];
 
-  const masterWalletAddress = '0x4a1667cf934796067adbddf456c95ef91658b403';
-  const recommendAddress = '0xd3b63ca1215a9f13d38e3a782672cda6ae098e40';
+  //let result = { spenderAddress: fromAddress };
+  const encodeFunc = await caverExt.klay.abi.encodeFunctionCall({
+    name: 'transfer',
+    type: 'function',
+    inputs: [
+      {
+        type: 'address',
+        name: 'to'
+      },
+      {
+        type: 'uint256',
+        name: 'amount'
+      }
+    ]
+  }, [toAddress, caver.utils.toPeb(Number(amount), 'KLAY')]);
+  
+  console.log('transfer', fromAddress, toAddress, encodeFunc);
+
+  const tx = {
+    from: fromAddress,
+    to: toAddress,
+    value: 0,
+    input: encodeFunc,
+    gas: 500000,
+    submit: true
+  }
+  const result = await caverExt.kas.wallet.requestSmartContractExecution(tx)
+
+  console.log('debug >>>>>>>', result);
+
+  return result;
+
+  /*
   const contract = new caver.klay.Contract(contractABI, cojamTokenAddress);
 
-  let result = { spenderAddress: cojamTokenAddress };
+  let result = { spenderAddress: fromAddress };
   await contract.methods.transfer(
     toAddress, caver.utils.toPeb(Number(amount), 'KLAY')
   )
-  .send({from: masterWalletAddress, value: 0, gas: '9000000'})
+  .send({from: fromAddress, value: 0, gas: '9000000'})
   .then(function(receipt) {
     console.log('transfer token receipt', receipt);
     result.transactionId = receipt.transactionHash;
@@ -517,6 +538,7 @@ export const transferCojamURI = async ({
   });
 
   return result;
+  */
 }
 
 /**
@@ -546,7 +568,7 @@ export const transferFromCojamURI = async ({
 
   const contract = new caver.klay.Contract(contractABI, cojamTokenAddress);
 
-  let result = { spenderAddress: cojamTokenAddress };
+  let result = { spenderAddress: fromAddress };
   await contract.methods.transferFrom(
     fromAddress, toAddress, caver.utils.toPeb(Number(amount), 'KLAY')
   )
@@ -616,12 +638,6 @@ export const setAccounts = async ({
       }
     ]
   }];
-
-
-  const feeAddress = '0x6b35e1a72f97320945789b3e7c6a203de1c4f0d3';
-  const charityAddress = '0xe3469be62a72988a5462c413aef4d6efd59fff3d';
-  const remainAddress = '0x4a1667cf934796067adbddf456c95ef91658b403';
-
 
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress)
