@@ -107,7 +107,7 @@ function Index() {
 			<div className="main-vegas" style={{
 				background: `url('${mainBackGround}') center no-repeat`, 
 				backgroundSize: 'cover',
-				
+
 			}}>
 				<div className="mv-btm"><img src={mainVisualScroll} width="30" alt="" title="" /></div>
 				<div className="mv-copy">

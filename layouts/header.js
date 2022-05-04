@@ -304,7 +304,7 @@ function Header() {
           </dd>
         </dl>
         <ul>
-          <li><i className="uil uil-coins"></i> {balance ? balance.toFixed(3) : 0} CT</li>
+          <li><i className="uil uil-coins"></i> {balance !== -1 ? balance.toFixed(3) : 0} CT</li>
           <li><i className="uil uil-times-circle"></i></li>
         </ul>
       </div>
