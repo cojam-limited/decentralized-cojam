@@ -34,11 +34,13 @@ function Index() {
 	const [ answerAllocations, setAnswerAllocations ] = useState({});
 
 	const resizeFunc = () => {
+		console.log('resizeFunc', window.innerWidth);
+
 		//창크기 변화 감지
-		if(this.window.innerWidth < 992) {
-			document.querySelector('.main-service > div').style.background = 'none';
+		if(window.innerWidth < 1000) {
+			document.querySelector('.main-service-phone').style.background = 'none';
 		} else {
-			document.querySelector('.main-service > div').style.background = `url('${phoneBackground}') -280px no-repeat`;
+			document.querySelector('.main-service-phone').style.background = `url('${phoneBackground}') -280px no-repeat`;
 		}
 	}
 
@@ -98,7 +100,7 @@ function Index() {
 		loadDatas();
 		setLoading(false);
 
-		return window.removeEventListener('resize', resizeFunc);
+		return () => window.removeEventListener('resize', resizeFunc);
 	}, []);
 
 	return (
@@ -172,9 +174,7 @@ function Index() {
 
 			{/* 서비스 */}
 			<div className="main-service" style={{background: `url('${serviceBackground}') center no-repeat`}}>
-				<div style= {{
-					background: window?.innerWidth > 479 ? `url('${phoneBackground}') -280px no-repeat` : 'none',
-				}}>
+				<div className="main-service-phone" style= {{ background: `url('${phoneBackground}') -280px no-repeat` }}>
 					<h2>Cojam Service</h2>
 					<h3>Operate the Service Through Advanced Technology</h3>
 					<dl>
@@ -267,8 +267,5 @@ function addComma(data) {
 
 	return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-
-
-
 
 export default Index;

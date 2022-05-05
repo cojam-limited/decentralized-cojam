@@ -228,14 +228,10 @@ function Header() {
   }, [walletData, walletData.account]);
 
   useEffect(() => {
-    //console.log('balance reset', checkWalletConnection());
-
     checkWalletConnection().then((res) => {
       console.log('balance reset', res);
       setIsLogin(res);
     });
-
-    //setIsLogin(checkWalletConnection());
   }, [balance]);
 
   return (
@@ -294,7 +290,6 @@ function Header() {
                   <Link to="#"><i className="uil uil-wallet"></i></Link>
                   <Link to="/Mypage"><i className="uil uil-user-circle"></i></Link>
                   {memberRole?.toLowerCase === 'admin' && <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>}
-                  {/*<Link to="/Market"><i className="uil uil-sign-out-alt"></i>LOGOUT</Link>*/}
                 </>
               : /* 로그인 안했을때 */
                 <>
@@ -304,8 +299,13 @@ function Header() {
           </dd>
         </dl>
         <ul>
-          <li><i className="uil uil-coins"></i> {balance !== -1 ? balance.toFixed(3) : 0} CT</li>
-          <li><i className="uil uil-times-circle"></i></li>
+          {
+            balance && balance !== -1 &&
+            <>
+              <li key={1}><i className="uil uil-coins"></i> {balance.toFixed(3)} CT</li>
+              <li key={2}><i className="uil uil-times-circle"></i></li>
+            </>
+          }
         </ul>
       </div>
       {/* 상단영역 - 모바일 끝 */}
@@ -378,11 +378,13 @@ function Header() {
   );
 }
 
-
 function resizeHeaderOnScroll() {
   const distanceY = window.scrollY || document.body.scrollTop,
   shrinkOn = 50
   //header = document.getElementById('header');
+  
+  
+  console.log('distanceY', distanceY);
 
   try {
     if (distanceY > shrinkOn) {
