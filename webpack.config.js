@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const Dotenv = require('dotenv-webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
@@ -33,7 +32,7 @@ const config = {
       crypto: require.resolve('crypto-browserify'),
       http: require.resolve('stream-http'),
       https: require.resolve('https-browserify'),
-      os: require.resolve('os-browserify'),
+      os: require.resolve('os-browserify/browser'),
       buffer: require.resolve('buffer/'),
     },
   },
@@ -87,7 +86,6 @@ const config = {
     new webpack.EnvironmentPlugin({ NODE_ENV: isDevelopment ? 'development' : 'production' }),
     new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
     new Dotenv({ path: isDevelopment ? './.env.development' : './.env.production' }),
-    new HtmlWebpackPlugin({ template: './index.html' }),
   ],
   output: {
     path: path.join(__dirname, 'dist'),

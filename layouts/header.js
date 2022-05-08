@@ -193,8 +193,6 @@ function Header() {
       const getMemberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}'][0]`;
       client.fetch(getMemberQuery).then((member) => {
         if(!member) {
-          alert('Welcome to the Cojam. Take a join reward.');
-
           // send join reward to user
           getjoinReward();
         }
@@ -208,9 +206,7 @@ function Header() {
         createdDateTime: Moment().format('yyyy-MM-DD HH:mm:ss')
       }
 
-      client.createIfNotExists(memberDoc).then((res) => {
-        console.log('member create result', res);
-      });
+      client.createIfNotExists(memberDoc);
 
       // if new user then, add member info & give a join reward - end
     } else {
@@ -250,7 +246,7 @@ function Header() {
                   <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(8)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
-                    {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>}
+                    {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"> ADMIN</Link>}
                     {/*<Link to="/Account"><i className="uil uil-user-circle"></i> ACCOUNT</Link>*/}
                     {/*<Link to="#" onClick={() => { handleConnectWallet() }}><i className="uil uil-sign-out-alt"></i>LOGOUT</Link> */}
                   </div>
@@ -280,11 +276,11 @@ function Header() {
                 <> 
                   <Link to="#"><i className="uil uil-wallet"></i></Link>
                   <Link to="/Mypage"><i className="uil uil-user-circle"></i></Link>
-                  {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-circle"></i> ADMIN</Link>}
+                  {memberRole?.toLowerCase() === 'admin' && <Link to="/Market">ADMIN</Link>}
                 </>
               : /* 로그인 안했을때 */
                 <>
-                  <Link to="#" onClick={() => modalKlipAdd(true)}><i className="uil uil-sign-in-alt"></i> LOGIN</Link>
+                  <Link to="#" onClick={() => modalKlipAdd(true)}><i className="uil uil-sign-in-alt"></i></Link>
                 </> 
             }
           </dd>
