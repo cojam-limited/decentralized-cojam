@@ -1,17 +1,15 @@
 //import { Link } from 'react-router-dom'
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Modal } from 'react-responsive-modal';
 
-import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
-import { client, urlFor } from "../../sanity";
+import { urlFor } from "../../sanity";
 import 'react-responsive-modal/styles.css';
 import backgroundImage from '@assets/body_mypage.jpg';
 import { useWalletData } from '@data/wallet';
 import { useLoadingState } from "@assets/context/LoadingContext";
 
-import Moment from 'moment';
 
 function Index() {
 	const [ openDetail, modalDetail ] = useState(false);

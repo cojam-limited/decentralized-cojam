@@ -34,8 +34,6 @@ function Index() {
 	const [ answerAllocations, setAnswerAllocations ] = useState({});
 
 	const resizeFunc = () => {
-		console.log('resizeFunc', window.innerWidth);
-
 		//창크기 변화 감지
 		if(window.innerWidth < 1000) {
 			document.querySelector('.main-service-phone').style.background = 'none';
@@ -60,7 +58,6 @@ function Index() {
 		const loadDatas = async () => {
 			const questQuery = `*[_type == 'quests' && isActive == true  && statusType == 'APPROVE'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
 			await client.fetch(questQuery).then((datas) => {
-				console.log('quest', datas);
 				setQuests(datas);
 
 				datas.forEach((quest) => {
@@ -91,7 +88,6 @@ function Index() {
 
 			const qnaQuery = '*[_type == "questions"]';
 			await client.fetch(qnaQuery).then((data) => {
-				console.log('qna', data);
 				setQnas(data);
 			});
 		}

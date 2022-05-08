@@ -21,7 +21,6 @@ function Index() {
 	const [itemsToSend, setItemsToSend] = useState([]);
 
 	const action = (page, range, items) => {
-		console.log(`📄 Page: ${page}, 🌀 Items: `, items);
 		// Update State
 		setItems(items);
 	};
@@ -31,7 +30,6 @@ function Index() {
 		setLoading(true);
 		const query = `*[_type == 'communityList' ${activeCategory == 'All' ? '' : `&& type == '${activeCategory}'`}]`;
 		client.fetch(query).then((datas) => {
-			console.log('query data', datas);
 			datas.forEach((data) => {
 				data.postDate = Moment(data.postDate).format('YYYY-MM-DD HH:mm');
 			});

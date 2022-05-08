@@ -167,7 +167,6 @@ function Index(props) {
 			});
 
 			const creteriaDate = Moment().subtract(5, 'days').format('YYYY-MM-DD');
-			console.log('creteriaDate', creteriaDate);
 			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey]{color}[0] } | order(createdDateTime asc)`;
 			client.fetch(answerHistoryQuery).then((answerHist) => {
 				// group by date

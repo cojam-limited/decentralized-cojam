@@ -1,28 +1,17 @@
-import { urlFor, client } from "../../sanity";
+import { client } from "../../sanity";
+import Moment from 'moment';
+import { approveCojamURI, bettingCojamURI } from "@api/UseKaikas";
 
-import Moment, { now } from 'moment';
-import { approveCojamURI, bettingCojamURI, getMarketCojamURI } from "@api/UseKaikas";
-
-//import { kaikasGetBalance } from '@api/UseKaikas';
-
-const doBetting = async (betting) => {
-    console.log('do bet', betting);
-    
+const doBetting = async (betting) => { 
     let result = {result: false, message: 'betting failed'};
-    //현재 season 정보
-    //const query = `*[_type=='quests']{season._id, season._id{title -> {...}}}`;
-    //const query = `*[_type=="quests"] { seanson, "seasons": *[_type=='season' && references(^._id)]{ ... } }`
-
+    
+    // Quest 정보 load
     const questQuery = `*[_type == 'quests' && isActive == true && questKey == ${betting.questKey}][0]`;
     await client.fetch(questQuery).then(async (quest) => {
-        console.log('quest', quest);
 
         const seasonQuery = `*[_type == 'season' && isActive == true && _id == '${quest.season._ref}']{..., 'now': now()}[0]`;
         await client.fetch(seasonQuery).then(async (joinedSeason) => {
-            console.log('joinedSeason', joinedSeason);
-
             const detail = Object.assign(joinedSeason, quest);
-            console.log('detail', detail);
 
             // is Market closed
             if(Moment(detail.endDateTime).diff(Moment(detail.now), 'seconds') <= 0) {
@@ -32,7 +21,6 @@ const doBetting = async (betting) => {
 
             const answerQuery = `*[_type == 'questAnswerList' && _id == '${betting.questAnswerKey._id}'][0]`;
             await client.fetch(answerQuery).then(async (answer) => {
-                console.log('quest answer', answer);
                 if(!answer) {
                     alert('questAnswer no data');
                     return;
@@ -40,20 +28,12 @@ const doBetting = async (betting) => {
 
                 betting.questAnswerKey.order = answer.questAnswerKey;
 
-                console.log('answer key', betting.questAnswerKey._id);
-                console.log('quest key', betting.questKey);
-
                 const accounts = await window.klaytn.enable();
                 const walletAddress = accounts[0];
                 if(walletAddress === undefined) {
                     alert('"Already Finished!"');
                     return;
                 }
-
-                // TODO CHECK
-                const etherUnit = 18;
-                const amount = betting.bettingCoin / 10 ** etherUnit;
-                const marketAddress = "0xC31585Bf0808Ab4aF1acC29E0AA6c68D2B4C41CD";
 
                 if(detail.finishTx) {
                     alert('"Already Finished!"');
@@ -77,10 +57,7 @@ const doBetting = async (betting) => {
                 
                 const memberQuery = `*[_type == 'member' && _id == '${member.memberKey}']`;
                 await client.fetch(memberQuery).then(async (queryResult) => {
-                    console.log('member', queryResult, betting.curBalance);
-
                     const curBalance = betting.curBalance;
-                    console.log('betting curBalance', curBalance);
 
                     if(curBalance < betting.bettingCoin) {
                         alert("Please check your balance.");
@@ -100,22 +77,19 @@ const doBetting = async (betting) => {
                         return;
                     }
 
-                    // TODO CHECK ACCOUNT MEMBER KEY ? & betting._id
                     let newBettingKey;
                     await client.fetch(`count(*[_type == "betting"])`).then(async (order) => {
                         newBettingKey = Number(order) + 1;
                     });
                 
-                    // TODO contract 호출 확인
-                    console.log('quest keys', betting.questKey, betting.questAnswerKey.order, newBettingKey);
-                    console.log('bettingCoinAmount', betting.bettingCoin);
-
+                    // do approve
                     let approveTxReceipt;
                     await approveCojamURI(betting.bettingCoin).then((res) => {
                         console.log('approve tx receipt', res);
                         approveTxReceipt = res.transactionId;
                     });
 
+                    // do betting 
                     await bettingCojamURI({ 
                         questKey: betting.questKey, 
                         questAnswerKey: betting.questAnswerKey.order, 
@@ -130,8 +104,7 @@ const doBetting = async (betting) => {
                         }
 
                         if(res.status !== 100) {
-                            console.log('betting update !!!! ', res);
-
+                            // insert betting info
                             const bettingParam = {
                                 _type: 'betting',
                                 bettingKey: newBettingKey,
@@ -154,7 +127,6 @@ const doBetting = async (betting) => {
                                 betting.bettingKey = newBettingKey;
                                 betting.bettingId = res._id;
                             });
-
 
                             // update quest answer total amount
                             const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${betting.questAnswerKey._id}'] {bettingCoin}`;
@@ -186,9 +158,9 @@ const doBetting = async (betting) => {
                                 transactionId: res.transactionId,
                             }
 
-                            console.log('update bet with updateBetSet', updateBetSet);
                             client.patch(betting.bettingId).set(updateBetSet).commit();
 
+                            // insert transaction
                             const transactionSet = {
                                 _type: 'transactions',
                                 transactionId: res.transactionId,

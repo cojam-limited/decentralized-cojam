@@ -1,6 +1,6 @@
 import { client } from "../../sanity";
 import { kaikasLogin, draftMarket, addAnswerKeys, approveMarket, adjournMarket, retrieveMarket, successMarket, finishMarket } from "@api/UseKaikas";
-import Moment, { now } from 'moment';
+import Moment from 'moment';
 
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
 
@@ -36,7 +36,6 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                       updateMember: walletAddress
                   })
                   .commit();
-            // TODO ADD mailing
 
             alert('invalid success');			
             break;
@@ -58,14 +57,12 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                             cojamFeePercentage: season.cojamFee, 
                             charityFeePercentage: season.charityFee
                         }).then(async (res) => {
-                            console.log('draft done.', res, res.transactionId);
-                            
                             if(res.status) {
                                 client.patch(selectedQuest._id)
                                       .set({
                                           statusType: 'DRAFT', 
                                           draftTx: res.transactionId,
-                                          draftDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                                          draftDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                                           updateMember: walletAddress
                                       })
                                       .commit();
@@ -93,8 +90,6 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                 alert("Draft is Null!");
                 return;
             }
-
-            // TODO add confirm answer ?
 
             if(selectedQuest.answerTx) {
                 alert("Answers is already Registerd!");
@@ -137,7 +132,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                       .set({
                           statusType: 'ANSWER', 
                           answerTx: addAnswerRes.transactionId,
-                          answerDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                          answerDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                           updateMember: walletAddress
                         })
                       .commit();
@@ -176,7 +171,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                             statusType: 'APPROVE', 
                             questStatus: 'APPROVE',
                             approveTx: approveMarketRes.transactionId,
-                            approveDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                            approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                             updateMember: walletAddress
                         })
                       .commit();
@@ -186,7 +181,6 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                 alert('approve market failed');
             }
 
-            // TODO email sending
             break;
 
         case 'hot':
@@ -218,7 +212,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                           .set({
                               statusType: 'FINISH', 
                               finishTx: res.transactionId, 
-                              finishDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                              finishDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                               completed: true,
                               updateMember: walletAddress
                             })
@@ -252,7 +246,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                               statusType: 'ADJOURN', 
                               questStatus: 'ADJOURN', 
                               adjournTx: res.transactionId,
-                              adjournDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                              adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                               updateMember: walletAddress
                             })
                           .commit();
@@ -262,11 +256,9 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                 alert('adjourn market failed.');
             }
 
-            // TODO push logic
             break;
             
         case 'success':
-            console.log('status function', selectedAnswer.title, selectedAnswer.questAnswerKey);
             if(!selectedQuest.completed) {
                 alert("Market is not Finished!");
                 return;
@@ -286,7 +278,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                           statusType: 'SUCCESS', 
                           questStatus: 'SUCCESS', 
                           successTx: successRes.transactionId,
-                          successDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss"),
+                          successDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                           selectedAnswer: selectedAnswer.title,
                           updateMember: walletAddress
                         })
@@ -302,6 +294,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                     status: 'SUCCESS',
                     transactionId: successRes.transactionId,
                     transactionType: 'CREATOR_F',
+                    createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
                 }
 
                 client.create(transactionSet);
@@ -329,8 +322,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                 return;
             }	
 
-            const today = now();
-            const diffDays = Moment(today).diff(Moment(selectedQuest.successDateTime), 'days');
+            const diffDays = Moment().diff(Moment(selectedQuest.successDateTime), 'days');
             if(diffDays <= 180) {
                 alert("Market can be retrieved later 180 days from success!");
                 return;
@@ -349,6 +341,4 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
 
             break;	
     }
-
-
 }

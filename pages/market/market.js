@@ -61,7 +61,6 @@ function Index() {
 		 setLoading(true);
 		 const questQuery = `*[_type == 'quests' && questKey == ${questKey}][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey] { title, questAnswerKey } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
-			console.log('aaaa', quest);
 
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
 			 client.fetch(seasonQuery).then((season) => {
@@ -124,11 +123,9 @@ function Index() {
 		let subscription;
 		if(walletAddress) {					   
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
-			console.log('condition', condition);
 			const questQuery = `*[_type == 'quests' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 			client.fetch(questQuery).then((quest) => {
 				if(quest) {
-					console.log('transaction quest', quest);
 					setTransactionDatas(quest);
 				}
 
@@ -137,7 +134,6 @@ function Index() {
 
 			subscription = client.listen(questQuery).subscribe((quest) => {
 				if(quest) {
-					console.log('transaction quest', quest);
 					setTransactionDatas(quest);
 				}				
 			});	

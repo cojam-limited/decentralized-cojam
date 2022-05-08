@@ -19,7 +19,6 @@ function Index() {
 	const [itemsToSend, setItemsToSend] = useState([]);
 
 	const action = (page, range, items) => {
-		console.log(`📄 Page: ${page}, 🌀 Items: `, items);
 		// Update State
 		setItems(items);
 	};

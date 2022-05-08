@@ -1,5 +1,5 @@
 
-import { urlFor, client } from "../../sanity";
+import { client } from "../../sanity";
 
 import axios from "axios";
 import cheerio from "cheerio";
@@ -19,9 +19,7 @@ const getSocialMediaCheck = (snsUrl) => {
     const snsInfo = {};
 
     try {
-        console.log('sns url setting', snsUrl);
         const url = decodeURIComponent(decodeURIComponent(snsUrl));    
-        console.log('decode sns url setting', url);
 
         snsInfo['snsUrl'] = url;
         snsInfo['check'] = true;
@@ -33,7 +31,6 @@ const getSocialMediaCheck = (snsUrl) => {
             const re = new RegExp(pattern);
             const youtubeId = re.exec(url) && re.exec(url)[0];
 
-            console.log('create new quest', youtubeId);
             if(!youtubeId) {
                 snsInfo['check'] = false;
                 return snsInfo;
@@ -62,8 +59,6 @@ const getSocialMediaCheck = (snsUrl) => {
             if(descriptionBody && descriptionBody[0]) {
                 snsInfo['snsDesc'] = descriptionBody[0].attribs.content;
             }
-
-            console.log('crawler', titleBody, imageBody, descriptionBody);
         })
         .catch(() => {
             snsInfo['check'] = false;
@@ -81,9 +76,6 @@ const createNewQuest = (modalValues, answers) => {
     if(!window.confirm('create new quest ?')) {
         return;
     }
-
-    console.log('create new quest', modalValues);
-    console.log('answers', answers);
     
     const quest = {'answers': [], ...modalValues};
 
@@ -93,7 +85,6 @@ const createNewQuest = (modalValues, answers) => {
     const query = `*[_type == 'season' && isActive == true]`;
     client.fetch(query).then(async (seasons) => {
         if(!seasons || seasons.length == 0) {
-            console.log('not season active.');
             return;
         }
         
@@ -110,7 +101,6 @@ const createNewQuest = (modalValues, answers) => {
         const accounts = await window.klaytn.enable();
         const walletAddress = accounts[0];
         if(!walletAddress) {
-            console.log('You do not have a wallet.');
             return;
         }
 
@@ -118,8 +108,6 @@ const createNewQuest = (modalValues, answers) => {
 
         //파일 업로드 
         if(modalValues && modalValues.imageFile) {
-            console.log('image file upload', modalValues.imageFile[0]);
-
             quest['imageFile'] = modalValues.imageFile[0];
             quest['snsUrl'] = '';
         } else if(modalValues && modalValues.snsUrl) {
@@ -150,14 +138,11 @@ const createNewQuest = (modalValues, answers) => {
         quest['totalAmount'] = 0;
         quest['endDateTime'] = modalValues.endDateTime;
 
-        console.log('quest create by', quest);
         client.fetch(`count(*[_type == "quests"])`).then((order) => {
             quest['questKey'] = order + 1;
 
             // create new quest
             client.create(quest).then((res) => {
-                console.log(`quest created quest_id : ${res.questKey}`);
-
                 // upload image
                 client.assets
                       .upload('image', quest.imageFile)
@@ -198,9 +183,8 @@ const createNewQuest = (modalValues, answers) => {
                                 userCnt: 0,
                             }
 
-                            console.log('questAnswer created by', questAnswer);
                             client.create(questAnswer).then((res) => {
-                                console.log('questAnswer id : ' + res.questAnswerKey);
+                                
                             });
                         });
                     });

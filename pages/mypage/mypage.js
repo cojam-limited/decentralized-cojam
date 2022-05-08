@@ -1,17 +1,13 @@
-//import { Link } from 'react-router-dom'
 import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-responsive-modal';
 
 import 'react-responsive-modal/styles.css';
 import backgroundImage from '@assets/body_mypage.jpg';
 import { useWalletData } from '@data/wallet';
-import { ClientError } from '@sanity/client';
 import { client } from '../../sanity';
 import { useLoadingState } from "../../assets/context/LoadingContext";
-import Moment, { now } from 'moment';
-import { transferCojamURI, transferFromCojamURI } from "@api/UseKaikas";
-
-//import Pagination from "react-sanity-pagination";
+import Moment from 'moment';
+import { transferCojamURI } from "@api/UseKaikas";
 
 function Index() {
 	const { setLoading } = useLoadingState();
@@ -33,6 +29,9 @@ function Index() {
 
 	const { walletData } = useWalletData();
 
+	/**
+	 * load voting infos
+	 */
 	const loadVotings = async () => {
 		const walletAddress = walletData.account;
 		const votingArr = [];
@@ -75,6 +74,9 @@ function Index() {
 		});
 	}
 
+	/**
+	 * Send CT
+	 */
 	const sendCTToAddress = async () => {
 		try {
 			const walletAddress = walletData.account;
@@ -88,9 +90,9 @@ function Index() {
 				return;
 			}
 
-			const transferRes = await transferCojamURI({fromAddress: walletAddress.account, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
+			const transferRes = await transferCojamURI({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
 			if(transferRes.status) {
-				alert(`${amount} (CT) send to '${recipientAddress}' successfully.`);
+				alert(`${sendCTInput.amount} (CT) send to '${sendCTInput.recipientAddress}' successfully.`);
 			} else {
 				alert('send CT error. try again please.');
 			}
@@ -102,36 +104,33 @@ function Index() {
 		}
 	}
 
+	/**
+	 * Login reward
+	 */
 	const getLoginReward = () => {
 		const walletAddress = walletData.account;
 
 		if(walletAddress) {
 			// 9 hours after
-			const creteriaDate = Moment(now()).add('9', 'h').format("yyyy-MM-DD");
-			console.log('creatria date', walletAddress, creteriaDate);
-
+			const creteriaDate = Moment().add('9', 'h').format("yyyy-MM-DD");
 			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && loginDate == '${creteriaDate}'][0]`;
 			client.fetch(loginRewardHistQuery).then((loginRewardHistory) => {
-				console.log('joinRewardHistory & hadLoginReward', loginRewardHistory, hadLoginReward);
-
 				// check if user got join reward. before 9 hours.
 				if(loginRewardHistory || hadLoginReward) {
 					alert("you've got reward already.");
 				} else {
 					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'login'][0]`;
 					client.fetch(rewardInfoQuery).then(async (rewardInfo) => {
-						console.log('reward amount', rewardInfo.amount);
-
 						if(!rewardInfo.amount) {
 							alert('login reward amount is not exist');
 							return;
 						}
 
-						const recommendAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // reward wallet address
 						// send coin from master wallet
 						let transferRes;
+						const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // KAS reward wallet - no CT
 						try {
-							transferRes = await transferCojamURI({fromAddress: recommendAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
+							transferRes = await transferCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
 							console.log(error);
 							//ignore
@@ -139,47 +138,50 @@ function Index() {
 							return;
 						}
 
-						console.log('transfer complete');
-
-						if(transferRes.status) {
+						if(transferRes.status === 200) {
 							// remain transfer history
-
 							const loginRewardHistoryDoc = {
 								_type: 'loginRewardHistory',
 								walletAddress: walletAddress,
 								loginDate: creteriaDate,
 								rewardAmount: Number(rewardInfo.amount),
 								transactionId: transferRes.transactionId,
-								createDateTime: Moment(now()).format("yyyy-MM-DD HH:mm:ss")
+								createDateTime: Moment().format("yyyy-MM-DD HH:mm:ss")
 							}
 
 							client.create(loginRewardHistoryDoc).then((res) => {
 								console.log('login reward hist create result', res);
 							});
 
+							// remain transaction history
 							const transactionSet = {
 								_type: 'transactions',
 								amount: Number(rewardInfo.amount),
 								recipientAddress: walletAddress,
-								spenderAddress: recommendAddress,
+								spenderAddress: rewardAddress,
 								status: 'SUCCESS',
 								transactionId: transferRes.transactionId,
 								transactionType: 'LOGIN_REWARD',
+								createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
 							}
 
 							client.create(transactionSet);
+
+							alert('get login reward successfully!');
+						} else {
+							alert('get login reward failed.');
 						}
-						
-						alert('get login reward successfully!');
-						console.log('transfer history complete');
 					});
 				}
 			});
 		} else {
-			alert('login first.');
+			alert('login first. please');
 		}
 	}
 
+	/**
+	 * Load Voting, Grounds, Transfer infos
+	 */
 	useEffect(() => {
 		const walletAddress = walletData.account;
 
