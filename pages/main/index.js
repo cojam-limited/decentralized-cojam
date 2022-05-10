@@ -86,8 +86,9 @@ function Index() {
 				});
 			});
 
-			const qnaQuery = '*[_type == "questions"]';
+			const qnaQuery = '*[_type == "qnaList"] | order(order asc)';
 			await client.fetch(qnaQuery).then((data) => {
+				console.log('qna', data);
 				setQnas(data);
 			});
 		}
@@ -233,27 +234,13 @@ function Index() {
 					<div className="qna_list">
 						{
 							qnas && qnas.map((qna, index) => (
-								<Accordion key={index} title={qna.title} content={qna.content} />
+								<Accordion key={index} question={qna.question} answer={qna.answer} link={qna.linkAddress} />
 							))
 						}
 					</div>
 				</div>
 			</div>
 			{/* 질문답변 끝 */}
-		
-
-			{/* 레이어팝업 */}
-			{/* <div className="main-popup" style={{ top: `100px`, left: `100px` }}>
-				<div><img src="https://i.pinimg.com/564x/c8/fc/e2/c8fce2fb4b69a2038471688d8e99d3d8.jpg" alt="" title="" /></div>
-				<dl>
-					<dt>오늘 더 이상 열지 않기</dt>
-					<dd>닫기</dd>
-				</dl>
-			</div> */}
-			{/* 레이어팝업 끝 */}
-
-
-
     </div>
   );
 }

@@ -19,6 +19,7 @@ import resultList from "./resultList";
 import loginRewardHistory from "./loginRewardHistory";
 import joinRewardHistory from "./joinRewardHistory";
 import rewardInfo from "./rewardInfo";
+import qnaList from "./qnaList";
 
 {/* 새로 추가한 부분 */}
 
@@ -43,6 +44,7 @@ export default createSchema({
     questAnswerList,
     communityList,
     resultList,
+    qnaList,
     betting,
     seasonCategories,
     member,

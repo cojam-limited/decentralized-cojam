@@ -28,7 +28,6 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
             break;
 
         case 'invalid': 
-            // TODO accept description
             client.patch(selectedQuest._id)
                   .set({
                       questStatus: 'INVALID', 
@@ -156,8 +155,6 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                 return;
             }
 
-            // TODO add confirm
-
             if(selectedQuest.approveTx) {
                 alert("Approve is already Registerd!");
                 return;
@@ -232,8 +229,6 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                 return;
             }
 
-            // TODO add confirm check
-
             if(selectedQuest.adjournTx) {
                 alert("It is already adjourn.");
                 return;
@@ -263,8 +258,6 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                 alert("Market is not Finished!");
                 return;
             }
-
-            // TODO finish tx confirm
 
             if(selectedQuest.successTx) {
                 alert("It is already success.");

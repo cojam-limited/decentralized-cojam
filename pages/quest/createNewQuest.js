@@ -1,4 +1,3 @@
-
 import { client } from "../../sanity";
 
 import axios from "axios";
@@ -26,7 +25,6 @@ const getSocialMediaCheck = (snsUrl) => {
 
         if(url.includes('youtube') || url.includes('youtu.be')) {
             snsInfo['snsType'] = 'Y';
-            // TODO CHECK 
             const pattern = "(?<=watch\\?v=|/videos/|embed\\/|youtu.be\\/|\\/v\\/|watch\\?v%3D|%2Fvideos%2F|embed%2F|youtu.be%2F|%2Fv%2F)[^#\\&\\?\\n]*";
             const re = new RegExp(pattern);
             const youtubeId = re.exec(url) && re.exec(url)[0];
@@ -73,15 +71,14 @@ const getSocialMediaCheck = (snsUrl) => {
 }
 
 const createNewQuest = (modalValues, answers) => {
-    if(!window.confirm('create new quest ?')) {
+    if(!window.confirm('do you want to create new quest ?')) {
         return;
     }
     
     const quest = {'answers': [], ...modalValues};
-
     answers && answers.forEach((answer) => quest.answers.push(answer.value));
 
-    //현재 season 정보x
+    //현재 season 정보
     const query = `*[_type == 'season' && isActive == true]`;
     client.fetch(query).then(async (seasons) => {
         if(!seasons || seasons.length == 0) {
@@ -101,6 +98,7 @@ const createNewQuest = (modalValues, answers) => {
         const accounts = await window.klaytn.enable();
         const walletAddress = accounts[0];
         if(!walletAddress) {
+            alert('do login for create new quest.');
             return;
         }
 
@@ -112,15 +110,6 @@ const createNewQuest = (modalValues, answers) => {
             quest['snsUrl'] = '';
         } else if(modalValues && modalValues.snsUrl) {
             const snsInfo = getSocialMediaCheck(modalValues.snsUrl);
-
-            if(snsInfo.check) {
-                if("Y" === snsInfo.snsType) {
-                    // TODO ADD  youtube video download
-                } else if(snsInfo.imageUrl) {
-                    // TODO ADD image download
-                }
-            }
-
             quest['snsType'] = snsInfo.snsType;
             quest['snsId'] = snsInfo.snsId;
             quest['snsTitle'] = snsInfo.snsTitle;
@@ -183,9 +172,7 @@ const createNewQuest = (modalValues, answers) => {
                                 userCnt: 0,
                             }
 
-                            client.create(questAnswer).then((res) => {
-                                
-                            });
+                            client.create(questAnswer);
                         });
                     });
                 }

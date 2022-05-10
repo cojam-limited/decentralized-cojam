@@ -198,7 +198,6 @@ function Index() {
 			setTransfers(transfers);
 		});
 
-		console.log('set subscription.', walletAddress);
 		let subscription;
 		if(walletAddress) {					   
 			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}']`;
