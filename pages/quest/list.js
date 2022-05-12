@@ -377,7 +377,14 @@ function Index() {
                     </li>
                   </ul>
                   <p className="mqa-btn">
-                    <Link to="#" onClick={() => createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'))}>Complete</Link>
+                    <Link to="#" onClick={async () => { 
+                      const accounts = await window.klaytn.enable(); 
+                      if(!accounts) {
+                        return; 
+                      }
+                      
+                      createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'));
+                    }}>Complete</Link>
                   </p>
                 </div>
               </fieldset>

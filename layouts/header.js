@@ -11,7 +11,11 @@ import Logo_Kaikas from '@assets/logo_kaikas.svg';
 import { ConnectKaikasButton } from './styles';
 //import isMobile from '@utils/isMobile';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
+import isMobile from '@utils/isMobile';
 import { kaikasLogin, isKaikasUnlocked, getCojamBalance } from '@api/UseKaikas';
+import { prepare, request } from 'klip-sdk';
+import QRCode from 'qrcode';
+
 import Moment from 'moment';
 import { useWalletData } from '@data/wallet';
 
@@ -20,6 +24,13 @@ import { client } from "../sanity";
 function Header() {
   const history = useHistory()
   const [openKlipAdd, modalKlipAdd] = useState(false);
+  const [openKlipLogin, modalKlipLogin] = useState(false);
+  const [qrImage, setQrImage] = useState('');
+  const [countDownText, setCountDownText] = useState('');
+
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
+
   const { modalData, mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
   //const { mutateModalData: mutateKlipModalData } = useModalData(KLIP_MODAL_DATA_KEY);
   const { walletData, mutateWalletData } = useWalletData();
@@ -59,6 +70,81 @@ function Header() {
     mutateModalData({ open: false });
   };
 
+  // QR code 생성
+  const generateQR = async text => {
+    try {
+      setQrImage(await QRCode.toDataURL(text));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  var timer;
+  const countDownTimer = function (date) { 
+    var _vDate = new Date(date); // 전달 받은 일자 
+    var _second = 1000; 
+    var _minute = _second * 60; 
+    var _hour = _minute * 60;
+
+    console.log('datas', _vDate, _minute, _hour);
+    
+    function showRemaining() { 
+      var now = new Date(); 
+      var distDt = _vDate - now; 
+      
+      if (distDt < 0) { 
+        clearInterval(timer);
+        setCountDownText('');
+        console.log('timer 종료'); 
+
+        modalKlipLogin(false);
+        return; 
+      }
+
+      var minutes = Math.floor((distDt % _hour) / _minute); 
+      var seconds = Math.floor((distDt % _minute) / _second); 
+
+      setCountDownText(`${minutes}분 ${seconds}초`);      
+    } 
+
+    timer = setInterval(showRemaining, 1000); 
+  }
+
+
+  const handleOpenKlipLogin = async () => {
+    console.log('handle open klip login');
+
+    const bappName = 'cojam-v2';
+    const successLink = 'myApp://...';
+    const failLink = 'myApp://...';
+    const res = await prepare.auth({ bappName, successLink, failLink });
+
+    if (res.err) {
+      // 에러 처리
+    } else if (res.request_key) {
+
+      /*
+        Mobile 이면, deep link
+        아니면, QR code를 통해 이동
+      */
+      if( !isMobile() ) {
+        modalKlipAdd(false);
+
+        modalKlipLogin(true);
+
+        // 5분 시간제한 설정
+        //countDownTimer(Moment().add(10, 'seconds').format('yyyy-MM-DD HH:mm:ss'));
+        setMinutes(5);
+        setSeconds(0);
+
+        const url = `https://klipwallet.com/?target=a2a?request_key=${res.request_key}`;
+        generateQR(url);
+      } else {
+        request(res.request, () => alert('모바일 환경에서 실행해주세요'));
+      }
+    }
+  }
+
   const handleOpenKaikasModal = async () => {
     const kaikasUnlocked = await isKaikasUnlocked();
     if (!kaikasUnlocked) {
@@ -66,24 +152,7 @@ function Header() {
       mutateWalletData({ account: account });
       mutateModalData({ open: false });
       modalKlipAdd(false);
-    } 
-
-    /*
-    if (!isMobile()) {
-      const kaikasUnlocked = await isKaikasUnlocked();
-      if (!kaikasUnlocked) {
-        const account = await kaikasLogin();
-        mutateWalletData({ account: account });
-        mutateModalData({ open: false });
-        modalKlipAdd(false);
-      }
-    } else {
-      toastNotify({
-        state: 'error',
-        message: 'Not Support MoblieWeb.',
-      });
     }
-    */
   }
 
   const getjoinReward = () => {
@@ -174,13 +243,30 @@ function Header() {
     window.addEventListener('scroll', resizeHeaderOnScroll, true);
   }, []);
 
+  // KLIP modal > count down setting
+  useEffect(() => {
+    const countdown = setInterval(() => {
+      if (parseInt(seconds) > 0) {
+        setSeconds(parseInt(seconds) - 1);
+      }
+      if (parseInt(seconds) === 0) {
+        if (parseInt(minutes) === 0) {
+            clearInterval(countdown);
+        } else {
+          setMinutes(parseInt(minutes) - 1);
+          setSeconds(59);
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(countdown);
+  }, [minutes, seconds]);
+
   // login 에 따라 wallet, balance 상태 관리
   useEffect(() => {
     getBalance();
 
     if(walletData && walletData.account) {
-      console.log('reload memberRole', walletData.account);
-
       const memberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}'][0] {memberRole}`;
       client.fetch(memberQuery).then((memberRole) => {
         if(memberRole) {
@@ -336,7 +422,7 @@ function Header() {
           <div>
             <h2>내 카카오톡으로 간편하고 안전하게 시작할 수 있습니다.</h2>
             <h3>
-              <a href="#none"><img src={iconKlip} alt="" title="" />카카오톡으로 Klip 지갑 연결</a>
+              <a href="#none" onClick={() => handleOpenKlipLogin()}><img src={iconKlip} alt="" title=""/>카카오톡으로 Klip 지갑 연결</a>
             </h3>
             <h4>
               <a href="#none">내 손안의 디지털 지갑, Klip 안내 <i className="uil uil-angle-right"></i></a>
@@ -361,6 +447,81 @@ function Header() {
         </div>
       </Modal>
       {/* 모달 - 클레이트 연결 끝 */}
+
+      {/* 모달 - KLIP 연결 시작 */}
+      <Modal open={openKlipLogin} onClose={() => modalKlipLogin(false)} center>
+        <div className="base-modal KlipWeb2AppModal">
+          <section className="gen-modal klip-with-qr-modal">
+            <div className="gen-modal-close" onClick={() => modalKlipLogin(false)}></div>
+            <div className="gen-modal-title">
+              <img src="https://klayswap.com/img/icon/ic-service-klip-bk.svg" alt="klip" />
+              <label>카카오 Klip QR 연결 </label>
+            </div>
+            
+            <article className="klip-with-qr-modal__body">
+              <div className="klip-with-qr-modal__code">
+                <div className="klip-with-qr-modal__code__wrapper">
+                  <div level="L" background="#fff" foreground="#000" className="">
+                    
+                    <img style={{width: '100%', height: '100%', top: '0px', left: '0px'}} src={qrImage} alt="pointer" />
+                  </div>
+                </div>
+                
+                <div className="klip-with-qr-modal__code__timer">
+                  <p>남은시간 &nbsp;
+                    <span>{minutes}분 {seconds}초</span>
+                  </p>
+                </div>
+                
+                <div className="klip-with-qr-modal__code__warning"> 
+                  QR 코드 리더기 또는 카카오톡 앱을 통해 QR 코드를 스캔해주세요. 
+                </div>
+              </div>
+            </article>
+            
+            <article className="klip-with-qr-modal__notice">
+              <div>
+                <div className="klip-with-qr-modal__notice__flow__icon">
+                  <img src="https://klayswap.com/img/icon/ic-kakaotalk-logo.svg" alt="klip step1" />
+                  <img src="https://klayswap.com/img/icon/ic-pointer-right-bk.svg" alt="pointer" />
+                </div>
+                
+                <div className="klip-with-qr-modal__notice__flow__icon">
+                  <img src="https://klayswap.com/img/icon/ic-kakaotalk-search.svg" alt="klip step2" />
+                  <img src="https://klayswap.com/img/icon/ic-pointer-right-bk.svg" alt="pointer" />
+                </div>
+                
+                <div className="klip-with-qr-modal__notice__flow__icon">
+                  <img src="https://klayswap.com/img/icon/ic-kakaotalk-scan.svg" alt="klip step3" />
+                </div>
+                
+              </div>
+              
+              <div>
+                <div className="klip-with-qr-modal__notice__flow__text">
+                  <span>
+                    <strong>카카오톡 실행</strong>
+                  </span>
+                </div>
+                
+                <div className="klip-with-qr-modal__notice__flow__text">
+                  <span><strong>상단 검색창 클릭</strong></span>
+                </div>
+                
+                <div className="klip-with-qr-modal__notice__flow__text">
+                  <span><strong>코드 스캔 후 로그인</strong></span>
+                </div>
+              </div>
+
+              <div className="klip-with-qr-modal__notice__warning">
+                <span>* Klip &gt; 코드스캔 (사이드메뉴)에서도 스캔이 가능합니다.</span>
+              </div>
+            </article>
+          </section>
+        </div>   
+      </Modal>
+      {/* 모달 - KLIP 연결 끝 */}
+          
     </div>
   );
 }

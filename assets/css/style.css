@@ -231,6 +231,163 @@ html {
 }
 
 
+/* KLIP 모달 */
+#modals-container>div .v--modal-box .base-modal {
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.gen-modal .gen-modal-title, .gen-modal .gen-modal-title label {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.gen-modal-close {
+  width: 28px;
+  height: 28px;
+  top: 24px;
+  right: 20px;
+  cursor: pointer;
+  position: absolute;
+  background-position: 50%;
+  background-image: url(https://klayswap.com/img/icon/ic-modal-close.svg);
+  background-repeat: no-repeat !important;
+}
+
+.gen-modal {
+  width: 480px;
+  height: auto;
+  min-height: 480px;
+  max-height: 100vh;
+  margin: 0;
+  background: #fff;
+  position: relative;
+  border-radius: 2px;
+  padding: 30px 30px 78px 30px;
+  -webkit-box-shadow: 0 2px 10px 0 rgb(0 0 0 / 5%);
+  box-shadow: 0 2px 10px 0 rgb(0 0 0 / 5%);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.klip-with-qr-modal {
+  padding: 0;
+  min-height: auto;
+  background: #ffd900;
+}
+
+.klip-with-qr-modal .klip-with-qr-modal__body {
+  padding: 30px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.klip-with-qr-modal .klip-with-qr-modal__body .klip-with-qr-modal__code .klip-with-qr-modal__code__wrapper {
+  width: 200px;
+  height: 200px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 3px;
+  margin: 0 auto 12px auto;
+}
+
+.klip-with-qr-modal .klip-with-qr-modal__body .klip-with-qr-modal__code>div {
+  text-align: center;
+}
+
+.klip-with-qr-modal .klip-with-qr-modal__notice>div {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.klip-with-qr-modal .klip-with-qr-modal__notice {
+  padding: 30px;
+  background: #fff;
+}
+
+.klip-with-qr-modal .gen-modal-title {
+  text-align: center;
+  margin: 30px 0 0 0;
+}
+
+.klip-with-qr-modal .gen-modal-title img {
+  margin-right: 10px;
+}
+
+.klip-with-qr-modal .gen-modal-title label {
+  font-size: 16px;
+}
+
+.klip-with-qr-modal .klip-with-qr-modal__notice .klip-with-qr-modal__notice__flow__icon {
+  margin-bottom: 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.klip-with-qr-modal .klip-with-qr-modal__notice .klip-with-qr-modal__notice__flow__icon img:nth-child(2) {
+  margin: 0 15px;
+}
+
+.klip-with-qr-modal .klip-with-qr-modal__notice .klip-with-qr-modal__notice__warning {
+  font-size: 12px;
+  color: #666;
+  margin-top: 25px;
+}
+
+.klip-with-qr-modal .klip-with-qr-modal__body .klip-with-qr-modal__code .klip-with-qr-modal__code__timer p {
+  font-size: 12px;
+  color: #999;
+}
+
+.klip-with-qr-modal .klip-with-qr-modal__body .klip-with-qr-modal__code .klip-with-qr-modal__code__timer p span {
+  color: #e66d16;
+}
+
+
+/* KLIP 모달 */
+
+
+
 
 
 
