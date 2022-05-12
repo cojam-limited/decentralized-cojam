@@ -8,9 +8,7 @@
   },
   "dependencies": {
     "@emotion/babel-plugin": "^11.1.2",
-    "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
-    "@mui/material": "^5.2.6",
     "@nrwl/react": "^13.9.4",
     "@sanity/client": "^3.0.3",
     "@sanity/image-url": "^1.0.1",

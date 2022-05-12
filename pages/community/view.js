@@ -2,13 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { urlFor, client } from "../../sanity";
-import { css } from "@emotion/react";
 
-const override = css`
-  display: block;
-  margin: 0 auto;
-  border-color: red;
-`;
 import { useLoadingState } from "../../assets/context/LoadingContext";
 import backgroundImage from '@assets/body_service.jpg';
 
