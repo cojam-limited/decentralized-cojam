@@ -29,6 +29,7 @@ export const getDataFetcher = async (url) => {
 
   return res?.data;
 };
+
 /**
  * @dev POST는 SWR과 쓰지 않아도 상관 없음
  */
@@ -52,6 +53,7 @@ export const postDataFetcher = async (url, body) => {
 
   return res?.data;
 };
+
 /**
  * @dev PUT은 SWR과 쓰지 않아도 상관 없음
  */

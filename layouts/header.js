@@ -12,8 +12,8 @@ import { ConnectKaikasButton } from './styles';
 //import isMobile from '@utils/isMobile';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import isMobile from '@utils/isMobile';
-import { kaikasLogin, isKaikasUnlocked, getCojamBalance } from '@api/UseKaikas';
-import { prepare, request } from 'klip-sdk';
+import { kaikasLogin, isKaikasUnlocked, transferCojamURI, getCojamBalance } from '@api/UseKaikas';
+import { prepare, request, getResult } from 'klip-sdk';
 import QRCode from 'qrcode';
 
 import Moment from 'moment';
@@ -50,21 +50,15 @@ function Header() {
     }
   }
 
-  const checkWalletConnection = async () => {
-    let result = true;
+  const handleOpenKaikasModal = async () => {
     const kaikasUnlocked = await isKaikasUnlocked();
-
-    if(!kaikasUnlocked) {
-      mutateWalletData({ account: '' });
-      return false;
+    if (!kaikasUnlocked) {
+      const account = await kaikasLogin();
+      mutateWalletData({ account: account });
+      mutateModalData({ open: false });
+      modalKlipAdd(false);
     }
-
-    if (!walletData?.account || walletData?.account === '') {
-      result = false;
-    }
-
-    return result;
-  };
+  }
 
   const handleClose = () => {
     mutateModalData({ open: false });
@@ -122,6 +116,9 @@ function Header() {
     if (res.err) {
       // 에러 처리
     } else if (res.request_key) {
+      const requestKey = res.request_key;
+
+      console.log('result key', requestKey);
 
       /*
         Mobile 이면, deep link
@@ -137,24 +134,27 @@ function Header() {
         setMinutes(5);
         setSeconds(0);
 
-        const url = `https://klipwallet.com/?target=a2a?request_key=${res.request_key}`;
+        const url = `https://klipwallet.com/?target=a2a?request_key=${requestKey}`;
         generateQR(url);
       } else {
-        request(res.request, () => alert('모바일 환경에서 실행해주세요'));
+        request(requestKey, () => alert('모바일 환경에서 실행해주세요'));
       }
+
+      const getAuthResult = setInterval(() => {
+        getResult(requestKey).then((authResult) => {
+          if(authResult.result?.klaytn_address) {
+            console.log('auth completed', authResult.result.klaytn_address);
+            clearInterval(getAuthResult);
+
+            mutateWalletData({ account: authResult.result.klaytn_address });
+            modalKlipLogin(false);
+          }
+        });
+      }, 1000);
     }
   }
 
-  const handleOpenKaikasModal = async () => {
-    const kaikasUnlocked = await isKaikasUnlocked();
-    if (!kaikasUnlocked) {
-      const account = await kaikasLogin();
-      mutateWalletData({ account: account });
-      mutateModalData({ open: false });
-      modalKlipAdd(false);
-    }
-  }
-
+  // JOIN REWARD
   const getjoinReward = () => {
 		const walletAddress = walletData.account;
 
@@ -264,6 +264,8 @@ function Header() {
 
   // login 에 따라 wallet, balance 상태 관리
   useEffect(() => {
+    console.log('wallet address changed', walletData, walletData.account);
+
     getBalance();
 
     if(walletData && walletData.account) {
@@ -301,12 +303,6 @@ function Header() {
 
   }, [walletData, walletData.account]);
 
-  useEffect(() => {
-    checkWalletConnection().then((res) => {
-      setIsLogin(res);
-    });
-  }, [balance]);
-
   return (
     <div>
       {/* 상단영역 */}
@@ -326,7 +322,7 @@ function Header() {
           </dt>
           <dd>
               {
-              isLogin
+              walletData.account !== ''
               ? /* 로그인 했을때 */
                 <>
                   <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(8)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
@@ -357,7 +353,7 @@ function Header() {
           <dd>
             {}
             {
-              isLogin
+              walletData.account !== ''
               ? /* 로그인 했을때 */
                 <> 
                   <Link to="#"><i className="uil uil-wallet"></i></Link>
