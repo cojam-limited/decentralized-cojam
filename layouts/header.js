@@ -322,7 +322,7 @@ function Header() {
           </dt>
           <dd>
               {
-              walletData.account !== ''
+              typeof walletData.account !== 'undefined' && walletData.account !== ''
               ? /* 로그인 했을때 */
                 <>
                   <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(8)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
@@ -353,7 +353,7 @@ function Header() {
           <dd>
             {}
             {
-              walletData.account !== ''
+              typeof walletData.account !== 'undefined' && walletData.account !== ''
               ? /* 로그인 했을때 */
                 <> 
                   <Link to="#"><i className="uil uil-wallet"></i></Link>
