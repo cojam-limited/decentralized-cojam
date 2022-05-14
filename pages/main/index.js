@@ -127,18 +127,28 @@ function Index() {
 						{ 
 						quests.map((quest, index) => {
 							return (
-								<li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} if(!walletData?.account) { handleOpenKaikasModal(); return; } history.push({pathname: `/QuestView`, state: {questId: quest._id}}) }}>
+								<li key={index} onClick={() => { 
+									if(quest.dDay === 'expired') {
+										return;
+									} 
+									if(!walletData?.account) { 
+										handleOpenKaikasModal();
+										return; 
+									} 
+
+									history.push({pathname: `/QuestView`, state: { questId: quest._id }}) 
+								}}>
                 					{ quest.dDay === 'expired' && <div>CLOSE</div> }
 									<h2>
 										Total <span>{quest.totalAmount && addComma(quest.totalAmount)}</span> CT
 									</h2>
 									<p>
 										<span
-										style={{
-											backgroundImage: quest.imageFile && quest.imageFile.length != 0 && `url('${urlFor(quest.imageFile)}')`,
-											backgroundPosition: `center`,
-											backgroundSize: `cover`,
-										}}
+											style={{
+												backgroundImage: quest.imageFile && quest.imageFile.length != 0 && `url('${urlFor(quest.imageFile)}')`,
+												backgroundPosition: `center`,
+												backgroundSize: `cover`,
+											}}
 										></span>
 									</p>
 									<h3>
@@ -171,7 +181,7 @@ function Index() {
 
 			{/* 서비스 */}
 			<div className="main-service" style={{background: `url('${serviceBackground}') center no-repeat`}}>
-				<div className="main-service-phone" style= {{ background: `url('${phoneBackground}') -280px no-repeat` }}>
+				<div className="main-service-phone" style= {{ background: window.innerWidth < 1000 ? 'none' : `url('${phoneBackground}') -280px no-repeat` }}>
 					<h2>Cojam Service</h2>
 					<h3>Operate the Service Through Advanced Technology</h3>
 					<dl>

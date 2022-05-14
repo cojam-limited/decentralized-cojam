@@ -73,38 +73,6 @@ function Header() {
     }
   }
 
-  var timer;
-  const countDownTimer = function (date) { 
-    var _vDate = new Date(date); // 전달 받은 일자 
-    var _second = 1000; 
-    var _minute = _second * 60; 
-    var _hour = _minute * 60;
-
-    console.log('datas', _vDate, _minute, _hour);
-    
-    function showRemaining() { 
-      var now = new Date(); 
-      var distDt = _vDate - now; 
-      
-      if (distDt < 0) { 
-        clearInterval(timer);
-        setCountDownText('');
-        console.log('timer 종료'); 
-
-        modalKlipLogin(false);
-        return; 
-      }
-
-      var minutes = Math.floor((distDt % _hour) / _minute); 
-      var seconds = Math.floor((distDt % _minute) / _second); 
-
-      setCountDownText(`${minutes}분 ${seconds}초`);      
-    } 
-
-    timer = setInterval(showRemaining, 1000); 
-  }
-
-
   const handleOpenKlipLogin = async () => {
     console.log('handle open klip login');
 
@@ -117,20 +85,16 @@ function Header() {
       // 에러 처리
     } else if (res.request_key) {
       const requestKey = res.request_key;
-
-      console.log('result key', requestKey);
-
+      
       /*
         Mobile 이면, deep link
         아니면, QR code를 통해 이동
       */
       if( !isMobile() ) {
         modalKlipAdd(false);
-
         modalKlipLogin(true);
 
         // 5분 시간제한 설정
-        //countDownTimer(Moment().add(10, 'seconds').format('yyyy-MM-DD HH:mm:ss'));
         setMinutes(5);
         setSeconds(0);
 
@@ -143,11 +107,10 @@ function Header() {
       const getAuthResult = setInterval(() => {
         getResult(requestKey).then((authResult) => {
           if(authResult.result?.klaytn_address) {
-            console.log('auth completed', authResult.result.klaytn_address);
             clearInterval(getAuthResult);
 
-            mutateWalletData({ account: authResult.result.klaytn_address });
             modalKlipLogin(false);
+            mutateWalletData({ account: authResult.result.klaytn_address });
           }
         });
       }, 1000);
