@@ -42,16 +42,6 @@ function Index() {
 		}
 	}
 
-	const handleOpenKaikasModal = async () => {
-		const kaikasUnlocked = await isKaikasUnlocked();
-		if (!kaikasUnlocked) {
-		  const account = await kaikasLogin();
-		  mutateWalletData({ account: account });
-		  mutateModalData({ open: false });
-		  modalKlipAdd(false);
-		}
-	}
-
 	useEffect(() => {
 		window.addEventListener('resize', resizeFunc);
 
@@ -131,11 +121,7 @@ function Index() {
 									if(quest.dDay === 'expired') {
 										return;
 									} 
-									if(!walletData?.account) { 
-										handleOpenKaikasModal();
-										return; 
-									} 
-
+									
 									history.push({pathname: `/QuestView`, state: { questId: quest._id }}) 
 								}}>
                 					{ quest.dDay === 'expired' && <div>CLOSE</div> }

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from 'react-responsive-modal';
 
+import { Link, useHistory } from 'react-router-dom'
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
@@ -12,13 +13,17 @@ import { useWalletData } from '@data/wallet';
 import { useLoadingState } from "@assets/context/LoadingContext";
 import { changeStateFunction } from './statusFunctions';
 
+import { transferOwnership } from '@api/UseKaikas';
+
 import Moment from 'moment';
 
 function Index() {
+	const history = useHistory();
 	const [ openDetail, modalDetail ] = useState(false);
 	const { setLoading } = useLoadingState();
 	const { walletData } = useWalletData();
-	const [ transactionDatas, setTransactionDatas ] = useState();
+	const [ transactionDatas, setTransactionDatas ] = useState([]);
+	const [ memberDatas, setMemberDatas ] = useState([]);
 	
 	const [ categories, setCategories ] = useState([]);
 	const [ activeCategory, setActiveCategory ] = useState('ONGOING');
@@ -50,8 +55,27 @@ function Index() {
 		}
 
 		setLoading(true);
-		await changeStateFunction(state, walletData.account, selectedQuest);
+		await changeStateFunction(state, walletData, selectedQuest);
 		setLoading(false);
+	}
+
+	const transferAdmin = async (member) => {
+		const walletAddress = member.walletAddress;
+
+		if(window.confirm(`[${walletAddress}] transfer to admin ?`)) {
+			const result = await transferOwnership(walletAddress);
+
+			if(result.status === 200) {
+				alert('transfer to admin success');
+				
+				client.patch(member._id)
+					  .set({ memberRole: 'admin' })
+					  .commit();
+
+			} else {
+				alert('transfer to admin failed');
+			}
+		}
 	}
 	
 	/**
@@ -119,24 +143,40 @@ function Index() {
 	useEffect(() => {
 		setLoading(true);
 		const walletAddress = walletData.account;
+
+		if(walletAddress === '') {
+			alert('logout.');
+			history.push('/');
+		}
 		
 		let subscription;
-		if(walletAddress) {					   
+		if(walletAddress) {
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
 			const questQuery = `*[_type == 'quests' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 			client.fetch(questQuery).then((quest) => {
-				if(quest) {
-					setTransactionDatas(quest);
-				}
-
+				setTransactionDatas(quest ?? []);
 				setLoading(false);
 			});	
 
 			subscription = client.listen(questQuery).subscribe((quest) => {
-				if(quest) {
-					setTransactionDatas(quest);
-				}				
+				console.log('subscription quest', quest);
+				setTransactionDatas(quest ?? []);
 			});	
+
+			// get member data & check current account member role
+			const memberQuery = `*[_type == 'member']`;
+			client.fetch(memberQuery).then((members) => {
+				members.forEach((member) => {
+					if(member.walletAddress === walletAddress) {
+						if(member.memberRole !== 'admin') {
+							alert('this account is not admin.');
+							history.push('/');
+						}
+					}
+				});
+
+				setMemberDatas(members ?? []);
+			});
 		}
 
 		setSelectedQuest([]);
@@ -148,9 +188,16 @@ function Index() {
 
 				{/* 타이틀영역 */}
 				<div className="title-area">
-					Cojam Ground
+					ADMIN
 				</div>
 				{/* 타이틀영역 끝 */}
+
+				{/* 마이페이지 - 탭버튼 */}
+				<ul className="markets-tab">
+					<li className="mt-tab01 active" onClick={tabOpen01}><i className="uil uil-chart-line"></i> <span>Cojam Ground</span></li>
+					<li className="mt-tab02" onClick={tabOpen02}><i className="uil uil-files-landscapes-alt"></i> <span>Grant Admin</span></li>
+				</ul>
+				{/* 마이페이지 - 탭버튼 끝 */}
 
 				{/* 카테고리 영역 */}
 				<div className="category-section">
@@ -161,11 +208,11 @@ function Index() {
 							spaceBetween={10}
 							slidesPerView={"auto"}
 						>
-							{
-								categories?.map((category, index) => (
-									<SwiperSlide key={index} className={"swiper-slide " + (category.categoryName === activeCategory ? 'active' : '')} onClick={() => setActiveCategory(category.categoryName)} style={{cursor:'pointer'}}>{category.categoryName}</SwiperSlide>
-								))
-							}
+						{
+							categories?.map((category, index) => (
+								<SwiperSlide key={index} className={"swiper-slide " + (category.categoryName === activeCategory ? 'active' : '')} onClick={() => setActiveCategory(category.categoryName)} style={{cursor:'pointer'}}>{category.categoryName}</SwiperSlide>
+							))
+						}
 						</Swiper>
 						</dt>
 						<dd>
@@ -173,13 +220,15 @@ function Index() {
 					</dl>
 				</div>
 				{/* 카테고리 영역 끝 */}
+
+				{/* 마켓 - 상태변경 버튼 시작 */}
 				<div className="mypage-info">
 					<dd>
-						{
-							stateButtons[activeCategory]?.map((stateButton, index) => (
-								<a href="#" key={index} onClick={() => clickStateButton(stateButton)} className="btn-blue">{stateButton}</a>
-							))
-						}
+					{
+						stateButtons[activeCategory]?.map((stateButton, index) => (
+							<a href="#" key={index} onClick={() => clickStateButton(stateButton)} className="btn-blue">{stateButton}</a>
+						))
+					}
 					</dd>
 				</div>
 				{/* 마켓 - 상태변경 버튼 끝 */}
@@ -355,9 +404,54 @@ function Index() {
 				</Modal>
 				{/* 모달 - SUCCESS 끝 */}
 
-				<div className="h70"></div>
+				{/* ADMIN - TAB02 시작*/}
+				<div className="market-admin" style={{ display: 'none' }}>
+					<div className="mc-admin">
+						<div>
+							<ul>
+								<li key='1'><strong>No.</strong></li>
+								<li key='2'><strong>Wallet Address</strong></li>
+								<li key='3'><strong>Member Role</strong></li>
+								<li key='4'><strong>Del Yn</strong></li>
+							</ul>
+							{
+								memberDatas?.map((memberData, index) => (
+									<ul key={index} style={{ cursor: 'pointer' }} onClick={() => transferAdmin(memberData)} >
+										<li key='1'><span>No. : </span> {index + 1} </li>
+										<li key='2'><span>Wallet Address : </span> {memberData.walletAddress} </li>
+										<li key='3'><span>Member Role : </span> {memberData.memberRole} </li>
+										<li key='4'><span>Del Yn : </span> {memberData.delYn} </li>
+									</ul>
+								))
+							}
+						</div>
+					</div>
+				</div>
+				{/* ADMIN - TAB02 끝 */}
 		</div>
 	);
+}
+
+function tabOpen01() {
+	document.querySelector('.category-section').style.display = 'block';
+	document.querySelector('.mypage-info').style.display = 'block';
+	document.querySelector('.market-content').style.display = 'block';
+
+	document.querySelector('.market-admin').style.display = 'none';
+
+	document.querySelector('.mt-tab01').classList.add("active");
+	document.querySelector('.mt-tab02').classList.remove("active");
+}
+
+function tabOpen02() {
+	document.querySelector('.market-admin').style.display = 'block';
+	
+	document.querySelector('.category-section').style.display = 'none';
+	document.querySelector('.mypage-info').style.display = 'none';
+	document.querySelector('.market-content').style.display = 'none';
+
+	document.querySelector('.mt-tab01').classList.remove("active");
+	document.querySelector('.mt-tab02').classList.add("active");
 }
 
 export default Index;

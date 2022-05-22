@@ -2,7 +2,7 @@
   "name": "cojam-v2",
   "version": "1.0.0",
   "scripts": {
-    "start": "cross-env webpack serve --env development --open",
+    "start": "cross-env webpack serve --env development",
     "build": "cross-env NODE_ENV=production webpack",
     "lint": "eslint --fix --ext .js,.jsx ."
   },

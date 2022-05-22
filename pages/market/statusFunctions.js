@@ -4,12 +4,11 @@ import Moment from 'moment';
 
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
 
-export const changeStateFunction = async (state, walletAddress, selectedQuest, selectedAnswer, description) => {
+export const changeStateFunction = async (state, walletData, selectedQuest, selectedAnswer, description) => {
     if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
         return;
     }
-
-    const account = await kaikasLogin();
+    
     switch(state) {
         case 'pend' :
             client.patch(selectedQuest._id)
@@ -32,7 +31,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                   .set({
                       questStatus: 'INVALID', 
                       description: 'INVALID DESC',
-                      updateMember: walletAddress
+                      updateMember: walletData.account
                   })
                   .commit();
 
@@ -62,7 +61,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                                           statusType: 'DRAFT', 
                                           draftTx: res.transactionId,
                                           draftDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                                          updateMember: walletAddress
+                                          updateMember: walletData.account
                                       })
                                       .commit();
 
@@ -120,19 +119,19 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                         }
                     }
 
-                    addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyListCopy});
+                    addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyListCopy, walletData: walletData});
                 }
             } else {
-                addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyList});
+                addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyList, walletData: walletData});
             }
 
-            if(addAnswerRes.status) {
+            if(addAnswerRes.status === 200) {
                 client.patch(selectedQuest._id)
                       .set({
                           statusType: 'ANSWER', 
                           answerTx: addAnswerRes.transactionId,
                           answerDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                          updateMember: walletAddress
+                          updateMember: walletData.account
                         })
                       .commit();
 
@@ -169,7 +168,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                             questStatus: 'APPROVE',
                             approveTx: approveMarketRes.transactionId,
                             approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                            updateMember: walletAddress
+                            updateMember: walletData.account
                         })
                       .commit();
                 
@@ -211,7 +210,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                               finishTx: res.transactionId, 
                               finishDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                               completed: true,
-                              updateMember: walletAddress
+                              updateMember: walletData.account
                             })
                           .commit();
 
@@ -242,7 +241,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                               questStatus: 'ADJOURN', 
                               adjournTx: res.transactionId,
                               adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                              updateMember: walletAddress
+                              updateMember: walletData.account
                             })
                           .commit();
 
@@ -273,7 +272,7 @@ export const changeStateFunction = async (state, walletAddress, selectedQuest, s
                           successTx: successRes.transactionId,
                           successDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                           selectedAnswer: selectedAnswer.title,
-                          updateMember: walletAddress
+                          updateMember: walletData.account
                         })
 
                 const market_total_ct = selectedQuest.totalAmount;

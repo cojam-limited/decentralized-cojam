@@ -8,7 +8,7 @@ import toastNotify from '@utils/toast';
 import './assets/css/style.css'
 
 const App = () => {
-  const { mutateWalletData } = useWalletData();
+  const { walletData, mutateWalletData } = useWalletData();
 
   useEffect(() => {
     //카이카스 설치된 경우
@@ -16,7 +16,9 @@ const App = () => {
       window?.klaytn.on('accountsChanged', function (accounts) {
         //console.log('account change', accounts);
         // 카이카스에서 계정 전환했을 때 지갑 주소 업데이트
-        mutateWalletData({ account: accounts[0] });
+        if( walletData.type === 'kaikas' || walletData.account === '' ) {
+          mutateWalletData({ account: accounts[0] });
+        }
       });
 
       window?.klaytn.on('networkChanged', function () {

@@ -7,7 +7,8 @@ import { useWalletData } from '@data/wallet';
 import { client } from '../../sanity';
 import { useLoadingState } from "../../assets/context/LoadingContext";
 import Moment from 'moment';
-import { transferCojamURI } from "@api/UseKaikas";
+import { transferCojamURI, getRewardCojamURI } from "@api/UseKaikas";
+import { transferCojamURI_KLIP } from "@api/UseKlip";
 
 function Index() {
 	const { setLoading } = useLoadingState();
@@ -16,7 +17,7 @@ function Index() {
 	const [openMypageGround, modalMypageGround] = useState(false);
 	const [openMypageTransfer, modalMypageTransfer] = useState(false);
 
-	const stateList = ['ONGOING', 'INVALID', 'APPROVE', 'ADJOURN', 'SUCESS'];
+	const stateList = ['ONGOING', 'INVALID', 'APPROVE', 'ADJOURN', 'SUCCESS'];
 	const [ votings, setVotings ] = useState({votingSet: []});
 	const [ selectedVoting, setSelectedVoting ] = useState({});
 	const [ grounds, setGrounds ] = useState([]);
@@ -90,8 +91,15 @@ function Index() {
 				return;
 			}
 
-			const transferRes = await transferCojamURI({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
-			if(transferRes.status) {
+			console.log('do transfer', walletData.type);
+			let transferRes;
+			if(walletData.type === 'kaikas') {
+				transferRes = await transferCojamURI({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
+			} else {
+				transferRes = await transferCojamURI_KLIP({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
+			}
+			
+			if(transferRes.status === 200) {
 				alert(`${sendCTInput.amount} (CT) send to '${sendCTInput.recipientAddress}' successfully.`);
 			} else {
 				alert('send CT error. try again please.');
@@ -130,7 +138,7 @@ function Index() {
 						let transferRes;
 						const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // KAS reward wallet - no CT
 						try {
-							transferRes = await transferCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
+							transferRes = await getRewardCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
 							console.log(error);
 							//ignore

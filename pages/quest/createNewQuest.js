@@ -70,7 +70,7 @@ const getSocialMediaCheck = (snsUrl) => {
     return snsInfo;
 }
 
-const createNewQuest = (modalValues, answers) => {
+const createNewQuest = async (modalValues, answers) => {
     if(!window.confirm('do you want to create new quest ?')) {
         return;
     }
@@ -80,7 +80,7 @@ const createNewQuest = (modalValues, answers) => {
 
     //현재 season 정보
     const query = `*[_type == 'season' && isActive == true]`;
-    client.fetch(query).then(async (seasons) => {
+    await client.fetch(query).then(async (seasons) => {
         if(!seasons || seasons.length == 0) {
             return;
         }

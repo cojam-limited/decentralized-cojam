@@ -51,13 +51,10 @@ function Header() {
   }
 
   const handleOpenKaikasModal = async () => {
-    const kaikasUnlocked = await isKaikasUnlocked();
-    if (!kaikasUnlocked) {
-      const account = await kaikasLogin();
-      mutateWalletData({ account: account });
-      mutateModalData({ open: false });
-      modalKlipAdd(false);
-    }
+    const account = await kaikasLogin();
+    mutateWalletData({ account: account, type: 'kaikas' });
+    mutateModalData({ open: false });
+    modalKlipAdd(false);
   }
 
   const handleClose = () => {
@@ -110,7 +107,7 @@ function Header() {
             clearInterval(getAuthResult);
 
             modalKlipLogin(false);
-            mutateWalletData({ account: authResult.result.klaytn_address });
+            mutateWalletData({ account: authResult.result.klaytn_address, type: 'klip' });
           }
         });
       }, 1000);
@@ -187,6 +184,10 @@ function Header() {
 			alert('do login for get login reward.');
 		}
 	}
+
+  const logout = async () => {
+    mutateWalletData({ account: '', type: '' });
+  }
 
   const getBalance = async () => {
     if (walletData?.account && walletData?.account !== '') {
@@ -288,12 +289,12 @@ function Header() {
               typeof walletData.account !== 'undefined' && walletData.account !== ''
               ? /* 로그인 했을때 */
                 <>
-                  <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(8)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
+                  <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(3)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
-                    {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"> ADMIN</Link>}
+                    {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-md"></i> ADMIN</Link>}
                     {/*<Link to="/Account"><i className="uil uil-user-circle"></i> ACCOUNT</Link>*/}
-                    {/*<Link to="#" onClick={() => { handleConnectWallet() }}><i className="uil uil-sign-out-alt"></i>LOGOUT</Link> */}
+                    <Link to="#" onClick={() => { logout() }}><i className="uil uil-sign-out-alt"></i> LOGOUT</Link>
                   </div>
                 </>
               : /* 로그인 안했을때 */
@@ -321,7 +322,8 @@ function Header() {
                 <> 
                   <Link to="#"><i className="uil uil-wallet"></i></Link>
                   <Link to="/Mypage"><i className="uil uil-user-circle"></i></Link>
-                  {memberRole?.toLowerCase() === 'admin' && <Link to="/Market">ADMIN</Link>}
+                  {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-md"></i></Link>}
+                  <Link to="#" onClick={() => { logout() }}><i className="uil uil-sign-out-alt"></i></Link>
                 </>
               : /* 로그인 안했을때 */
                 <>

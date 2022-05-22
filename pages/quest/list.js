@@ -56,7 +56,7 @@ function Index() {
     const kaikasUnlocked = await isKaikasUnlocked();
     if (!kaikasUnlocked) {
       const account = await kaikasLogin();
-      mutateWalletData({ account: account });
+      mutateWalletData({ account: account, type: 'kaikas' });
       mutateModalData({ open: false });
       modalKlipAdd(false);
     }
@@ -383,7 +383,9 @@ function Index() {
                         return; 
                       }
                       
-                      createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'));
+                      await createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'));
+
+                      modalQuestAdd(false);
                     }}>Complete</Link>
                   </p>
                 </div>

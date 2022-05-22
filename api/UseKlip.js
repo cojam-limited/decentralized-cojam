@@ -4,12 +4,14 @@ import toastNotify from '@utils/toast';
 
 import axios from 'axios';
 
+import { prepare } from 'klip-sdk';
+
 const caver = new Caver(window.klaytn);
 const caverExt = new CaverExtKAS('1001', 'KASKABM99U30BTVDXCYDMQQF', 'P6vSKCjKxYuXdpp7e1H7JJjQNVvjwr46FYdcZhdm', { useNodeAPIWithHttp: true });
 
 //const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // contract address - prod
 //const cojamTokenAddress = '0xbb1cafc1444fbd3df6d233e232463154eb17db38';   // my cojam token address - dev
-const cojamTokenAddress = '0xd6cdab407f47afaa8800af5006061db8dc92aae7';   // my cojam token address - Test 2
+const cojamTokenAddress = "0xd6cdab407f47afaa8800af5006061db8dc92aae7";   // my cojam token address - Test 2
 
 //const cojamMarketAddress = '0x9e42C6fBB5be3994994a0a9e68Ea64a696CC6fD7';  // KAS wallet address - dev
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // klaytn contract marketAddress - dev
@@ -79,37 +81,6 @@ export const getCojamBalance = async (walletAddress) => {
       return 0;
     }
   }
-}
-
-export const transferOwnership = async (walletAddress) => {
-  const contractABI = [{
-    name: 'transferOwnership',
-    type: 'function',
-    inputs: [
-      {
-        type: 'address',
-        name: 'newOwner'
-      }
-    ]
-  }];
-
-  console.log('transferOwnership', klaytn.selectedAddress);
-
-  const contractAddress = cojamMarketAddress;
-  const contract = new caver.klay.Contract(contractABI, contractAddress)
-
-  let result = { spenderAddress: cojamMarketAddress, status: 400 };
-  await contract.methods.transferOwnership(
-    walletAddress
-  )
-  .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
-  .then(function(receipt) {
-    console.log('transfer owner', receipt);
-    result.transactionId = receipt.transactionHash;
-    result.status = 200;
-  });
-
-  return result;
 }
 
 /**
@@ -276,40 +247,37 @@ export const addAnswerKeys = async ({
   answerKeys,
   walletData
 }) => {
-  // KAIKAS
-  if(walletData.type === 'kaikas') {
-    const contractABI = [{
-      name: 'addAnswerKeys',
-      type: 'function',
-      inputs: [
-        {
-          type: 'uint256',
-          name: 'marketKey'
-        },
-        {
-          type: 'uint256[]',
-          name: 'answerKeys'
-        }
-      ]
-    }];
-  
-    const contractAddress = cojamMarketAddress;
-    const contract = new caver.klay.Contract(contractABI, contractAddress)
-  
-    let result = { spenderAddress: cojamMarketAddress };
-    await contract.methods.addAnswerKeys(
-      marketKey, answerKeys
-    )
-    .send({from: walletData.account, to: cojamMarketAddress, gas: '9000000'})
-    .then(function(receipt) {
-      result.transactionId = receipt.transactionHash;
-      result.status = receipt.status;
-    });
-  
-    return result;
-  } else {
-    // KLIP
-  }
+  console.log('add answers', walletData);
+
+  const contractABI = [{
+    name: 'addAnswerKeys',
+    type: 'function',
+    inputs: [
+      {
+        type: 'uint256',
+        name: 'marketKey'
+      },
+      {
+        type: 'uint256[]',
+        name: 'answerKeys'
+      }
+    ]
+  }];
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(contractABI, contractAddress)
+
+  let result = { spenderAddress: cojamMarketAddress };
+  await contract.methods.addAnswerKeys(
+    marketKey, answerKeys
+  )
+  .send({from: walletData.account, to: cojamMarketAddress, gas: '9000000'})
+  .then(function(receipt) {
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
   
 }
 
@@ -499,91 +467,30 @@ export const approveCojamURI = async (
 
 
 /**
- * 
- * @param {*} param0 
- * @returns 
- */
-export const getRewardCojamURI = async ({
-  fromAddress, toAddress, amount
-}) => {
-  const inputData = await caverExt.klay.abi.encodeFunctionCall({
-    name: 'transfer',
-    type: 'function',
-    inputs: [{
-        type: 'address',
-        name: 'to'
-    }, {
-        type: 'uint256',
-        name: 'amount'
-    }]
-  }, [toAddress, caver.utils.toPeb(Number(amount), 'KLAY')])
-
-  var options = {
-    method: 'POST',
-    url: 'https://wallet-api.klaytnapi.com/v2/tx/fd/contract/execute',
-    headers: {
-        'Content-Type': 'application/json',
-        'x-chain-id': '1001',
-        'x-krn': 'krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:account-pool:Reward',
-        Authorization: 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='
-    },
-    data: {
-        from: fromAddress,
-        value: '0x0',
-        to: cojamTokenAddress,
-        input: inputData,
-        nonce: 0,
-        gas: 999999,
-        submit: true
-    }
-  };
-
-  const result = { spenderAddress: fromAddress };
-  await axios.request(options).then(function (response) {
-    result.status = 200;
-  }).catch(function (error) {
-    console.error(error);
-    result.status = 100;
-  });
-
-  return result;
-}
-
-/**
  * Cojam Token transfer function 
  */
-export const transferCojamURI = async ({
+export const transferCojamURI_KLIP = async ({
   fromAddress, toAddress, amount
 }) => {
+  const bappName = 'cojam-v2';
+  const from = fromAddress;
+  const to = cojamTokenAddress;
+  const value = '0'
+  const abi = "\"{\"constant\":false,\"inputs\":[{\"name\":\"to\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"output\": [], \"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}\"";
+  const params =  "[\"" + toAddress + "\", " + amount + "]";
+  const successLink = 'myApp://...';
+  const failLink = 'myApp://...';
 
-  const contractABI = [{
-    name: 'transfer',
-    type: 'function',
-    inputs: [{
-        type: 'address',
-        name: 'to'
-    }, {
-        type: 'uint256',
-        name: 'amount'
-    }]
-  }];
-
-  const contract = new caver.klay.Contract(contractABI, cojamTokenAddress);
-
-  let result = { spenderAddress: fromAddress };
-  await contract.methods.transfer(
-    toAddress, caver.utils.toPeb(Number(amount), 'KLAY')
-  )
-  .send({from: fromAddress, value: 0, gas: '9000000'})
-  .then(function(receipt) {
-    console.log('transfer receipt', receipt);
-    result.transactionId = receipt.transactionHash;
+  const result = { spenderAddress: fromAddress, status: 100 };
+  const res = await prepare.executeContract({ bappName, from, to, value, abi, params, successLink, failLink });
+  if (res.err) {
+    // 에러 처리
+    console.log('transfer error', res.err);
+  } else if (res.request_key) {
+    // request_key 보관
+    console.log('transfer done', res.request_key);
     result.status = 200;
-  })
-  .catch(function(err) {
-    console.log('transfer err', err);
-    result.status = 100;
-  });
+  }
 
   return result;
 }
