@@ -119,10 +119,10 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                         }
                     }
 
-                    addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyListCopy, walletData: walletData});
+                    addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyListCopy});
                 }
             } else {
-                addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyList, walletData: walletData});
+                addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyList});
             }
 
             if(addAnswerRes.status === 200) {
