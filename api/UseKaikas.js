@@ -106,7 +106,7 @@ export const transferOwnership = async (walletAddress) => {
   .then(function(receipt) {
     console.log('transfer owner', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = 200;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;
@@ -168,14 +168,15 @@ export const draftMarket = async ({
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress)
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await contract.methods.draftMarket(
     marketKey, creator, title, creatorFee, creatorFeePercentage, cojamFeePercentage, charityFeePercentage
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
+    console.log('draft', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;
@@ -198,14 +199,15 @@ export const approveMarket = async ({
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress)
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await contract.methods.approveMarket(
     marketKey
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
+    console.log('approve', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;
@@ -228,14 +230,15 @@ export const adjournMarket = async ({
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress)
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await contract.methods.adjournMarket(
     marketKey
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
+    console.log('adjorun', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;
@@ -258,14 +261,16 @@ export const finishMarket = async ({
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress)
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await contract.methods.finishMarket(
     marketKey
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
+    console.log('finish recipt', receipt);
+
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;
@@ -293,14 +298,16 @@ export const addAnswerKeys = async ({
     const contractAddress = cojamMarketAddress;
     const contract = new caver.klay.Contract(contractABI, contractAddress)
   
-    let result = { spenderAddress: cojamMarketAddress };
+    let result = { spenderAddress: cojamMarketAddress, status: 400 };
     await contract.methods.addAnswerKeys(
       marketKey, answerKeys
     )
     .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
     .then(function(receipt) {
+      console.log('add answers recipt', receipt);
+
       result.transactionId = receipt.transactionHash;
-      result.status = receipt.status;
+      result.status = receipt.status ? 200 : 400;
     });
   
     return result;
@@ -323,14 +330,15 @@ export const retrieveMarket = async ({
 
   const contract = new caver.klay.Contract(contractABI, cojamMarketAddress);
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await contract.methods.retrievedMarket(
     questKey
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
+    console.log('retrieve', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;
@@ -359,14 +367,15 @@ export const successMarket = async ({
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress)
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await contract.methods.successMarket(
     questKey, questAnswerKey
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
+    console.log('success', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;
@@ -393,14 +402,15 @@ export const getMarketCojamURI = async ({
   const contractAddress = cojamMarketAddress;
   const myContract = new caver.klay.Contract(contractABI, contractAddress)
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await myContract.methods.getMarket(
     marketKey
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
+    console.log('get market', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   })
 
   return result;  
@@ -440,14 +450,15 @@ export const bettingCojamURI = async ({
 
   const contract = new caver.klay.Contract(contractABI, cojamMarketAddress);
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await contract.methods.bet(
     questKey, questAnswerKey, bettingKey, caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')
   )
   .send({from: klaytn.selectedAddress, value: 0, gas: '9000000'})
   .then(function(receipt) {
+    console.log('betting', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;
@@ -477,14 +488,15 @@ export const approveCojamURI = async (
 
   const myContract = new caver.klay.Contract(contractABI, cojamTokenAddress);
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await myContract.methods.approve(
     cojamMarketAddress, caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')
   )
   .send({from: klaytn.selectedAddress, value: 0, gas: '9000000'})
   .then(function(receipt) {
+    console.log('approve', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   })
 
   return result;  
@@ -533,10 +545,11 @@ export const getRewardCojamURI = async ({
 
   const result = { spenderAddress: fromAddress };
   await axios.request(options).then(function (response) {
+    console.log('reward', response);
     result.status = 200;
   }).catch(function (error) {
     console.error(error);
-    result.status = 100;
+    result.status = 400;
   });
 
   return result;
@@ -571,11 +584,11 @@ export const transferCojamURI = async ({
   .then(function(receipt) {
     console.log('transfer receipt', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = 200;
+    result.status = receipt.status ? 200 : 400;
   })
   .catch(function(err) {
     console.log('transfer err', err);
-    result.status = 100;
+    result.status = 400;
   });
 
   return result;
@@ -614,8 +627,9 @@ export const transferFromCojamURI = async ({
   )
   .call({from: klaytn.selectedAddress, value: 0, gas: '9000000'})
   .then(function(receipt) {
+    console.log('transfer from', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;
@@ -645,14 +659,15 @@ export const receiveToken = async ({
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress);
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await contract.methods.receiveToken(
     questKey, bettingKey
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
+    console.log('receive token', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;
@@ -680,14 +695,15 @@ export const setAccounts = async ({
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress);
 
-  let result = { spenderAddress: cojamMarketAddress };
+  let result = { spenderAddress: cojamMarketAddress, status: 400 };
   await contract.methods.setAccount(
     key, account
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
+    console.log('set account', receipt);
     result.transactionId = receipt.transactionHash;
-    result.status = receipt.status;
+    result.status = receipt.status ? 200 : 400;
   });
 
   return result;

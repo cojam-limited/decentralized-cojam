@@ -2,6 +2,7 @@ import { client } from "../../sanity";
 
 import axios from "axios";
 import cheerio from "cheerio";
+import Moment from 'moment';
 
 async function getHTML(url) {
     try {
@@ -125,6 +126,7 @@ const createNewQuest = async (modalValues, answers) => {
         quest['pending'] = false;
         quest['isActive'] = true;
         quest['totalAmount'] = 0;
+        quest['createDateTime'] = Moment().format("yyyy-MM-DD HH:mm:ss");
         quest['endDateTime'] = modalValues.endDateTime;
 
         client.fetch(`count(*[_type == "quests"])`).then((order) => {

@@ -103,7 +103,7 @@ const doBetting = async (betting) => {
                             };;
                         }
 
-                        if(res.status !== 100) {
+                        if(res.status === 200) {
                             // insert betting info
                             const bettingParam = {
                                 _type: 'betting',

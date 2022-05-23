@@ -152,16 +152,19 @@ function Index() {
 		let subscription;
 		if(walletAddress) {
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
-			const questQuery = `*[_type == 'quests' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
+			const questQuery = `*[_type == 'quests' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] } | order(questKey desc)`;
 			client.fetch(questQuery).then((quest) => {
+				console.log('first quest', quest);
 				setTransactionDatas(quest ?? []);
 				setLoading(false);
 			});	
 
+			/*
 			subscription = client.listen(questQuery).subscribe((quest) => {
 				console.log('subscription quest', quest);
 				setTransactionDatas(quest ?? []);
 			});	
+			*/
 
 			// get member data & check current account member role
 			const memberQuery = `*[_type == 'member']`;
@@ -180,7 +183,7 @@ function Index() {
 		}
 
 		setSelectedQuest([]);
-		return () => subscription?.unsubscribe();
+		//return () => subscription?.unsubscribe();
 	}, [walletData, activeCategory]);
 
 	return (
@@ -404,7 +407,7 @@ function Index() {
 				</Modal>
 				{/* 모달 - SUCCESS 끝 */}
 
-				{/* ADMIN - TAB02 시작*/}
+				{/* GRANT ADMIN - TAB02 시작*/}
 				<div className="market-admin" style={{ display: 'none' }}>
 					<div className="mc-admin">
 						<div>
@@ -427,7 +430,7 @@ function Index() {
 						</div>
 					</div>
 				</div>
-				{/* ADMIN - TAB02 끝 */}
+				{/* GRANT ADMIN - TAB02 끝 */}
 		</div>
 	);
 }

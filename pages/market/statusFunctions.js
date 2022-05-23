@@ -55,7 +55,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                             cojamFeePercentage: season.cojamFee, 
                             charityFeePercentage: season.charityFee
                         }).then(async (res) => {
-                            if(res.status) {
+                            if(res.status === 200) {
                                 client.patch(selectedQuest._id)
                                       .set({
                                           statusType: 'DRAFT', 
@@ -161,7 +161,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             const approveMarketRes = await approveMarket({marketKey: selectedQuest.questKey});
 
-            if(approveMarketRes.status) {
+            if(approveMarketRes.status === 200) {
                 client.patch(selectedQuest._id)
                       .set({
                             statusType: 'APPROVE', 
@@ -203,7 +203,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             const questKey = selectedQuest.questKey;
             finishMarket({marketKey: questKey}).then((res) => {
-                if(res.status) {
+                if(res.status === 200) {
                     client.patch(selectedQuest._id)
                           .set({
                               statusType: 'FINISH', 
@@ -234,7 +234,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             }
 
             const adjournRes = await adjournMarket({ questKey: selectedQuest.questKey });
-            if(adjournRes.status) {
+            if(adjournRes.status === 200) {
                 client.patch(selectedQuest._id)
                           .set({
                               statusType: 'ADJOURN', 
@@ -264,7 +264,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             }
 
             const successRes = await successMarket({ questKey: selectedQuest.questKey, questAnswerKey: selectedAnswer.questAnswerKey });
-            if(successRes.status) {
+            if(successRes.status === 200) {
                 client.patch(selectedQuest._id)
                       .set({
                           statusType: 'SUCCESS', 
@@ -321,7 +321,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             }
 
             const retrieveRes = await retrieveMarket({ questKey: selectedQuest.questKey });
-            if(retrieveRes.status) {
+            if(retrieveRes.status === 200) {
                 client.patch(selectedQuest._id)
                 .set({statusType: 'RETRIEVE', retrieveTx: retrieveRes.transactionId})
                 .commit();
