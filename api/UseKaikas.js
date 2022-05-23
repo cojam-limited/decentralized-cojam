@@ -273,8 +273,7 @@ export const finishMarket = async ({
 
 export const addAnswerKeys = async ({
   marketKey,
-  answerKeys,
-  walletData
+  answerKeys
 }) => {
   const contractABI = [{
     name: 'addAnswerKeys',
