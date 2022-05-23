@@ -276,41 +276,35 @@ export const addAnswerKeys = async ({
   answerKeys,
   walletData
 }) => {
-  // KAIKAS
-  if(walletData.type === 'kaikas') {
-    const contractABI = [{
-      name: 'addAnswerKeys',
-      type: 'function',
-      inputs: [
-        {
-          type: 'uint256',
-          name: 'marketKey'
-        },
-        {
-          type: 'uint256[]',
-          name: 'answerKeys'
-        }
-      ]
-    }];
-  
-    const contractAddress = cojamMarketAddress;
-    const contract = new caver.klay.Contract(contractABI, contractAddress)
-  
-    let result = { spenderAddress: cojamMarketAddress };
-    await contract.methods.addAnswerKeys(
-      marketKey, answerKeys
-    )
-    .send({from: walletData.account, to: cojamMarketAddress, gas: '9000000'})
-    .then(function(receipt) {
-      result.transactionId = receipt.transactionHash;
-      result.status = receipt.status;
-    });
-  
-    return result;
-  } else {
-    // KLIP
-  }
-  
+  const contractABI = [{
+    name: 'addAnswerKeys',
+    type: 'function',
+    inputs: [
+      {
+        type: 'uint256',
+        name: 'marketKey'
+      },
+      {
+        type: 'uint256[]',
+        name: 'answerKeys'
+      }
+    ]
+  }];
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(contractABI, contractAddress)
+
+  let result = { spenderAddress: cojamMarketAddress };
+  await contract.methods.addAnswerKeys(
+    marketKey, answerKeys
+  )
+  .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
+  .then(function(receipt) {
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status;
+  });
+
+  return result;
 }
 
 
