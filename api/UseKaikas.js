@@ -276,8 +276,6 @@ export const addAnswerKeys = async ({
   answerKeys,
   walletData
 }) => {
-  // KAIKAS
-  if(walletData.type === 'kaikas') {
     const contractABI = [{
       name: 'addAnswerKeys',
       type: 'function',
@@ -300,16 +298,13 @@ export const addAnswerKeys = async ({
     await contract.methods.addAnswerKeys(
       marketKey, answerKeys
     )
-    .send({from: walletData.account, to: cojamMarketAddress, gas: '9000000'})
+    .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
     .then(function(receipt) {
       result.transactionId = receipt.transactionHash;
       result.status = receipt.status;
     });
   
     return result;
-  } else {
-    // KLIP
-  }
   
 }
 

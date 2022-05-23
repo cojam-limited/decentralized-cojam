@@ -476,8 +476,8 @@ export const transferCojamURI_KLIP = async ({
   const from = fromAddress;
   const to = cojamTokenAddress;
   const value = '0'
-  const abi = "\"{\"constant\":false,\"inputs\":[{\"name\":\"to\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"output\": [], \"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}\"";
-  const params =  "[\"" + toAddress + "\", " + amount + "]";
+  const abi = "{\"constant\":false,\"inputs\":[{\"name\":\"to\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"output\": [], \"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+  const params =  "[\"" + toAddress + "\", " + caver.utils.toPeb(Number(amount)) + "]";
   const successLink = 'myApp://...';
   const failLink = 'myApp://...';
 
