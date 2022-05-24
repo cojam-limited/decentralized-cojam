@@ -50,6 +50,12 @@ function Header() {
     }
   }
 
+  const test = () => {
+    client.patch("WSpQijSF5t9WDJNWemaQiy")
+          .set({ color: { title: "White", value: "white" } })
+          .commit();
+  }
+
   const handleOpenKaikasModal = async () => {
     const account = await kaikasLogin();
     mutateWalletData({ account: account, type: 'kaikas' });
@@ -292,6 +298,7 @@ function Header() {
                   <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(3)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
+                    <Link to="#" onClick={() => test()}><i className="uil uil-user-circle"></i> TEST</Link>
                     {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-md"></i> ADMIN</Link>}
                     {/*<Link to="/Account"><i className="uil uil-user-circle"></i> ACCOUNT</Link>*/}
                     <Link to="#" onClick={() => { logout() }}><i className="uil uil-sign-out-alt"></i> LOGOUT</Link>

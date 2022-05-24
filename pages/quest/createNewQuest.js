@@ -4,6 +4,8 @@ import axios from "axios";
 import cheerio from "cheerio";
 import Moment from 'moment';
 
+
+
 async function getHTML(url) {
     try {
         return await axios({
@@ -76,6 +78,24 @@ const createNewQuest = async (modalValues, answers) => {
         return;
     }
     
+    /*
+        Default Graph line color values
+        여기 있는 값들 순서대로 색을 할당 받게 됨.
+        answer 수가 arr 개수를 넘어가면, 같은 색을 할당받을 수도 있음
+     */
+    const defaultLineColorArr = [
+        { title: "Red", value: "#ef168f" },
+        { title: "Purple", value: "#8950fc" },
+        { title: "Gray", value: "#aca0cc" },
+        { title: "Green", value: "#bdcdcb" },
+        { title: "White", value: "white" },
+        { title: "CornflowerBlue", value: "#6495ED" },
+        { title: "Black", value: "black" },
+        { title: "AnticqueWhite", value: "#FAEBD7" },
+        { title: "Azure", value: "#F0FFFF" },
+        { title: "Gold", value: "#FFD700" },
+    ];
+
     const quest = {'answers': [], ...modalValues};
     answers && answers.forEach((answer) => quest.answers.push(answer.value));
 
@@ -161,9 +181,10 @@ const createNewQuest = async (modalValues, answers) => {
                     // get increment
                     client.fetch(`count(*[_type == "questAnswerList"])`).then((order) => {
                         // create new quest answer
-                        answers.forEach((answer) => {   
+                        answers.forEach((answer, index) => {   
                             order = order + 1;
                             
+                            const arrIndex = index % defaultLineColorArr.length;
                             const questAnswer = {
                                 _type: 'questAnswerList',
                                 questAnswerKey: order,
@@ -172,6 +193,7 @@ const createNewQuest = async (modalValues, answers) => {
                                 title: answer.value,
                                 totalAmount: 0,
                                 userCnt: 0,
+                                color: defaultLineColorArr[arrIndex]
                             }
 
                             client.create(questAnswer);

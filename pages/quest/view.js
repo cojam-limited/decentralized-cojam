@@ -77,7 +77,7 @@ function Index(props) {
 				'predictionFee': receiveToken
 			}
 
-			const betResult = await doBetting(betting);
+			const betResult = await doBetting(betting, walletData);
 			
 			alert(`${betResult.message}`);
 			setOnBetting('bet');
@@ -173,7 +173,7 @@ function Index(props) {
 				const graphGroupData = answerHist.reduce((group, answer) => {
 					const { bettingCoin, createdDateTime, answerTitle, answerColor } = answer;
 
-					answerColors[answerTitle] = answerColor.color?.value;
+					answerColors[answerTitle] = answerColor.color?.value ?? 0;
 					setAnswerColors(answerColors);
 
 					const date = Moment(createdDateTime).format('YYYY-MM-DD');
@@ -182,6 +182,8 @@ function Index(props) {
 					return group;
 				}, {});
 				
+				console.log('graphGroupData', graphGroupData);
+
 				const graphKeys = [];
 				const graphData = {};
 				for (const [key, value] of Object.entries(graphGroupData)) {
@@ -325,7 +327,7 @@ function Index(props) {
 									{
 										answerHistory?.map((answerHist, index) => (
 											<li key={index}>
-												<div><i className="uil uil-circle"></i><span style={{color:`${answerHist.answerColor.color.value}`}}>{answerHist.answerTitle}</span></div>
+												<div><i className="uil uil-circle"></i><span style={{color:`${answerHist.answerColor?.color?.value}`}}>{answerHist.answerTitle}</span></div>
 												<div><span>{addComma(answerHist.bettingCoin)}</span> CT</div>
 												<div>{Moment(answerHist.createdDateTime).format('YYYY-MM-DD')}</div>
 											</li>
@@ -377,207 +379,6 @@ function Index(props) {
 					<Link to="#" onClick={() => modalQuestAdd(true)}><i className="uil uil-plus"></i></Link>
 				</div>
 				{/* 등록버튼 끝 */}
-
-
-				{/* 모달 - 퀘스트 등록 */}
-				<Modal open={openQuestAdd} onClose={() => modalQuestAdd(false)} center>
-					<div className="modal-quest-add">
-						<form name="addForm" method="post" action="">
-						<fieldset>
-							<legend>등록</legend>
-							<div className="mqa-area">
-							<dl className="mqa-header">
-								<dt>Create New Prediction</dt>
-								<dd style={{ cursor: 'pointer' }} onClick={() => modalQuestAdd(false)}>
-								<i className="uil uil-times"></i>
-								</dd>
-							</dl>
-							<ul className="mqa-content2">
-								<li>
-								<select className="w100p" name="languageSelect" onChange={(e) => setModalValues({...modalValues, 'questLanguage': e.target.value})}>
-									<option value="EN">&nbsp;🇺🇸&nbsp;&nbsp;English</option>
-									<option value="KR">&nbsp;🇰🇷&nbsp;&nbsp;Korean</option>
-									<option value="CH">&nbsp;🇨🇳&nbsp;&nbsp;Chinese</option>
-								</select>
-								</li>
-								<li>
-								<textarea
-									name="title"
-									type="text"
-									className="w100p"
-									placeholder="Please enter a title(English)"
-									onChange={(e) => setModalValues({...modalValues, 'title': e.target.value})}
-								></textarea>
-								</li>
-								<li>
-								<select name="name" title="" className="w100p" defaultValue="" onChange={(e) => setModalValues({...modalValues, 'seasonCategory': { _type: 'reference', _ref: e.target.value }})}>
-									<option value="">
-									Please select a category
-									</option>
-									{
-										categories?.filter((category) => category.seasonCategoryName !== 'All').map((category, index) => (
-											<option key={index} value={category._id}>{category.seasonCategoryName}</option>
-										))
-									}
-								</select>
-								</li>
-								<li>
-								<DatePicker
-									dateFormat="yyyy-MM-dd HH:mm:ss"
-									selected={endDateTime}
-									onChange={(date) => setEndDateTime(date)}
-									showTimeInput
-								/>
-								</li>
-								<li>
-								<select name="questType" title="" className="w100p" onChange={(e) => setModalValues({...modalValues, 'questType': e.target.files})} >
-									<option value="I" selected>
-									Image
-									</option>
-									<option value="S">SNS url</option>
-								</select>
-								</li>
-								<li>
-								<div className="input-file">
-									<label>
-										File Attach
-										<input type="file" onChange={(e) => setModalValues({...modalValues, 'imageFile': e.target.files})} />
-									</label>
-									&nbsp;
-									<input
-										type="text"
-										readOnly="readOnly"
-										title="File Route"
-										id="fileRoute"
-										placeholder="Attach an image"
-										onChange={(e) => setModalValues({...modalValues, 'fileKey': e.target.value})}
-									/>
-								</div>
-								</li>
-								<li>
-									<input
-										name="name"
-										type="text"
-										className="w100p"
-										placeholder="Enter the image link"
-										onChange={(e) => setModalValues({...modalValues, 'snsUrl': e.target.value})}
-									/>
-								</li>
-							</ul>
-							<ol className="mqa-content1">
-								<li>Select a Type</li>
-								<li>
-									<Link>
-										<i className="uil uil-plus-circle" onClick={() => { if(document.querySelectorAll('.mqa-answers li').length > 5) {return;} document.querySelector('.mqa-answers').insertAdjacentHTML('beforeend', `<li> <input name="name" type="text" className="w100p" placeholder="" /> </li>`)}}></i>
-									</Link>
-									<Link>
-										<i className="uil uil-minus-circle" onClick={() => { if(document.querySelectorAll('.mqa-answers li').length < 2) {return;} document.querySelector('.mqa-answers').removeChild(document.querySelector('.mqa-answers').lastChild)}}></i>
-									</Link>
-								</li>
-							</ol>
-							<ul className="mqa-content2 mqa-answers">
-								<li>
-								<input
-									name="name"
-									type="text"
-									className="w100p"
-									placeholder=""
-								/>
-								</li>
-								<li>
-								<input
-									name="name"
-									type="text"
-									className="w100p"
-									placeholder=""
-								/>
-								</li>
-							</ul>
-							<p className="mqa-btn">
-								<Link to='#' onClick={() => {
-									setLoading(true); 
-									createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input')); 
-									modalQuestAdd(false); 
-									setLoading(false); 
-								}}>Complete</Link>
-							</p>
-							</div>
-						</fieldset>
-						</form>
-					</div>
-				</Modal>
-				{/* 모달 - 퀘스트 등록 끝 */}
-
-
-				{/* 모달 - 퀘스트 시즌 */}
-				<Modal open={openQuestSeason} onClose={() => modalQuestSeason(false)} center>
-					<div className="modal-quest-season">
-						<div className="mqs-area">
-							<dl className="mqs-header">
-								<dt>Create Season of COJAM Service!</dt>
-								<dd onClick={() => modalQuestSeason(false)}><i className="uil uil-times"></i></dd>
-							</dl>
-							<div className="mqs-date"><i className="uil uil-calendar-alt"></i> 2021.01.4 ~ 2021.12.31 (331)</div>
-							<ul className="mqs-content">
-								<li>
-									<h3>ART</h3>
-									<div>
-										<div style={{width:`30%`}}></div>
-										<p>1 / 100</p>
-									</div>
-								</li>
-								<li>
-									<h3>Science</h3>
-									<div>
-										<div style={{width:`10%`}}></div>
-										<p>1 / 100</p>
-									</div>
-								</li>
-								<li>
-									<h3>Crowdsolving</h3>
-									<div>
-										<div style={{width:`60%`}}></div>
-										<p>1 / 100</p>
-									</div>
-								</li>
-								<li>
-									<h3>Competition</h3>
-									<div>
-										<div style={{width:`50%`}}></div>
-										<p>1 / 100</p>
-									</div>
-								</li>
-								<li>
-									<h3>Economy</h3>
-									<div>
-										<div style={{width:`3%`}}></div>
-										<p>1 / 100</p>
-									</div>
-								</li>
-								<li>
-									<h3>Community</h3>
-									<div>
-										<div style={{width:`10%`}}></div>
-										<p>1 / 100</p>
-									</div>
-								</li>
-							</ul>
-							<div className="mqs-info">
-								<h2>Titel : Create Season of COJAM Service!</h2>
-								<h2>Description : Create Season of COJAM Service!</h2>
-								<div>
-									COJAM Fee : <span>8%</span><br />
-									Charity Fee : <span>2%</span><br />
-									Creator Fee : <span>5%</span><br />
-									Creator Pay : <span>0CT</span><br />
-									Minimum Pay : <span>5,000CT</span><br />
-									Maximum Pay : <span>300,000CT</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</Modal>
-        {/* 모달 - 퀘스트 시즌 끝 */}
 			</div>
     </div>
   );

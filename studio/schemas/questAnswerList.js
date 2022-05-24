@@ -49,7 +49,12 @@ export default {
             { title: "Purple", value: "#8950fc" },
             { title: "Gray", value: "#aca0cc" },
             { title: "Green", value: "#bdcdcb" },
-            { title: "White", value: "white" }
+            { title: "White", value: "white" },
+            { title: "CornflowerBlue", value: "#6495ED" },
+            { title: "Black", value: "black" },
+            { title: "AnticqueWhite", value: "#FAEBD7" },
+            { title: "Azure", value: "#F0FFFF" },
+            { title: "Gold", value: "#FFD700" }
           ]
         }
       }

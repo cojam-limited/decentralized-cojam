@@ -65,7 +65,6 @@ export const isKaikasEnabled = async () => {
   }
 };
 
-
 export const getCojamBalance = async (walletAddress) => {
   if(walletAddress) {
     try {
@@ -92,8 +91,6 @@ export const transferOwnership = async (walletAddress) => {
       }
     ]
   }];
-
-  console.log('transferOwnership', klaytn.selectedAddress);
 
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress)
@@ -158,13 +155,7 @@ export const draftMarket = async ({
       }
     ]
   }];
-
-  if(!klaytn.selectedAddress) {
-    return {
-      status: false,
-    }
-  }
-
+  
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress)
 
@@ -236,7 +227,7 @@ export const adjournMarket = async ({
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('adjorun', receipt);
+    console.log('adjourn', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });

@@ -1,10 +1,23 @@
 import { client } from "../../sanity";
 import Moment from 'moment';
-import { approveCojamURI, bettingCojamURI } from "@api/UseKaikas";
+import { callApproveCojamURI, callBettingCojamURI } from "@api/UseTransactions";
 
-const doBetting = async (betting) => { 
+const doBetting = async (betting, walletData) => { 
     let result = {result: false, message: 'betting failed'};
-    
+
+    // Check login
+    if( walletData?.type === 'kaikas' ) {
+        if( !klaytn.selectedAddress ) {
+            alert('login please.');
+            return;
+        }
+    } else {
+        if( !walletData.account ) {
+            alert('login please.');
+            return;
+        }
+    }
+
     // Quest 정보 load
     const questQuery = `*[_type == 'quests' && isActive == true && questKey == ${betting.questKey}][0]`;
     await client.fetch(questQuery).then(async (quest) => {
@@ -68,12 +81,12 @@ const doBetting = async (betting) => {
                     const max = detail.maximunPay;
                     
                     if(betting.bettingCoin < min) {
-                        alert(`You have to vote more CT than the minimum number of voting. (Minimum : " + ${min} + "CT)`)
+                        alert(`You have to vote more CT than the minimum number of voting. (Minimum : " + ${min} + " CT)`)
                         return;
                     } 
 
                     if(betting.bettingCoin > max) {
-                        alert(`You have to vote more CT than the maximum number of voting. (Maximum : " + ${max} + "CT)`)
+                        alert(`You have to vote more CT than the maximum number of voting. (Maximum : " + ${max} + " CT)`)
                         return;
                     }
 
@@ -84,18 +97,18 @@ const doBetting = async (betting) => {
                 
                     // do approve
                     let approveTxReceipt;
-                    await approveCojamURI(betting.bettingCoin).then((res) => {
+                    await callApproveCojamURI({bettingCoinAmount: betting.bettingCoin}, walletData).then((res) => {
                         console.log('approve tx receipt', res);
                         approveTxReceipt = res.transactionId;
                     });
 
                     // do betting 
-                    await bettingCojamURI({ 
+                    await callBettingCojamURI({ 
                         questKey: betting.questKey, 
                         questAnswerKey: betting.questAnswerKey.order, 
                         bettingKey: newBettingKey, 
                         bettingCoinAmount: betting.bettingCoin
-                    }).then(async (res) => {
+                    }, walletData).then(async (res) => {
                         if(!res) {
                             return result = {
                                 result: false,
@@ -123,12 +136,11 @@ const doBetting = async (betting) => {
                             }
         
                             await client.create(bettingParam).then((res) => {
-                                console.log('betting id : ' + res._id);
                                 betting.bettingKey = newBettingKey;
                                 betting.bettingId = res._id;
                             });
 
-                            // update quest answer total amount
+                            // update each quest answer total amount
                             const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${betting.questAnswerKey._id}'] {bettingCoin}`;
                             await client.fetch(newAnswerTotalQuery).then((bettingCoins) => {
                                 const newAnswerTotal = bettingCoins.reduce((acc, bettingCoin) => {
@@ -136,7 +148,7 @@ const doBetting = async (betting) => {
                                 }, 0);
 
                                 client.patch(betting.questAnswerKey._id)
-                                    .set({totalAmount: newAnswerTotal + betting.bettingCoin})
+                                    .set({totalAmount: newAnswerTotal})
                                     .commit();
                             });
 
@@ -148,7 +160,7 @@ const doBetting = async (betting) => {
                                 }, 0);
 
                                 client.patch(detail._id)
-                                    .set({totalAmount: newQuestTotal + betting.bettingCoin})
+                                    .set({totalAmount: newQuestTotal})
                                     .commit();
                             });
 

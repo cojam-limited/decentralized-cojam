@@ -1,5 +1,6 @@
 import { client } from "../../sanity";
-import { kaikasLogin, draftMarket, addAnswerKeys, approveMarket, adjournMarket, retrieveMarket, successMarket, finishMarket } from "@api/UseKaikas";
+//import { draftMarket, addAnswerKeys, approveMarket, adjournMarket, retrieveMarket, successMarket, finishMarket } from "@api/UseKaikas";
+import { callDraftMarket, callAddAnswerKeys, callApproveMarket, callAdjournMarket, callRetrieveMarket, callSuccessMarket, callFinishMarket } from "@api/UseTransactions";
 import Moment from 'moment';
 
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
@@ -7,6 +8,19 @@ const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS
 export const changeStateFunction = async (state, walletData, selectedQuest, selectedAnswer, description) => {
     if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
         return;
+    }
+
+     // Check login
+     if( walletData?.type === 'kaikas' ) {
+        if( !klaytn.selectedAddress ) {
+            alert('login please.');
+            return;
+        }
+    } else {
+        if( !walletData.account ) {
+            alert('login please.');
+            return;
+        }
     }
     
     switch(state) {
@@ -46,7 +60,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                         const questKey = selectedQuest.questKey;
                         const creatorPay = Number(season.creatorPay) / 10 ** 18;
 
-                        await draftMarket({
+                        await callDraftMarket({
                             marketKey: questKey, 
                             creator: season.creatorAddress, 
                             title: season.title, 
@@ -54,7 +68,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                             creatorFeePercentage: season.creatorFee, 
                             cojamFeePercentage: season.cojamFee, 
                             charityFeePercentage: season.charityFee
-                        }).then(async (res) => {
+                        }, walletData).then(async (res) => {
                             if(res.status === 200) {
                                 client.patch(selectedQuest._id)
                                       .set({
@@ -119,10 +133,10 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                         }
                     }
 
-                    addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyListCopy});
+                    addAnswerRes = await callAddAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyListCopy}, walletData);
                 }
             } else {
-                addAnswerRes = await addAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyList});
+                addAnswerRes = await callAddAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyList}, walletData);
             }
 
             if(addAnswerRes.status === 200) {
@@ -159,7 +173,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const approveMarketRes = await approveMarket({marketKey: selectedQuest.questKey});
+            const approveMarketRes = await callApproveMarket({marketKey: selectedQuest.questKey}, walletData);
 
             if(approveMarketRes.status === 200) {
                 client.patch(selectedQuest._id)
@@ -202,7 +216,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             }
 
             const questKey = selectedQuest.questKey;
-            finishMarket({marketKey: questKey}).then((res) => {
+            await callFinishMarket({marketKey: questKey}, walletData).then((res) => {
                 if(res.status === 200) {
                     client.patch(selectedQuest._id)
                           .set({
@@ -233,7 +247,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const adjournRes = await adjournMarket({ questKey: selectedQuest.questKey });
+            const adjournRes = await callAdjournMarket({ questKey: selectedQuest.questKey}, walletData);
             if(adjournRes.status === 200) {
                 client.patch(selectedQuest._id)
                           .set({
@@ -263,7 +277,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const successRes = await successMarket({ questKey: selectedQuest.questKey, questAnswerKey: selectedAnswer.questAnswerKey });
+            const successRes = await callSuccessMarket({ questKey: selectedQuest.questKey, questAnswerKey: selectedAnswer.questAnswerKey}, walletData);
             if(successRes.status === 200) {
                 client.patch(selectedQuest._id)
                       .set({
@@ -320,7 +334,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const retrieveRes = await retrieveMarket({ questKey: selectedQuest.questKey });
+            const retrieveRes = await callRetrieveMarket({ questKey: selectedQuest.questKey}, walletData);
             if(retrieveRes.status === 200) {
                 client.patch(selectedQuest._id)
                 .set({statusType: 'RETRIEVE', retrieveTx: retrieveRes.transactionId})
