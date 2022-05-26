@@ -378,12 +378,12 @@ function Index() {
                   </ul>
                   <p className="mqa-btn">
                     <Link to="#" onClick={async () => { 
-                      const accounts = await window.klaytn.enable(); 
-                      if(!accounts) {
-                        return; 
+                      if(!walletData?.account) {
+                        alert('login for create quest. please');
+                        return;
                       }
                       
-                      await createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'));
+                      await createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'), walletData);
 
                       modalQuestAdd(false);
                     }}>Complete</Link>

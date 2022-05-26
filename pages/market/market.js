@@ -398,7 +398,10 @@ function Index() {
 										}
 									</ul>
 									<p>
-										<a href="#" onClick={() => modalSuccess(false)}>Confirm</a>
+										<a href="#" onClick={async () => { 
+											await changeStateFunction('success', walletData, selectedQuest, selectedAnswer);
+											modalSuccess(false);
+										}}>Confirm</a>
 									</p>
 								</div>
 							</fieldset>

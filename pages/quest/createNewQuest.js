@@ -73,7 +73,7 @@ const getSocialMediaCheck = (snsUrl) => {
     return snsInfo;
 }
 
-const createNewQuest = async (modalValues, answers) => {
+const createNewQuest = async (modalValues, answers, walletData) => {
     if(!window.confirm('do you want to create new quest ?')) {
         return;
     }
@@ -115,15 +115,7 @@ const createNewQuest = async (modalValues, answers) => {
         quest['creatorPay'] = curSeason.creatorPay;
         quest['minimumPay'] = Number(curSeason.minimumPay);
         quest['maximumPay'] = Number(curSeason.maximumPay);
-
-        const accounts = await window.klaytn.enable();
-        const walletAddress = accounts[0];
-        if(!walletAddress) {
-            alert('do login for create new quest.');
-            return;
-        }
-
-        quest['creatorAddress'] = walletAddress;
+        quest['creatorAddress'] = walletData.account;
 
         //파일 업로드 
         if(modalValues && modalValues.imageFile) {
@@ -149,8 +141,10 @@ const createNewQuest = async (modalValues, answers) => {
         quest['createDateTime'] = Moment().format("yyyy-MM-DD HH:mm:ss");
         quest['endDateTime'] = modalValues.endDateTime;
 
-        client.fetch(`count(*[_type == "quests"])`).then((order) => {
-            quest['questKey'] = order + 1;
+        client.fetch(`*[_type == "quests"] | order(questKey desc)[0]`).then((lastQuest) => {
+            console.log('lastquest!!', lastQuest);
+
+            quest['questKey'] = lastQuest.questKey + 1;
 
             // create new quest
             client.create(quest).then((res) => {
@@ -179,7 +173,8 @@ const createNewQuest = async (modalValues, answers) => {
                 // Answer 생성
                 if(answers) {
                     // get increment
-                    client.fetch(`count(*[_type == "questAnswerList"])`).then((order) => {
+                    client.fetch(`*[_type == "questAnswerList"] | order(questAnswerKey desc)[0]`).then((lastAnswer) => {
+                        let order = lastAnswer.questAnswerKey; 
                         // create new quest answer
                         answers.forEach((answer, index) => {   
                             order = order + 1;

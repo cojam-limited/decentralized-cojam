@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 
-import { Modal } from 'react-responsive-modal';
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from 'moment';
-import createNewQuest from './createNewQuest';
 import { useLoadingState } from "@assets/context/LoadingContext";
 
 import { VictoryChart, VictoryLine, VictoryLegend } from 'victory';

@@ -7,12 +7,11 @@ import axios from 'axios';
 const caver = new Caver(window.klaytn);
 const caverExt = new CaverExtKAS('1001', 'KASKABM99U30BTVDXCYDMQQF', 'P6vSKCjKxYuXdpp7e1H7JJjQNVvjwr46FYdcZhdm', { useNodeAPIWithHttp: true });
 
-//const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // contract address - prod
-//const cojamTokenAddress = '0xbb1cafc1444fbd3df6d233e232463154eb17db38';   // my cojam token address - dev
-const cojamTokenAddress = '0xd6cdab407f47afaa8800af5006061db8dc92aae7';   // my cojam token address - Test 2
+//const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // prod
+const cojamTokenAddress = "0xd6cdab407f47afaa8800af5006061db8dc92aae7";   // dev
 
-//const cojamMarketAddress = '0x9e42C6fBB5be3994994a0a9e68Ea64a696CC6fD7';  // KAS wallet address - dev
-const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // klaytn contract marketAddress - dev
+//const cojamMarketAddress = '0xC31585Bf0808Ab4aF1acC29E0AA6c68D2B4C41CD' // prod
+const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // dev
 
 // cojam token address ?
 const cojamToken = new caver.kct.kip7(cojamTokenAddress);
