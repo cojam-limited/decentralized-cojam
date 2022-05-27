@@ -133,7 +133,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
 
         quest['_type'] = 'quests'; 
         quest['questStatus'] = 'ONGOING';
-        quest['completed'] = true;
+        quest['completed'] = false;
         quest['hot'] = false;
         quest['pending'] = false;
         quest['isActive'] = true;

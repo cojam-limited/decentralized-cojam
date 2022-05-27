@@ -41,12 +41,7 @@ const doBetting = async (betting, walletData) => {
 
                 betting.questAnswerKey.order = answer.questAnswerKey;
 
-                const accounts = await window.klaytn.enable();
-                const walletAddress = accounts[0];
-                if(walletAddress === undefined) {
-                    alert('"Already Finished!"');
-                    return;
-                }
+                const walletAddress = walletData.account;
 
                 if(detail.finishTx) {
                     alert('"Already Finished!"');
