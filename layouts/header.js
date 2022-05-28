@@ -320,7 +320,6 @@ function Header() {
               typeof walletData.account !== 'undefined' && walletData.account !== ''
               ? /* 로그인 했을때 */
                 <> 
-                  <Link to="#"><i className="uil uil-wallet"></i></Link>
                   <Link to="/Mypage"><i className="uil uil-user-circle"></i></Link>
                   {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-md"></i></Link>}
                   <Link to="#" onClick={() => { logout() }}><i className="uil uil-sign-out-alt"></i></Link>
@@ -334,9 +333,9 @@ function Header() {
         </dl>
         <ul>
           {
-            balance && balance !== -1 &&
+            balance &&
             <>
-              <li key={1}><i className="uil uil-coins"></i> {balance.toFixed(3)} CT</li>
+              <li key={1}><i className="uil uil-coins"></i> {balance ? (Number.isInteger(balance) ? balance : balance.toFixed(3)) : 0} CT</li>
               <li key={2}><i className="uil uil-times-circle"></i></li>
             </>
           }

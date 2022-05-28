@@ -122,13 +122,13 @@ export const draftMarket_KLIP = async ({
     console.log('draftMarket error', res.err);
   } else if (res.request_key) {
     // request_key 보관
-    request(res.requestKey, () => { alert('klip access error'); return result; });
+    request(res.requestKey, () => { alert('모바일로 접속해주세요.'); return result; });
 
     let time = new Date().getTime();
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
           // TODO REMOVE

@@ -58,7 +58,7 @@ export const isKaikasUnlocked = async () => {
 export const isKaikasEnabled = async () => {
   try {
     const result = await window.klaytn?._kaikas.isEnabled();
-    return result;
+  return result;
   } catch (error) {
     console.error('isKaikasEnabled', error);
   }
