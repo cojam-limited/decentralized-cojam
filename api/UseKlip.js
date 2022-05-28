@@ -115,24 +115,33 @@ export const draftMarket_KLIP = async ({
   const result = { spenderAddress: fromAddress, status: 400 };
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
+    // TODO REMOVE
+    alert('error', res.err);
+
     // 에러 처리
     console.log('draftMarket error', res.err);
   } else if (res.request_key) {
     // request_key 보관
-    request(res.requestKey, (result) => console.log(result));
+    request(res.requestKey, () => { alert('klip access error'); return result; });
 
     let time = new Date().getTime();
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        console.log('time', time);
-
         getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
+
+          // TODO REMOVE
+          if(txResult.status !== 'prepared') {  
+            alert('pass prepared!');
+            alert(txResult);
+            alert(txResult.status);
+          }
 
           if(txResult.result?.result) {
             alert('transaction success', txResult.result?.result);
             result.status = txResult.result?.result ? 200 : 400;
+            return result;
           }
         });
       } 

@@ -24,8 +24,6 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
       params, 
       walletData
   ) => {
-    console.log('call draft', params, walletData);
-
     let result;
     if(walletData?.type === 'kaikas') {
         await draftMarket(params).then(res => result = res);
@@ -38,9 +36,10 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
 
 
   
-  export const callApproveMarket = async ({
-    marketKey
-  }, walletData) => {
+  export const callApproveMarket = async (
+    { marketKey }, 
+    walletData
+  ) => {
     let result;
     if(walletData?.type === 'kaikas') {
         await approveMarket(marketKey).then(res => result = res);
@@ -51,9 +50,10 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
     return result;
   }
   
-  export const callAdjournMarket = async ({
-    marketKey
-  }, walletData) => {
+  export const callAdjournMarket = async (
+    { marketKey }, 
+    walletData
+  ) => {
     let result;
     if(walletData?.type === 'kaikas') {
         await adjournMarket(marketKey).then(res => result = res);
@@ -64,9 +64,10 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
     return result;
   }
   
-  export const callFinishMarket = async ({
-    marketKey
-  }, walletData) => {
+  export const callFinishMarket = async (
+    { marketKey }, 
+    walletData
+  ) => {
     let result;
     if(walletData?.type === 'kaikas') {
         await finishMarket(marketKey).then(res => result = res);
@@ -80,7 +81,7 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
   export const callAddAnswerKeys = async (
       params, 
       walletData
-) => {
+  ) => {
     let result;
     if(walletData?.type === 'kaikas') {
         await addAnswerKeys(params).then(res => result = res);
@@ -92,9 +93,10 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
   }
   
   
-  export const callRetrieveMarket = async ({
-    questKey,
-  }, walletData) => {
+  export const callRetrieveMarket = async (
+    { questKey, }
+    , walletData
+  ) => {
     let result;
     if(walletData?.type === 'kaikas') {
         await retrieveMarket(questKey).then(res => result = res);
@@ -145,7 +147,8 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
    * Quest Betting Approve function
    */
   export const callApproveCojamURI = async (
-    { bettingCoinAmount }, walletData
+    { bettingCoinAmount }, 
+    walletData
   ) => { 
     let result;
     if(walletData?.type === 'kaikas') {

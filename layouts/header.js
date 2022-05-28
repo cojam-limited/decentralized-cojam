@@ -26,7 +26,7 @@ function Header() {
   const [openKlipAdd, modalKlipAdd] = useState(false);
   const [openKlipLogin, modalKlipLogin] = useState(false);
   const [qrImage, setQrImage] = useState('');
-  const [countDownText, setCountDownText] = useState('');
+  const [currentPage, setCurrentPage] = useState('Home');
 
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
@@ -344,27 +344,29 @@ function Header() {
       </div>
       {/* 상단영역 - 모바일 끝 */}
 
-
+      {/*
+        TODO POINT
+      */}
       {/* 모바일 - 하단앱바 */}
       <div className="footer-mobile">
         <ul>
-          <li onClick={()=>{ history.push('/') }}>
+          <li onClick={()=>{ setCurrentPage('Home'); history.push('/'); }} className={currentPage === 'Home' ? 'active' : ''}>
             <p><i className="uil uil-estate"></i></p>
             <div>Home</div>
           </li>
-          <li onClick={()=>{ history.push('/QuestList') }} className="active">
+          <li onClick={()=>{ setCurrentPage('Quest'); history.push('/QuestList') }} className={currentPage === 'Quest' ? 'active' : ''}>
             <p><i className="uil uil-file-question-alt"></i></p>
             <div>Quest</div>
           </li>
-          <li onClick={()=>{ history.push('/ResultsList') }}>
+          <li onClick={()=>{ setCurrentPage('Result'); history.push('/ResultsList') }} className={currentPage === 'Result' ? 'active' : ''}>
             <p><i className="uil uil-book"></i></p>
             <div>Results</div>
           </li>
-          <li onClick={()=>{ history.push('/About') }}>
+          <li onClick={()=>{ setCurrentPage('About'); history.push('/About') }} className={currentPage === 'About' ? 'active' : ''}>
             <p><i className="uil uil-building"></i></p>
             <div>About</div>
           </li>
-          <li onClick={()=>{ history.push('/CommunityList') }}>
+          <li onClick={()=>{setCurrentPage('Community'); history.push('/CommunityList') }} className={currentPage === 'Community' ? 'active' : ''}>
             <p><i className="uil uil-newspaper"></i></p>
             <div>Community</div>
           </li>

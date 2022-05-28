@@ -54,21 +54,24 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             
         case 'draft':
             const seasonQuery = `*[_type == 'season' && isActive == true && _id == '${selectedQuest.season._ref}'][0]`;
-            client.fetch(seasonQuery).then(async (season) => {
+            await client.fetch(seasonQuery).then(async (season) => {
                 if(season) {
                     if(!selectedQuest.draftTx) {
                         const questKey = selectedQuest.questKey;
                         const creatorPay = Number(season.creatorPay) / 10 ** 18;
 
-                        await callDraftMarket({
-                            marketKey: questKey, 
-                            creator: season.creatorAddress, 
-                            title: season.title, 
-                            creatorFee: creatorPay, 
-                            creatorFeePercentage: season.creatorFee, 
-                            cojamFeePercentage: season.cojamFee, 
-                            charityFeePercentage: season.charityFee
-                        }, walletData).then(async (res) => {
+                        await callDraftMarket(
+                            {
+                                marketKey: questKey, 
+                                creator: season.creatorAddress, 
+                                title: season.title, 
+                                creatorFee: creatorPay, 
+                                creatorFeePercentage: season.creatorFee, 
+                                cojamFeePercentage: season.cojamFee, 
+                                charityFeePercentage: season.charityFee
+                            }, 
+                            walletData
+                        ).then(async (res) => {
                             if(res.status === 200) {
                                 client.patch(selectedQuest._id)
                                       .set({

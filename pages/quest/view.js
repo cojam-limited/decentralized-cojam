@@ -74,6 +74,9 @@ function Index(props) {
 				'predictionFee': receiveToken
 			}
 
+			// TODO REMOVE
+			alert('current balance : ' + curBalance / 10 ** 1);
+
 			const betResult = await doBetting(betting, walletData);
 			
 			alert(`${betResult.message}`);
