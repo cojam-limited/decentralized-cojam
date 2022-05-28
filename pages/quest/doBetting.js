@@ -76,18 +76,18 @@ const doBetting = async (betting, walletData) => {
                     const max = detail.maximunPay;
                     
                     if(betting.bettingCoin < min) {
-                        alert(`You have to vote more CT than the minimum number of voting. (Minimum : " + ${min} + " CT)`)
+                        alert(`You have to vote more CT than the minimum number of voting. (Minimum : ${min} CT)`)
                         return;
                     } 
 
                     if(betting.bettingCoin > max) {
-                        alert(`You have to vote more CT than the maximum number of voting. (Maximum : " + ${max} + " CT)`)
+                        alert(`You have to vote more CT than the maximum number of voting. (Maximum : ${max} CT)`)
                         return;
                     }
 
                     let newBettingKey;
-                    await client.fetch(`count(*[_type == "betting"])`).then(async (order) => {
-                        newBettingKey = Number(order) + 1;
+                    await client.fetch(`*[_type == "betting"] | order(bettingKey desc)[0]`).then(async (lastBetting) => {
+                        newBettingKey = Number(lastBetting.bettingKey) + 1;
                     });
                 
                     // do approve
