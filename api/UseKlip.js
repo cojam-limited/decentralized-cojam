@@ -184,7 +184,7 @@ export const approveMarket_KLIP = async (
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
           if(txResult.result?.result) {
@@ -232,7 +232,7 @@ export const adjournMarket_KLIP = async (
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
           if(txResult.result?.result) {
@@ -280,7 +280,7 @@ export const finishMarket_KLIP = async (
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
           if(txResult.result?.result) {
@@ -332,7 +332,7 @@ fromAddress
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
           if(txResult.result?.result) {
@@ -383,7 +383,7 @@ fromAddress
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
           if(txResult.result?.result) {
@@ -436,7 +436,7 @@ fromAddress
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
           if(txResult.result?.result) {
@@ -500,8 +500,15 @@ fromAddress
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
+
+          // TODO REMOVE
+          if(txResult.status !== 'prepared') {  
+            alert('pass prepared!');
+            alert(txResult);
+            alert(txResult.status);
+          }
 
           if(txResult.result?.result) {
             alert('transaction success', txResult.result?.result);
@@ -549,7 +556,7 @@ export const approveCojamURI_KLIP = async (
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
           if(txResult.result?.result) {
@@ -604,7 +611,7 @@ export const transferCojamURI_KLIP = async ({
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
           if(txResult.result?.result) {
@@ -653,7 +660,7 @@ export const transferOwnership_KLIP = async (
     const endTime = time + 3000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
-        getResult(res.request_key).then((txResult) => {
+        await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
           if(txResult.result?.result) {
