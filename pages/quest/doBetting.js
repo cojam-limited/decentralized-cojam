@@ -65,9 +65,7 @@ const doBetting = async (betting, walletData) => {
                 
                 const memberQuery = `*[_type == 'member' && _id == '${member.memberKey}']`;
                 await client.fetch(memberQuery).then(async (queryResult) => {
-                    const curBalance = betting.curBalance;
-
-                    if(curBalance < betting.bettingCoin) {
+                    if(betting.curBalance < betting.bettingCoin) {
                         alert("Please check your balance.");
                         return;
                     }

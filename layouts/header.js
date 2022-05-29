@@ -22,7 +22,7 @@ import { useWalletData } from '@data/wallet';
 import { client } from "../sanity";
 
 function Header() {
-  const history = useHistory()
+  const history = useHistory();
   const [openKlipAdd, modalKlipAdd] = useState(false);
   const [openKlipLogin, modalKlipLogin] = useState(false);
   const [qrImage, setQrImage] = useState('');
@@ -32,10 +32,8 @@ function Header() {
   const [seconds, setSeconds] = useState(0);
 
   const { modalData, mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
-  //const { mutateModalData: mutateKlipModalData } = useModalData(KLIP_MODAL_DATA_KEY);
   const { walletData, mutateWalletData } = useWalletData();
   const [ balance, setBalance ] = useState(-1);
-  const [ isLogin, setIsLogin ] = useState(false);
   const [ memberRole, setMemberRole ] = useState('');
 
   //scroll 이벤트 관련

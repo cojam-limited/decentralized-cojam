@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
+
 
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from 'moment';
@@ -19,6 +20,7 @@ import { getCojamBalance } from '@api/UseKaikas';
 import backgroundImage from '@assets/body_quest.jpg';
 
 function Index(props) {
+	const history = useHistory();
 	const [ onBetting, setOnBetting ] = useState();
 	const { setLoading } = useLoadingState();
 	const [ selectedAnswer, setSelectedAnswer ] = useState();
@@ -134,19 +136,28 @@ function Index(props) {
 			return;
 		}
 
+		const walletAddress = walletData.account;
+		if(walletAddress === '') {
+			alert('login please.');
+			history.push('/');
+		}
+
 		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} [0]`;
 		client.fetch(questQuery).then((quest) => {
-			const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
+			console.log('quest', quest);
+
+			const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days');
 			if(diff === 0) { 
 				quest.dDay = 'D-0';
+			} else if (diff > 0) {
+				alert('quest has been completed.');
+				history.push('/');
 			} else {
-				quest.dDay = diff > 0 ? 'expired' : `D${diff}`;
+				quest.dDay = `D${diff}`;
 			}
 
 			quest.startDateTime = Moment(quest.startDateTime).format('yyyy-MM-DD HH:mm:ss');
 			quest.endDateTime = Moment(quest.endDateTime).format('yyyy-MM-DD HH:mm:ss');
-			
-			console.log('quest', quest);
 
 			setQuest(quest);
 			setQuestTotalAmount(quest.totalAmount);
@@ -182,8 +193,6 @@ function Index(props) {
 					return group;
 				}, {});
 				
-				console.log('graphGroupData', graphGroupData);
-
 				const graphKeys = [];
 				const graphData = {};
 				for (const [key, value] of Object.entries(graphGroupData)) {
@@ -202,7 +211,7 @@ function Index(props) {
 			client.fetch(seasonCategoryQuery).then((datas) => {
 				if(datas) {
 					const localCategories = [{seasonCategoryName: 'All'}];
-					datas[0].seasonCategories.forEach((category) => ( localCategories.push(category) ));
+					datas[0].seasonCategories.forEach((category) => localCategories.push(category));
 					setCategories(localCategories);
 				}
 			});
