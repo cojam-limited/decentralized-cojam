@@ -65,7 +65,8 @@ function Index(props) {
 												style={{ 
 													backgroundImage: relatedPost?.mainImage && `url('${urlFor(relatedPost.mainImage)}')`,
 													backgroundPosition: `center`, 
-													backgroundSize: `cover` 
+													backgroundSize: `cover`,
+													backgroundRepeat: 'no-repeat !important'
 												}}>
 												</span>
 											</p>

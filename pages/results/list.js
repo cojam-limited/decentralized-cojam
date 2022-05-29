@@ -60,11 +60,12 @@ function Index() {
 								<li key={index} onClick={()=>{ history.push({ pathname: '/ResultsView', state: {post: post}}) }}>
 									<p>
 										<span 
-										style={{  
-											backgroundImage: post.mainImage && `url('${urlFor(post.mainImage)}')`,
-											backgroundPosition: `center`, 
-											backgroundSize: `cover` 
-										}}
+											style={{  
+												backgroundImage: post.mainImage && `url('${urlFor(post.mainImage)}')`,
+												backgroundPosition: `center`, 
+												backgroundSize: `cover`,
+												backgroundRepeat: 'no-repeat !important'
+											}}
 										></span>
 									</p>
 									<div>

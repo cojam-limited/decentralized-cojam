@@ -73,6 +73,8 @@ const doBetting = async (betting, walletData) => {
                     const min = detail.minimumPay;
                     const max = detail.maximunPay;
                     
+                    // TODO RECOVERY
+                    /*
                     if(betting.bettingCoin < min) {
                         alert(`You have to vote more CT than the minimum number of voting. (Minimum : ${min} CT)`)
                         return;
@@ -82,6 +84,7 @@ const doBetting = async (betting, walletData) => {
                         alert(`You have to vote more CT than the maximum number of voting. (Maximum : ${max} CT)`)
                         return;
                     }
+                    */
 
                     let newBettingKey;
                     await client.fetch(`*[_type == "betting"] | order(bettingKey desc)[0]`).then(async (lastBetting) => {
@@ -92,6 +95,10 @@ const doBetting = async (betting, walletData) => {
                     let approveTxReceipt;
                     await callApproveCojamURI({bettingCoinAmount: betting.bettingCoin}, walletData).then((res) => {
                         console.log('approve tx receipt', res);
+
+                        // TODO REMOVE
+                        alert('approve tx receipt');
+                        alert(res);
                         approveTxReceipt = res.transactionId;
                     });
 

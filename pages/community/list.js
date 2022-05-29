@@ -74,7 +74,8 @@ function Index() {
 									style={{
 										backgroundImage: post.mainImage && `url('${urlFor(post.mainImage)}')`,
 										backgroundPosition: `center`, 
-										backgroundSize: `cover` 
+										backgroundSize: `cover`,
+										backgroundRepeat: 'no-repeat !important'
 									}}
 									></span>
 								</p>
