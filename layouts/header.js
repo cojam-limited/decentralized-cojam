@@ -193,6 +193,8 @@ function Header() {
 
       const newBalance = cojamBalance / 10 ** 18;
       if(newBalance !== balance) {
+        // TODO REMOVE
+        alert('balance : ' + newBalance);
         setBalance(newBalance);
       }
     } else {
