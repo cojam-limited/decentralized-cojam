@@ -287,7 +287,7 @@ function Header() {
               typeof walletData.account !== 'undefined' && walletData.account !== ''
               ? /* 로그인 했을때 */
                 <>
-                  <h2><i className="uil uil-user-circle"></i> <span>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(3)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
+                  <h2><span><i className="uil uil-coins"></i>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(3)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
                     {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-md"></i> ADMIN</Link>}
