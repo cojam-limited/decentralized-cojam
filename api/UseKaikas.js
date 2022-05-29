@@ -73,6 +73,8 @@ export const getCojamBalance = async (walletAddress) => {
       
       return tokenBalance;  
     } catch(e) {
+      // TODO REMOVE
+      alert(e);
       console.log('cojam balance error', e);
       return 0;
     }
