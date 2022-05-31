@@ -190,8 +190,8 @@ function Header() {
 
   const getBalance = async () => {
     if (walletData?.account && walletData?.account !== '') {
-      //const cojamBalance = await getCojamBalance(walletData.account);
-      const cojamBalance = await getCojamBalance_KLIP(walletData.account);
+      const cojamBalance = await getCojamBalance(walletData.account);
+      //const cojamBalance = await getCojamBalance_KLIP(walletData.account);
 
       const newBalance = cojamBalance / 10 ** 18;
       if(newBalance !== balance) {
