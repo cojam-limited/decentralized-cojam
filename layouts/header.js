@@ -13,6 +13,7 @@ import { ConnectKaikasButton } from './styles';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import isMobile from '@utils/isMobile';
 import { kaikasLogin, isKaikasUnlocked, transferCojamURI, getCojamBalance } from '@api/UseKaikas';
+import { getCojamBalance_KLIP } from '@api/UseKlip';
 import { prepare, request, getResult } from 'klip-sdk';
 import QRCode from 'qrcode';
 
@@ -189,7 +190,8 @@ function Header() {
 
   const getBalance = async () => {
     if (walletData?.account && walletData?.account !== '') {
-      const cojamBalance = await getCojamBalance(walletData.account);
+      //const cojamBalance = await getCojamBalance(walletData.account);
+      const cojamBalance = await getCojamBalance_KLIP(walletData.account);
 
       const newBalance = cojamBalance / 10 ** 18;
       if(newBalance !== balance) {

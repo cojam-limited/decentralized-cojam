@@ -7,6 +7,9 @@ import { prepare, request, getResult } from 'klip-sdk';
 
 const caver = new Caver(window.klaytn);
 
+const xChainId = '1001'; // dev
+//const xChainId = '8217'; // prod
+
 const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // prod
 //const cojamTokenAddress = "0xd6cdab407f47afaa8800af5006061db8dc92aae7";   // dev
 
@@ -65,19 +68,34 @@ export const isKaikasEnabled = async () => {
 };
 
 
-export const getCojamBalance = async (walletAddress) => {
+export const getCojamBalance_KLIP = async (walletAddress) => {
   if(walletAddress) {
-    try {
-      const tokenBalance = await cojamToken.balanceOf(walletAddress).then((balance) => {
-        return balance.integerValue();
-      });
-      
-      return tokenBalance;  
-    } catch(e) {
-      console.log('cojam balance error', e);
-      return 0;
-    }
+    const tokenAddress = '0x3185c5e6c5f095e484b4335d8d88d0b7aabdd97e';
+
+    const options = {
+      method: 'POST',
+      url: `https://kip7-api.klaytnapi.com/v1/contract/${tokenAddress}/account/${walletAddress}/balance`,
+      headers: {
+          'Content-Type': 'application/json',
+          'x-chain-id': `${xChainId}`,
+          'x-krn': `krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:feepayer-pool:cojamfee`,
+          Authorization: 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='
+      }
+    };
+  
+    const result = {};
+    await axios.request(options).then(function (response) {
+      console.log('reward', response);
+      result.status = 200;
+    }).catch(function (error) {
+      console.error(error);
+      result.status = 400;
+    });
+
+    return result;
   }
+
+  return { status: 400 };
 }
 
 /**
