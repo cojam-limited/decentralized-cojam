@@ -51,7 +51,7 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
   }
   
   export const callAdjournMarket = async (
-    { marketKey }, 
+    marketKey, 
     walletData
   ) => {
     let result;
@@ -65,7 +65,7 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
   }
   
   export const callFinishMarket = async (
-    { marketKey }, 
+    marketKey, 
     walletData
   ) => {
     let result;
@@ -94,7 +94,7 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
   
   
   export const callRetrieveMarket = async (
-    { questKey, }
+    questKey 
     , walletData
   ) => {
     let result;

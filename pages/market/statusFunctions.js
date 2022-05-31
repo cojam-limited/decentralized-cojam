@@ -219,7 +219,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             }
 
             const questKey = selectedQuest.questKey;
-            await callFinishMarket({marketKey: questKey}, walletData).then((res) => {
+            await callFinishMarket(questKey, walletData).then((res) => {
                 if(res.status === 200) {
                     client.patch(selectedQuest._id)
                           .set({
@@ -250,7 +250,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const adjournRes = await callAdjournMarket({ questKey: selectedQuest.questKey}, walletData);
+            const adjournRes = await callAdjournMarket(selectedQuest.questKey, walletData);
             if(adjournRes.status === 200) {
                 client.patch(selectedQuest._id)
                           .set({
@@ -337,7 +337,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const retrieveRes = await callRetrieveMarket({ questKey: selectedQuest.questKey}, walletData);
+            const retrieveRes = await callRetrieveMarket(selectedQuest.questKey, walletData);
             if(retrieveRes.status === 200) {
                 client.patch(selectedQuest._id)
                 .set({statusType: 'RETRIEVE', retrieveTx: retrieveRes.transactionId})
