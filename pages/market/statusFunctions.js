@@ -176,7 +176,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const approveMarketRes = await callApproveMarket({marketKey: selectedQuest.questKey}, walletData);
+            const approveMarketRes = await callApproveMarket(selectedQuest.questKey, walletData);
 
             if(approveMarketRes.status === 200) {
                 client.patch(selectedQuest._id)

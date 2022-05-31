@@ -37,7 +37,7 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
 
   
   export const callApproveMarket = async (
-    { marketKey }, 
+    marketKey, 
     walletData
   ) => {
     let result;
