@@ -605,9 +605,10 @@ export const transferCojamURI_KLIP = async ({
   fromAddress, 
   toAddress, 
   amount
-}) => {
+}, walletAddress) => {
   const bappName = 'cojam-v2';
-  const from = fromAddress;
+  //const from = fromAddress;
+  const from = walletAddress;
   const to = cojamTokenAddress;
   const value = '0'
   const abi = "{\"constant\":false, " + 
@@ -617,12 +618,12 @@ export const transferCojamURI_KLIP = async ({
                   "{\"name\":\"amount\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"transfer\"," +
-              "\"output\": [{\"name\":\"success\",\"type\":\"bool\"}], " +
+              "\"output\": [{\"type\":\"bool\"}], " +
               //"\"output\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   
   const params = `["${toAddress}",${caver.utils.toPeb(Number(amount), 'KLAY')}]`;
-  const result = { spenderAddress: fromAddress, status: 400 };
+  const result = { spenderAddress: walletAddress, status: 400 };
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
 
   if (res.err) {
