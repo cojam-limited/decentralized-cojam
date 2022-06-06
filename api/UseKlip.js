@@ -618,9 +618,9 @@ export const transferCojamURI_KLIP = async ({
                   "{\"name\":\"amount\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"transfer\"," +
-              //"\"outputs\": [{\"name\":\"success\", \"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"success\", \"type\":\"bool\"}], " +
               //"\"outputs\": [{\"type\":\"bool\"}], " +
-              "\"outputs\": [], " +
+              //"\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   
   const params = `["${toAddress}",${caver.utils.toPeb(Number(amount), 'KLAY')}]`;
