@@ -618,7 +618,7 @@ export const transferCojamURI_KLIP = async ({
                   "{\"name\":\"amount\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"transfer\"," +
-              "\"output\": [{\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"type\":\"bool\"}], " +
               //"\"output\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   

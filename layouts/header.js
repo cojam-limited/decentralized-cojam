@@ -331,7 +331,7 @@ function Header() {
         </dl>
         <ul>
           {
-            balance &&
+            balance && balance !== -1 &&
             <>
               <li key={1}><i className="uil uil-coins"></i> {balance ? ( Number.isInteger(balance) ? balance : balance.toFixed(3) ) : 0} CT</li>
               <li key={2}><i className="uil uil-times-circle"></i></li>
