@@ -562,7 +562,7 @@ export const approveCojamURI_KLIP = async (
               "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
-  const params =  "[\"" + cojamMarketAddress + "\", " + caver.utils.toPeb(Number(bettingCoinAmount)) + "]";
+  const params =  "[\"" + cojamMarketAddress + "\", " + caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY') + "]";
   const result = { spenderAddress: fromAddress, status: 400 };
 
   console.log('approve params', params);
@@ -618,14 +618,18 @@ export const transferCojamURI_KLIP = async ({
                 "]," +
               "\"name\":\"transfer\"," +
               "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              //"\"output\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   
-  const params = `["${toAddress}",${ caver.utils.toPeb(Number(amount))}]`;
+  const params = `["${toAddress}",${caver.utils.toPeb(Number(amount), 'KLAY')}]`;
   const result = { spenderAddress: fromAddress, status: 400 };
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
     // 에러 처리
     console.log('transfer error', res.err);
+    
+    // TODO REMOVE
+    alert(res.error);
   } else if (res.request_key) {
     // request_key 보관
     console.log('transfer request_key', res.request_key);
