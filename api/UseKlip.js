@@ -618,8 +618,8 @@ export const transferCojamURI_KLIP = async ({
                   "{\"name\":\"amount\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"transfer\"," +
-              "\"outputs\": [{\"type\":\"bool\"}], " +
-              //"\"output\": [], " +
+              //"\"outputs\": [{\"name\":\"success\", \"type\":\"bool\"}], " +
+              "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   
   const params = `["${toAddress}",${caver.utils.toPeb(Number(amount), 'KLAY')}]`;
