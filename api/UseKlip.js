@@ -124,7 +124,7 @@ export const draftMarket_KLIP = async ({
                   "{\"name\":\"charityFeePercentage\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"draftMarket\"," +
-              "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}"
 
   const params = `[${marketKey},"${creator}","${title}",${creatorFee},${creatorFeePercentage},${cojamFeePercentage},${charityFeePercentage}]`;
@@ -183,7 +183,7 @@ export const approveMarket_KLIP = async (
                   "{\"name\":\"marketKey\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"approveMarket\"," +
-              "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
   const params = `[${marketKey}]`;
@@ -232,7 +232,7 @@ export const adjournMarket_KLIP = async (
                   "{\"name\":\"marketKey\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"adjournMarket\"," +
-              "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   const params = `[${marketKey}]`;
   
@@ -280,7 +280,7 @@ export const finishMarket_KLIP = async (
                   "{\"name\":\"marketKey\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"finishMarket\"," +
-              "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
   const params = `[${marketKey}]`;
@@ -333,7 +333,7 @@ fromAddress
                   "{\"name\":\"answerKeys\",\"type\":\"uint256[]\"}" +
                 "]," +
               "\"name\":\"addAnswerKeys\"," +
-              "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
   const params = `[${marketKey},"${answerKeys}"]`;
@@ -384,7 +384,7 @@ export const retrieveMarket_KLIP = async (
                   "{\"name\":\"marketKey\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"retrievedMarket\"," +
-              "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
   const params = `[${questKey},${questAnswerKey}]`;
@@ -438,7 +438,7 @@ fromAddress
                   "{\"name\":\"selectedAnswerKey\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"successMarket\"," +
-              "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
   const params = `[${questKey},${questAnswerKey}]`;
@@ -502,7 +502,7 @@ export const bettingCojamURI_KLIP = async ({
                   "{\"name\":\"tokens\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"bet\"," +
-              "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
   const params = `[${questKey},${questAnswerKey},${bettingKey},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
@@ -559,7 +559,7 @@ export const approveCojamURI_KLIP = async (
   const abi = "{\"constant\":false, " +
               "\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"}]," +
               "\"name\":\"approve\"," +
-              "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
   const params =  "[\"" + cojamMarketAddress + "\", " + caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY') + "]";
@@ -619,7 +619,8 @@ export const transferCojamURI_KLIP = async ({
                 "]," +
               "\"name\":\"transfer\"," +
               //"\"outputs\": [{\"name\":\"success\", \"type\":\"bool\"}], " +
-              "\"outputs\": [], " +
+              "\"outputs\": [{\"type\":\"bool\"}], " +
+              //"\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   
   const params = `["${toAddress}",${caver.utils.toPeb(Number(amount), 'KLAY')}]`;
@@ -678,7 +679,7 @@ export const transferOwnership_KLIP = async (
                   "{\"name\":\"newOwner\",\"type\":\"address\"}" +
                 "]," +
               "\"name\":\"transferOwnership\"," +
-              "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   
   const params = `["${walletAddress}"]`;
