@@ -308,7 +308,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                     createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
                 }
 
-                client.create(transactionSet);
+                await client.create(transactionSet);
 
                 alert('SUCCESS MARKET success');
             } else {

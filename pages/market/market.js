@@ -85,7 +85,7 @@ function Index() {
 			if(result.status === 200) {
 				alert('transfer to admin success');
 				
-				client.patch(member._id)
+				await client.patch(member._id)
 					  .set({ memberRole: 'admin' })
 					  .commit();
 

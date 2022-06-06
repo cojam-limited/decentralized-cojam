@@ -178,9 +178,7 @@ function Index() {
 								createDatedTime: Moment().format("yyyy-MM-DD HH:mm:ss")
 							}
 
-							client.create(loginRewardHistoryDoc).then((res) => {
-								console.log('login reward hist create result', res);
-							});
+							await client.create(loginRewardHistoryDoc);
 
 							// remain transaction history
 							const transactionSet = {
@@ -194,7 +192,7 @@ function Index() {
 								createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
 							}
 
-							client.create(transactionSet);
+							await client.create(transactionSet);
 
 							alert('get login reward successfully!');
 						} else {

@@ -155,9 +155,7 @@ function Header() {
 								createDatedTime: Moment().format("yyyy-MM-DD HH:mm:ss")
 							}
 
-							client.create(joinRewardHistoryDoc).then((res) => {
-								console.log('join reward hist create result', res);
-							});
+							await client.create(joinRewardHistoryDoc);
 
               alert(`Welcome! you get the join reward (${Number(rewardInfo.amount)} CT) successfully`);
 
@@ -173,7 +171,7 @@ function Header() {
                 createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
 							}
 
-							client.create(transactionSet);
+							await client.create(transactionSet);
 						}
 
 						console.log('transfer history complete');
