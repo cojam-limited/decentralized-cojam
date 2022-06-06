@@ -622,14 +622,9 @@ export const transferCojamURI_KLIP = async ({
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   
   const params = `["${toAddress}",${caver.utils.toPeb(Number(amount), 'KLAY')}]`;
-
-  // TODO REMOVE
-  alert(params);
-
   const result = { spenderAddress: fromAddress, status: 400 };
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
 
-  alert(res.request_key);
   if (res.err) {
     // 에러 처리
     console.log('transfer error', res.err);
