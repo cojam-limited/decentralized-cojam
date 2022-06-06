@@ -89,16 +89,11 @@ const doBetting = async (betting, walletData) => {
                     });
                 
                     // do approve
-                    let approveTxReceipt;
-                    await callApproveCojamURI({bettingCoinAmount: betting.bettingCoin}, walletData).then((res) => {
-                        console.log('approve tx receipt', res);
-
+                    await callApproveCojamURI(Number(betting.bettingCoin), walletData).then((res) => {
                         // TODO REMOVE
-                        alert('approve tx receipt');
-                        alert(res);
-                        approveTxReceipt = res.transactionId;
+                        console.log('approve tx receipt', res``);
                     });
-
+                    
                     // do betting 
                     await callBettingCojamURI({ 
                         questKey: betting.questKey, 
@@ -139,26 +134,26 @@ const doBetting = async (betting, walletData) => {
 
                             // update each quest answer total amount
                             const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${betting.questAnswerKey._id}'] {bettingCoin}`;
-                            await client.fetch(newAnswerTotalQuery).then((bettingCoins) => {
+                            await client.fetch(newAnswerTotalQuery).then(async (bettingCoins) => {
                                 const newAnswerTotal = bettingCoins.reduce((acc, bettingCoin) => {
                                     return acc += Number(bettingCoin.bettingCoin);
                                 }, 0);
 
-                                client.patch(betting.questAnswerKey._id)
+                                await client.patch(betting.questAnswerKey._id)
                                     .set({totalAmount: newAnswerTotal})
                                     .commit();
                             });
 
                             // update quest total amount
                             const newQuestTotalQuery = `*[_type == 'betting' && questKey == ${betting.questKey}] {bettingCoin}`;
-                            await client.fetch(newQuestTotalQuery).then((bettingCoins) => {
+                            await client.fetch(newQuestTotalQuery).then(async (bettingCoins) => {
                                 const newQuestTotal = bettingCoins.reduce((acc, bettingCoin) => {
                                     return acc += Number(bettingCoin.bettingCoin);
                                 }, 0);
 
-                                client.patch(detail._id)
-                                    .set({totalAmount: newQuestTotal})
-                                    .commit();
+                                await client.patch(detail._id)
+                                            .set({totalAmount: newQuestTotal})
+                                            .commit();
                             });
 
                             // update betting result
@@ -167,7 +162,7 @@ const doBetting = async (betting, walletData) => {
                                 transactionId: res.transactionId,
                             }
 
-                            client.patch(betting.bettingId).set(updateBetSet).commit();
+                            await client.patch(betting.bettingId).set(updateBetSet).commit();
 
                             // insert transaction
                             const transactionSet = {

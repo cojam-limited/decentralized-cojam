@@ -20,6 +20,7 @@ import loginRewardHistory from "./loginRewardHistory";
 import joinRewardHistory from "./joinRewardHistory";
 import rewardInfo from "./rewardInfo";
 import qnaList from "./qnaList";
+import popup from "./popup";
 
 {/* 새로 추가한 부분 */}
 
@@ -54,5 +55,6 @@ export default createSchema({
     loginRewardHistory,
     joinRewardHistory,
     rewardInfo,
+    popup,
   ]),
 });

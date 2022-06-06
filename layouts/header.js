@@ -12,8 +12,9 @@ import { ConnectKaikasButton } from './styles';
 //import isMobile from '@utils/isMobile';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import isMobile from '@utils/isMobile';
-import { kaikasLogin, isKaikasUnlocked, transferCojamURI, getCojamBalance } from '@api/UseKaikas';
-import { getCojamBalance_KLIP } from '@api/UseKlip';
+import { kaikasLogin, transferCojamURI } from '@api/UseKaikas';
+import { callGetCojamBalance } from '@api/UseTransactions';
+
 import { prepare, request, getResult } from 'klip-sdk';
 import QRCode from 'qrcode';
 
@@ -151,7 +152,7 @@ function Header() {
 								walletAddress: walletAddress,
 								rewardAmount: Number(rewardInfo.amount),
 								transactionId: transferRes.transactionId,
-								createDateTime: Moment().format("yyyy-MM-DD HH:mm:ss")
+								createDatedTime: Moment().format("yyyy-MM-DD HH:mm:ss")
 							}
 
 							client.create(joinRewardHistoryDoc).then((res) => {
@@ -190,14 +191,9 @@ function Header() {
 
   const getBalance = async () => {
     if (walletData?.account && walletData?.account !== '') {
-      const cojamBalance = await getCojamBalance(walletData.account);
-      //const cojamBalance = await getCojamBalance_KLIP(walletData.account);
-
-      const newBalance = cojamBalance / 10 ** 18;
-      if(newBalance !== balance) {
-        // TODO REMOVE
-        alert('balance : ' + newBalance);
-        setBalance(newBalance);
+      const cojamBalance = await callGetCojamBalance(walletData);
+      if(cojamBalance !== balance) {
+        setBalance(cojamBalance);
       }
     } else {
       setBalance(-1);

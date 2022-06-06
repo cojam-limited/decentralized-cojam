@@ -24,7 +24,7 @@ export default {
             type: 'string',
         },
         {
-            name: 'createDateTime',
+            name: 'createdDateTime',
             title: 'Create DateTime',
             type: 'datetime',
         },

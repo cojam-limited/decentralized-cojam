@@ -30,7 +30,7 @@ export default {
       to: [{type: "member"}]
     },
     {
-      name: 'createDateTime',
+      name: 'createdDateTime',
       title: 'Create DateTime',
       type: 'datetime',
     },

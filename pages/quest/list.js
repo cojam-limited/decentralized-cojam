@@ -19,6 +19,7 @@ import createNewQuest from './createNewQuest';``
 import "react-responsive-modal/styles.css";
 import { useWalletData } from '@data/wallet';
 import { kaikasLogin, isKaikasUnlocked } from '@api/UseKaikas';
+import LoadingContext from "../../assets/context/LoadingContext";
 
 
 function Index() {
@@ -62,6 +63,51 @@ function Index() {
     }
   }
 
+  const getQuestHistory = async () => {
+    setLoading(true);
+
+    const questHistoryQuery = `*[_type == 'quests' && isActive == true  && (statusType == 'SUCCESS' || statusType == 'ADJOURN')] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(createdDateTime desc)`;
+    await client.fetch(questHistoryQuery).then((questHistory) => {
+      console.log('questHistory', questHistory);
+
+      questHistory.forEach((quest) => {
+        const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
+        if(diff === 0) { 
+          quest.dDay = 'D-0';
+        } else {
+          quest.dDay = diff > 0 ? 'expired' : `D${diff}`;
+        }
+
+        if(quest.completed) {
+          quest.dDay = 'expired';
+        }
+
+        quest.startDateTime = Moment(quest.startDateTime).format('yyyy-MM-DD HH:mm:ss');
+        quest.endDateTime = Moment(quest.endDateTime).format('yyyy-MM-DD HH:mm:ss');
+
+        const questTotalAmount = quest.totalAmount;
+        const answers = quest.answerIds;
+				answers.forEach((answer) => {
+					const resultPercent = answer.totalAmount / questTotalAmount;
+					const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
+					answerTotalAmounts[answer.title] = answer.totalAmount;
+					answerPercents[answer.title] = resultPercent * 100;
+					answerAllocations[answer.title] = allocation;
+		
+					setAnswerTotalAmounts(answerTotalAmounts);
+					setAnswerPercents(answerPercents);
+					setAnswerAllocations(answerAllocations);
+				});
+      });
+
+      setItemsToSend(questHistory);
+      setItems(questHistory.slice(0, postsPerPage));
+    });
+      
+
+    setLoading(false);
+  }
+
   useEffect(() => {
     /**
      * 시즌 카테고리 리스트 조회
@@ -86,7 +132,7 @@ function Index() {
      * Quest 리스트 & 데이터 조회
      */
     const condition = `${activeCategory === 'All' ? '' : `&& seasonCategory._ref in *[_type == "seasonCategories" && seasonCategoryName == '${activeCategory}']._id`}`;
-    const questQuery = `*[_type == 'quests' && isActive == true  && statusType == 'APPROVE' ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
+    const questQuery = `*[_type == 'quests' && isActive == true  && statusType == 'APPROVE' ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(createdDateTime desc)`;
 		client.fetch(questQuery).then((datas) => {
       datas.forEach((quest) => {
         const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
@@ -94,6 +140,10 @@ function Index() {
           quest.dDay = 'D-0';
         } else {
           quest.dDay = diff > 0 ? 'expired' : `D${diff}`;
+        }
+
+        if(quest.completed) {
+          quest.dDay = 'expired';
         }
 
         quest.startDateTime = Moment(quest.startDateTime).format('yyyy-MM-DD HH:mm:ss');
@@ -185,7 +235,7 @@ function Index() {
               </Swiper>
             </dt>
             <dd>
-              <Link to="#">
+              <Link to="#" onClick={() => getQuestHistory()}>
                 <i className="uil uil-history"></i>
                 <span>History</span>
               </Link>
@@ -383,7 +433,9 @@ function Index() {
                         return;
                       }
                       
+                      setLoading(true);
                       await createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'), walletData);
+                      setLoading(false);
 
                       modalQuestAdd(false);
                     }}>Complete</Link>
@@ -410,8 +462,8 @@ function Index() {
                 </dd>
               </dl>
               {
-                seasonInfos?.map((seasonInfo) => (
-                  <>
+                seasonInfos?.map((seasonInfo, index) => (
+                  <div key={index}>
                     <div className="mqs-date">
                     <i className="uil uil-calendar-alt"></i> {Moment(seasonInfo.startDate).format('YYYY-MM-DD HH:mm:ss')} ~ {Moment(seasonInfo.endDate).format('YYYY-MM-DD HH:mm:ss')}
                     ({ Moment(seasonInfo.endDate).diff(Moment(seasonInfo.startDate), 'days')})
@@ -448,7 +500,7 @@ function Index() {
                         Maximum Pay : <span>{addComma(seasonInfo.maximumPay)} CT</span>
                       </div>
                     </div>
-                  </>                  
+                  </div>                  
                 ))  
               }
             </div>

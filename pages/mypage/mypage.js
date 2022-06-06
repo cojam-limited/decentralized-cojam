@@ -7,8 +7,12 @@ import { useWalletData } from '@data/wallet';
 import { client } from '../../sanity';
 import { useLoadingState } from "../../assets/context/LoadingContext";
 import Moment from 'moment';
-import { transferCojamURI, getRewardCojamURI } from "@api/UseKaikas";
+import { transferCojamURI, getRewardCojamURI, receiveToken } from "@api/UseKaikas";
 import { transferCojamURI_KLIP } from "@api/UseKlip";
+
+import { callTransferCojamURI } from '@api/UseTransactions';
+
+import LogoBlack from '@assets/coin.png'
 
 function Index() {
 	const { setLoading } = useLoadingState();
@@ -16,11 +20,13 @@ function Index() {
 	const [openMypageVoting, modalMypageVoting] = useState(false);
 	const [openMypageGround, modalMypageGround] = useState(false);
 	const [openMypageTransfer, modalMypageTransfer] = useState(false);
+	const [openQuestReward, modalQuestReward ] = useState(false);
 
 	const stateList = ['ONGOING', 'INVALID', 'APPROVE', 'ADJOURN', 'SUCCESS'];
 	const [ votings, setVotings ] = useState({votingSet: []});
 	const [ selectedVoting, setSelectedVoting ] = useState({});
 	const [ grounds, setGrounds ] = useState([]);
+
 	const [ selectedGround, setSelectedGround ] = useState({});
 	const [ transfers, setTransfers ] = useState([]);
 	const [ selectedTransfer, setSelectedTransfer ] = useState({});
@@ -37,15 +43,24 @@ function Index() {
 		const walletAddress = walletData.account;
 		const votingArr = [];
 
-		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}'] {..., 'answerNm': *[_type=='questAnswerList' && _id == ^.questAnswerKey] [0]{title} }`;
+		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey][0] {title, totalAmount} } | order(createdDateTime desc)`;
 		await client.fetch(votingQuery).then(async (votingDatas) => {
 			votingDatas.forEach(async (votingData) => {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey}][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 				await client.fetch(questQuery).then((quest) => {
 					if(quest) {
+						const multiply = 
+							((quest.totalAmount
+							- (quest.totalAmount * quest.cojamFee / 100)
+							- ((quest.totalAmount * quest.creatorFee / 100) + quest.creatorPay)
+							- (quest.totalAmount * quest.charityFee / 100)) / votingData.answer.totalAmount).toFixed(2);
+
+						const predictionFee = (multiply * votingData.bettingCoin).toFixed(2);
+
 						const votingSet = {
 							title: quest.title,
 							categoryNm: quest.categoryNm.seasonCategoryName,
+							questKey: quest.questKey,
 							questStatus: quest.questStatus,
 							approveTx: quest.approveTx,
 							adjournTx: quest.adjournTx,
@@ -58,10 +73,12 @@ function Index() {
 							pending: quest.pending,
 
 							bettingTx: votingData.transactionId,
-							answerTitle: votingData.answerNm.title,
+							answerTitle: votingData.answer.title,
+							bettingKey: votingData.bettingKey,
 							bettingCoin: votingData.bettingCoin,
-							multiply: votingData.multiply,
-							predictionFee: votingData.predictionFee,
+							receiveAddress: votingData.receiveAddress,
+							multiply: multiply,
+							predictionFee: predictionFee,
 							_id: votingData._id
 						}
 						
@@ -91,13 +108,17 @@ function Index() {
 				return;
 			}
 
-			console.log('do transfer', walletData.type);
-			let transferRes;
+			console.log('do transfer walletData', walletData);
+
+			const transferRes = await callTransferCojamURI({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)}, walletData);
+			
+			/*
 			if(walletData.type === 'kaikas') {
 				transferRes = await transferCojamURI({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
 			} else {
 				transferRes = await transferCojamURI_KLIP({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
 			}
+			*/
 			
 			if(transferRes.status === 200) {
 				alert(`${sendCTInput.amount} (CT) send to '${sendCTInput.recipientAddress}' successfully.`);
@@ -136,7 +157,7 @@ function Index() {
 
 						// send coin from master wallet
 						let transferRes;
-						const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // KAS reward wallet - no CT
+						const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // dev KAS reward wallet
 						try {
 							transferRes = await getRewardCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
@@ -154,7 +175,7 @@ function Index() {
 								loginDate: creteriaDate,
 								rewardAmount: Number(rewardInfo.amount),
 								transactionId: transferRes.transactionId,
-								createDateTime: Moment().format("yyyy-MM-DD HH:mm:ss")
+								createDatedTime: Moment().format("yyyy-MM-DD HH:mm:ss")
 							}
 
 							client.create(loginRewardHistoryDoc).then((res) => {
@@ -187,6 +208,55 @@ function Index() {
 		}
 	}
 
+	// GET QUEST REWARD
+	const getQuestReward = async () => {
+		if(selectedVoting.result) {
+			alert('congret. get reward!');
+			// send coin from master wallet
+			const walletAddress = walletData.account;
+
+			let transferRes;
+			//const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // dev KAS reward wallet
+			try {
+				transferRes = await receiveToken({questKey: selectedVoting.questKey, bettingKey: selectedVoting.bettingKey});
+			} catch(error) {
+				console.log(error);
+				//ignore
+				alert('transfer api error. try again.');
+				return;
+			}
+
+			if(transferRes.status === 200) {
+				// remain transaction history
+				const transactionSet = {
+					_type: 'transactions',
+					amount: Number(selectedVoting.predictionFee),
+					recipientAddress: walletAddress,
+					spenderAddress: transferRes.spenderAddress,
+					status: 'SUCCESS',
+					transactionId: transferRes.transactionId,
+					transactionType: 'QUEST_REWARD',
+					createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
+				}
+
+				await client.create(transactionSet);
+
+				await client.patch(selectedVoting._id)
+							.set({
+								receiveAddress: walletAddress 
+							})
+							.commit();
+
+				alert('get quest reward successfully!');
+			} else {
+				alert('get quest reward failed.');
+			}
+
+		} else {
+			alert('choose wrong. try another quest!');
+		}
+	}
+
 	/**
 	 * Load Voting, Grounds, Transfer infos
 	 */
@@ -196,18 +266,18 @@ function Index() {
 		setLoading(true);
 		loadVotings();
 		
-		const groundQuery = `*[_type == 'quests' && isActive == true] {..., 'seasonNm': *[_type=='season' && _id == ^.season._ref]{title}[0], 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
+		const groundQuery = `*[_type == 'quests' && creatorAddress == '${walletAddress}' && isActive == true] {..., 'seasonNm': *[_type=='season' && _id == ^.season._ref]{title}[0], 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] } | order(createdDateTime desc)`;
 		client.fetch(groundQuery).then((grounds) => {
 			setGrounds(grounds);
 		});
 
-		const transferQuery = `*[_type == 'transactions' && spenderAddress == '${walletAddress}' || recipientAddress == '${walletAddress}']`;
+		const transferQuery = `*[_type == 'transactions' && spenderAddress == '${walletAddress}' || recipientAddress == '${walletAddress}'] | order(createdDateTime desc)`;
 		client.fetch(transferQuery).then((transfers) => {
 			setTransfers(transfers);
 		});
 
 		let subscription;
-		if(walletAddress) {					   
+		if(walletAddress) {
 			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}']`;
 			subscription = client.listen(loginRewardHistQuery).subscribe((rewardHistory) => {
 				console.log('reward history update !!!', walletAddress);
@@ -264,6 +334,7 @@ function Index() {
 					<h2><span>Votings</span></h2>
 					<div>
 						<ul>
+							<li><strong>Reward</strong></li>
 							<li><strong>Category</strong></li>
 							<li><strong>Title</strong></li>
 							<li><strong>Status Flow</strong></li>
@@ -277,9 +348,10 @@ function Index() {
 								let statePass = false;
 
 								return (
-									<ul key={index} style={{ cursor: 'pointer' }} onClick={() => { setSelectedVoting(voting); modalMypageVoting(true); }} >
+									<ul key={index}>
+										<li key='0' style={{ cursor: 'pointer' }} onClick={() => { if(!voting.selectedAnswer) return; /* TODO RECOVERY if(voting.receiveAddress !== undefined) { alert("you've got reward already"); return; } */ setSelectedVoting({...voting, result: voting.selectedAnswer === voting.answerTitle}); modalQuestReward(true); }}><div className='mc-votings-result' style={{ background: voting.selectedAnswer ? (voting.selectedAnswer === voting.answerTitle ? '#58D68D' : '#E74C3C') : 'white' }} ></div></li>
 										<li key='1'><span>Category : </span>{voting.categoryNm}</li>
-										<li key='2'><span>Title : </span>{voting.title}</li>
+										<li key='2' style={{ cursor: 'pointer' }} onClick={() => { setSelectedVoting(voting); modalMypageVoting(true); }}><span>Title : </span>{voting.title}</li>
 										<li key='3'>
 											{voting.pending && <p>Pending</p>}
 											{voting.questStatus === 'INVALID' && <p>INVALID</p>}
@@ -304,7 +376,7 @@ function Index() {
 											}
 											</ul>
 										</li>
-										<li key='4'><span>My Answer : </span> {voting.answerTitle} ({voting.bettingCoin} CT) &nbsp; <div className='mc-votings-result' style={{ background: voting.selectedAnswer ? (voting.selectedAnswer === voting.answerTitle ? '#58D68D' : '#E74C3C') : 'white' }} ></div></li>
+										<li key='4'><span>My Answer : </span> {voting.answerTitle} ({voting.bettingCoin} CT)</li>
 										<li key='5'><span>Multiply : </span>{voting.multiply}</li>
 										<li key='6'><span>Prediction Fee : </span>{voting.predictionFee} CT</li>
 									</ul>
@@ -360,8 +432,8 @@ function Index() {
 											</ul>
 										</li>
 										<li key='4'><span>Total  : </span>{ ground.totalAmount } CT</li>
-										<li key='5'><span>Total Creator Fee : </span> { ground.totalCreatorFee }  CT ({ ground.creatorFee }%)</li>
-										<li key='6'><span>Donation Fee : </span>{ ground.totalCharityFee } CT ({ ground.charityFee } %)</li>
+										<li key='5'><span>Total Creator Fee : </span> { Number(ground.totalAmount * ground.creatorFee / 100).toFixed(2) } CT ({ ground.creatorFee } %)</li>
+										<li key='6'><span>Donation Fee : </span>{ Number(ground.totalAmount * ground.charityFee / 100).toFixed(2) } CT ({ ground.charityFee } %)</li>
 									</ul>
 								)
 							})
@@ -601,6 +673,37 @@ function Index() {
 				</div>
 			</Modal>
 			{/* 모달 - 마이페이지 - Transfer 상세 끝 */}
+
+			{/* 모달 - Reward 시작 */}
+			<Modal open={openQuestReward} onClose={() => modalQuestReward(false)} center>
+					<div className="modal-mypage-view"
+						style={{ height: '500px', background: `url('${LogoBlack}') center -200px no-repeat, #fff`}}
+					>
+						<form name="addForm" method="post" action="">
+							<fieldset>
+								<legend>Get Reward</legend>
+								<div className="mmv-area">
+									<dl>
+										<dt>Get Reward</dt>
+										<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalQuestReward(false)}></i></dd>
+									</dl>
+									<ul style={{ width: '2' }}>
+										{/* <img src={LogoBlack} alt="" title="" /> */}
+									</ul>
+									<p>
+										<a href="#" 
+											onClick={async () => { await getQuestReward(); modalQuestReward(false);} }
+											style={{ position: 'absolute', bottom: 0, width: '93%', marginBottom: '10px' }}
+										>
+											Get Reward!
+										</a>
+									</p>
+								</div>
+							</fieldset>
+						</form>
+					</div>
+				</Modal>
+				{/* 모달 - Reward 끝 */}
 
 			<div className="h70"></div>
     	</div>

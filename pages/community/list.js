@@ -16,7 +16,7 @@ function Index() {
 	const [activeCategory, setActiveCategory] = useState('All');
 
 	{/* 페이지네이션 세팅 */}
-	let postsPerPage = 3;
+	let postsPerPage = 6;
 	const [items, setItems] = useState([]);
 	const [itemsToSend, setItemsToSend] = useState([]);
 

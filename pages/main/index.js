@@ -46,7 +46,7 @@ function Index() {
 		window.addEventListener('resize', resizeFunc);
 
 		const loadDatas = async () => {
-			const questQuery = `*[_type == 'quests' && isActive == true  && statusType == 'APPROVE'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}`;
+			const questQuery = `*[_type == 'quests' && isActive == true  && statusType == 'APPROVE'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}[0..5] | order(totalAmount desc)`;
 			await client.fetch(questQuery).then((datas) => {
 				setQuests(datas);
 
@@ -81,6 +81,15 @@ function Index() {
 				console.log('qna', data);
 				setQnas(data);
 			});
+
+			const popupQuery = `*[_type == 'popup' && isActive == true] | order(createdDateTime desc) [0]`;
+			await client.fetch(popupQuery).then((popup) => {
+				console.log('popup', popup);
+				
+				if(popup) {
+
+				}
+			})
 		}
 
 		setLoading(true);

@@ -118,10 +118,10 @@ const createNewQuest = async (modalValues, answers, walletData) => {
         quest['creatorAddress'] = walletData.account;
 
         //파일 업로드 
-        if(modalValues && modalValues.imageFile) {
+        if(modalValues && modalValues.questType === 'I' && modalValues.imageFile) {
             quest['imageFile'] = modalValues.imageFile[0];
-            quest['snsUrl'] = '';
-        } else if(modalValues && modalValues.snsUrl) {
+            quest['imageLink'] = modalValues.snsUrl ?? '';
+        } else if(modalValues && modalValues.questType === 'S' && modalValues.snsUrl) {
             const snsInfo = getSocialMediaCheck(modalValues.snsUrl);
             quest['snsType'] = snsInfo.snsType;
             quest['snsId'] = snsInfo.snsId;
@@ -138,30 +138,29 @@ const createNewQuest = async (modalValues, answers, walletData) => {
         quest['pending'] = false;
         quest['isActive'] = true;
         quest['totalAmount'] = 0;
-        quest['createDateTime'] = Moment().format("yyyy-MM-DD HH:mm:ss");
+        quest['createdDateTime'] = Moment().format("yyyy-MM-DD HH:mm:ss");
         quest['endDateTime'] = modalValues.endDateTime;
 
-        client.fetch(`*[_type == "quests"] | order(questKey desc)[0]`).then((lastQuest) => {
-            console.log('lastquest!!', lastQuest);
-
+        await client.fetch(`*[_type == "quests"] | order(questKey desc)[0]`).then(async (lastQuest) => {
             quest['questKey'] = lastQuest.questKey + 1;
 
             // create new quest
-            client.create(quest).then((res) => {
+            await client.create(quest).then(async (res) => {
                 // upload image
-                client.assets
+                await client.assets
                       .upload('image', quest.imageFile)
-                      .then((imageAsset) => {
-                        client.patch(res._id)
-                              .set({imageFile: {
-                                        _type: 'image',
-                                        asset: {
-                                            _type: "reference",
-                                            _ref: imageAsset._id
+                      .then(async (imageAsset) => {
+                        await client.patch(res._id)
+                                    .set({
+                                        imageFile: {
+                                            _type: 'image',
+                                            asset: {
+                                                _type: "reference",
+                                                _ref: imageAsset._id
+                                            }
                                         }
-                                    }
-                              })
-                              .commit();
+                                    })
+                                    .commit();
 
                         console.log('Image upload Done!');
                       })
@@ -173,7 +172,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                 // Answer 생성
                 if(answers) {
                     // get increment
-                    client.fetch(`*[_type == "questAnswerList"] | order(questAnswerKey desc)[0]`).then((lastAnswer) => {
+                    await client.fetch(`*[_type == "questAnswerList"] | order(questAnswerKey desc)[0]`).then((lastAnswer) => {
                         let order = lastAnswer.questAnswerKey; 
                         // create new quest answer
                         answers.forEach((answer, index) => {   

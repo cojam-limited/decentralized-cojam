@@ -16,6 +16,9 @@ import { urlFor, client } from "../../sanity";
 import { useWalletData } from '@data/wallet';
 
 import { getCojamBalance } from '@api/UseKaikas';
+import { getCojamBalance_KLIP } from '@api/UseKlip';
+
+import { callGetCojamBalance } from '../../api/UseTransactions';
 
 import backgroundImage from '@assets/body_quest.jpg';
 
@@ -59,8 +62,8 @@ function Index(props) {
 
 		try {
 			const questAnswerId = quest.answerIds.filter((answerId) => answerId.title === selectedAnswer);
-			const curBalance = await getCojamBalance(walletData.account);
 
+			let curBalance = await callGetCojamBalance(walletData);			
 			const betting = {
 				'bettingCoin': Number(bettingCoin),
 				'spenderAddress': '',
@@ -71,13 +74,13 @@ function Index(props) {
 				'memberKey': '',
 				'receiveAddress': '',
 				'answerTitle': selectedAnswer,
-				'curBalance': curBalance / 10 ** 18,
+				'curBalance': curBalance,
 				'multiply': rate,
 				'predictionFee': receiveToken
 			}
 
 			// TODO REMOVE
-			alert('current balance : ' + curBalance / 10 ** 1);
+			alert('current balance : ' + curBalance);
 
 			const betResult = await doBetting(betting, walletData);
 			
@@ -92,7 +95,6 @@ function Index(props) {
 	}
 
 	useEffect(() => {
-		const questAnswerKeyArray = `["", ""]`;
 		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, questAnswerKey, totalAmount}} [0]`;
 		
 		let subscription;
@@ -178,7 +180,7 @@ function Index(props) {
 			});
 
 			const creteriaDate = Moment().subtract(5, 'days').format('YYYY-MM-DD');
-			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey]{color}[0] } | order(createdDateTime asc)`;
+			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey]{color}[0] } | order(createdDateTime desc)`;
 			client.fetch(answerHistoryQuery).then((answerHist) => {
 				// group by date
 				const graphGroupData = answerHist.reduce((group, answer) => {
@@ -267,7 +269,8 @@ function Index(props) {
 					<dl>
 						<dt>
 							<h2><span>{quest?.dDay}</span> {quest?.endDateTime}</h2>
-							<p style={{ backgroundImage: `url('${quest && urlFor(quest.imageFile)}')`, backgroundPosition: `center`, backgroundSize: `cover` }}></p>
+							
+							<p onClick={() => { if(quest?.imageLink || quest?.imageLink !== '') { location.href=`${quest?.imageLink}`; } }} style={{ cursor: quest?.imageLink ? 'pointer' : '', backgroundImage: `url('${quest && urlFor(quest.imageFile)}')`, backgroundPosition: `center`, backgroundSize: `cover` }} />	
 							
 							<h3>Odds <span>{rate}</span> X</h3>
 							<h3>Win <span>{receiveToken}</span> CT if right</h3>

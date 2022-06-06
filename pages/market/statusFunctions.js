@@ -25,7 +25,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
     
     switch(state) {
         case 'pend' :
-            client.patch(selectedQuest._id)
+            await client.patch(selectedQuest._id)
                   .set({ pending: true })
                   .commit();
 
@@ -33,7 +33,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             break;
 
         case 'unpend' :
-            client.patch(selectedQuest._id)
+            await client.patch(selectedQuest._id)
                   .set({ pending: false })
                   .commit();
 
@@ -41,10 +41,10 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             break;
 
         case 'invalid': 
-            client.patch(selectedQuest._id)
+            await client.patch(selectedQuest._id)
                   .set({
                       questStatus: 'INVALID', 
-                      description: 'INVALID DESC',
+                      description: description,
                       updateMember: walletData.account
                   })
                   .commit();
@@ -73,7 +73,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                             walletData
                         ).then(async (res) => {
                             if(res.status === 200) {
-                                client.patch(selectedQuest._id)
+                                await client.patch(selectedQuest._id)
                                       .set({
                                           statusType: 'DRAFT', 
                                           draftTx: res.transactionId,
@@ -143,7 +143,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             }
 
             if(addAnswerRes.status === 200) {
-                client.patch(selectedQuest._id)
+                await client.patch(selectedQuest._id)
                       .set({
                           statusType: 'ANSWER', 
                           answerTx: addAnswerRes.transactionId,
@@ -152,9 +152,9 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                         })
                       .commit();
 
-                alert('Answer approve success');
+                alert('Answer success');
             } else {
-                alert("Answer approve fail.");
+                alert("Answer fail.");
                 return;
             }
 
@@ -179,7 +179,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             const approveMarketRes = await callApproveMarket(selectedQuest.questKey, walletData);
 
             if(approveMarketRes.status === 200) {
-                client.patch(selectedQuest._id)
+                await client.patch(selectedQuest._id)
                       .set({
                             statusType: 'APPROVE', 
                             questStatus: 'APPROVE',
@@ -197,7 +197,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             break;
 
         case 'hot':
-            client.patch(selectedQuest._id)
+            await client.patch(selectedQuest._id)
                   .set({hot: true})
                   .commit();
             break;
@@ -219,9 +219,9 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             }
 
             const questKey = selectedQuest.questKey;
-            await callFinishMarket(questKey, walletData).then((res) => {
+            await callFinishMarket(questKey, walletData).then(async (res) => {
                 if(res.status === 200) {
-                    client.patch(selectedQuest._id)
+                    await client.patch(selectedQuest._id)
                           .set({
                               statusType: 'FINISH', 
                               finishTx: res.transactionId, 
@@ -240,7 +240,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             break;
     
         case 'adjourn':
-            if(selectedQuest.completed) {
+            if(!selectedQuest.completed) {
                 alert("Market is not Finished!");
                 return;
             }
@@ -252,16 +252,17 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             const adjournRes = await callAdjournMarket(selectedQuest.questKey, walletData);
             if(adjournRes.status === 200) {
-                client.patch(selectedQuest._id)
+                await client.patch(selectedQuest._id)
                           .set({
                               statusType: 'ADJOURN', 
                               questStatus: 'ADJOURN', 
-                              adjournTx: res.transactionId,
+                              adjournTx: adjournRes.transactionId,
                               adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                              description: description,
                               updateMember: walletData.account
                             })
                           .commit();
-
+                
                 alert('adjourn success');
             } else {
                 alert('adjourn market failed.');
@@ -282,7 +283,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             const successRes = await callSuccessMarket({ questKey: selectedQuest.questKey, questAnswerKey: selectedAnswer.questAnswerKey}, walletData);
             if(successRes.status === 200) {
-                client.patch(selectedQuest._id)
+                await client.patch(selectedQuest._id)
                       .set({
                           statusType: 'SUCCESS', 
                           questStatus: 'SUCCESS', 
@@ -291,13 +292,14 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                           selectedAnswer: selectedAnswer.title,
                           updateMember: walletData.account
                         })
+                        .commit();
 
                 const market_total_ct = selectedQuest.totalAmount;
                 const creator_ct = market_total_ct * selectedQuest.creatorFee / 100 + selectedQuest.creatorPay;
                 
                 const transactionSet = {
                     _type: 'transactions',
-                    amount: creator_ct / 10 ** 18,
+                    amount: Number(creator_ct / 10 ** 18),
                     recipientAddress: selectedQuest.creatorAddress,
                     spenderAddress: cojamMarketAddress,
                     status: 'SUCCESS',
@@ -339,9 +341,9 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             const retrieveRes = await callRetrieveMarket(selectedQuest.questKey, walletData);
             if(retrieveRes.status === 200) {
-                client.patch(selectedQuest._id)
-                .set({statusType: 'RETRIEVE', retrieveTx: retrieveRes.transactionId})
-                .commit();
+                await client.patch(selectedQuest._id)
+                            .set({statusType: 'RETRIEVE', retrieveTx: retrieveRes.transactionId})
+                            .commit();
 
                 alert("retrieve success");
             } else {

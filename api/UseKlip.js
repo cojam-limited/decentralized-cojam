@@ -7,17 +7,17 @@ import { prepare, request, getResult } from 'klip-sdk';
 
 const caver = new Caver(window.klaytn);
 
-const xChainId = '1001'; // dev
-//const xChainId = '8217'; // prod
+//const xChainId = '1001'; // dev
+const xChainId = '8217'; // prod
+
+//const authorization = 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='; // dev
+const authorization = 'Basic S0FTSzFQTzJSR1RZNU5LTjJERktDVVhMOkFpd1NDeUN3Z2Q4Wkc5aUtqWXNXS3ZBam96UXZRN3BwRjhCLWZqcWU='; // prod
 
 const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // prod
 //const cojamTokenAddress = "0xd6cdab407f47afaa8800af5006061db8dc92aae7";   // dev
 
 const cojamMarketAddress = '0xC31585Bf0808Ab4aF1acC29E0AA6c68D2B4C41CD' // prod
 //const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // dev
-
-// cojam token address ?
-const cojamToken = new caver.kct.kip7(cojamTokenAddress);
 
 export const kaikasLogin = async () => {
   try {
@@ -70,32 +70,30 @@ export const isKaikasEnabled = async () => {
 
 export const getCojamBalance_KLIP = async (walletAddress) => {
   if(walletAddress) {
-    const tokenAddress = '0x3185c5e6c5f095e484b4335d8d88d0b7aabdd97e';
-
     const options = {
-      method: 'POST',
-      url: `https://kip7-api.klaytnapi.com/v1/contract/${tokenAddress}/account/${walletAddress}/balance`,
+      method: 'GET',
+      url: `https://kip7-api.klaytnapi.com/v1/contract/${cojamTokenAddress}/account/${walletAddress}/balance`,
       headers: {
           'Content-Type': 'application/json',
           'x-chain-id': `${xChainId}`,
-          'x-krn': `krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:feepayer-pool:cojamfee`,
-          Authorization: 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='
+          Authorization: authorization
       }
     };
   
-    const result = {};
+    let result = { balance: 0, status: 400};
     await axios.request(options).then(function (response) {
-      console.log('reward', response);
+      console.log('balance', response);
+
       result.status = 200;
+      result.balance = parseInt(response?.data?.balance, 16);
     }).catch(function (error) {
       console.error(error);
-      result.status = 400;
     });
 
     return result;
   }
 
-  return { status: 400 };
+  return { status: 400, balance: 0 };
 }
 
 /**
@@ -127,10 +125,11 @@ export const draftMarket_KLIP = async ({
                 "]," +
               "\"name\":\"draftMarket\"," +
               "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
-              "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+              "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}"
+
   const params = `[${marketKey},"${creator}","${title}",${creatorFee},${creatorFeePercentage},${cojamFeePercentage},${charityFeePercentage}]`;
-  
   const result = { spenderAddress: fromAddress, status: 400 };
+  
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
     // TODO REMOVE
@@ -172,7 +171,7 @@ export const draftMarket_KLIP = async ({
 }
 
 export const approveMarket_KLIP = async (
-  { marketKey }, fromAddress
+  marketKey, fromAddress
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -186,9 +185,10 @@ export const approveMarket_KLIP = async (
               "\"name\":\"approveMarket\"," +
               "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+
   const params = `[${marketKey}]`;
-  
   const result = { spenderAddress: fromAddress, status: 400 };
+
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
     // 에러 처리
@@ -220,7 +220,7 @@ export const approveMarket_KLIP = async (
 }
 
 export const adjournMarket_KLIP = async (
-  { marketKey }, fromAddress
+  marketKey, fromAddress
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -268,7 +268,7 @@ export const adjournMarket_KLIP = async (
 }
 
 export const finishMarket_KLIP = async (
-  { marketKey }, fromAddress
+  marketKey, fromAddress
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -282,9 +282,10 @@ export const finishMarket_KLIP = async (
               "\"name\":\"finishMarket\"," +
               "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+
   const params = `[${marketKey}]`;
-  
   const result = { spenderAddress: fromAddress, status: 400 };
+
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
     // 에러 처리
@@ -334,9 +335,10 @@ fromAddress
               "\"name\":\"addAnswerKeys\"," +
               "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+
   const params = `[${marketKey},"${answerKeys}"]`;
-  
   const result = { spenderAddress: fromAddress, status: 400 };
+
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
     // 에러 처리
@@ -368,10 +370,9 @@ fromAddress
 }
 
 
-export const retrieveMarket_KLIP = async ({
-  questKey  
-}, 
-fromAddress
+export const retrieveMarket_KLIP = async (
+  questKey, 
+  fromAddress
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -385,9 +386,10 @@ fromAddress
               "\"name\":\"retrievedMarket\"," +
               "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+
   const params = `[${questKey},${questAnswerKey}]`;
-  
   const result = { spenderAddress: fromAddress, status: 400 };
+
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
     // 에러 처리
@@ -438,9 +440,10 @@ fromAddress
               "\"name\":\"successMarket\"," +
               "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+
   const params = `[${questKey},${questAnswerKey}]`;
-  
   const result = { spenderAddress: fromAddress, status: 400 };
+
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
     // 에러 처리
@@ -484,7 +487,7 @@ export const bettingCojamURI_KLIP = async ({
   bettingKey,
   bettingCoinAmount
 }, 
-fromAddress
+  fromAddress
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -501,8 +504,8 @@ fromAddress
               "\"name\":\"bet\"," +
               "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+
   const params = `[${questKey},${questAnswerKey},${bettingKey},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
-  
   const result = { spenderAddress: fromAddress, status: 400 };
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
@@ -547,7 +550,7 @@ fromAddress
  * Quest Betting Approve function
  */
 export const approveCojamURI_KLIP = async (
-  {bettingCoinAmount}, fromAddress
+  bettingCoinAmount, fromAddress
 ) => { 
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -558,9 +561,12 @@ export const approveCojamURI_KLIP = async (
               "\"name\":\"approve\"," +
               "\"output\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+
   const params =  "[\"" + cojamMarketAddress + "\", " + caver.utils.toPeb(Number(bettingCoinAmount)) + "]";
-  
   const result = { spenderAddress: fromAddress, status: 400 };
+
+  console.log('approve params', params);
+
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
     // 에러 처리
@@ -631,6 +637,12 @@ export const transferCojamURI_KLIP = async ({
       if( time % 500 === 0 ) {
         await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
+
+          if(txResult.status !== 'prepared') {  
+            alert('pass prepared!');
+            alert(txResult);
+            alert(txResult.status);
+          }
 
           if(txResult.result?.result) {
             alert('transaction success', txResult.result?.result);

@@ -24,6 +24,7 @@ function Index() {
 	const { walletData } = useWalletData();
 	const [ transactionDatas, setTransactionDatas ] = useState([]);
 	const [ memberDatas, setMemberDatas ] = useState([]);
+	const [ popups, setPopups ] = useState([]);
 	
 	const [ categories, setCategories ] = useState([]);
 	const [ activeCategory, setActiveCategory ] = useState('ONGOING');
@@ -31,7 +32,16 @@ function Index() {
 	const [ selectedQuest, setSelectedQuest ] = useState([]);
 
 	const [ openSuccess, modalSuccess ] = useState(false);
-	const [ selectedAnswer, setSelectedAnswer ] = useState({});
+	const [ selectedAnswer, setSelectedAnswer ] = useState();
+	const [ rewardInfo, setRewardInfo ] = useState({});
+
+	const [ openAdjourn, modalAdjourn ] = useState(false);
+	const [ adjournDesc, setAdjournDesc ] = useState('');
+
+	const [ openInvalid, modalInvalid ] = useState(false);
+	const [ invalidDesc, setInvalidDesc ] = useState('');
+
+	const [ reloadData, setReloadData ] = useState(false);
 
 	const stateButtons = {
 		ONGOING: ['pend', 'unpend', 'invalid', 'draft', 'answer', 'approve'],
@@ -52,10 +62,17 @@ function Index() {
 			loadDetailData(selectedQuest.questKey, false);
 			modalSuccess(true);
 			return;
+		} else if(state === 'adjourn') {
+			modalAdjourn(true);
+			return;
+		} else if(state === 'invalid') {
+			modalInvalid(true);
+			return;
 		}
 
 		setLoading(true);
 		await changeStateFunction(state, walletData, selectedQuest);
+		setReloadData(!reloadData);
 		setLoading(false);
 	}
 
@@ -83,7 +100,7 @@ function Index() {
  	*/
 	const loadDetailData = (questKey, openDetailModal) => {
 		 setLoading(true);
-		 const questQuery = `*[_type == 'quests' && questKey == ${questKey}][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey] { title, questAnswerKey } | order(questAnswerKey asc)}`;
+		 const questQuery = `*[_type == 'quests' && questKey == ${questKey}][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey] { title, questAnswerKey, _id } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
 
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
@@ -100,10 +117,12 @@ function Index() {
 					approveTx: quest.approveTx,
 					adjournTx: quest.adjournTx,
 					successTx: quest.successTx,
+					finishTx: quest.finishTx,
 					successDateTime: quest.successDateTime,
 					answers: quest.answerKeys,
-					totalAmount: quest.totalAmount,
+					totalAmount: Number(quest.totalAmount),
 					creatorAddress: quest.creatorAddress,
+					selectedAnswer: quest.selectedAnswer,
 
 					seasonTitle: season.title,
 					seasonDesc : season.description,
@@ -140,8 +159,67 @@ function Index() {
 		});
 	}, []);
 
+	const addGroupBy = function (data, key) {
+		return data.reduce(function (carry, el) {
+			var group = el[key];
+	
+			if (carry[group] === undefined) {
+				carry[group] = 0;
+			}
+			
+			carry[group] += el.bettingCoin ?? 0;
+			return carry
+		}, {})
+	}
+
+	useEffect(() => {
+		if(selectedAnswer) {
+			const rewardInfoQuery = `*[_type == 'betting' && questAnswerKey == '${selectedAnswer._id}' && answerTitle == '${selectedAnswer?.title}']`;
+			client.fetch(rewardInfoQuery).then((rewardBettings) => {
+				console.log('rewardBettings', rewardBettings[0]);
+
+				const questInfoQuery = `*[_type == 'quests' && questKey == ${rewardBettings[0]?.questKey}][0]`;
+				client.fetch(questInfoQuery).then((quest) => {	
+					const memberRewards = addGroupBy(rewardBettings, 'memberKey');
+
+					// set member reward. each member's wallet address
+					const memberRewardArr = [];
+					for(const [key, value] of Object.entries(memberRewards)) {
+						const multiply = 
+							((quest.totalAmount
+							- (quest.totalAmount * quest.cojamFee / 100)
+							- ((quest.totalAmount * quest.creatorFee / 100) + quest.creatorPay)
+							- (quest.totalAmount * quest.charityFee / 100)) / value).toFixed(2);
+
+						const predictionFee = (multiply * value).toFixed(2);
+						memberRewardArr.push({ walletAddress: key, predictionFee: predictionFee, multiply: multiply });
+					}
+
+					// group by member key
+					const curRewardInfo = {
+						minimumPay: quest.minimumPay,
+						maximumPay: quest.maximumPay,
+						charityFee: quest.charityFee,
+						cojamFee: quest.cojamFee,
+						creatorFee: quest.creatorFee,
+						creatorPay: quest.creatorPay,
+
+						memberRewards: memberRewardArr
+					}
+
+					setRewardInfo(curRewardInfo);
+				})
+
+			});
+		}
+
+
+	}, [selectedAnswer]);
+
 	useEffect(() => {
 		setLoading(true);
+		console.log('reloadData', reloadData);
+
 		const walletAddress = walletData.account;
 
 		if(walletAddress === '') {
@@ -149,22 +227,13 @@ function Index() {
 			history.push('/');
 		}
 		
-		let subscription;
 		if(walletAddress) {
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
-			const questQuery = `*[_type == 'quests' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] } | order(questKey desc)`;
+			const questQuery = `*[_type == 'quests' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
 			client.fetch(questQuery).then((quest) => {
-				console.log('first quest', quest);
 				setTransactionDatas(quest ?? []);
 				setLoading(false);
 			});	
-
-			/*
-			subscription = client.listen(questQuery).subscribe((quest) => {
-				console.log('subscription quest', quest);
-				setTransactionDatas(quest ?? []);
-			});	
-			*/
 
 			// get member data & check current account member role
 			const memberQuery = `*[_type == 'member']`;
@@ -180,11 +249,15 @@ function Index() {
 
 				setMemberDatas(members ?? []);
 			});
+			
+			const popupQuery = `*[_type == 'popup']`;
+			client.fetch(popupQuery).then((popups) => {
+				setPopups(popups);
+			});
 		}
 
 		setSelectedQuest([]);
-		//return () => subscription?.unsubscribe();
-	}, [walletData, activeCategory]);
+	}, [walletData, reloadData, activeCategory]);
 
 	return (
 		<div className="bg-mypage" style={{background: `url('${backgroundImage}') center -590px no-repeat, #eef0f8 `}}>
@@ -199,6 +272,7 @@ function Index() {
 				<ul className="markets-tab">
 					<li className="mt-tab01 active" onClick={tabOpen01}><i className="uil uil-chart-line"></i> <span>Cojam Ground</span></li>
 					<li className="mt-tab02" onClick={tabOpen02}><i className="uil uil-files-landscapes-alt"></i> <span>Grant Admin</span></li>
+					<li className="mt-tab03" onClick={tabOpen03}><i className="uil uil-file-info-alt"></i> <span>Pop-up</span></li>
 				</ul>
 				{/* 마이페이지 - 탭버튼 끝 */}
 
@@ -248,6 +322,9 @@ function Index() {
 								<li key='5'><strong>Total(minimum)</strong></li>
 								<li key='6'><strong>Pend </strong></li>
 								<li key='7'><strong>Hot </strong></li>
+								<li key='8'><strong>Draft </strong></li>
+								<li key='9'><strong>Answer </strong></li>
+								<li key='10'><strong>Finish </strong></li>
 							</ul>
 
 							{
@@ -260,6 +337,9 @@ function Index() {
 										<li key='5'><span>Total(minimum) : </span> {transactionData.totalAmount} ({transactionData.minimumPay})</li>
 										<li key='6'><span>Pend : </span> { transactionData.pending ? 'T' : 'F' } </li>
 										<li key='7'><span>Hot : </span> { transactionData.hot ? 'T' : 'F' } </li>
+										<li key='8'><span>Draft : </span> { transactionData.draftTx !== undefined ? 'T' : 'F' } </li>
+										<li key='9'><span>Answer : </span> { transactionData.answerTx !== undefined ? 'T' : 'F' } </li>
+										<li key='10'><span>Finish : </span> { transactionData.finishTx !== undefined ? 'T' : 'F' } </li>
 									</ul>
 								))
 							}
@@ -334,7 +414,9 @@ function Index() {
 													<span>Answer List</span>
 													{
 														activeDetailData?.answers?.map((answer, index) => (
-															<input key={index} name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={answer.title}/>
+															<input key={index} name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={answer.title}
+																style={{ color: activeDetailData.selectedAnswer === answer.title ? '#fff' : 'black', background: activeDetailData.selectedAnswer === answer.title ? '#8950fc' : '' }}
+															/>
 														))
 													}
 													
@@ -371,7 +453,7 @@ function Index() {
 				</Modal>
 				{/* 모달 - 상세 끝 */}
 
-				{/* 모달 - SUCCESS */}
+				{/* 모달 - SUCCESS 시작 */}
 				<Modal open={openSuccess} onClose={() => modalSuccess(false)} center>
 					<div className="modal-mypage-view">
 						<form name="addForm" method="post" action="">
@@ -390,18 +472,50 @@ function Index() {
 													<span>Answer List</span>
 													{
 														activeDetailData?.answers?.map((answer, index) => (
-															<input key={index} name="name" type="text" className="w100p" placeholder="" style={{ color: 'black', cursor: 'pointer', background: answer.title === selectedAnswer.title ? '#8950fc' : '' }} onClick={() => {setSelectedAnswer(answer)}} readOnly defaultValue={answer.title}/>
+															<input key={index} name="name" type="text" className="w100p" placeholder="" style={{ color: 'black', cursor: 'pointer', background: answer.title === selectedAnswer?.title ? '#8950fc' : '' }} onClick={() => {setSelectedAnswer(answer)}} readOnly defaultValue={answer.title}/>
 														))
-													}	
+													}
 												</li>
 											</>
 										}
 									</ul>
+									<ul>
+									{
+										selectedAnswer &&
+										(
+											<>
+												<li key={10}>minimumPay : {rewardInfo?.minimumPay}</li>
+												<li key={20}>maximumPay : {rewardInfo?.maximumPay}</li>
+												<li key={30}>charityFee : {rewardInfo?.charityFee}</li>
+												<li key={40}>cojamFee : {rewardInfo?.cojamFee}</li>
+												<li key={50}>creatorFee : {rewardInfo?.creatorFee}</li>
+												<li key={60}>creatorPay : {rewardInfo?.creatorPay}</li>
+												<li key={70}></li>
+												<li key={80}> * Reward Address</li>
+												<li key={90}> address / multiply / predictionFee </li>
+											{
+												rewardInfo?.memberRewards?.map((memberReward, index) => (	
+													<li key={index}> {memberReward.walletAddress} / {memberReward.multiply} / {memberReward.predictionFee} CT </li>
+												))
+											}
+											</>
+										)
+									}
+									</ul>
 									<p>
-										<a href="#" onClick={async () => { 
-											await changeStateFunction('success', walletData, selectedQuest, selectedAnswer);
-											modalSuccess(false);
-										}}>Confirm</a>
+										<a href="#" onClick={
+											async () => { 
+												if(selectedAnswer?.title === undefined) {
+													alert('select answer. please');
+													return;
+												}
+
+												await changeStateFunction('success', walletData, selectedQuest, selectedAnswer);
+												modalSuccess(false);
+											}
+										}>
+											Confirm
+										</a>
 									</p>
 								</div>
 							</fieldset>
@@ -409,6 +523,78 @@ function Index() {
 					</div>
 				</Modal>
 				{/* 모달 - SUCCESS 끝 */}
+
+				{/* 모달 - ADJOURN Description 시작 */}
+				<Modal open={openAdjourn} onClose={() => modalAdjourn(false)} center>
+					<div className="modal-mypage-view">
+						<form name="addForm" method="post" action="">
+							<fieldset>
+								<legend>Adjourn Description</legend>
+								<div className="mmv-area">
+									<dl>
+										<dt>Adjourn Description</dt>
+										<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalAdjourn(false)}></i></dd>
+									</dl>
+									<div>
+										<input type="text" onChange={(e) => { setAdjournDesc(e.target.value) }} style={{ width: '50%', margin: '10px 0px' }} />
+									</div>
+									<p>
+										<a href="#" onClick={
+											async () => { 
+												if(adjournDesc === '') {
+													alert('put on adjorun description. please');
+													return;
+												}
+
+												await changeStateFunction('adjourn', walletData, selectedQuest, selectedAnswer, adjournDesc);
+												modalAdjourn(false);
+											}
+										}>
+											Confirm
+										</a>
+									</p>
+								</div>
+							</fieldset>
+						</form>
+					</div>
+				</Modal>
+				{/* 모달 - ADJOURN Description 끝 */}
+
+				{/* 모달 - INVALID Description 시작 */}
+				<Modal open={openInvalid} onClose={() => modalInvalid(false)} center>
+					<div className="modal-mypage-view">
+						<form name="addForm" method="post" action="">
+							<fieldset>
+								<legend>Invalid Description</legend>
+								<div className="mmv-area">
+									<dl>
+										<dt>Invalid Description</dt>
+										<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalInvalid(false)}></i></dd>
+									</dl>
+									<div>
+										<input type="text" onChange={(e) => { setInvalidDesc(e.target.value) }} style={{ width: '50%', margin: '10px 0px' }} />
+									</div>
+									<p>
+										<a href="#" onClick={
+											async () => { 
+												if(invalidDesc === '') {
+													alert('put on invalid description. please');
+													return;
+												}
+
+												await changeStateFunction('invalid', walletData, selectedQuest, selectedAnswer, invalidDesc);
+												modalInvalid(false);
+											}
+										}>
+											Confirm
+										</a>
+									</p>
+								</div>
+							</fieldset>
+						</form>
+					</div>
+				</Modal>
+				{/* 모달 - INVALID Description 끝 */}
 
 				{/* GRANT ADMIN - TAB02 시작*/}
 				<div className="market-admin" style={{ display: 'none' }}>
@@ -434,6 +620,29 @@ function Index() {
 					</div>
 				</div>
 				{/* GRANT ADMIN - TAB02 끝 */}
+
+				{/* POP UP - TAB03 시작*/}
+				<div className="market-admin-popup" style={{ display: 'none' }}>
+					<div className="mc-admin">
+						<div>
+							<ul>
+								<li key='1'><strong>No.</strong></li>
+								<li key='2'><strong>Title</strong></li>
+								<li key='3'><strong>Content</strong></li>
+							</ul>
+							{
+								popups?.map((popup, index) => (
+									<ul key={index} style={{ cursor: 'pointer' }}>
+										<li key='1'><span>No. : </span> {index + 1} </li>
+										<li key='2'><span>Title : </span> {popup.title} </li>
+										<li key='3'><span>Content : </span> {popup.content} </li>
+									</ul>
+								))
+							}
+						</div>
+					</div>
+				</div>
+				{/* POP UP ADMIN - TAB03 끝 */}
 		</div>
 	);
 }
@@ -445,8 +654,11 @@ function tabOpen01() {
 
 	document.querySelector('.market-admin').style.display = 'none';
 
+	document.querySelector('.market-admin-popup').style.display = 'none';
+
 	document.querySelector('.mt-tab01').classList.add("active");
 	document.querySelector('.mt-tab02').classList.remove("active");
+	document.querySelector('.mt-tab03').classList.remove("active");
 }
 
 function tabOpen02() {
@@ -456,8 +668,25 @@ function tabOpen02() {
 	document.querySelector('.mypage-info').style.display = 'none';
 	document.querySelector('.market-content').style.display = 'none';
 
+	document.querySelector('.market-admin-popup').style.display = 'none';
+
 	document.querySelector('.mt-tab01').classList.remove("active");
 	document.querySelector('.mt-tab02').classList.add("active");
+	document.querySelector('.mt-tab03').classList.remove("active");
+}
+
+function tabOpen03() {
+	document.querySelector('.market-admin-popup').style.display = 'block';
+
+	document.querySelector('.market-admin').style.display = 'none';
+	
+	document.querySelector('.category-section').style.display = 'none';
+	document.querySelector('.mypage-info').style.display = 'none';
+	document.querySelector('.market-content').style.display = 'none';
+
+	document.querySelector('.mt-tab01').classList.remove("active");
+	document.querySelector('.mt-tab02').classList.remove("active");
+	document.querySelector('.mt-tab03').classList.add("active");
 }
 
 export default Index;
