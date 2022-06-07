@@ -85,9 +85,12 @@ const doBetting = async (betting, walletData) => {
 
                     let newBettingKey;
                     await client.fetch(`*[_type == "betting"] | order(bettingKey desc)[0]`).then(async (lastBetting) => {
+                        console.log('lastBetting.bettingKey', lastBetting.bettingKey);
                         newBettingKey = Number(lastBetting.bettingKey) + 1;
                     });
                 
+                    console.log('betting params', betting, newBettingKey);
+
                     // do approve
                     await callApproveCojamURI(Number(betting.bettingCoin), walletData).then((res) => {
                         // TODO REMOVE
@@ -170,8 +173,8 @@ const doBetting = async (betting, walletData) => {
                                 transactionId: res.transactionId,
                                 transactionType: 'BETTION_S',
                                 amount: betting.bettingCoin,
-                                recipientAddress: walletAddress,
-                                spenderAddress: res.spenderAddress,
+                                recipientAddress: res.spenderAddress,
+                                spenderAddress: walletAddress,
                                 createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
                             }
         

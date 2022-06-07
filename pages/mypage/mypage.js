@@ -7,8 +7,7 @@ import { useWalletData } from '@data/wallet';
 import { client } from '../../sanity';
 import { useLoadingState } from "../../assets/context/LoadingContext";
 import Moment from 'moment';
-import { transferCojamURI, getRewardCojamURI, receiveToken } from "@api/UseKaikas";
-import { transferCojamURI_KLIP } from "@api/UseKlip";
+import { getRewardCojamURI, receiveToken } from "@api/UseKaikas";
 
 import { callTransferCojamURI } from '@api/UseTransactions';
 
@@ -49,13 +48,16 @@ function Index() {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey}][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 				await client.fetch(questQuery).then((quest) => {
 					if(quest) {
-						const multiply = 
-							((quest.totalAmount
-							- (quest.totalAmount * quest.cojamFee / 100)
-							- ((quest.totalAmount * quest.creatorFee / 100) + quest.creatorPay)
-							- (quest.totalAmount * quest.charityFee / 100)) / votingData.answer.totalAmount).toFixed(2);
+						const multiply = quest.questStatus === 'ADJOURN' ? 
+										  1 
+										: ((quest.totalAmount
+											- (quest.totalAmount * quest.cojamFee / 100)
+											- ((quest.totalAmount * quest.creatorFee / 100) + quest.creatorPay)
+											- (quest.totalAmount * quest.charityFee / 100)) / votingData.answer.totalAmount).toFixed(2);
 
-						const predictionFee = (multiply * votingData.bettingCoin).toFixed(2);
+						const predictionFee = quest.questStatus === 'ADJOURN' ? 
+												votingData.bettingCoin
+											:	(multiply * votingData.bettingCoin).toFixed(2);
 
 						const votingSet = {
 							title: quest.title,
@@ -208,18 +210,20 @@ function Index() {
 
 	// GET QUEST REWARD
 	const getQuestReward = async () => {
-		if(selectedVoting.result) {
+		if(selectedVoting.result || selectedVoting.questStatus === 'ADJOURN') {
 			alert('congret. get reward!');
+			
 			// send coin from master wallet
 			const walletAddress = walletData.account;
 
 			let transferRes;
-			//const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // dev KAS reward wallet
 			try {
 				transferRes = await receiveToken({questKey: selectedVoting.questKey, bettingKey: selectedVoting.bettingKey});
+				setLoading(true);
 			} catch(error) {
 				console.log(error);
 				//ignore
+				setLoading(false);
 				alert('transfer api error. try again.');
 				return;
 			}
@@ -245,11 +249,12 @@ function Index() {
 							})
 							.commit();
 
+				setLoading(false);
 				alert('get quest reward successfully!');
 			} else {
+				setLoading(false);
 				alert('get quest reward failed.');
 			}
-
 		} else {
 			alert('choose wrong. try another quest!');
 		}
@@ -347,7 +352,20 @@ function Index() {
 
 								return (
 									<ul key={index}>
-										<li key='0' style={{ cursor: 'pointer' }} onClick={() => { if(!voting.selectedAnswer) return; /* TODO RECOVERY if(voting.receiveAddress !== undefined) { alert("you've got reward already"); return; } */ setSelectedVoting({...voting, result: voting.selectedAnswer === voting.answerTitle}); modalQuestReward(true); }}><div className='mc-votings-result' style={{ background: voting.selectedAnswer ? (voting.selectedAnswer === voting.answerTitle ? '#58D68D' : '#E74C3C') : 'white' }} ></div></li>
+										<li key='0' style={{ cursor: 'pointer' }} onClick={() => {  if(voting.questStatus !== 'ADJOURN') {
+																										if(!voting.selectedAnswer) 
+																											return;
+
+																										if(voting.receiveAddress !== undefined) { 
+																											alert("you've got reward already"); return; 
+																										}
+																									}
+																									
+																									setSelectedVoting({...voting, result: voting.selectedAnswer === voting.answerTitle}); 
+																									modalQuestReward(true); 
+																								}}>
+											<div className='mc-votings-result' style={{ background: voting.selectedAnswer ? (voting.selectedAnswer === voting.answerTitle ? '#58D68D' : '#E74C3C') : (voting.questStatus === 'ADJOURN' ? '#8950fc' : 'white') }} />
+										</li>
 										<li key='1'><span>Category : </span>{voting.categoryNm}</li>
 										<li key='2' style={{ cursor: 'pointer' }} onClick={() => { setSelectedVoting(voting); modalMypageVoting(true); }}><span>Title : </span>{voting.title}</li>
 										<li key='3'>
@@ -690,7 +708,7 @@ function Index() {
 									</ul>
 									<p>
 										<a href="#" 
-											onClick={async () => { await getQuestReward(); modalQuestReward(false);} }
+											onClick={async () => { await getQuestReward(); modalQuestReward(false); }}
 											style={{ position: 'absolute', bottom: 0, width: '93%', marginBottom: '10px' }}
 										>
 											Get Reward!
