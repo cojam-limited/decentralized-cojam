@@ -91,7 +91,7 @@ const doBetting = async (betting, walletData) => {
                     // do approve
                     await callApproveCojamURI(Number(betting.bettingCoin), walletData).then((res) => {
                         // TODO REMOVE
-                        console.log('approve tx receipt', res``);
+                        console.log('approve tx receipt', res);
                     });
                     
                     // do betting 

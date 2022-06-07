@@ -290,6 +290,11 @@ export default {
       },
     },
     {
+      name: "questType",
+      title: "Quest Type",
+      type: "string"
+    },
+    {
       name: "description",
       title: "Description",
       type: "string"

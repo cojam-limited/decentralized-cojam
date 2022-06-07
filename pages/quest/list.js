@@ -50,7 +50,7 @@ function Index() {
 
   // modal values
   const [endDateTime, setEndDateTime] = useState(new Date());
-  const [modalValues, setModalValues] = useState({'_type': 'quests', 'questLanguage': 'EN', 'endDateTime': endDateTime});
+  const [modalValues, setModalValues] = useState({'_type': 'quests', 'questType': 'I', 'questLanguage': 'EN', 'endDateTime': endDateTime});
   // modal values
 
   const handleOpenKaikasModal = async () => {
@@ -363,8 +363,8 @@ function Index() {
                       />
                     </li>
                     <li key='5'>
-                      <select name="questType" title="" className="w100p" onChange={(e) => setModalValues({...modalValues, 'questType': e.target.files})} >
-                        <option value="I" selected>
+                      <select name="questType" title="" className="w100p" defaultValue="I" onChange={(e) => setModalValues({...modalValues, 'questType': e.target.value})} >
+                        <option value="I">
                           Image
                         </option>
                         <option value="S">SNS url</option>
