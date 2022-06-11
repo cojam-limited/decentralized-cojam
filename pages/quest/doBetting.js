@@ -136,7 +136,7 @@ const doBetting = async (betting, walletData) => {
                             });
 
                             // update each quest answer total amount
-                            const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${betting.questAnswerKey._id}'] {bettingCoin}`;
+                            const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${betting.questAnswerKey._id}' && bettingKey != '${Date.now()}'] {bettingCoin}`;
                             await client.fetch(newAnswerTotalQuery).then(async (bettingCoins) => {
                                 const newAnswerTotal = bettingCoins.reduce((acc, bettingCoin) => {
                                     return acc += Number(bettingCoin.bettingCoin);
@@ -148,7 +148,7 @@ const doBetting = async (betting, walletData) => {
                             });
 
                             // update quest total amount
-                            const newQuestTotalQuery = `*[_type == 'betting' && questKey == ${betting.questKey}] {bettingCoin}`;
+                            const newQuestTotalQuery = `*[_type == 'betting' && questKey == ${betting.questKey} && bettingKey != '${Date.now()}'] {bettingCoin}`;
                             await client.fetch(newQuestTotalQuery).then(async (bettingCoins) => {
                                 const newQuestTotal = bettingCoins.reduce((acc, bettingCoin) => {
                                     return acc += Number(bettingCoin.bettingCoin);

@@ -100,7 +100,7 @@ function Index() {
  	*/
 	const loadDetailData = (questKey, openDetailModal) => {
 		 setLoading(true);
-		 const questQuery = `*[_type == 'quests' && questKey == ${questKey}][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey] { title, questAnswerKey, _id } | order(questAnswerKey asc)}`;
+		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && questKey != '${Date.now()}'][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey] { title, questAnswerKey, _id } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
 
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
@@ -174,11 +174,11 @@ function Index() {
 
 	useEffect(() => {
 		if(selectedAnswer) {
-			const rewardInfoQuery = `*[_type == 'betting' && questAnswerKey == '${selectedAnswer._id}' && answerTitle == '${selectedAnswer?.title}']`;
+			const rewardInfoQuery = `*[_type == 'betting' && questAnswerKey == '${selectedAnswer._id}' && answerTitle == '${selectedAnswer?.title}' && answerTitle != '${Date.now()}']`;
 			client.fetch(rewardInfoQuery).then((rewardBettings) => {
 				console.log('rewardBettings', rewardBettings[0]);
 
-				const questInfoQuery = `*[_type == 'quests' && questKey == ${rewardBettings[0]?.questKey}][0]`;
+				const questInfoQuery = `*[_type == 'quests' && questKey == ${rewardBettings[0]?.questKey} && questKey != '${Date.now()}'][0]`;
 				client.fetch(questInfoQuery).then((quest) => {	
 					const memberRewards = addGroupBy(rewardBettings, 'memberKey');
 
@@ -212,16 +212,12 @@ function Index() {
 
 			});
 		}
-
-
 	}, [selectedAnswer]);
 
 	useEffect(() => {
 		setLoading(true);
-		console.log('reloadData', reloadData);
 
 		const walletAddress = walletData.account;
-
 		if(walletAddress === '') {
 			alert('logout.');
 			history.push('/');
@@ -229,14 +225,14 @@ function Index() {
 		
 		if(walletAddress) {
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
-			const questQuery = `*[_type == 'quests' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
+			const questQuery = `*[_type == 'quests' && questKey != '${Date.now()}' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
 			client.fetch(questQuery).then((quest) => {
 				setTransactionDatas(quest ?? []);
 				setLoading(false);
 			});	
 
 			// get member data & check current account member role
-			const memberQuery = `*[_type == 'member']`;
+			const memberQuery = `*[_type == 'member' && walletAddress != '${Date.now()}']`;
 			client.fetch(memberQuery).then((members) => {
 				members.forEach((member) => {
 					if(member.walletAddress === walletAddress) {

@@ -74,7 +74,10 @@ function Header() {
     console.log('handle open klip login');
 
     const bappName = 'cojam-v2';
-    const successLink = 'myApp://...';
+    //const successLink = 'myApp://...';
+
+    // TODO MODIFY
+    const successLink = 'https://musical-treacle-ae1281.netlify.app/';
     const failLink = 'myApp://...';
     const res = await prepare.auth({ bappName, successLink, failLink });
 

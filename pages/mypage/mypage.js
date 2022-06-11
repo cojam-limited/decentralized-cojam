@@ -32,7 +32,6 @@ function Index() {
 	const [ hadLoginReward, setHadLoginReward ] = useState(false);
 
 	const [ sendCTInput ] = useState({ recipientAddress: '', amount: 0 });
-
 	const { walletData } = useWalletData();
 
 	/**
@@ -42,10 +41,10 @@ function Index() {
 		const walletAddress = walletData.account;
 		const votingArr = [];
 
-		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey][0] {title, totalAmount} } | order(createdDateTime desc)`;
+		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}' && memberKey != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey][0] {title, totalAmount} } | order(createdDateTime desc)`;
 		await client.fetch(votingQuery).then(async (votingDatas) => {
 			votingDatas.forEach(async (votingData) => {
-				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey}][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
+				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey} && questKey != '${Date.now()}'][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 				await client.fetch(questQuery).then((quest) => {
 					if(quest) {
 						const multiply = quest.questStatus === 'ADJOURN' ? 
@@ -110,18 +109,7 @@ function Index() {
 				return;
 			}
 
-			console.log('do transfer walletData', walletData);
-
-			const transferRes = await callTransferCojamURI({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)}, walletData);
-			
-			/*
-			if(walletData.type === 'kaikas') {
-				transferRes = await transferCojamURI({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
-			} else {
-				transferRes = await transferCojamURI_KLIP({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)});
-			}
-			*/
-			
+			const transferRes = await callTransferCojamURI({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)}, walletData);			
 			if(transferRes.status === 200) {
 				alert(`${sendCTInput.amount} (CT) send to '${sendCTInput.recipientAddress}' successfully.`);
 			} else {
@@ -144,13 +132,13 @@ function Index() {
 		if(walletAddress) {
 			// 9 hours after
 			const creteriaDate = Moment().add('9', 'h').format("yyyy-MM-DD");
-			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && loginDate == '${creteriaDate}'][0]`;
+			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && loginDate == '${creteriaDate}' && walletAddress != '${Date.now()}'][0]`;
 			client.fetch(loginRewardHistQuery).then((loginRewardHistory) => {
 				// check if user got join reward. before 9 hours.
 				if(loginRewardHistory || hadLoginReward) {
 					alert("you've got reward already.");
 				} else {
-					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'login'][0]`;
+					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'login' && rewardType != '${Date.now()}'][0]`;
 					client.fetch(rewardInfoQuery).then(async (rewardInfo) => {
 						if(!rewardInfo.amount) {
 							alert('login reward amount is not exist');
@@ -269,19 +257,19 @@ function Index() {
 		setLoading(true);
 		loadVotings();
 		
-		const groundQuery = `*[_type == 'quests' && creatorAddress == '${walletAddress}' && isActive == true] {..., 'seasonNm': *[_type=='season' && _id == ^.season._ref]{title}[0], 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] } | order(createdDateTime desc)`;
+		const groundQuery = `*[_type == 'quests' && creatorAddress == '${walletAddress}' && isActive == true && isActive != '${Date.now()}'] {..., 'seasonNm': *[_type=='season' && _id == ^.season._ref]{title}[0], 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] } | order(createdDateTime desc)`;
 		client.fetch(groundQuery).then((grounds) => {
 			setGrounds(grounds);
 		});
 
-		const transferQuery = `*[_type == 'transactions' && spenderAddress == '${walletAddress}' || recipientAddress == '${walletAddress}'] | order(createdDateTime desc)`;
+		const transferQuery = `*[_type == 'transactions' && spenderAddress == '${walletAddress}' || recipientAddress == '${walletAddress}' && recipientAddress != '${Date.now()}' ] | order(createdDateTime desc)`;
 		client.fetch(transferQuery).then((transfers) => {
 			setTransfers(transfers);
 		});
 
 		let subscription;
 		if(walletAddress) {
-			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}']`;
+			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && walletAddress != '${Date.now()}']`;
 			subscription = client.listen(loginRewardHistQuery).subscribe((rewardHistory) => {
 				console.log('reward history update !!!', walletAddress);
 				
@@ -355,10 +343,11 @@ function Index() {
 										<li key='0' style={{ cursor: 'pointer' }} onClick={() => {  if(voting.questStatus !== 'ADJOURN') {
 																										if(!voting.selectedAnswer) 
 																											return;
+																									}
 
-																										if(voting.receiveAddress !== undefined) { 
-																											alert("you've got reward already"); return; 
-																										}
+																									if(voting.receiveAddress !== undefined) { 
+																										alert("you've got reward already"); 
+																										return; 
 																									}
 																									
 																									setSelectedVoting({...voting, result: voting.selectedAnswer === voting.answerTitle}); 

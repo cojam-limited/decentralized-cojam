@@ -19,8 +19,6 @@ import createNewQuest from './createNewQuest';``
 import "react-responsive-modal/styles.css";
 import { useWalletData } from '@data/wallet';
 import { kaikasLogin, isKaikasUnlocked } from '@api/UseKaikas';
-import LoadingContext from "../../assets/context/LoadingContext";
-
 
 function Index() {
   const { walletData } = useWalletData();
@@ -49,6 +47,7 @@ function Index() {
   const [ answerAllocations, setAnswerAllocations ] = useState({});
 
   // modal values
+  const [fileKey, setFileKey] = useState('');
   const [endDateTime, setEndDateTime] = useState(new Date());
   const [modalValues, setModalValues] = useState({'_type': 'quests', 'questType': 'I', 'questLanguage': 'EN', 'endDateTime': endDateTime});
   // modal values
@@ -66,7 +65,7 @@ function Index() {
   const getQuestHistory = async () => {
     setLoading(true);
 
-    const questHistoryQuery = `*[_type == 'quests' && isActive == true  && (statusType == 'SUCCESS' || statusType == 'ADJOURN')] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(createdDateTime desc)`;
+    const questHistoryQuery = `*[_type == 'quests' && isActive == true  && (statusType == 'SUCCESS' || statusType == 'ADJOURN') && statusType != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(createdDateTime desc)`;
     await client.fetch(questHistoryQuery).then((questHistory) => {
       console.log('questHistory', questHistory);
 
@@ -132,7 +131,7 @@ function Index() {
      * Quest 리스트 & 데이터 조회
      */
     const condition = `${activeCategory === 'All' ? '' : `&& seasonCategory._ref in *[_type == "seasonCategories" && seasonCategoryName == '${activeCategory}']._id`}`;
-    const questQuery = `*[_type == 'quests' && isActive == true  && statusType == 'APPROVE' ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(createdDateTime desc)`;
+    const questQuery = `*[_type == 'quests' && isActive == true  && statusType == 'APPROVE' && statueType != '${Date.now()}' ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(totalAmount desc) | order(createdDateTime desc)`;
 		client.fetch(questQuery).then((datas) => {
       datas.forEach((quest) => {
         const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
@@ -374,7 +373,7 @@ function Index() {
                       <div className="input-file">
                         <label>
                           File Attach
-                          <input type="file" onChange={(e) => setModalValues({...modalValues, 'imageFile': e.target.files})} />
+                          <input type="file" onChange={(e) => { setModalValues({...modalValues, 'fileKey': e.target.value, 'imageFile': e.target.files}) }} />
                         </label>
                         &nbsp;
                         <input
@@ -383,7 +382,7 @@ function Index() {
                           title="File Route"
                           id="fileRoute"
                           placeholder="Attach an image"
-                          onChange={(e) => setModalValues({...modalValues, 'fileKey': e.target.value})}
+                          defaultValue={modalValues.fileKey}
                         />
                       </div>
                     </li>

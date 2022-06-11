@@ -15,9 +15,6 @@ import doBetting from './doBetting';
 import { urlFor, client } from "../../sanity";
 import { useWalletData } from '@data/wallet';
 
-import { getCojamBalance } from '@api/UseKaikas';
-import { getCojamBalance_KLIP } from '@api/UseKlip';
-
 import { callGetCojamBalance } from '../../api/UseTransactions';
 
 import backgroundImage from '@assets/body_quest.jpg';
@@ -79,9 +76,6 @@ function Index(props) {
 				'predictionFee': receiveToken
 			}
 
-			// TODO REMOVE
-			alert('current balance : ' + curBalance);
-
 			const betResult = await doBetting(betting, walletData);
 			
 			alert(`${betResult.message}`);
@@ -95,7 +89,7 @@ function Index(props) {
 	}
 
 	useEffect(() => {
-		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, questAnswerKey, totalAmount}} [0]`;
+		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}' && isActive != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, questAnswerKey, totalAmount}} [0]`;
 		
 		let subscription;
 		client.fetch(questQuery).then((quest) => {
@@ -144,7 +138,7 @@ function Index(props) {
 			history.push('/');
 		}
 
-		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} [0]`;
+		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}' && isActive != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} [0]`;
 		client.fetch(questQuery).then((quest) => {
 			console.log('quest', quest);
 
@@ -169,10 +163,16 @@ function Index(props) {
 			const answers = quest.answerIds;
 			answers.forEach((answer) => {
 				const resultPercent = answer.totalAmount / questTotalAmount;
+
+				console.log('resultPercent', resultPercent, answer.totalAmount, questTotalAmount);
+
 				const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
+				
 				answerTotalAmounts[answer.title] = answer.totalAmount;
 				answerPercents[answer.title] = resultPercent * 100;
 				answerAllocations[answer.title] = allocation;
+
+				console.log('answers', answer.title, answerTotalAmounts[answer.title], answerPercents[answer.title], answerAllocations[answer.title]);
 	
 				setAnswerTotalAmounts(answerTotalAmounts);
 				setAnswerPercents(answerPercents);
@@ -180,7 +180,7 @@ function Index(props) {
 			});
 
 			const creteriaDate = Moment().subtract(5, 'days').format('YYYY-MM-DD');
-			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey]{color}[0] } | order(createdDateTime desc)`;
+			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}' && questKey != '${Date.now()}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey]{color}[0] } | order(createdDateTime desc)`;
 			client.fetch(answerHistoryQuery).then((answerHist) => {
 				// group by date
 				const graphGroupData = answerHist.reduce((group, answer) => {
@@ -209,7 +209,7 @@ function Index(props) {
 				setAnswerHistory(answerHist);
 			});
 
-			const seasonCategoryQuery = `*[_type == 'season' && isActive == true] {seasonCategories[] -> {seasonCategoryName, _id}}`;
+			const seasonCategoryQuery = `*[_type == 'season' && isActive == true && isActive != '${Date.now()}'] {seasonCategories[] -> {seasonCategoryName, _id}}`;
 			client.fetch(seasonCategoryQuery).then((datas) => {
 				if(datas) {
 					const localCategories = [{seasonCategoryName: 'All'}];
@@ -252,7 +252,6 @@ function Index(props) {
 					<h2>{quest?.category}</h2>
 					<h3><i className="uil uil-estate"></i> Home · <span>{quest?.category}</span></h3>
 				</dt>
-				
 			</dl>
 			{/* 기본영역 끝 */}
 
