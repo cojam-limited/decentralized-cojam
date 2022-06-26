@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from 'react-responsive-modal';
 
-import { Link, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
@@ -16,6 +16,7 @@ import { changeStateFunction } from './statusFunctions';
 import { transferOwnership } from '@api/UseKaikas';
 
 import Moment from 'moment';
+import toastNotify from '@utils/toast';
 
 function Index() {
 	const history = useHistory();
@@ -53,7 +54,10 @@ function Index() {
 
 	const clickStateButton = async (state) => {
 		if(selectedQuest.length === 0) {
-			alert('choose the quest to change the state');
+			toastNotify({
+				state: 'warn',
+				message: 'choose the quest to change the state',
+			});
 			return;
 		}
 
@@ -83,14 +87,20 @@ function Index() {
 			const result = await transferOwnership(walletAddress);
 
 			if(result.status === 200) {
-				alert('transfer to admin success');
+				toastNotify({
+					state: 'success',
+					message: 'transfer to admin success',
+				});
 				
 				await client.patch(member._id)
 					  .set({ memberRole: 'admin' })
 					  .commit();
 
 			} else {
-				alert('transfer to admin failed');
+				toastNotify({
+					state: 'warn',
+					message: 'transfer to admin failed',
+				});
 			}
 		}
 	}
@@ -100,15 +110,18 @@ function Index() {
  	*/
 	const loadDetailData = (questKey, openDetailModal) => {
 		 setLoading(true);
-		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && questKey != '${Date.now()}'][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey] { title, questAnswerKey, _id } | order(questAnswerKey asc)}`;
+		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey] { title, questAnswerKey, _id } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
-
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
 			 client.fetch(seasonQuery).then((season) => {
 				const detailDatas = {
 					questKey: quest.questKey,
 					imageFile: quest.imageFile,
-					title: quest.title,
+					imageLink: quest.imageLink,
+					imageUrl: quest.imageUrl,
+					titleEN: quest.titleEN,
+					titleKR: quest.titleKR,
+					titleCH: quest.titleCH,
 					categoryName: quest.categoryName,
 					status: quest.questStatus,
 					description: quest.description,
@@ -132,9 +145,10 @@ function Index() {
 					creatorPay: season.creatorPay,
 					minimumPay: season.minimumPay,
 					maximumPay: season.maximumPay,
-					'openDetailModal': openDetailModal
+					openDetailModal: openDetailModal
 				}
 
+				console.log('detailDatas', detailDatas);
 				setActiveDetailData(detailDatas);
 			 });
 		 });
@@ -178,7 +192,7 @@ function Index() {
 			client.fetch(rewardInfoQuery).then((rewardBettings) => {
 				console.log('rewardBettings', rewardBettings[0]);
 
-				const questInfoQuery = `*[_type == 'quests' && questKey == ${rewardBettings[0]?.questKey} && questKey != '${Date.now()}'][0]`;
+				const questInfoQuery = `*[_type == 'quests' && questKey == ${rewardBettings[0]?.questKey} && _id != '${Date.now()}'][0]`;
 				client.fetch(questInfoQuery).then((quest) => {	
 					const memberRewards = addGroupBy(rewardBettings, 'memberKey');
 
@@ -219,25 +233,31 @@ function Index() {
 
 		const walletAddress = walletData.account;
 		if(walletAddress === '') {
-			alert('logout.');
+			toastNotify({
+				state: 'warn',
+				message: 'logout',
+			});
 			history.push('/');
 		}
 		
 		if(walletAddress) {
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
-			const questQuery = `*[_type == 'quests' && questKey != '${Date.now()}' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
+			const questQuery = `*[_type == 'quests' && _id != '${Date.now()}' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
 			client.fetch(questQuery).then((quest) => {
 				setTransactionDatas(quest ?? []);
 				setLoading(false);
 			});	
 
 			// get member data & check current account member role
-			const memberQuery = `*[_type == 'member' && walletAddress != '${Date.now()}']`;
+			const memberQuery = `*[_type == 'member' && _id != '${Date.now()}']`;
 			client.fetch(memberQuery).then((members) => {
 				members.forEach((member) => {
 					if(member.walletAddress === walletAddress) {
 						if(member.memberRole !== 'admin') {
-							alert('this account is not admin.');
+							toastNotify({
+								state: 'warn',
+								message: 'this account is not admin.',
+							});
 							history.push('/');
 						}
 					}
@@ -311,31 +331,41 @@ function Index() {
 					<div className="mc-markets" style={{ display: 'block' }}>
 						<div>
 							<ul>
-								<li key='1'><strong>No.</strong></li>
-								<li key='2'><strong>Category</strong></li>
-								<li key='3'><strong>Title</strong></li>
-								<li key='4'><strong>End Date</strong></li>
-								<li key='5'><strong>Total(minimum)</strong></li>
-								<li key='6'><strong>Pend </strong></li>
-								<li key='7'><strong>Hot </strong></li>
-								<li key='8'><strong>Draft </strong></li>
-								<li key='9'><strong>Answer </strong></li>
-								<li key='10'><strong>Finish </strong></li>
+								<li key='1'><strong> </strong></li>
+								<li key='2'><strong>No.</strong></li>
+								<li key='3'><strong>Category</strong></li>
+								<li key='4'><strong>Title</strong></li>
+								<li key='5'><strong>End Date</strong></li>
+								<li key='6'><strong>Total(minimum)</strong></li>
+								<li key='7'><strong>Pend </strong></li>
+								<li key='8'><strong>Hot </strong></li>
+								<li key='9'><strong>Draft </strong></li>
+								<li key='10'><strong>Answer </strong></li>
+								<li key='11'><strong>Finish </strong></li>
 							</ul>
 
 							{
 								transactionDatas?.map((transactionData, index) => (
-									<ul key={index} onClick={() => { setSelectedQuest(transactionData); }} style={{ background: transactionData._id === selectedQuest._id ? '#2132' : '' }} >
-										<li key='1'><span>No. : </span> {index + 1} </li>
-										<li key='2'><span>Category : </span> {transactionData.categoryNm?.seasonCategoryName} </li>
-										<li key='3' onClick={() => { loadDetailData(transactionData.questKey, true); }} style={{ cursor: 'pointer' }}><span>Title : </span> {transactionData.title} </li>
-										<li key='4'><span>End Date : </span> {Moment(transactionData.endDateTime).format('YYYY-MM-DD HH:mm:ss')} </li>
-										<li key='5'><span>Total(minimum) : </span> {transactionData.totalAmount} ({transactionData.minimumPay})</li>
-										<li key='6'><span>Pend : </span> { transactionData.pending ? 'T' : 'F' } </li>
-										<li key='7'><span>Hot : </span> { transactionData.hot ? 'T' : 'F' } </li>
-										<li key='8'><span>Draft : </span> { transactionData.draftTx !== undefined ? 'T' : 'F' } </li>
-										<li key='9'><span>Answer : </span> { transactionData.answerTx !== undefined ? 'T' : 'F' } </li>
-										<li key='10'><span>Finish : </span> { transactionData.finishTx !== undefined ? 'T' : 'F' } </li>
+									<ul key={index} style={{ background: transactionData._id === selectedQuest._id ? '#2132' : '' }} >
+										<li key='1'><input type="checkbox" onChange={() => { setSelectedQuest(transactionData) }} checked={transactionData._id === selectedQuest._id}/></li>
+										<li key='2'><span>No. : </span> {index + 1} </li>
+										<li key='3'><span>Category : </span> {transactionData.categoryNm?.seasonCategoryName} </li>
+										<li key='4' onClick={() => { loadDetailData(transactionData.questKey, true); }} style={{ cursor: 'pointer' }}>
+											<span>Title : </span> 
+											{
+												transactionData.questLanguage === 'EN'  ? transactionData.titleEN
+																					    : transactionData.questLanguage === 'KR' 
+																							 ? transactionData.titleKR
+																							 : transactionData.titleCH
+											} 
+										</li>
+										<li key='5'><span>End Date : </span> {Moment(transactionData.endDateTime).format('YYYY-MM-DD HH:mm:ss')} </li>
+										<li key='6'><span>Total(minimum) : </span> {transactionData.totalAmount} ({transactionData.minimumPay})</li>
+										<li key='7'><span>Pend : </span> { transactionData.pending ? 'T' : 'F' } </li>
+										<li key='8'><span>Hot : </span> { transactionData.hot ? 'T' : 'F' } </li>
+										<li key='9'><span>Draft : </span> { transactionData.draftTx !== undefined ? 'T' : 'F' } </li>
+										<li key='10'><span>Answer : </span> { transactionData.answerTx !== undefined ? 'T' : 'F' } </li>
+										<li key='11'><span>Finish : </span> { transactionData.finishTx !== undefined ? 'T' : 'F' } </li>
 									</ul>
 								))
 							}
@@ -359,20 +389,44 @@ function Index() {
 										{
 											activeDetailData &&
 											<>
-												<li>
-													<img src={activeDetailData.imageFile && urlFor(activeDetailData.imageFile)} width="100%"/>
+												<li
+													style={{ 
+														width: '100%',
+														height: '450px'
+													}}
+												>
+													<p 
+														onClick={() => {
+															if(activeDetailData?.imageLink && activeDetailData?.imageLink !== '') { 
+																const toUrl = activeDetailData?.imageLink.indexOf('http') === -1 
+																			? `https://${activeDetailData?.imageLink}` 
+																			: `${activeDetailData?.imageLink}`;
+
+																window.open(toUrl, '_blank').focus();
+															}
+														}} 
+														style={{
+															width: '100%',
+															height: '100%',
+															cursor: activeDetailData?.imageLink ? 'pointer' : '',
+															backgroundImage: `url('${activeDetailData && (activeDetailData.imageFile ? urlFor(activeDetailData.imageFile) : activeDetailData.imageUrl)}')`, 
+															backgroundPosition: `center`, 
+															backgroundSize: `cover` 
+														}}
+													/>
 												</li>
+												
 												<li>
 													<span>Title(English)</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.titleEN}/>
 												</li>
 												<li>
 													<span>Title(Korean)</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.title}/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.titleKR}/>
 												</li>
 												<li>
 													<span>Title(Chinese)</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly/>
+													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.titleCH}/>
 												</li>
 												<li>
 													<span>Category</span>
@@ -502,11 +556,17 @@ function Index() {
 										<a href="#" onClick={
 											async () => { 
 												if(selectedAnswer?.title === undefined) {
-													alert('select answer. please');
+													toastNotify({
+														state: 'warn',
+														message: 'select answer. please',
+													});
 													return;
 												}
-
+												
+												setLoading(true);
 												await changeStateFunction('success', walletData, selectedQuest, selectedAnswer);
+												setLoading(false);
+
 												modalSuccess(false);
 											}
 										}>
@@ -538,11 +598,17 @@ function Index() {
 										<a href="#" onClick={
 											async () => { 
 												if(adjournDesc === '') {
-													alert('put on adjorun description. please');
+													toastNotify({
+														state: 'warn',
+														message: 'put on adjorun description. please',
+													});
 													return;
 												}
 
+												setLoading(true);
 												await changeStateFunction('adjourn', walletData, selectedQuest, selectedAnswer, adjournDesc);
+												setLoading(false);
+
 												modalAdjourn(false);
 											}
 										}>
@@ -574,11 +640,17 @@ function Index() {
 										<a href="#" onClick={
 											async () => { 
 												if(invalidDesc === '') {
-													alert('put on invalid description. please');
+													toastNotify({
+														state: 'warn',
+														message: 'put on invalid description. please',
+													});
 													return;
 												}
 
+												setLoading(true);
 												await changeStateFunction('invalid', walletData, selectedQuest, selectedAnswer, invalidDesc);
+												setLoading(false);
+
 												modalInvalid(false);
 											}
 										}>

@@ -3,21 +3,80 @@ import { client } from "../../sanity";
 import axios from "axios";
 import cheerio from "cheerio";
 import Moment from 'moment';
+import toastNotify from '@utils/toast';
 
+// https://img.youtube.com/watch?v=3HNyXCPDQ7Q&t=7478s
 
+const fileUploadYoutube = async (youtubeId) => {
+    const thumbNailArr = ['maxresdefault.jpg', 'sddefault.jpg', 'hqdefault.jpg', 'mqdefault.jpg', 'default.jpg'];
+
+    let thumbNail;
+    for(const youtubeUrl of thumbNailArr) {
+        const url = `/yimage/${youtubeId}/${youtubeUrl}`;
+
+        // url image download.
+        try {
+            await fetch(url).then(res => {
+                if(res.ok) {
+                    res.blob().then((blob) => {
+                        thumbNail = new File([blob], 'jpg', {type: blob.type});
+                    });
+                }
+            });
+        } catch(e) {
+
+        } finally {
+            if(thumbNail) {
+                return;
+            }
+        }
+    }
+
+    console.log('file upload youtube thumbnail', thumbNail);
+
+    return thumbNail;
+}
+
+const fileUpload = async (snsUrl) => {
+    const extensionArr = ["png", "jpg", "jpeg", "gif"];
+    let extension = "jpg";
+
+    for(const extensionStr of extensionArr) {
+        if(snsUrl.toLowerCase().includes(`.${extensionStr}`)) {
+            extension = extensionStr;
+            break;
+        }
+    }
+
+    let thumbNail;
+    // url image download.
+    try {
+        await fetch(snsUrl).then(res => {
+            res.blob().then((blob) => {
+                thumbNail = new File([blob], extension, {type: blob.type});
+            });
+        });
+    } catch(e) { 
+        console.log('error', e);
+    }
+
+    return thumbNail;
+}
 
 async function getHTML(url) {
+    console.log('getHTML url', url.replace('https://www.youtube.com', '/youtube'));
+
     try {
         return await axios({
             method: 'get',
-            url: '/watch?v=3HNyXCPDQ7Q&t=7478s'
+            url: url.replace('https://www.youtube.com', '/youtube')
         });
     } catch (error) {
         console.error(error);
     }
 }
 
-const getSocialMediaCheck = (snsUrl) => {
+const getSocialMediaCheck = async (snsUrl) => {
     const snsInfo = {};
 
     try {
@@ -42,26 +101,32 @@ const getSocialMediaCheck = (snsUrl) => {
             snsInfo['snsType'] = 'O';
         }
 
-        getHTML(snsUrl).then(html => {
-            let titleList = [];
-            const $ = cheerio.load(html.data);
+        await getHTML(snsUrl).then(html => {
+            if(html) {
+                const $ = cheerio.load(html.data);
             
-            const titleBody = $("meta[property=og:title]").first();
-            if(titleBody && titleBody[0]) {
-                snsInfo['snsTitle'] = titleBody[0].attribs.content;
-            }
-
-            const imageBody = $("meta[property=og:image]").first();
-            if(imageBody && imageBody[0]) {
-                snsInfo['imageUrl'] = imageBody[0].attribs.content;
-            }
-
-            const descriptionBody = $("meta[property=og:description]").first();
-            if(descriptionBody && descriptionBody[0]) {
-                snsInfo['snsDesc'] = descriptionBody[0].attribs.content;
+                const titleBody = $("meta[property=og:title]").first();
+                if(titleBody && titleBody[0]) {
+                    snsInfo['snsTitle'] = titleBody[0].attribs.content;
+                }
+    
+                const imageBody = $("meta[property=og:image]").first();
+                if(imageBody && imageBody[0]) {
+                    snsInfo['imageUrl'] = imageBody[0].attribs.content;
+                }
+    
+                const descriptionBody = $("meta[property=og:description]").first();
+                if(descriptionBody && descriptionBody[0]) {
+                    snsInfo['snsDesc'] = descriptionBody[0].attribs.content;
+                }
+            } else {
+                snsInfo['check'] = false;
+                return snsInfo;
             }
         })
-        .catch(() => {
+        .catch((e) => {
+            console.log('error', e);
+
             snsInfo['check'] = false;
             return snsInfo;
         });    
@@ -96,6 +161,14 @@ const createNewQuest = async (modalValues, answers, walletData) => {
         { title: "Gold", value: "#FFD700" },
     ];
 
+
+    // title setting
+    quest['titleEN'] = modalValues.title?.EN?.content ?? '';
+    quest['titleKR'] = modalValues.title?.KR?.content ?? '';
+    quest['titleCH'] = modalValues.title?.CH?.content ?? '';
+
+    delete modalValues.title;
+
     const quest = {'answers': [], ...modalValues};
     answers && answers.forEach((answer) => quest.answers.push(answer.value));
 
@@ -103,6 +176,10 @@ const createNewQuest = async (modalValues, answers, walletData) => {
     const query = `*[_type == 'season' && isActive == true]`;
     await client.fetch(query).then(async (seasons) => {
         if(!seasons || seasons.length == 0) {
+            toastNotify({
+                state: 'warn',
+                message: 'season is null',
+            });
             return;
         }
         
@@ -122,12 +199,43 @@ const createNewQuest = async (modalValues, answers, walletData) => {
             quest['imageFile'] = modalValues.imageFile[0];
             quest['imageLink'] = modalValues.snsUrl ?? '';
         } else if(modalValues && modalValues.questType === 'S' && modalValues.snsUrl) {
-            const snsInfo = getSocialMediaCheck(modalValues.snsUrl);
+            const snsInfo = await getSocialMediaCheck(modalValues.snsUrl);
+
+            quest['imageLink'] = modalValues.snsUrl;
             quest['snsType'] = snsInfo.snsType;
             quest['snsId'] = snsInfo.snsId;
             quest['snsTitle'] = snsInfo.snsTitle;
             quest['snsDesc'] = snsInfo.snsDesc;
+
+            if(snsInfo.check) {
+                let thumbnail;
+
+                // youtube 일 경우, 썸네일 저장 
+                if(snsInfo.snsType === 'Y') {
+                    thumbnail = await fileUploadYoutube(snsInfo.snsId);
+
+                    if(thumbnail) {
+                        quest['imageFile'] = thumbnail;
+                        quest['imageUrl'] = '';
+                    } else {
+                        quest['imageUrl'] = `https://img.youtube.com/vi/${snsInfo.snsId}/maxresdefault.jpg`;
+                    }
+                } else if (snsInfo.imageUrl && snsInfo.imageUrl !== '') {
+                    thumbnail = await fileUpload(modalValues.snsUrl);
+
+                    if(thumbnail) {
+                        quest['imageFile'] = thumbnail;
+                        quest['imageUrl'] = '';
+                    } else {
+                        quest['imageUrl'] = modalValues.snsUrl;
+                    }
+                }
+            }
         } else {
+            toastNotify({
+                state: 'warn',
+                message: 'quest create failed. snsUrl wrong.'
+            });
             return;
         }
 
@@ -141,41 +249,47 @@ const createNewQuest = async (modalValues, answers, walletData) => {
         quest['createdDateTime'] = Moment().format("yyyy-MM-DD HH:mm:ss");
         quest['endDateTime'] = modalValues.endDateTime;
 
-        await client.fetch(`*[_type == "quests"] | order(questKey desc)[0]`).then(async (lastQuest) => {
+        await client.fetch(`*[_type == "quests"  && _id != '${Date.now()}'] | order(questKey desc)[0]`).then(async (lastQuest) => {
             quest['questKey'] = lastQuest.questKey + 1;
 
             // create new quest
             await client.create(quest).then(async (res) => {
-                // upload image
-                await client.assets
-                      .upload('image', quest.imageFile)
-                      .then(async (imageAsset) => {
-                        await client.patch(res._id)
-                                    .set({
-                                        imageFile: {
-                                            _type: 'image',
-                                            asset: {
-                                                _type: "reference",
-                                                _ref: imageAsset._id
-                                            }
+                if(quest.imageFile) {
+                    // upload image
+                    await client.assets
+                    .upload('image', quest.imageFile)
+                    .then(async (imageAsset) => {
+                    await client.patch(res._id)
+                                .set({
+                                    imageFile: {
+                                        _type: 'image',
+                                        asset: {
+                                            _type: "reference",
+                                            _ref: imageAsset._id
                                         }
-                                    })
-                                    .commit();
+                                    }
+                                })
+                                .commit();
 
-                        console.log('Image upload Done!');
-                      })
-                      .catch((err) => { 
-                        console.log('err', err);
-                        return { statusCode: 400 } 
-                      });
+                    console.log('Image upload Done!');
+                    })
+                    .catch((err) => {
+                    toastNotify({
+                        state: 'error',
+                        message: 'quest create failed. image upload failed.'
+                    })
+
+                    return { statusCode: 400 } 
+                    });
+                }
 
                 // Answer 생성
                 if(answers) {
                     // get increment
-                    await client.fetch(`*[_type == "questAnswerList"] | order(questAnswerKey desc)[0]`).then((lastAnswer) => {
+                    await client.fetch(`*[_type == "questAnswerList" && _id != '${Date.now()}'] | order(questAnswerKey desc)[0]`).then((lastAnswer) => {
                         let order = lastAnswer.questAnswerKey; 
                         // create new quest answer
-                        answers.forEach((answer, index) => {   
+                        answers.forEach(async (answer, index) => {   
                             order = order + 1;
                             
                             const arrIndex = index % defaultLineColorArr.length;
@@ -190,12 +304,15 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                                 color: defaultLineColorArr[arrIndex]
                             }
 
-                            client.create(questAnswer);
+                            await client.create(questAnswer);
                         });
                     });
                 }
 
-                alert('create quest success');
+                toastNotify({
+                    state: 'success',
+                    message: 'create quest success',
+                });
             });
         });
     });

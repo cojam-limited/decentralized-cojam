@@ -446,7 +446,7 @@ export const bettingCojamURI = async ({
   )
   .send({from: klaytn.selectedAddress, value: 0, gas: '9000000'})
   .then(function(receipt) {
-    console.log('betting', receipt);
+    console.log('voting', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });

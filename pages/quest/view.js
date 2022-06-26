@@ -19,6 +19,8 @@ import { callGetCojamBalance } from '../../api/UseTransactions';
 
 import backgroundImage from '@assets/body_quest.jpg';
 
+import toastNotify from '@utils/toast';
+
 function Index(props) {
 	const history = useHistory();
 	const [ onBetting, setOnBetting ] = useState();
@@ -52,7 +54,10 @@ function Index(props) {
 	const setBetting = async () => {
 		setLoading(true);
 		if(!selectedAnswer) {
-			alert('choice the answer !');
+			toastNotify({
+				state: 'warn',
+				message: 'choice the answer !',
+			});
 			setLoading(false);
 			return;
 		}
@@ -78,18 +83,24 @@ function Index(props) {
 
 			const betResult = await doBetting(betting, walletData);
 			
-			alert(`${betResult.message}`);
+			toastNotify({
+				state: 'success',
+				message: `${betResult.message}`,
+			});
+
 			setOnBetting('bet');
 		} catch(error) {
-			console.log('betting error', error);
-			alert(`betting failed.`);
+			toastNotify({
+				state: 'error',
+				message: `Voting failed.`,
+			});
 		}
 
 		setLoading(false);
 	}
 
 	useEffect(() => {
-		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}' && isActive != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, questAnswerKey, totalAmount}} [0]`;
+		const questQuery = `*[_type == 'quests' && isActive == true && pending == false && _id == '${questId}' && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, questAnswerKey, totalAmount}} [0]`;
 		
 		let subscription;
 		client.fetch(questQuery).then((quest) => {
@@ -127,26 +138,26 @@ function Index(props) {
 		 * Quest 리스트 & 데이터 조회
 		 */
 		if(!questId) {
-			alert('error. pick the quest again. please');
+			toastNotify({
+				state: 'error',
+				message: 'error. pick the quest again. please',
+			});
+
 			setLoading(false);
 			return;
 		}
 
-		const walletAddress = walletData.account;
-		if(walletAddress === '') {
-			alert('login please.');
-			history.push('/');
-		}
-
-		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}' && isActive != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} [0]`;
+		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}' && pending == false && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} [0]`;
 		client.fetch(questQuery).then((quest) => {
-			console.log('quest', quest);
-
 			const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days');
 			if(diff === 0) { 
 				quest.dDay = 'D-0';
 			} else if (diff > 0) {
-				alert('quest has been completed.');
+				toastNotify({
+					state: 'warn',
+					message: 'quest has been completed.',
+				});
+
 				history.push('/');
 			} else {
 				quest.dDay = `D${diff}`;
@@ -180,7 +191,7 @@ function Index(props) {
 			});
 
 			const creteriaDate = Moment().subtract(5, 'days').format('YYYY-MM-DD');
-			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}' && questKey != '${Date.now()}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey]{color}[0] } | order(createdDateTime desc)`;
+			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}' && _id != '${Date.now()}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey]{color}[0] } | order(createdDateTime desc)`;
 			client.fetch(answerHistoryQuery).then((answerHist) => {
 				// group by date
 				const graphGroupData = answerHist.reduce((group, answer) => {
@@ -209,7 +220,7 @@ function Index(props) {
 				setAnswerHistory(answerHist);
 			});
 
-			const seasonCategoryQuery = `*[_type == 'season' && isActive == true && isActive != '${Date.now()}'] {seasonCategories[] -> {seasonCategoryName, _id}}`;
+			const seasonCategoryQuery = `*[_type == 'season' && isActive == true && _id != '${Date.now()}'] {seasonCategories[] -> {seasonCategoryName, _id}}`;
 			client.fetch(seasonCategoryQuery).then((datas) => {
 				if(datas) {
 					const localCategories = [{seasonCategoryName: 'All'}];
@@ -236,7 +247,7 @@ function Index(props) {
 		const calRate = Number(getToken) / Number(bettingCoin);
 
 		const rateString = isNaN(Number(calRate).toFixed(1)) ? '-' : Number(calRate).toFixed(1);
-		const tokenString = isNaN(Number(getToken)) ?  '-' : Number(getToken).toFixed(3);
+		const tokenString = isNaN(Number(getToken)) ?  '-' : Number(getToken).toFixed(2);
 
 		setRate(rateString);
 		setReceiveToken(tokenString);
@@ -262,27 +273,52 @@ function Index(props) {
 						quest?.snsUrl && quest?.questType === 'S' &&
 						<div>
 							<h2><span>Confirmed</span> BTS reached #1 on the Billboard Chart with a song "Dynamite". Will BTS be able to win "The album of the year" at the Grammy Awards held on January 31, 2021?</h2>
-							<p><iframe title="movie" width="100%" height="650" src={quest.snsUrl} frameBorder="0" allow="accelerometer; autoPlay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe></p>
+							<p>
+								<iframe 
+									width="100%" 
+									height="650"
+									src={`https://www.youtube.com/embed/${quest.snsId}?autoplay=1&mute=1`}
+									allow="accelerometer; autoPlay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+									allowFullScreen
+								/>
+							</p>
 						</div>
 					}
 					<dl>
 						<dt>
 							<h2><span>{quest?.dDay}</span> {quest?.endDateTime}</h2>
 							
-							<p onClick={() => { if(quest?.imageLink || quest?.imageLink !== '') { location.href=`${quest?.imageLink}`; } }} style={{ cursor: quest?.imageLink ? 'pointer' : '', backgroundImage: `url('${quest && urlFor(quest.imageFile)}')`, backgroundPosition: `center`, backgroundSize: `cover` }} />	
+							<p 
+								onClick={() => {
+									if(quest?.imageLink && quest?.imageLink !== '') {
+										const toUrl = quest?.imageLink.indexOf('http') === -1 
+													? `https://${quest?.imageLink}` 
+													: `${quest?.imageLink}`;
+
+										window.open(toUrl, '_blank').focus();
+									} 
+								}} 
+
+								style={{ 
+									cursor: quest?.imageLink ? 'pointer' : '', 
+									backgroundImage: `url('${quest && (quest.imageFile ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
+									backgroundPosition: `center`, 
+									backgroundSize: `cover` 
+								}}
+							/>	
 							
-							<h3>Odds <span>{rate}</span> X</h3>
-							<h3>Win <span>{receiveToken}</span> CT if right</h3>
+							<h3>Odds : <span>{rate} X</span></h3>
+							<h3>Win : <span>{receiveToken}</span> CT if right</h3>
 							<ul>
-								{
-									quest?.answers && quest.answers.map((answer, index) => (
-										<li key={index} onClick={() => setSelectedAnswer(answer)} style={{cursor:'pointer'}} className={`${selectedAnswer == answer && 'active'}`}>
-											<div>{answer}</div>
-											<p>{answerAllocations[answer]}X</p>
-											<h2><div style={{width:`${answerPercents[answer]}%`}}></div></h2>
-										</li>
-									))
-								}
+							{
+								quest?.answers && quest.answers.map((answer, index) => (
+									<li key={index} onClick={() => setSelectedAnswer(answer)} style={{cursor:'pointer'}} className={`${selectedAnswer == answer && 'active'}`}>
+										<div>{answer}</div>
+										<p>{answerAllocations[answer] && answerAllocations[answer] !== '0%' ? `${answerAllocations[answer]} X` : '0%'} </p>
+										<h2><div style={{width:`${answerPercents[answer]}%`}}></div></h2>
+									</li>
+								))
+							}
 							</ul>
 							<div>
 								<form name="searchForm" method="post" action="">

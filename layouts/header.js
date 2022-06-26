@@ -18,6 +18,8 @@ import { callGetCojamBalance } from '@api/UseTransactions';
 import { prepare, request, getResult } from 'klip-sdk';
 import QRCode from 'qrcode';
 
+import toastNotify from '@utils/toast';
+
 import Moment from 'moment';
 import { useWalletData } from '@data/wallet';
 
@@ -49,6 +51,23 @@ function Header() {
       return false;
     }
   }
+
+  /* inactive method
+  const inactiveAll = async () => {
+    console.log('inactive all');
+
+    const questQuery = `*[_type == 'quests']`
+    await client.fetch(questQuery).then((quests) => {
+      quests.forEach(async (quest) => {
+        console.log('quest', quest.title, 'inactivated');
+
+        await client.patch( quest._id )
+              .set({isActive: false})
+              .commit();
+      });
+    });
+  }
+  */
 
   const handleOpenKaikasModal = async () => {
     const account = await kaikasLogin();
@@ -101,7 +120,10 @@ function Header() {
         const url = `https://klipwallet.com/?target=a2a?request_key=${requestKey}`;
         generateQR(url);
       } else {
-        request(requestKey, () => alert('모바일 환경에서 실행해주세요'));
+        request(requestKey, () => toastNotify({
+          state: 'warn',
+          message: '모바일 환경에서 실행해주세요',
+        }));
       }
 
       const getAuthResult = setInterval(() => {
@@ -122,16 +144,22 @@ function Header() {
 		const walletAddress = walletData.account;
 
 		if(walletAddress) {
-			const joinRewardHistQuery = `*[_type == 'joinRewardHistory' && walletAddress == '${walletAddress}'][0]`;
+			const joinRewardHistQuery = `*[_type == 'joinRewardHistory' && walletAddress == '${walletAddress}' && _id != '${Date.now()}'][0]`;
 			client.fetch(joinRewardHistQuery).then((joinRewardHistory) => {
 			
 				if(joinRewardHistory) {
-					alert("you've got reward already.");
+          toastNotify({
+            state: 'default',
+            message: '모바일 환경에서 실행해주세요',
+          });
 				} else {
-					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'join'][0]`;
+					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'join' && _id != '${Date.now()}'][0]`;
 					client.fetch(rewardInfoQuery).then(async (rewardInfo) => {
             if(!rewardInfo.amount) {
-              alert('join reward amount is not exist');
+              toastNotify({
+                state: 'warn',
+                message: 'join reward amount is not exist',
+              });
               return;
             }
 
@@ -144,7 +172,10 @@ function Header() {
               console.log(error);
 
 							//ignore
-							alert('transfer api error. try again.');
+              toastNotify({
+                state: 'error',
+                message: 'transfer api error. try again.',
+              });
 							return;
 						}
 
@@ -160,7 +191,10 @@ function Header() {
 
 							await client.create(joinRewardHistoryDoc);
 
-              alert(`Welcome! you get the join reward (${Number(rewardInfo.amount)} CT) successfully`);
+              toastNotify({
+                state: 'success',
+                message: `Welcome! you get the join reward (${Number(rewardInfo.amount)} CT) successfully`,
+              });
 
               // remain transaction history
 							const transactionSet = {
@@ -182,7 +216,10 @@ function Header() {
 				}
 			});
 		} else {
-			alert('do login for get login reward.');
+      toastNotify({
+        state: 'warn',
+        message: 'do login for get login reward.',
+      });
 		}
 	}
 
@@ -232,7 +269,7 @@ function Header() {
     getBalance();
 
     if(walletData && walletData.account) {
-      const memberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}'][0] {memberRole}`;
+      const memberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}' && _id != '${Date.now()}'][0] {memberRole}`;
       client.fetch(memberQuery).then((memberRole) => {
         if(memberRole) {
           console.log('reload memberRole', memberRole.memberRole);
@@ -241,7 +278,7 @@ function Header() {
       });
 
       // if new user then, add member info & give a join reward - start
-      const getMemberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}'][0]`;
+      const getMemberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}' && _id != '${Date.now()}'][0]`;
       client.fetch(getMemberQuery).then((member) => {
         if(!member) {
           // send join reward to user
@@ -288,11 +325,11 @@ function Header() {
               typeof walletData.account !== 'undefined' && walletData.account !== ''
               ? /* 로그인 했을때 */
                 <>
-                  <h2><span><i className="uil uil-coins"></i>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(3)) : 0} CT,  {walletData.account?.substring(0, 10) + '...'})</span></h2>
+                  <h2><span><i className="uil uil-coins"></i>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(2)) : 0} CT)</span></h2>
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
                     {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-md"></i> ADMIN</Link>}
-                    {/*<Link to="/Account"><i className="uil uil-user-circle"></i> ACCOUNT</Link>*/}
+                    {/* <Link to="#" onClick={() => { inactiveAll() }}><i className="uil uil-user-circle"></i> REMOVE ALL</Link> */}
                     <Link to="#" onClick={() => { logout() }}><i className="uil uil-sign-out-alt"></i> LOGOUT</Link>
                   </div>
                 </>
@@ -334,7 +371,7 @@ function Header() {
           {
             balance && balance !== -1 &&
             <>
-              <li key={1}><i className="uil uil-coins"></i> {balance ? ( Number.isInteger(balance) ? balance : balance.toFixed(3) ) : 0} CT</li>
+              <li key={1}><i className="uil uil-coins"></i> {balance ? ( Number.isInteger(balance) ? balance : balance.toFixed(2) ) : 0} CT</li>
               <li key={2}><i className="uil uil-times-circle"></i></li>
             </>
           }

@@ -97,13 +97,15 @@ const config = {
     devMiddleware: { publicPath: '/dist/' },
     static: { directory: path.resolve(__dirname) },
     proxy: {
-      '/api/': {
-        target: 'http://tostit.i234.me:5005/',
+      '/youtube/**': {
+        target: 'https://www.youtube.com/',
         changeOrigin: true,
+        secure: false
       },
-      '/ipfs/': {
-        target: 'http://tostit.i234.me:5005/',
+      '/yimage/**': {
+        target: 'https://img.youtube.com/vi/',
         changeOrigin: true,
+        secure: false
       },
     },
   },

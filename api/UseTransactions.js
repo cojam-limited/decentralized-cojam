@@ -3,6 +3,26 @@ import { getCojamBalance_KLIP, draftMarket_KLIP, addAnswerKeys_KLIP, approveMark
 import { approveCojamURI, bettingCojamURI, transferCojamURI } from "./UseKaikas";
 import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, transferOwnership_KLIP } from "./UseKlip";
 
+  export const checkLogin = async (
+    walletData
+  ) => {
+    // TODO ADD KLIP LOGIC
+    if(walletData?.type === 'kaikas') {
+      try {
+        if(!klaytn.selectedAddress) {
+          return false;
+        }
+
+        return await window.klaytn?._kaikas.isEnabled();
+      } catch (error) {
+        console.error('isKaikasEnabled', error);
+      }
+    } else {
+
+    }
+    
+  }
+
   export const callGetCojamBalance = async ( 
     walletData 
   ) => {

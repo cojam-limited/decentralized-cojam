@@ -44,9 +44,8 @@ function Index() {
 
 	useEffect(() => {
 		window.addEventListener('resize', resizeFunc);
-
 		const loadDatas = async () => {
-			const questQuery = `*[_type == 'quests' && isActive == true  && statusType == 'APPROVE'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}}[0..5] | order(totalAmount desc)`;
+			const questQuery = `*[_type == 'quests' && isActive == true && pending == false && questStatus == 'APPROVE' && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] {title, _id, totalAmount}}[0..5] | order(createdDateTime desc) | order(totalAmount desc)`;
 			await client.fetch(questQuery).then((datas) => {
 				setQuests(datas);
 
@@ -140,7 +139,7 @@ function Index() {
 									<p>
 										<span
 											style={{
-												backgroundImage: quest.imageFile && quest.imageFile.length != 0 && `url('${urlFor(quest.imageFile)}')`,
+												backgroundImage: `url('${quest && (quest.imageFile ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
 												backgroundPosition: `center`,
 												backgroundSize: `cover`,
 											}}
@@ -149,13 +148,13 @@ function Index() {
 									<h3>
 										<span>{quest.dDay}</span> {quest.endDateTime}
 									</h3>
-									<h4>{quest.title}</h4>
+									<h4>{quest[`title${quest.questLanguage}`]}</h4>
 									<ul>
 										{
 										quest.answers && quest.answers.map((answer, index) => (              
 											<li key={index}>
 											<div>{answer}</div>
-											<p>{answerAllocations[answer]} X</p>
+											<p>{answerAllocations[answer] ? `${answerAllocations[answer]} X` : ''}</p>
 											<h2>
 												<div style={{ width: `${answerPercents[answer]}%` }}></div>
 											</h2>

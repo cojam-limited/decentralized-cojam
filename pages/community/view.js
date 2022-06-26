@@ -16,7 +16,7 @@ function Index(props) {
 
 		const newRelatedPost = [];
 		post?.related?.forEach((related) => {
-			const query = `*[_type == 'communityList' && _id == '${related._ref}'][0]`;
+			const query = `*[_type == 'communityList' && _id == '${related._ref}' && _id != '${Date.now()}'][0]`;
 			client.fetch(query).then((res) => {
 				newRelatedPost.push(res);
 				setRelatedPosts([...newRelatedPost]);

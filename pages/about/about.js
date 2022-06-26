@@ -86,7 +86,6 @@ function Index() {
 		<div className="about-contact">
 			<h2>Contact Us</h2>
 			<p>We'd love to hear from you<br />we like to create contents with fun, open-minded people.<br />Feel free to say hello!</p>
-			{/* <div><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2381.7918151963217!2d-6.257478683484973!3d53.34698277997919!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48670e85677f5bbd%3A0x52de8be53512895!2sThe%20Tara%20Building%20-%20Coworking%20Dublin%202!5e0!3m2!1sko!2skr!4v1612514538649!5m2!1sko!2skr" width="100%" height="600" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe></div> */}
 			<div className="about-contact-content">
 				<div>
 					<ul>

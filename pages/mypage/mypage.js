@@ -4,18 +4,17 @@ import { Modal } from 'react-responsive-modal';
 import 'react-responsive-modal/styles.css';
 import backgroundImage from '@assets/body_mypage.jpg';
 import { useWalletData } from '@data/wallet';
-import { client } from '../../sanity';
+import { client, urlFor } from '../../sanity';
 import { useLoadingState } from "../../assets/context/LoadingContext";
 import Moment from 'moment';
 import { getRewardCojamURI, receiveToken } from "@api/UseKaikas";
-
-import { callTransferCojamURI } from '@api/UseTransactions';
+import toastNotify from '@utils/toast';
 
 import LogoBlack from '@assets/coin.png'
 
 function Index() {
 	const { setLoading } = useLoadingState();
-	const [openSendCT, modalSendCT] = useState(false);
+	const [ reloadData, setReloadData ] = useState(false);
 	const [openMypageVoting, modalMypageVoting] = useState(false);
 	const [openMypageGround, modalMypageGround] = useState(false);
 	const [openMypageTransfer, modalMypageTransfer] = useState(false);
@@ -41,10 +40,10 @@ function Index() {
 		const walletAddress = walletData.account;
 		const votingArr = [];
 
-		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}' && memberKey != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey][0] {title, totalAmount} } | order(createdDateTime desc)`;
+		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey][0] {title, totalAmount} } | order(createdDateTime desc)`;
 		await client.fetch(votingQuery).then(async (votingDatas) => {
 			votingDatas.forEach(async (votingData) => {
-				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey} && questKey != '${Date.now()}'][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
+				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey} && _id != '${Date.now()}'][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 				await client.fetch(questQuery).then((quest) => {
 					if(quest) {
 						const multiply = quest.questStatus === 'ADJOURN' ? 
@@ -59,14 +58,17 @@ function Index() {
 											:	(multiply * votingData.bettingCoin).toFixed(2);
 
 						const votingSet = {
-							title: quest.title,
 							categoryNm: quest.categoryNm.seasonCategoryName,
 							questKey: quest.questKey,
 							questStatus: quest.questStatus,
+							questTitle: quest[`title${quest.questLanguage}`],
 							approveTx: quest.approveTx,
 							adjournTx: quest.adjournTx,
 							successTx: quest.successTx,
 							answerList: quest.answers,
+							imageFile: quest.imageFile,
+							imageUrl: quest.imageUrl,
+							imageLink: quest.imageLink,
 							spenderAddress: quest.creatorAddress,
 							selectedAnswer: quest.selectedAnswer,
 
@@ -77,7 +79,7 @@ function Index() {
 							answerTitle: votingData.answer.title,
 							bettingKey: votingData.bettingKey,
 							bettingCoin: votingData.bettingCoin,
-							receiveAddress: votingData.receiveAddress,
+							receiveAddress: votingData.receiveAddress ?? '',
 							multiply: multiply,
 							predictionFee: predictionFee,
 							_id: votingData._id
@@ -94,36 +96,6 @@ function Index() {
 	}
 
 	/**
-	 * Send CT
-	 */
-	const sendCTToAddress = async () => {
-		try {
-			const walletAddress = walletData.account;
-			if(sendCTInput.recipientAddress == '' || sendCTInput.amount == 0 ) {
-				alert('input recipientAddress or amount');
-				return;
-			}
-
-			if(!walletAddress || walletAddress === '') {	
-				alert('login for send CT');
-				return;
-			}
-
-			const transferRes = await callTransferCojamURI({fromAddress: walletAddress, toAddress: sendCTInput.recipientAddress, amount: Number(sendCTInput.amount)}, walletData);			
-			if(transferRes.status === 200) {
-				alert(`${sendCTInput.amount} (CT) send to '${sendCTInput.recipientAddress}' successfully.`);
-			} else {
-				alert('send CT error. try again please.');
-			}
-		} catch(error) {
-			console.log(error);
-			//ignore
-			alert('transfer api error. try again please.');
-			return;
-		}
-	}
-
-	/**
 	 * Login reward
 	 */
 	const getLoginReward = () => {
@@ -132,16 +104,22 @@ function Index() {
 		if(walletAddress) {
 			// 9 hours after
 			const creteriaDate = Moment().add('9', 'h').format("yyyy-MM-DD");
-			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && loginDate == '${creteriaDate}' && walletAddress != '${Date.now()}'][0]`;
+			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && loginDate == '${creteriaDate}' && _id != '${Date.now()}'][0]`;
 			client.fetch(loginRewardHistQuery).then((loginRewardHistory) => {
 				// check if user got join reward. before 9 hours.
 				if(loginRewardHistory || hadLoginReward) {
-					alert("you've got reward already.");
+					toastNotify({
+						state: 'warn',
+						message: "you've got login reward already.",
+					});
 				} else {
-					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'login' && rewardType != '${Date.now()}'][0]`;
+					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'login' && _id != '${Date.now()}'][0]`;
 					client.fetch(rewardInfoQuery).then(async (rewardInfo) => {
 						if(!rewardInfo.amount) {
-							alert('login reward amount is not exist');
+							toastNotify({
+								state: 'warn',
+								message: 'login reward amount is not exist',
+							});
 							return;
 						}
 
@@ -151,9 +129,10 @@ function Index() {
 						try {
 							transferRes = await getRewardCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
-							console.log(error);
-							//ignore
-							alert('transfer api error. try again.');
+							toastNotify({
+								state: 'warn',
+								message: 'transfer api error. try again.',
+							});
 							return;
 						}
 
@@ -184,22 +163,36 @@ function Index() {
 
 							await client.create(transactionSet);
 
-							alert('get login reward successfully!');
+							setReloadData(!reloadData);
+
+							toastNotify({
+								state: 'success',
+								message: 'get login reward successfully!',
+							});
 						} else {
-							alert('get login reward failed.');
+							toastNotify({
+								state: 'error',
+								message: 'get login reward failed.',
+							});
 						}
 					});
 				}
 			});
 		} else {
-			alert('login first. please');
+			toastNotify({
+				state: 'warn',
+				message: 'login first. please',
+			});
 		}
 	}
 
 	// GET QUEST REWARD
 	const getQuestReward = async () => {
 		if(selectedVoting.result || selectedVoting.questStatus === 'ADJOURN') {
-			alert('congret. get reward!');
+			toastNotify({
+				state: 'info',
+				message: 'congret. get reward!',
+			});
 			
 			// send coin from master wallet
 			const walletAddress = walletData.account;
@@ -209,10 +202,11 @@ function Index() {
 				transferRes = await receiveToken({questKey: selectedVoting.questKey, bettingKey: selectedVoting.bettingKey});
 				setLoading(true);
 			} catch(error) {
-				console.log(error);
-				//ignore
 				setLoading(false);
-				alert('transfer api error. try again.');
+				toastNotify({
+					state: 'error',
+					message: 'transfer api error. try again.',
+				});
 				return;
 			}
 
@@ -238,13 +232,24 @@ function Index() {
 							.commit();
 
 				setLoading(false);
-				alert('get quest reward successfully!');
+				setReloadData(!reloadData);
+
+				toastNotify({
+					state: 'success',
+					message: 'get quest reward successfully!',
+				});
 			} else {
 				setLoading(false);
-				alert('get quest reward failed.');
+				toastNotify({
+					state: 'error',
+					message: 'get quest reward failed.',
+				});
 			}
 		} else {
-			alert('choose wrong. try another quest!');
+			toastNotify({
+				state: 'info',
+				message: 'choose wrong. try another quest!',
+			});
 		}
 	}
 
@@ -257,19 +262,19 @@ function Index() {
 		setLoading(true);
 		loadVotings();
 		
-		const groundQuery = `*[_type == 'quests' && creatorAddress == '${walletAddress}' && isActive == true && isActive != '${Date.now()}'] {..., 'seasonNm': *[_type=='season' && _id == ^.season._ref]{title}[0], 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] } | order(createdDateTime desc)`;
+		const groundQuery = `*[_type == 'quests' && creatorAddress == '${walletAddress}' && isActive == true && _id != '${Date.now()}'] {..., 'seasonNm': *[_type=='season' && _id == ^.season._ref]{title}[0], 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] } | order(createdDateTime desc)`;
 		client.fetch(groundQuery).then((grounds) => {
 			setGrounds(grounds);
 		});
 
-		const transferQuery = `*[_type == 'transactions' && spenderAddress == '${walletAddress}' || recipientAddress == '${walletAddress}' && recipientAddress != '${Date.now()}' ] | order(createdDateTime desc)`;
+		const transferQuery = `*[_type == 'transactions' && spenderAddress == '${walletAddress}' || recipientAddress == '${walletAddress}' && _id != '${Date.now()}' ] | order(createdDateTime desc)`;
 		client.fetch(transferQuery).then((transfers) => {
 			setTransfers(transfers);
 		});
 
 		let subscription;
 		if(walletAddress) {
-			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && walletAddress != '${Date.now()}']`;
+			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && _id != '${Date.now()}']`;
 			subscription = client.listen(loginRewardHistQuery).subscribe((rewardHistory) => {
 				console.log('reward history update !!!', walletAddress);
 				
@@ -283,7 +288,7 @@ function Index() {
 		}
 
 		return () => subscription?.unsubscribe();
-	}, [walletData]);
+	}, [walletData, reloadData]);
 
   	return (
     	<div className="bg-mypage" style={{background: `url('${backgroundImage}') center -590px no-repeat, #eef0f8 `}}>
@@ -302,7 +307,6 @@ function Index() {
 				</dt>
 				<dd>
 					<a href="#" className="btn-red" onClick={() => getLoginReward()}>Login Reward</a>
-					<a href="#" className="btn-purple" onClick={() => modalSendCT(true)}>CT Send</a>
 					{/*<a href="#" className="btn-blue" onClick={() => getReward()}>Click to be Reward!</a>*/}
 				</dd>
 			</div>
@@ -340,23 +344,44 @@ function Index() {
 
 								return (
 									<ul key={index}>
-										<li key='0' style={{ cursor: 'pointer' }} onClick={() => {  if(voting.questStatus !== 'ADJOURN') {
-																										if(!voting.selectedAnswer) 
-																											return;
-																									}
+										<li key='0' 
+											style={{ cursor: 'pointer' }} 
+											onClick={() => {  
+												if(voting.questStatus !== 'ADJOURN') {
+													if(!voting.selectedAnswer) 
+														return;
+												}
 
-																									if(voting.receiveAddress !== undefined) { 
-																										alert("you've got reward already"); 
-																										return; 
-																									}
-																									
-																									setSelectedVoting({...voting, result: voting.selectedAnswer === voting.answerTitle}); 
-																									modalQuestReward(true); 
-																								}}>
-											<div className='mc-votings-result' style={{ background: voting.selectedAnswer ? (voting.selectedAnswer === voting.answerTitle ? '#58D68D' : '#E74C3C') : (voting.questStatus === 'ADJOURN' ? '#8950fc' : 'white') }} />
+												if(voting.receiveAddress !== '') { 
+													toastNotify({
+														state: 'info',
+														message: "you've got reward already",
+													});
+													return; 
+												}
+												
+												setSelectedVoting({...voting, result: voting.selectedAnswer === voting.answerTitle}); 
+												modalQuestReward(true); 
+											}}>
+											<div className='mc-votings-result' style={{ 
+												background: voting.selectedAnswer 
+															?	(voting.selectedAnswer === voting.answerTitle 
+																	? '#58D68D' 
+																	: '#E74C3C') 
+															: (voting.questStatus === 'ADJOURN' 
+																? '#8950fc' 
+																: 'white'),
+												border: voting.selectedAnswer 
+														? '' 
+														: (voting.questStatus === 'ADJOURN' 
+																? voting.receiveAddress !== '' 
+																	? '4px solid #636363'
+																	: '' 
+																: '2px solid #3636')
+											}} />
 										</li>
 										<li key='1'><span>Category : </span>{voting.categoryNm}</li>
-										<li key='2' style={{ cursor: 'pointer' }} onClick={() => { setSelectedVoting(voting); modalMypageVoting(true); }}><span>Title : </span>{voting.title}</li>
+										<li key='2' style={{ cursor: 'pointer' }} onClick={() => { setSelectedVoting(voting); modalMypageVoting(true); }}><span>Title : </span>{voting.questTitle}</li>
 										<li key='3'>
 											{voting.pending && <p>Pending</p>}
 											{voting.questStatus === 'INVALID' && <p>INVALID</p>}
@@ -411,7 +436,7 @@ function Index() {
 								return (
 									<ul key={index}>
 										<li key='1'><span>Category : </span> { ground.categoryNm.seasonCategoryName } </li>
-										<li key='2' style={{ cursor: 'pointer' }} onClick={() => { setSelectedGround(ground); modalMypageGround(true); }}><span>Title : </span> { ground.title } </li>
+										<li key='2' style={{ cursor: 'pointer' }} onClick={() => { setSelectedGround(ground); modalMypageGround(true); }}><span>Title : </span> { ground[`title${ground.questLanguage}`] } </li>
 										<li key='3'>
 											{ground.pending && <p>Pending</p>}
 											{ground.questStatus === 'INVALID' && <p>INVALID</p>}
@@ -473,33 +498,6 @@ function Index() {
 			</div>
 			{/* 마이페이지 - 내용 끝 */}
 
-
-			{/* 모달 - SEND CT */}
-			<Modal open={openSendCT} onClose={() => modalSendCT(false)} center>
-				<div className="modal-send-ct">
-					<form name="addForm" method="post" action="">
-						<fieldset>
-							<legend>SEND CT</legend>
-							<div className="msc-area">
-								<dl>
-									<dt>SEND CT</dt>
-									<dd><i className="uil uil-times" onClick={() => modalSendCT(false)}></i></dd>
-								</dl>
-								<ul> 
-									<li key='1'><input name="name" type="text" className="w100p" onChange={(e) => {sendCTInput.recipientAddress = e.target.value}} placeholder="Enter the recipient address" /></li>
-									<li key='2'><input name="name" type="text" className="w100p" onChange={(e) => {if(isNaN(e.target.value)) { return; } sendCTInput.amount = Number(e.target.value)}} placeholder="Please enter CT amount" /></li>
-								</ul>
-								<p>
-									<a href="#" onClick={() => sendCTToAddress()}>Send CT</a>
-								</p>
-							</div>
-						</fieldset>
-					</form>
-				</div>
-			</Modal>
-			{/* 모달 - SEND CT 끝 */}
-
-
 			{/* 모달 - 마이페이지 - Voting 상세 */}
 			<Modal open={openMypageVoting} onClose={() => modalMypageVoting(false)} center>
 				<div className="modal-mypage-view">
@@ -512,6 +510,29 @@ function Index() {
 									<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalMypageVoting(false)}></i></dd>
 								</dl>
 								<ul>
+									<li key='0'>
+										<img 
+											src={
+												selectedVoting.imageFile 
+													? urlFor(selectedVoting.imageFile)
+													: selectedVoting.imageUrl ?? '' 
+											} 
+											width="100%"
+											onClick={() => {
+												if(selectedVoting?.imageLink && selectedVoting?.imageLink !== '') {
+													const toUrl = selectedVoting?.imageLink.indexOf('http') === -1 
+																? `https://${selectedVoting?.imageLink}` 
+																: `${selectedVoting?.imageLink}`;
+			
+													window.open(toUrl, '_blank').focus();
+												} 
+											}} 
+	
+											style={{ 
+												cursor: selectedVoting?.imageLink ? 'pointer' : ''
+											}}
+										/>
+									</li>
 									<li key='1'>
 										<span>Title</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.title}/>
@@ -580,6 +601,29 @@ function Index() {
 									<dd><i className="uil uil-times" style={{ cursor: 'pointer' }} onClick={() => modalMypageGround(false)}></i></dd>
 								</dl>
 								<ul>
+									<li key='0'>
+										<img 
+											src={
+												selectedGround.imageFile 
+													? urlFor(selectedGround.imageFile)
+													: selectedGround.imageUrl ?? '' 
+											} 
+											width="100%"
+											onClick={() => {
+												if(selectedGround?.imageLink && selectedGround?.imageLink !== '') {
+													const toUrl = selectedGround?.imageLink.indexOf('http') === -1 
+																? `https://${selectedGround?.imageLink}` 
+																: `${selectedGround?.imageLink}`;
+			
+													window.open(toUrl, '_blank').focus();
+												} 
+											}} 
+	
+											style={{ 
+												cursor: selectedGround?.imageLink ? 'pointer' : ''
+											}}
+										/>
+									</li>
 									<li key='1'>
 										<span>Title</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedGround.title} />
@@ -697,7 +741,11 @@ function Index() {
 									</ul>
 									<p>
 										<a href="#" 
-											onClick={async () => { await getQuestReward(); modalQuestReward(false); }}
+											onClick={async () => { 
+												await getQuestReward();
+
+												modalQuestReward(false); 
+											}}
 											style={{ position: 'absolute', bottom: 0, width: '93%', marginBottom: '10px' }}
 										>
 											Get Reward!

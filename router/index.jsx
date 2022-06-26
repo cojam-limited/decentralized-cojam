@@ -4,6 +4,7 @@ import Layout from "../layouts/layout";
 
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Home from '../pages/main/index'
@@ -37,6 +38,8 @@ const Routers = () => {
               <Route path='/Market' exact component={Market} />
               <Route path='/Account' exact component={Account} />
             </Switch>
+
+            <ToastContainer />
           </Layout>
         </Route>
       </Switch>

@@ -1,25 +1,13 @@
 import { client } from "../../sanity";
 import Moment from 'moment';
 import { callApproveCojamURI, callBettingCojamURI } from "@api/UseTransactions";
+import toastNotify from '@utils/toast';
 
 const doBetting = async (betting, walletData) => { 
-    let result = {result: false, message: 'betting failed'};
-
-    // Check login
-    if( walletData?.type === 'kaikas' ) {
-        if( !klaytn.selectedAddress ) {
-            alert('login please.');
-            return;
-        }
-    } else {
-        if( !walletData.account ) {
-            alert('login please.');
-            return;
-        }
-    }
+    let result = {result: false, message: 'Voting failed'};
 
     // Quest 정보 load
-    const questQuery = `*[_type == 'quests' && isActive == true && questKey == ${betting.questKey}][0]`;
+    const questQuery = `*[_type == 'quests' && isActive == true && questKey == ${betting.questKey} && _id != '${Date.now()}'][0]`;
     await client.fetch(questQuery).then(async (quest) => {
 
         const seasonQuery = `*[_type == 'season' && isActive == true && _id == '${quest.season._ref}']{..., 'now': now()}[0]`;
@@ -28,14 +16,20 @@ const doBetting = async (betting, walletData) => {
 
             // is Market closed
             if(Moment(detail.endDateTime).diff(Moment(detail.now), 'seconds') <= 0) {
-                alert('Voting is closed');
+                toastNotify({
+                    state: 'warn',
+                    message: 'Voting is closed',
+                });
                 return;
             }
 
-            const answerQuery = `*[_type == 'questAnswerList' && _id == '${betting.questAnswerKey._id}'][0]`;
+            const answerQuery = `*[_type == 'questAnswerList' && _id != '${Date.now()}' && _id == '${betting.questAnswerKey._id}'][0]`;
             await client.fetch(answerQuery).then(async (answer) => {
                 if(!answer) {
-                    alert('questAnswer no data');
+                    toastNotify({
+                        state: 'warn',
+                        message: 'questAnswer no data',
+                    });
                     return;
                 }
 
@@ -44,17 +38,26 @@ const doBetting = async (betting, walletData) => {
                 const walletAddress = walletData.account;
 
                 if(detail.finishTx) {
-                    alert('"Already Finished!"');
+                    toastNotify({
+                        state: 'warn',
+                        message: 'Already Finished!',
+                    });
                     return;
                 }
 
                 if(detail.questStatus !== "APPROVE") {
-                    alert("Market is not approved.");
+                    toastNotify({
+                        state: 'warn',
+                        message: "Market is not approved.",
+                    });
                     return;
                 }
 
                 if(detail.pending) {
-                    alert("market is pending.");
+                    toastNotify({
+                        state: 'warn',
+                        message: "Market is pending.",
+                    });
                     return;
                 }
                 
@@ -63,10 +66,13 @@ const doBetting = async (betting, walletData) => {
                     memberKey: walletAddress,
                 }
                 
-                const memberQuery = `*[_type == 'member' && _id == '${member.memberKey}']`;
+                const memberQuery = `*[_type == 'member' && _id != '${Date.now()}' && _id == '${member.memberKey}']`;
                 await client.fetch(memberQuery).then(async (queryResult) => {
                     if(betting.curBalance < betting.bettingCoin) {
-                        alert("Please check your balance.");
+                        toastNotify({
+                            state: 'warn',
+                            message: "Please check your balance.",
+                        });
                         return;
                     }
 
@@ -74,40 +80,42 @@ const doBetting = async (betting, walletData) => {
                     const max = detail.maximunPay;
                     
                     if(betting.bettingCoin < min) {
-                        alert(`You have to vote more CT than the minimum number of voting. (Minimum : ${min} CT)`)
+                        toastNotify({
+                            state: 'warn',
+                            message: `You have to vote more CT than the minimum number of voting. (Minimum : ${min} CT)`,
+                        });
                         return;
                     } 
 
                     if(betting.bettingCoin > max) {
-                        alert(`You have to vote more CT than the maximum number of voting. (Maximum : ${max} CT)`)
+                        toastNotify({
+                            state: 'warn',
+                            message: `You have to vote more CT than the maximum number of voting. (Maximum : ${max} CT)`,
+                        });
                         return;
                     }
 
                     let newBettingKey;
-                    await client.fetch(`*[_type == "betting"] | order(bettingKey desc)[0]`).then(async (lastBetting) => {
-                        console.log('lastBetting.bettingKey', lastBetting.bettingKey);
+                    await client.fetch(`*[_type == "betting" && _id != '${Date.now()}'] | order(bettingKey desc)[0]`).then(async (lastBetting) => {
                         newBettingKey = Number(lastBetting.bettingKey) + 1;
                     });
                 
-                    console.log('betting params', betting, newBettingKey);
-
                     // do approve
                     await callApproveCojamURI(Number(betting.bettingCoin), walletData).then((res) => {
                         // TODO REMOVE
-                        console.log('approve tx receipt', res);
                     });
                     
                     // do betting 
                     await callBettingCojamURI({ 
                         questKey: betting.questKey, 
-                        questAnswerKey: betting.questAnswerKey.order, 
+                        questAnswerKey: betting.questAnswerKey.order,
                         bettingKey: newBettingKey, 
                         bettingCoinAmount: betting.bettingCoin
                     }, walletData).then(async (res) => {
                         if(!res) {
                             return result = {
                                 result: false,
-                                message: 'betting api failed'
+                                message: 'Voting api failed'
                             };;
                         }
 
@@ -136,7 +144,7 @@ const doBetting = async (betting, walletData) => {
                             });
 
                             // update each quest answer total amount
-                            const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${betting.questAnswerKey._id}' && bettingKey != '${Date.now()}'] {bettingCoin}`;
+                            const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${betting.questAnswerKey._id}' && _id != '${Date.now()}'] {bettingCoin}`;
                             await client.fetch(newAnswerTotalQuery).then(async (bettingCoins) => {
                                 const newAnswerTotal = bettingCoins.reduce((acc, bettingCoin) => {
                                     return acc += Number(bettingCoin.bettingCoin);
@@ -148,7 +156,7 @@ const doBetting = async (betting, walletData) => {
                             });
 
                             // update quest total amount
-                            const newQuestTotalQuery = `*[_type == 'betting' && questKey == ${betting.questKey} && bettingKey != '${Date.now()}'] {bettingCoin}`;
+                            const newQuestTotalQuery = `*[_type == 'betting' && questKey == ${betting.questKey} && _id != '${Date.now()}'] {bettingCoin}`;
                             await client.fetch(newQuestTotalQuery).then(async (bettingCoins) => {
                                 const newQuestTotal = bettingCoins.reduce((acc, bettingCoin) => {
                                     return acc += Number(bettingCoin.bettingCoin);
@@ -184,12 +192,12 @@ const doBetting = async (betting, walletData) => {
 
                             result = {
                                 result: true,
-                                message: 'betting success'
+                                message: 'Voting success'
                             };
                         } else {
                             result =  {
                                 result: false,
-                                message: 'betting failed'
+                                message: 'Voting failed'
                             };
                         }
                     });

@@ -1,7 +1,8 @@
 import { client } from "../../sanity";
 //import { draftMarket, addAnswerKeys, approveMarket, adjournMarket, retrieveMarket, successMarket, finishMarket } from "@api/UseKaikas";
-import { callDraftMarket, callAddAnswerKeys, callApproveMarket, callAdjournMarket, callRetrieveMarket, callSuccessMarket, callFinishMarket } from "@api/UseTransactions";
+import { checkLogin, callDraftMarket, callAddAnswerKeys, callApproveMarket, callAdjournMarket, callRetrieveMarket, callSuccessMarket, callFinishMarket } from "@api/UseTransactions";
 import Moment from 'moment';
+import toastNotify from '@utils/toast';
 
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
 
@@ -10,26 +11,29 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
         return;
     }
 
-     // Check login
-     if( walletData?.type === 'kaikas' ) {
-        if( !klaytn.selectedAddress ) {
-            alert('login please.');
-            return;
-        }
-    } else {
-        if( !walletData.account ) {
-            alert('login please.');
-            return;
-        }
+    let isLogin = false;
+    await checkLogin(walletData).then((res) => {
+        isLogin = res;
+    });
+
+    if(!isLogin) {
+        toastNotify({
+            state: 'warn',
+            message: 're login or check lock. please',
+        });
+        return;
     }
-    
+
     switch(state) {
         case 'pend' :
             await client.patch(selectedQuest._id)
                   .set({ pending: true })
                   .commit();
 
-            alert('pend success');			
+            toastNotify({
+                state: 'success',
+                message: 'pend success',
+            });		
             break;
 
         case 'unpend' :
@@ -37,7 +41,10 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                   .set({ pending: false })
                   .commit();
 
-            alert('unpend success');					  
+            toastNotify({
+                state: 'success',
+                message: 'unpend success',
+            });							  
             break;
 
         case 'invalid': 
@@ -49,7 +56,11 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                   })
                   .commit();
 
-            alert('invalid success');			
+            toastNotify({
+                state: 'success',
+                message: 'invalid success',
+            });							  
+		
             break;
             
         case 'draft':
@@ -82,13 +93,22 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                                       })
                                       .commit();
 
-                                alert('draft success');
+                                toastNotify({
+                                    state: 'success',
+                                    message: 'draft success',
+                                });		
                             } else {
-                                alert('draft failed');
+                                toastNotify({
+                                    state: 'success',
+                                    message: 'draft failed',
+                                });		
                             }
                         });
                     } else {
-                        alert('Draft is already Registerd!');
+                        toastNotify({
+                            state: 'success',
+                            message: 'Draft is already Registerd!',
+                        });		
                     }
                 }
             });
@@ -97,21 +117,30 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
         case 'answer':
             if(!selectedQuest.isActive) {
-                alert("Don't active Season.");
+                toastNotify({
+                    state: 'warn',
+                    message: "Quest is inactive.",
+                });
                 return;
             }
 
             if(!selectedQuest.draftTx) {
-                alert("Draft is Null!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Quest is not drafted.",
+                });
                 return;
             }
 
             if(selectedQuest.answerTx) {
-                alert("Answers is already Registerd!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Answers is already Registerd!",
+                });
                 return;
             }
 
-            const bettingKeyQuery = `*[_type == 'questAnswerList' && questKey == ${selectedQuest.questKey} ]`;
+            const bettingKeyQuery = `*[_type == 'questAnswerList' && questKey == ${selectedQuest.questKey} && _id != '${Date.now()}' ]`;
             const bettingKeyList = [];
             await client.fetch(bettingKeyQuery).then((bettings) => {
                 bettings.forEach((betting) => {
@@ -152,9 +181,15 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                         })
                       .commit();
 
-                alert('Answer success');
+                toastNotify({
+                    state: 'success',
+                    message: 'Answer success',
+                });
             } else {
-                alert("Answer fail.");
+                toastNotify({
+                    state: 'error',
+                    message: "Answer fail.",
+                });
                 return;
             }
 
@@ -162,17 +197,26 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
         
         case 'approve':
             if(!selectedQuest.isActive) {
-                alert("Don't active Season.");
+                toastNotify({
+                    state: 'warn',
+                    message: "Don't active Season.",
+                });
                 return;
             }
 
             if(!selectedQuest.answerTx) {
-                alert("Answers is not Confirmed!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Answers is not Confirmed!",
+                });
                 return;
             }
 
             if(selectedQuest.approveTx) {
-                alert("Approve is already Registerd!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Approve is already Registerd!",
+                });
                 return;
             }
 
@@ -189,32 +233,51 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                         })
                       .commit();
                 
-                alert('approve market success');
+                toastNotify({
+                    state: 'success',
+                    message: 'approve market success',
+                });
             } else {
-                alert('approve market failed');
+                toastNotify({
+                    state: 'error',
+                    message: 'approve market failed',
+                });
             }
-
             break;
 
         case 'hot':
             await client.patch(selectedQuest._id)
-                  .set({hot: true})
+                  .set({hot: !selectedQuest.hot})
                   .commit();
+
+            toastNotify({
+                state: 'success',
+                message: `hot ${!selectedQuest.hot ? 'set' : 'unset' } success`,
+            });	
             break;
         
         case 'finish':
             if(selectedQuest.completed) {
-                alert("Already Finished!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Already Finished!",
+                });
                 return;
             }
 
             if(selectedQuest.questStatus !== 'APPROVE') {
-                alert("Market is not approved.");
+                toastNotify({
+                    state: 'warn',
+                    message: "Market is not approved.",
+                });
                 return;
             }
 
             if(selectedQuest.pending) {
-                alert("Market is pended.");
+                toastNotify({
+                    state: 'warn',
+                    message: "Market is pended.",
+                });
                 return;
             }
 
@@ -231,9 +294,15 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                             })
                           .commit();
 
-                    alert('finish success');
+                    toastNotify({
+                        state: 'success',
+                        message: 'finish success',
+                    });
                 } else {
-                    alert('finish failed');
+                    toastNotify({
+                        state: 'error',
+                        message: 'finish failed',
+                    });
                 }
             });
 
@@ -241,12 +310,18 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
     
         case 'adjourn':
             if(!selectedQuest.completed) {
-                alert("Market is not Finished!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Market is not Finished!",
+                });
                 return;
             }
 
             if(selectedQuest.adjournTx) {
-                alert("It is already adjourn.");
+                toastNotify({
+                    state: 'warn',
+                    message: "It is already adjourn.",
+                });
                 return;
             }
 
@@ -263,21 +338,33 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                             })
                           .commit();
                 
-                alert('adjourn success');
+                toastNotify({
+                    state: 'success',
+                    message: 'adjourn success',
+                });
             } else {
-                alert('adjourn market failed.');
+                toastNotify({
+                    state: 'warn',
+                    message: 'adjourn market failed.',
+                });
             }
 
             break;
             
         case 'success':
             if(!selectedQuest.completed) {
-                alert("Market is not Finished!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Market is not Finished!",
+                });
                 return;
             }
 
             if(selectedQuest.successTx) {
-                alert("It is already success.");
+                toastNotify({
+                    state: 'warn',
+                    message: "It is already success.",
+                });
                 return;
             }
 
@@ -310,32 +397,50 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
                 await client.create(transactionSet);
 
-                alert('SUCCESS MARKET success');
+                toastNotify({
+                    state: 'success',
+                    message: 'SUCCESS MARKET success',
+                });
             } else {
-                alert('SUCCESS MARKET failed.');
+                toastNotify({
+                    state: 'error',
+                    message: 'SUCCESS MARKET failed.',
+                });
             }
 
             break;
         
         case 'retrieve':
             if(!selectedQuest.completed) {
-                alert("Market is not Finished!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Market is not Finished!",
+                });
                 return;
             }
 
             if(selectedQuest.retrieveTx) {
-                alert("Market is already retrieve!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Market is already retrieve!",
+                });
                 return;
             }
 
             if(!selectedQuest.successTx) {
-                alert("Market is not Success!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Market is not Success!",
+                });
                 return;
             }	
 
             const diffDays = Moment().diff(Moment(selectedQuest.successDateTime), 'days');
             if(diffDays <= 180) {
-                alert("Market can be retrieved later 180 days from success!");
+                toastNotify({
+                    state: 'warn',
+                    message: "Market can be retrieved later 180 days from success!",
+                });
                 return;
             }
 
@@ -345,9 +450,15 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                             .set({statusType: 'RETRIEVE', retrieveTx: retrieveRes.transactionId})
                             .commit();
 
-                alert("retrieve success");
+                toastNotify({
+                    state: 'success',
+                    message: "retrieve success",
+                });
             } else {
-                alert("retrieve failed");
+                toastNotify({
+                    state: 'success',
+                    message: "retrieve failed",
+                });
             }
 
             break;	

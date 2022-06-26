@@ -26,9 +26,8 @@ function Index() {
 
 	useEffect(() => {
 		setLoading(true);
-		const query = `*[_type == 'resultList' && isActive == true]`;
+		const query = `*[_type == 'resultList' && isActive == true && _id != '${Date.now()}']`;
 		client.fetch(query).then((datas) => {
-			console.log('query data', datas);
 			datas.forEach((data) => {
 				data.postDate = Moment(data.postDate).format('YYYY-MM-DD HH:mm');
 			});

@@ -20,6 +20,8 @@ import "react-responsive-modal/styles.css";
 import { useWalletData } from '@data/wallet';
 import { kaikasLogin, isKaikasUnlocked } from '@api/UseKaikas';
 
+import toastNotify from '@utils/toast';
+
 function Index() {
   const { walletData } = useWalletData();
 
@@ -50,6 +52,12 @@ function Index() {
   const [fileKey, setFileKey] = useState('');
   const [endDateTime, setEndDateTime] = useState(new Date());
   const [modalValues, setModalValues] = useState({'_type': 'quests', 'questType': 'I', 'questLanguage': 'EN', 'endDateTime': endDateTime});
+  const [ questLanguage, setQuestlanguage ] = useState('EN');
+  const [ questTitleText, setQuestTitleText ] = useState({ 
+                                                            EN: { placeholder: "Please enter a title(English)", content: '' },
+                                                            KR: { placeholder: "Please enter a title(Korean)",  content: '' },
+                                                            CH: { placeholder: "Please enter a title(Chinese)", content: '' } 
+                                                         });
   // modal values
 
   const handleOpenKaikasModal = async () => {
@@ -65,10 +73,8 @@ function Index() {
   const getQuestHistory = async () => {
     setLoading(true);
 
-    const questHistoryQuery = `*[_type == 'quests' && isActive == true  && (statusType == 'SUCCESS' || statusType == 'ADJOURN') && statusType != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(createdDateTime desc)`;
+    const questHistoryQuery = `*[_type == 'quests' && isActive == true  && (statusType == 'SUCCESS' || statusType == 'ADJOURN') && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(createdDateTime desc)`;
     await client.fetch(questHistoryQuery).then((questHistory) => {
-      console.log('questHistory', questHistory);
-
       questHistory.forEach((quest) => {
         const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
         if(diff === 0) { 
@@ -79,6 +85,10 @@ function Index() {
 
         if(quest.completed) {
           quest.dDay = 'expired';
+        }
+
+        if(quest.pending) {
+          quest.dDay = 'pending';
         }
 
         quest.startDateTime = Moment(quest.startDateTime).format('yyyy-MM-DD HH:mm:ss');
@@ -130,12 +140,14 @@ function Index() {
     /**
      * Quest 리스트 & 데이터 조회
      */
-    const condition = `${activeCategory === 'All' ? '' : `&& seasonCategory._ref in *[_type == "seasonCategories" && seasonCategoryName == '${activeCategory}']._id`}`;
-    const questQuery = `*[_type == 'quests' && isActive == true  && statusType == 'APPROVE' && statueType != '${Date.now()}' ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(totalAmount desc) | order(createdDateTime desc)`;
+    let condition = `${activeCategory === 'All' ? '' : `&& seasonCategory._ref in *[_type == "seasonCategories" && seasonCategoryName == '${activeCategory}']._id`}`;
+    condition = `${activeCategory === 'Hot Quest' ? '&& hot == true' : condition}`;
+
+    const questQuery = `*[_type == 'quests' && isActive == true && pending == false && questStatus == 'APPROVE' && _id != '${Date.now()}' ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(createdDateTime desc) | order(totalAmount desc)`;
 		client.fetch(questQuery).then((datas) => {
       datas.forEach((quest) => {
         const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
-        if(diff === 0) { 
+        if(diff === 0) {
           quest.dDay = 'D-0';
         } else {
           quest.dDay = diff > 0 ? 'expired' : `D${diff}`;
@@ -177,7 +189,7 @@ function Index() {
 
     const seasonInfoQuery = `*[_type == 'season' && isActive == true] {
       ...,
-      'quests': *[_type == 'quests' && ^._id == season._ref] 
+      'quests': *[_type == 'quests' && ^._id == season._ref && ^._id != '${Date.now()}'] 
       {'categoryName': *[_type == 'seasonCategories' && _id == ^.seasonCategory._ref] {seasonCategoryName} [0] }
     }`;
     client.fetch(seasonInfoQuery).then((seasonInfos) => {
@@ -249,16 +261,20 @@ function Index() {
           <ul className="paginationContent">
           {
             items && items.map((quest, index) => {
+              const questTitle = quest.questLanguage == 'EN' ? quest.titleEN 
+                                                             : quest.questLanguage == 'KR' ? quest.titleKR : quest.titleCH;
+
               return (
-                <li key={index} onClick={() => { if(quest.dDay === 'expired') {return;} if(!walletData?.account) { handleOpenKaikasModal(); return; } history.push({pathname: `/QuestView`, state: {questId: quest._id}}) }}>
+                <li key={index} onClick={() => { if(quest.dDay === 'expired' || quest.dDay === 'pending') {return;} if(!walletData?.account) { handleOpenKaikasModal(); return; } history.push({pathname: `/QuestView`, state: {questId: quest._id}}) }}>
                   { quest.dDay === 'expired' && <div>CLOSE</div> }
+                  { quest.dDay === 'pending' && <div>PENDING</div> }
                   <h2>
                     Total <span>{quest.totalAmount && addComma(quest.totalAmount)}</span> CT
                   </h2>
                   <p>
                     <span
                       style={{
-                        backgroundImage: quest.imageFile && `url('${urlFor(quest.imageFile)}')`,
+                        backgroundImage: `url('${quest && (quest.imageFile ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
                         backgroundPosition: `center`,
                         backgroundSize: `cover`,
                       }}
@@ -267,13 +283,13 @@ function Index() {
                   <h3>
                     <span>{quest.dDay}</span> {quest.endDateTime}
                   </h3>
-                  <h4>{quest.title}</h4>
+                  <h4>{questTitle}</h4>
                   <ul>
                     {
                       quest.answers && quest.answers.map((answer, index) => (              
                         <li key={index}>
                           <div>{answer}</div>
-                          <p>{answerAllocations[answer]} X</p>
+                          <p>{answerAllocations[answer] && answerAllocations[answer] !== '0%' ? `${answerAllocations[answer]} X` : '0%'} </p>
                           <h2>
                             <div style={{ width: `${answerPercents[answer]}%` }}></div>
                           </h2>
@@ -326,7 +342,7 @@ function Index() {
                   </dl>
                   <ul className="mqa-content2">
                     <li key='1'>
-                      <select className="w100p" name="languageSelect" onChange={(e) => setModalValues({...modalValues, 'questLanguage': e.target.value})}>
+                      <select className="w100p" name="languageSelect" onChange={(e) => { setQuestlanguage(e.target.value); setModalValues({...modalValues, questLanguage: e.target.value}); }}>
                         <option value="EN">&nbsp;🇺🇸&nbsp;&nbsp;English</option>
                         <option value="KR">&nbsp;🇰🇷&nbsp;&nbsp;Korean</option>
                         <option value="CH">&nbsp;🇨🇳&nbsp;&nbsp;Chinese</option>
@@ -337,8 +353,13 @@ function Index() {
                         name="title"
                         type="text"
                         className="w100p"
-                        placeholder="Please enter a title(English)"
-                        onChange={(e) => setModalValues({...modalValues, 'title': e.target.value})}
+                        placeholder={questTitleText[questLanguage].placeholder}
+                        onChange={(e) => {
+                                    questTitleText[questLanguage].content = e.target.value; 
+                                    setQuestTitleText({...questTitleText});
+                                    setModalValues({...modalValues, title: questTitleText});
+                                }}
+                        value={questTitleText[questLanguage].content}
                       ></textarea>
                     </li>
                     <li key='3'>
@@ -369,6 +390,9 @@ function Index() {
                         <option value="S">SNS url</option>
                       </select>
                     </li>
+
+                    {
+                    (modalValues?.questType === 'I') &&
                     <li key='6'>
                       <div className="input-file">
                         <label>
@@ -386,6 +410,7 @@ function Index() {
                         />
                       </div>
                     </li>
+                    }
                     <li key='7'>
                       <input
                         name="name"
@@ -428,7 +453,10 @@ function Index() {
                   <p className="mqa-btn">
                     <Link to="#" onClick={async () => { 
                       if(!walletData?.account) {
-                        alert('login for create quest. please');
+                        toastNotify({
+                          state: 'warn',
+                          message: 'login for create quest. please',
+                        });
                         return;
                       }
                       
