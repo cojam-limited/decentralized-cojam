@@ -265,7 +265,20 @@ function Index() {
                                                              : quest.questLanguage == 'KR' ? quest.titleKR : quest.titleCH;
 
               return (
-                <li key={index} onClick={() => { if(quest.dDay === 'expired' || quest.dDay === 'pending') {return;} if(!walletData?.account) { handleOpenKaikasModal(); return; } history.push({pathname: `/QuestView`, state: {questId: quest._id}}) }}>
+                <li 
+                  key={index} 
+                  onClick={() => { 
+                      if(quest.dDay === 'expired' || quest.dDay === 'pending') {
+                        toastNotify({
+                          state: 'warn',
+                          message: 'the quest is closed. (expired or pending)',
+                        });
+                        return;
+                      } 
+
+                      history.push({pathname: `/QuestView`, state: {questId: quest._id}}) 
+                    }}
+                >
                   { quest.dDay === 'expired' && <div>CLOSE</div> }
                   { quest.dDay === 'pending' && <div>PENDING</div> }
                   <h2>

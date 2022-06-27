@@ -6,8 +6,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import Moment from 'moment';
 import { useLoadingState } from "@assets/context/LoadingContext";
 
-import { VictoryChart, VictoryLine, VictoryLegend } from 'victory';
-
 import 'swiper/css';
 import 'react-responsive-modal/styles.css';
 
@@ -339,33 +337,18 @@ function Index(props) {
 								<li key='info' className="qv-tab-info" onClick={() => tabOpen('info')}><i className="uil uil-file-info-alt"></i> <span>Info</span></li>
 							</ul>
 							<div className="qv-chart">
-								<h2>Probability Chart</h2>
+								<h2>Voting Detail</h2>
 								{/*<p><img src={chartTest} alt="" title="" /></p>*/}
 								<p> 
-								<VictoryChart>
-									{
-										Object.keys(historyGraph).map((graphKey, index) => (
-											<VictoryLine
-												key={index}
-												style={{
-													data: { stroke: `${answerColors[graphKey]}` }
-												}}
-												data={historyGraph[graphKey]}
-											/>
-										))
-									}
-									<VictoryLegend x={125} y={0}
-										centerTitle
-										orientation="horizontal"
-										gutter={20}
-										style={{ border: { stroke: "black" }, title: {fontSize: 20 } }}
-										data={
-											Object.keys(answerColors).map((colorKey) => (
-												{ name: `${colorKey}`, symbol: { fill: `${answerColors[colorKey]}` } }
-											))
-										}
-									/>
-								</VictoryChart>
+									<textarea 
+										id="votingDetail" 
+										name="votingDetail"
+										rows="100" 
+										cols="500"
+										style={{ height: "500px" }}
+									>
+									Quest Detail
+									</textarea>
 								</p>
 							</div>
 							<div className="qv-vol">

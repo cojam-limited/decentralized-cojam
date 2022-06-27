@@ -7,6 +7,7 @@ import LogoBlack from '@assets/logo_black.png'
 import iconKlip from '@assets//icon_klip.svg'
 import iconMetamask from '@assets/icon_metamask.svg'
 import Logo_Kaikas from '@assets/logo_kaikas.svg';
+import mainBackGround from '@assets/main_visual_img01.jpg';
 
 import { ConnectKaikasButton } from './styles';
 //import isMobile from '@utils/isMobile';
@@ -412,22 +413,28 @@ function Header() {
 
       {/* 모달 - 클레이트 연결 */}
       <Modal open={openKlipAdd} onClose={() => modalKlipAdd(false)} center>
-        <div className="modal-klip">
+        <div 
+          className="modal-klip"
+          style={{ 
+            background: `url('${mainBackGround}') center no-repeat`,
+          }}
+        >
           <dl>
-            <dt>클레이스왑 시작하기</dt>
+            <dt><img src={LogoBlack} alt="" title="" /></dt>
             <dd onClick={() => modalKlipAdd(false)}><i className="uil uil-times"></i></dd>
           </dl>
+
           <div>
             <h2>내 카카오톡으로 간편하고 안전하게 시작할 수 있습니다.</h2>
             <h3>
               <a href="#none" onClick={() => handleOpenKlipLogin()}><img src={iconKlip} alt="" title=""/>카카오톡으로 Klip 지갑 연결</a>
             </h3>
             <h4>
-              <a href="#none">내 손안의 디지털 지갑, Klip 안내 <i className="uil uil-angle-right"></i></a>
+              <a href="#none" style={{ color: '#636363' }}>내 손안의 디지털 지갑, Klip 안내 <i className="uil uil-angle-right"></i></a>
             </h4>
             <dl>
               <dt></dt>
-              <dd>또는</dd>
+              <dd style={{ color: '#636363' }}>또는</dd>
               <dt></dt>
             </dl>
             <ul>

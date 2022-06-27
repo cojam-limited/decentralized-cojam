@@ -14,6 +14,7 @@ import { useLoadingState } from "@assets/context/LoadingContext";
 import { changeStateFunction } from './statusFunctions';
 
 import { transferOwnership } from '@api/UseKaikas';
+import { checkLogin } from "@api/UseTransactions";
 
 import Moment from 'moment';
 import toastNotify from '@utils/toast';
@@ -84,6 +85,19 @@ function Index() {
 		const walletAddress = member.walletAddress;
 
 		if(window.confirm(`[${walletAddress}] transfer to admin ?`)) {
+			let isLogin = false;
+			await checkLogin(walletData).then((res) => {
+				isLogin = res;
+			});
+
+			if(!isLogin) {
+				toastNotify({
+					state: 'warn',
+					message: 're login or check lock. please',
+				});
+				return;
+			}
+
 			const result = await transferOwnership(walletAddress);
 
 			if(result.status === 200) {
