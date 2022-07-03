@@ -567,7 +567,7 @@ function Index() {
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.spenderAddress}/>
 									</li>
 									<li key='11'>
-										<span>Betting Transaction</span>
+										<span>Voting Transaction</span>
 										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedVoting.bettingTx}/>
 									</li>
 								</ul>

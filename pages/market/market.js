@@ -25,7 +25,8 @@ function Index() {
 	const { setLoading } = useLoadingState();
 	const { walletData } = useWalletData();
 	const [ transactionDatas, setTransactionDatas ] = useState([]);
-	const [ memberDatas, setMemberDatas ] = useState([]);
+	const [ admins, setAdmins ] = useState([]);
+	const [ activeAdmin, setActiveAdmin ] = useState();
 	const [ selectedAdmin, setSelectedAdmin ] = useState({});
 	const [ popups, setPopups ] = useState([]);
 	
@@ -103,18 +104,24 @@ function Index() {
 			const result = await transferOwnership(walletAddress);
 
 			if(result.status === 200) {
+				await client.patch(activeAdmin._id)
+							.set({ 
+								active: false
+							})
+							.commit();
+
+				await client.patch(member._id)
+							.set({ 
+								active: true
+							})
+							.commit();
+
+				setActiveAdmin(member);	
+
 				toastNotify({
 					state: 'success',
 					message: 'transfer to admin success',
 				});
-				
-				await client.patch(member._id)
-					  .set({ 
-						  memberRole: 'admin',
-						  updateDateTime: Moment().format('yyyy-MM-DD HH:mm:ss') // set oldest date for current admin check
-						})
-					  .commit();
-
 			} else {
 				toastNotify({
 					state: 'error',
@@ -129,7 +136,7 @@ function Index() {
  	*/
 	const loadDetailData = (questKey, openDetailModal) => {
 		 setLoading(true);
-		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey] { title, questAnswerKey, _id } | order(questAnswerKey asc)}`;
+		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] { title, questAnswerKey, _id } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
 			 client.fetch(seasonQuery).then((season) => {
@@ -167,7 +174,6 @@ function Index() {
 					openDetailModal: openDetailModal
 				}
 
-				console.log('detailDatas', detailDatas);
 				setActiveDetailData(detailDatas);
 			 });
 		 });
@@ -207,7 +213,7 @@ function Index() {
 
 	useEffect(() => {
 		if(selectedAnswer) {
-			const rewardInfoQuery = `*[_type == 'betting' && questAnswerKey == '${selectedAnswer._id}' && answerTitle == '${selectedAnswer?.title}' && answerTitle != '${Date.now()}']`;
+			const rewardInfoQuery = `*[_type == 'betting' && questAnswerKey == '${selectedAnswer._id}' && answerTitle == '${selectedAnswer?.title}' && _id != '${Date.now()}']`;
 			client.fetch(rewardInfoQuery).then((rewardBettings) => {
 				console.log('rewardBettings', rewardBettings[0]);
 
@@ -267,27 +273,32 @@ function Index() {
 				setLoading(false);
 			});	
 
-			// get member data & check current account member role
-			const memberQuery = `*[_type == 'member' && memberRole == 'admin' && _id != '${Date.now()}'] | order(dateTime(_updatedAt) desc)`;
-			client.fetch(memberQuery).then((members) => {
-				let isAdmin = false;
-				members.forEach((member) => {
-					if(member.walletAddress === walletAddress) {
-						if(member.memberRole === 'admin') {
+			// get admin list & check current account is admin
+			const adminQuery = `*[_type == 'admin' && _id != '${Date.now()}']`;
+			client.fetch(adminQuery).then((admins) => {
+				if(admins) {
+					let isAdmin = false;
+					admins.forEach((admin) => {
+						if(admin.walletAddress === walletAddress) {
 							isAdmin = true;
 						}
-					}
-				});
-
-				if(!isAdmin) {
-					toastNotify({
-						state: 'error',
-						message: 'this account is not admin.',
 					});
-					history.push('/');
-				}
 
-				setMemberDatas(members ?? []);
+					admins.sort(function compare(a, b) {
+						return a.active ? -1 : 1;
+					});
+
+					if(!isAdmin) {
+						toastNotify({
+							state: 'error',
+							message: 'this account is not admin.',
+						});
+						history.push('/');
+					}
+
+					setActiveAdmin(admins[0]);
+					setAdmins(admins);
+				}
 			});
 			
 			const popupQuery = `*[_type == 'popup']`;
@@ -732,17 +743,20 @@ function Index() {
 								<li key='1'><strong></strong></li>
 								<li key='2'><strong>No.</strong></li>
 								<li key='3'><strong>Wallet Address</strong></li>
-								<li key='4'><strong>Member Role</strong></li>
-								<li key='5'><strong>Current Admin</strong></li>
+								<li key='4'><strong>Active</strong></li>
 							</ul>
 							{
-								memberDatas?.map((memberData, index) => (
+								admins?.map((admin, index) => (
 									<ul key={index} style={{ background : index === 0 ? '#6363' : '' }}>
-										<li key='1'><input type="checkbox" onChange={() => { setSelectedAdmin(memberData) }} checked={memberData._id === selectedAdmin?._id}/></li>
+										<li key='1'>
+										{
+											index !== 0 &&
+											<input type="checkbox" onChange={() => { setSelectedAdmin(admin) }} checked={admin._id === selectedAdmin?._id}/>
+										}	
+										</li>
 										<li key='2'><span>No. : </span> {index + 1} </li>
-										<li key='3'><span>Wallet Address : </span> {memberData.walletAddress} </li>
-										<li key='4'><span>Member Role : </span> {memberData.memberRole} </li>
-										<li key='5'><span>Current Admin : </span> {index === 0 ? 'T' : 'F'}</li>
+										<li key='3'><span>Wallet Address : </span> {admin.walletAddress} </li>
+										<li key='4'><span>Active : </span> {admin.active ? 'Active' : 'Inactive'} </li>
 									</ul>
 								))
 							}

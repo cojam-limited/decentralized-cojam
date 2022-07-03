@@ -381,12 +381,12 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                         })
                         .commit();
 
-                const market_total_ct = selectedQuest.totalAmount;
-                const creator_ct = market_total_ct * selectedQuest.creatorFee / 100 + selectedQuest.creatorPay;
+                const market_total_ct = Number(selectedQuest.totalAmount);
+                const creator_ct = market_total_ct * Number(selectedQuest.creatorFee) / 100 + Number(selectedQuest.creatorPay);
                 
                 const transactionSet = {
                     _type: 'transactions',
-                    amount: Number(creator_ct / 10 ** 18),
+                    amount: Number(creator_ct),
                     recipientAddress: selectedQuest.creatorAddress,
                     spenderAddress: cojamMarketAddress,
                     status: 'SUCCESS',

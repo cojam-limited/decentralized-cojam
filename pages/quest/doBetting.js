@@ -198,7 +198,7 @@ const doBetting = async (betting, walletData) => {
                                 _type: 'transactions',
                                 transactionId: res.transactionId,
                                 transactionType: 'BETTION_S',
-                                amount: betting.bettingCoin,
+                                amount: Number(betting.bettingCoin),
                                 recipientAddress: res.spenderAddress,
                                 spenderAddress: walletAddress,
                                 createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),

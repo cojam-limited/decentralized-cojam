@@ -270,11 +270,15 @@ function Header() {
     getBalance();
 
     if(walletData && walletData.account) {
-      const memberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}' && _id != '${Date.now()}'][0] {memberRole}`;
-      client.fetch(memberQuery).then((memberRole) => {
-        if(memberRole) {
-          console.log('reload memberRole', memberRole.memberRole);
-          setMemberRole(memberRole.memberRole);
+      console.log('address', walletData.account);
+
+      // admin check
+      const adminQuery = `*[_type == 'admin' && walletAddress == '${walletData.account}' && _id != '${Date.now()}'][0]`;
+      client.fetch(adminQuery).then((admin) => {
+        console.log('admin', admin);
+
+        if(admin) {
+          setMemberRole('admin');
         }
       });
 
@@ -284,20 +288,19 @@ function Header() {
         if(!member) {
           // send join reward to user
           getjoinReward();
+
+          const memberDoc = {
+            _type: 'member',
+            _id: walletData.account,
+            memberName: walletData.account,
+            walletAddress: walletData.account,
+            createdDateTime: Moment().format('yyyy-MM-DD HH:mm:ss'),
+            updateDateTime: Moment().add(-1000, 'years').format('yyyy-MM-DD HH:mm:ss') // set oldest date for current admin check
+          }
+    
+          client.createIfNotExists(memberDoc);
         }
       })
-
-      const memberDoc = {
-        _type: 'member',
-        _id: walletData.account,
-        memberName: walletData.account,
-        walletAddress: walletData.account,
-        createdDateTime: Moment().format('yyyy-MM-DD HH:mm:ss'),
-        updateDateTime: Moment().add(-1000, 'years').format('yyyy-MM-DD HH:mm:ss') // set oldest date for current admin check
-      }
-
-      client.createIfNotExists(memberDoc);
-
       // if new user then, add member info & give a join reward - end
     } else {
       setMemberRole('');
