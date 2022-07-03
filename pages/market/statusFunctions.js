@@ -18,7 +18,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
     if(!isLogin) {
         toastNotify({
-            state: 'warn',
+            state: 'error',
             message: 're login or check lock. please',
         });
         return;
@@ -118,7 +118,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
         case 'answer':
             if(!selectedQuest.isActive) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Quest is inactive.",
                 });
                 return;
@@ -126,7 +126,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             if(!selectedQuest.draftTx) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Quest is not drafted.",
                 });
                 return;
@@ -134,7 +134,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             if(selectedQuest.answerTx) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Answers is already Registerd!",
                 });
                 return;
@@ -198,7 +198,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
         case 'approve':
             if(!selectedQuest.isActive) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Don't active Season.",
                 });
                 return;
@@ -206,7 +206,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             if(!selectedQuest.answerTx) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Answers is not Confirmed!",
                 });
                 return;
@@ -214,7 +214,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             if(selectedQuest.approveTx) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Approve is already Registerd!",
                 });
                 return;
@@ -259,7 +259,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
         case 'finish':
             if(selectedQuest.completed) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Already Finished!",
                 });
                 return;
@@ -267,7 +267,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             if(selectedQuest.questStatus !== 'APPROVE') {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Market is not approved.",
                 });
                 return;
@@ -275,7 +275,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             if(selectedQuest.pending) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Market is pended.",
                 });
                 return;
@@ -311,7 +311,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
         case 'adjourn':
             if(!selectedQuest.completed) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Market is not Finished!",
                 });
                 return;
@@ -319,7 +319,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             if(selectedQuest.adjournTx) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "It is already adjourn.",
                 });
                 return;
@@ -344,7 +344,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 });
             } else {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: 'adjourn market failed.',
                 });
             }
@@ -354,7 +354,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
         case 'success':
             if(!selectedQuest.completed) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Market is not Finished!",
                 });
                 return;
@@ -362,7 +362,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             if(selectedQuest.successTx) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "It is already success.",
                 });
                 return;
@@ -413,7 +413,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
         case 'retrieve':
             if(!selectedQuest.completed) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Market is not Finished!",
                 });
                 return;
@@ -421,7 +421,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             if(selectedQuest.retrieveTx) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Market is already retrieve!",
                 });
                 return;
@@ -429,7 +429,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
 
             if(!selectedQuest.successTx) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Market is not Success!",
                 });
                 return;
@@ -438,7 +438,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             const diffDays = Moment().diff(Moment(selectedQuest.successDateTime), 'days');
             if(diffDays <= 180) {
                 toastNotify({
-                    state: 'warn',
+                    state: 'error',
                     message: "Market can be retrieved later 180 days from success!",
                 });
                 return;

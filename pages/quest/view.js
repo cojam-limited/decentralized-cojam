@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom'
 
-
+import { checkLogin } from "@api/UseTransactions";
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from 'moment';
 import { useLoadingState } from "@assets/context/LoadingContext";
@@ -33,28 +33,19 @@ function Index(props) {
 	const [ answerPercents, setAnswerPercents ] = useState({});
 	const [ answerAllocations, setAnswerAllocations ] = useState({});
 
-	const [ answerColors, setAnswerColors ] = useState({});
 	const [ openQuestAdd, modalQuestAdd ] = useState(false);
-	const [ openQuestSeason, modalQuestSeason ] = useState(false);
 
 	const [ bettingCoin, setBettingCoin ] = useState(1);
 	const [ rate, setRate ] = useState(0);
 	const [ receiveToken, setReceiveToken ] = useState(0);
 	const [ answerHistory, setAnswerHistory ] = useState();
-	const [ historyGraph, setHistoryGraph ] = useState([]);	
-
-	// modal values
-  	const [ categories, setCategories ] = useState([]);
-	const [ endDateTime, setEndDateTime ] = useState(new Date());
-	const [ modalValues, setModalValues ] = useState({'_type': 'quests', 'questLanguage': 'EN', 'endDateTime': endDateTime});
-	// modal values
 
 	const setBetting = async () => {
 		setLoading(true);
 		if(!selectedAnswer) {
 			toastNotify({
-				state: 'warn',
-				message: 'choice the answer !',
+				state: 'error',
+				message: 'choose the answer !',
 			});
 			setLoading(false);
 			return;
@@ -71,7 +62,7 @@ function Index(props) {
 				'bettingStatus': '',
 				'questKey': quest?.questKey,
 				'questAnswerKey': questAnswerId[0], // TODO answer key
-				'memberKey': '',
+				'memberKey': walletData.account,
 				'receiveAddress': '',
 				'answerTitle': selectedAnswer,
 				'curBalance': curBalance,
@@ -82,12 +73,14 @@ function Index(props) {
 			const betResult = await doBetting(betting, walletData);
 			
 			toastNotify({
-				state: 'success',
+				state: betResult.result ? 'success' : 'error',
 				message: `${betResult.message}`,
 			});
 
 			setOnBetting('bet');
 		} catch(error) {
+			console.log(error);
+
 			toastNotify({
 				state: 'error',
 				message: `Voting failed.`,
@@ -98,7 +91,20 @@ function Index(props) {
 	}
 
 	useEffect(() => {
-		const questQuery = `*[_type == 'quests' && isActive == true && pending == false && _id == '${questId}' && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, questAnswerKey, totalAmount}} [0]`;
+		let isLogin = false;
+		checkLogin().then((res) => {
+			isLogin = res;
+
+			if(!isLogin) {
+				toastNotify({
+					state: 'error',
+					message: 're login or check lock. please',
+				});
+				history.push('/');
+			}
+		});
+
+		const questQuery = `*[_type == 'quests' && isActive == true && pending == false && _id == '${questId}' && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] {title, _id, questAnswerKey, totalAmount}} [0]`;
 		
 		let subscription;
 		client.fetch(questQuery).then((quest) => {
@@ -145,14 +151,14 @@ function Index(props) {
 			return;
 		}
 
-		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}' && pending == false && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} [0]`;
+		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}' && pending == false && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] {title, _id, totalAmount}} [0]`;
 		client.fetch(questQuery).then((quest) => {
 			const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days');
 			if(diff === 0) { 
 				quest.dDay = 'D-0';
 			} else if (diff > 0) {
 				toastNotify({
-					state: 'warn',
+					state: 'error',
 					message: 'quest has been completed.',
 				});
 
@@ -172,59 +178,21 @@ function Index(props) {
 			const answers = quest.answerIds;
 			answers.forEach((answer) => {
 				const resultPercent = answer.totalAmount / questTotalAmount;
-
-				console.log('resultPercent', resultPercent, answer.totalAmount, questTotalAmount);
-
 				const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
 				
 				answerTotalAmounts[answer.title] = answer.totalAmount;
 				answerPercents[answer.title] = resultPercent * 100;
 				answerAllocations[answer.title] = allocation;
 
-				console.log('answers', answer.title, answerTotalAmounts[answer.title], answerPercents[answer.title], answerAllocations[answer.title]);
-	
 				setAnswerTotalAmounts(answerTotalAmounts);
 				setAnswerPercents(answerPercents);
 				setAnswerAllocations(answerAllocations);
 			});
 
 			const creteriaDate = Moment().subtract(5, 'days').format('YYYY-MM-DD');
-			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}' && _id != '${Date.now()}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey]{color}[0] } | order(createdDateTime desc)`;
+			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}' && _id != '${Date.now()}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey && ^._id != '${Date.now()}']{color}[0] } | order(createdDateTime desc)`;
 			client.fetch(answerHistoryQuery).then((answerHist) => {
-				// group by date
-				const graphGroupData = answerHist.reduce((group, answer) => {
-					const { bettingCoin, createdDateTime, answerTitle, answerColor } = answer;
-
-					answerColors[answerTitle] = answerColor.color?.value ?? 0;
-					setAnswerColors(answerColors);
-
-					const date = Moment(createdDateTime).format('YYYY-MM-DD');
-					group[answerTitle] = group[answerTitle] || {};
-					group[answerTitle][date] = group[answerTitle][date] ? Number(group[answerTitle][date]) + Number(bettingCoin) : Number(bettingCoin);
-					return group;
-				}, {});
-				
-				const graphKeys = [];
-				const graphData = {};
-				for (const [key, value] of Object.entries(graphGroupData)) {
-					graphKeys.push(key);
-					for(const [k, v] of Object.entries(graphGroupData[key])) {
-						graphData[key] = graphData[key] || [];
-						graphData[key].push({x: k, y: v});
-					}
-				}
-
-				setHistoryGraph(graphData);
 				setAnswerHistory(answerHist);
-			});
-
-			const seasonCategoryQuery = `*[_type == 'season' && isActive == true && _id != '${Date.now()}'] {seasonCategories[] -> {seasonCategoryName, _id}}`;
-			client.fetch(seasonCategoryQuery).then((datas) => {
-				if(datas) {
-					const localCategories = [{seasonCategoryName: 'All'}];
-					datas[0].seasonCategories.forEach((category) => localCategories.push(category));
-					setCategories(localCategories);
-				}
 			});
 
 			setLoading(false);
@@ -346,9 +314,8 @@ function Index(props) {
 										rows="100" 
 										cols="500"
 										style={{ height: "500px" }}
-									>
-									Quest Detail
-									</textarea>
+										defaultValue="Quest Detail"
+									/>
 								</p>
 							</div>
 							<div className="qv-vol">
@@ -428,7 +395,9 @@ function tabOpen(target) {
 }
 
 function addComma(data) {
-	if(!data) return '';
+	if(!data) {
+		return '';
+	}
 
 	return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

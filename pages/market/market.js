@@ -26,6 +26,7 @@ function Index() {
 	const { walletData } = useWalletData();
 	const [ transactionDatas, setTransactionDatas ] = useState([]);
 	const [ memberDatas, setMemberDatas ] = useState([]);
+	const [ selectedAdmin, setSelectedAdmin ] = useState({});
 	const [ popups, setPopups ] = useState([]);
 	
 	const [ categories, setCategories ] = useState([]);
@@ -50,13 +51,14 @@ function Index() {
 		INVALID: [],
 		APPROVE: ['hot', 'pend', 'unpend', 'finish', 'adjourn', 'success'],
 		ADJOURN: ['retrieve'],
-		SUCCESS: ['retrieve']
+		SUCCESS: ['retrieve'],
+		ADMIN: ['grant admin'],
 	}
 
 	const clickStateButton = async (state) => {
 		if(selectedQuest.length === 0) {
 			toastNotify({
-				state: 'warn',
+				state: 'error',
 				message: 'choose the quest to change the state',
 			});
 			return;
@@ -92,7 +94,7 @@ function Index() {
 
 			if(!isLogin) {
 				toastNotify({
-					state: 'warn',
+					state: 'error',
 					message: 're login or check lock. please',
 				});
 				return;
@@ -107,12 +109,15 @@ function Index() {
 				});
 				
 				await client.patch(member._id)
-					  .set({ memberRole: 'admin' })
+					  .set({ 
+						  memberRole: 'admin',
+						  updateDateTime: Moment().format('yyyy-MM-DD HH:mm:ss') // set oldest date for current admin check
+						})
 					  .commit();
 
 			} else {
 				toastNotify({
-					state: 'warn',
+					state: 'error',
 					message: 'transfer to admin failed',
 				});
 			}
@@ -213,14 +218,14 @@ function Index() {
 					// set member reward. each member's wallet address
 					const memberRewardArr = [];
 					for(const [key, value] of Object.entries(memberRewards)) {
-						const multiply = 
-							((quest.totalAmount
-							- (quest.totalAmount * quest.cojamFee / 100)
-							- ((quest.totalAmount * quest.creatorFee / 100) + quest.creatorPay)
-							- (quest.totalAmount * quest.charityFee / 100)) / value).toFixed(2);
+						const cojam_ct = quest.totalAmount * quest.cojamFee / 100;
+						const creator_ct = quest.totalAmount * quest.creatorFee / 100 + quest.creatorPay;
+						const charity_ct = quest.totalAmount * quest.charityFee / 100;
+						const real_total_ct = quest.totalAmount - cojam_ct - creator_ct - charity_ct;
+						const magnification = real_total_ct / selectedAnswer.totalAmount * 100;
 
-						const predictionFee = (multiply * value).toFixed(2);
-						memberRewardArr.push({ walletAddress: key, predictionFee: predictionFee, multiply: multiply });
+						const predictionFee = (multiply * value) / 100;
+						memberRewardArr.push({ walletAddress: key, predictionFee: predictionFee, multiply: magnification });
 					}
 
 					// group by member key
@@ -248,7 +253,7 @@ function Index() {
 		const walletAddress = walletData.account;
 		if(walletAddress === '') {
 			toastNotify({
-				state: 'warn',
+				state: 'error',
 				message: 'logout',
 			});
 			history.push('/');
@@ -263,19 +268,24 @@ function Index() {
 			});	
 
 			// get member data & check current account member role
-			const memberQuery = `*[_type == 'member' && _id != '${Date.now()}']`;
+			const memberQuery = `*[_type == 'member' && memberRole == 'admin' && _id != '${Date.now()}'] | order(dateTime(_updatedAt) desc)`;
 			client.fetch(memberQuery).then((members) => {
+				let isAdmin = false;
 				members.forEach((member) => {
 					if(member.walletAddress === walletAddress) {
-						if(member.memberRole !== 'admin') {
-							toastNotify({
-								state: 'warn',
-								message: 'this account is not admin.',
-							});
-							history.push('/');
+						if(member.memberRole === 'admin') {
+							isAdmin = true;
 						}
 					}
 				});
+
+				if(!isAdmin) {
+					toastNotify({
+						state: 'error',
+						message: 'this account is not admin.',
+					});
+					history.push('/');
+				}
 
 				setMemberDatas(members ?? []);
 			});
@@ -300,8 +310,8 @@ function Index() {
 
 				{/* 마이페이지 - 탭버튼 */}
 				<ul className="markets-tab">
-					<li className="mt-tab01 active" onClick={tabOpen01}><i className="uil uil-chart-line"></i> <span>Cojam Ground</span></li>
-					<li className="mt-tab02" onClick={tabOpen02}><i className="uil uil-files-landscapes-alt"></i> <span>Grant Admin</span></li>
+					<li className="mt-tab01 active" onClick={() => { setActiveCategory('ONGOING'); tabOpen01();  } }><i className="uil uil-chart-line"></i> <span>Cojam Ground</span></li>
+					<li className="mt-tab02" onClick={() => { setActiveCategory('ADMIN'); tabOpen02(); }}><i className="uil uil-files-landscapes-alt"></i> <span>Grant Admin</span></li>
 					<li className="mt-tab03" onClick={tabOpen03}><i className="uil uil-file-info-alt"></i> <span>Pop-up</span></li>
 				</ul>
 				{/* 마이페이지 - 탭버튼 끝 */}
@@ -571,7 +581,7 @@ function Index() {
 											async () => { 
 												if(selectedAnswer?.title === undefined) {
 													toastNotify({
-														state: 'warn',
+														state: 'error',
 														message: 'select answer. please',
 													});
 													return;
@@ -613,7 +623,7 @@ function Index() {
 											async () => { 
 												if(adjournDesc === '') {
 													toastNotify({
-														state: 'warn',
+														state: 'error',
 														message: 'put on adjorun description. please',
 													});
 													return;
@@ -655,7 +665,7 @@ function Index() {
 											async () => { 
 												if(invalidDesc === '') {
 													toastNotify({
-														state: 'warn',
+														state: 'error',
 														message: 'put on invalid description. please',
 													});
 													return;
@@ -680,21 +690,59 @@ function Index() {
 
 				{/* GRANT ADMIN - TAB02 시작*/}
 				<div className="market-admin" style={{ display: 'none' }}>
+					{/* 카테고리 영역 */}
+					<div className="category-section">
+						<dl>
+							<dt>
+							<Swiper
+								className="swiper-wrapper"
+								spaceBetween={10}
+								slidesPerView={"auto"}
+							>
+							{
+								<SwiperSlide 
+									key={0} 
+									onClick={() => {
+										if(!selectedAdmin?._id) {
+											toastNotify({
+												state: 'error',
+												message: 'select member for grant'
+											})
+											return;
+										}
+
+										transferAdmin(selectedAdmin);
+									}} 
+									style={{cursor:'pointer'}}
+								>
+									GRANT ADMIN
+								</SwiperSlide>
+							}
+							</Swiper>
+							</dt>
+							<dd>
+							</dd>
+						</dl>
+					</div>
+					{/* 카테고리 영역 끝 */}
+
 					<div className="mc-admin">
 						<div>
 							<ul>
-								<li key='1'><strong>No.</strong></li>
-								<li key='2'><strong>Wallet Address</strong></li>
-								<li key='3'><strong>Member Role</strong></li>
-								<li key='4'><strong>Del Yn</strong></li>
+								<li key='1'><strong></strong></li>
+								<li key='2'><strong>No.</strong></li>
+								<li key='3'><strong>Wallet Address</strong></li>
+								<li key='4'><strong>Member Role</strong></li>
+								<li key='5'><strong>Current Admin</strong></li>
 							</ul>
 							{
 								memberDatas?.map((memberData, index) => (
-									<ul key={index} style={{ cursor: 'pointer' }} onClick={() => transferAdmin(memberData)} >
-										<li key='1'><span>No. : </span> {index + 1} </li>
-										<li key='2'><span>Wallet Address : </span> {memberData.walletAddress} </li>
-										<li key='3'><span>Member Role : </span> {memberData.memberRole} </li>
-										<li key='4'><span>Del Yn : </span> {memberData.delYn} </li>
+									<ul key={index} style={{ background : index === 0 ? '#6363' : '' }}>
+										<li key='1'><input type="checkbox" onChange={() => { setSelectedAdmin(memberData) }} checked={memberData._id === selectedAdmin?._id}/></li>
+										<li key='2'><span>No. : </span> {index + 1} </li>
+										<li key='3'><span>Wallet Address : </span> {memberData.walletAddress} </li>
+										<li key='4'><span>Member Role : </span> {memberData.memberRole} </li>
+										<li key='5'><span>Current Admin : </span> {index === 0 ? 'T' : 'F'}</li>
 									</ul>
 								))
 							}

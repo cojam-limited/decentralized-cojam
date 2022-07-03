@@ -20,7 +20,7 @@ import Moment from 'moment';
 import Accordion from '../../components/Accordion';
 import { useLoadingState } from "../../assets/context/LoadingContext";
 import { useWalletData } from '@data/wallet';
-import { kaikasLogin, isKaikasUnlocked } from '@api/UseKaikas';
+import { checkLogin } from "@api/UseTransactions";
 
 function Index() {
 	const { walletData } = useWalletData();
@@ -125,12 +125,26 @@ function Index() {
 						{ 
 						quests.map((quest, index) => {
 							return (
-								<li key={index} onClick={() => { 
+								<li key={index} onClick={async () => { 
 									if(quest.dDay === 'expired') {
 										return;
 									} 
-									
-									history.push({pathname: `/QuestView`, state: { questId: quest._id }}) 
+
+									let isLogin = false;
+									await checkLogin(walletData).then((res) => {
+										isLogin = res;
+
+										if(!isLogin) {
+											toastNotify({
+												state: 'error',
+												message: 're login or check lock. please',
+											});
+
+											return;
+										}
+
+										history.push({pathname: `/QuestView`, state: { questId: quest._id }}) 
+									});
 								}}>
                 					{ quest.dDay === 'expired' && <div>CLOSE</div> }
 									<h2>

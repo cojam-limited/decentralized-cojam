@@ -29,8 +29,6 @@ function Index() {
 	const [ transfers, setTransfers ] = useState([]);
 	const [ selectedTransfer, setSelectedTransfer ] = useState({});
 	const [ hadLoginReward, setHadLoginReward ] = useState(false);
-
-	const [ sendCTInput ] = useState({ recipientAddress: '', amount: 0 });
 	const { walletData } = useWalletData();
 
 	/**
@@ -40,7 +38,7 @@ function Index() {
 		const walletAddress = walletData.account;
 		const votingArr = [];
 
-		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey][0] {title, totalAmount} } | order(createdDateTime desc)`;
+		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey && ^._id != '${Date.now()}'][0] {title, totalAmount} } | order(createdDateTime desc)`;
 		await client.fetch(votingQuery).then(async (votingDatas) => {
 			votingDatas.forEach(async (votingData) => {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey} && _id != '${Date.now()}'][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
@@ -109,7 +107,7 @@ function Index() {
 				// check if user got join reward. before 9 hours.
 				if(loginRewardHistory || hadLoginReward) {
 					toastNotify({
-						state: 'warn',
+						state: 'error',
 						message: "you've got login reward already.",
 					});
 				} else {
@@ -117,7 +115,7 @@ function Index() {
 					client.fetch(rewardInfoQuery).then(async (rewardInfo) => {
 						if(!rewardInfo.amount) {
 							toastNotify({
-								state: 'warn',
+								state: 'error',
 								message: 'login reward amount is not exist',
 							});
 							return;
@@ -130,7 +128,7 @@ function Index() {
 							transferRes = await getRewardCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
 							toastNotify({
-								state: 'warn',
+								state: 'error',
 								message: 'transfer api error. try again.',
 							});
 							return;
@@ -180,7 +178,7 @@ function Index() {
 			});
 		} else {
 			toastNotify({
-				state: 'warn',
+				state: 'error',
 				message: 'login first. please',
 			});
 		}
@@ -189,11 +187,6 @@ function Index() {
 	// GET QUEST REWARD
 	const getQuestReward = async () => {
 		if(selectedVoting.result || selectedVoting.questStatus === 'ADJOURN') {
-			toastNotify({
-				state: 'info',
-				message: 'congret. get reward!',
-			});
-			
 			// send coin from master wallet
 			const walletAddress = walletData.account;
 
@@ -368,9 +361,9 @@ function Index() {
 															?	(voting.selectedAnswer === voting.answerTitle 
 																	? '#58D68D' 
 																	: '#E74C3C') 
-															: (voting.questStatus === 'ADJOURN' 
-																? '#8950fc' 
-																: 'white'),
+															:	(voting.questStatus === 'ADJOURN' 
+																	? '#8950fc' 
+																	: 'white'),
 												border: voting.selectedAnswer 
 														? '' 
 														: (voting.questStatus === 'ADJOURN' 

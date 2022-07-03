@@ -19,6 +19,7 @@ import createNewQuest from './createNewQuest';``
 import "react-responsive-modal/styles.css";
 import { useWalletData } from '@data/wallet';
 import { kaikasLogin, isKaikasUnlocked } from '@api/UseKaikas';
+import { checkLogin } from "@api/UseTransactions";
 
 import toastNotify from '@utils/toast';
 
@@ -267,16 +268,30 @@ function Index() {
               return (
                 <li 
                   key={index} 
-                  onClick={() => { 
+                  onClick={async () => { 
                       if(quest.dDay === 'expired' || quest.dDay === 'pending') {
                         toastNotify({
-                          state: 'warn',
+                          state: 'error',
                           message: 'the quest is closed. (expired or pending)',
                         });
                         return;
                       } 
 
-                      history.push({pathname: `/QuestView`, state: {questId: quest._id}}) 
+                      let isLogin = false;
+                      await checkLogin(walletData).then((res) => {
+                        isLogin = res;
+
+                        if(!isLogin) {
+                          toastNotify({
+                            state: 'error',
+                            message: 're login or check lock. please',
+                          });
+
+                          return;
+                        }
+
+                        history.push({pathname: `/QuestView`, state: {questId: quest._id}}) 
+                      });
                     }}
                 >
                   { quest.dDay === 'expired' && <div>CLOSE</div> }
@@ -467,7 +482,7 @@ function Index() {
                     <Link to="#" onClick={async () => { 
                       if(!walletData?.account) {
                         toastNotify({
-                          state: 'warn',
+                          state: 'error',
                           message: 'login for create quest. please',
                         });
                         return;

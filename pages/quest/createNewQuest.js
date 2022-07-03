@@ -177,7 +177,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
     await client.fetch(query).then(async (seasons) => {
         if(!seasons || seasons.length == 0) {
             toastNotify({
-                state: 'warn',
+                state: 'error',
                 message: 'season is null',
             });
             return;
@@ -233,7 +233,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
             }
         } else {
             toastNotify({
-                state: 'warn',
+                state: 'error',
                 message: 'quest create failed. snsUrl wrong.'
             });
             return;

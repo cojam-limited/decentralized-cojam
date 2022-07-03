@@ -122,7 +122,7 @@ function Header() {
         generateQR(url);
       } else {
         request(requestKey, () => toastNotify({
-          state: 'warn',
+          state: 'error',
           message: '모바일 환경에서 실행해주세요',
         }));
       }
@@ -158,7 +158,7 @@ function Header() {
 					client.fetch(rewardInfoQuery).then(async (rewardInfo) => {
             if(!rewardInfo.amount) {
               toastNotify({
-                state: 'warn',
+                state: 'error',
                 message: 'join reward amount is not exist',
               });
               return;
@@ -218,7 +218,7 @@ function Header() {
 			});
 		} else {
       toastNotify({
-        state: 'warn',
+        state: 'error',
         message: 'do login for get login reward.',
       });
 		}
@@ -292,7 +292,8 @@ function Header() {
         _id: walletData.account,
         memberName: walletData.account,
         walletAddress: walletData.account,
-        createdDateTime: Moment().format('yyyy-MM-DD HH:mm:ss')
+        createdDateTime: Moment().format('yyyy-MM-DD HH:mm:ss'),
+        updateDateTime: Moment().add(-1000, 'years').format('yyyy-MM-DD HH:mm:ss') // set oldest date for current admin check
       }
 
       client.createIfNotExists(memberDoc);

@@ -1,35 +1,52 @@
 import { client } from "../../sanity";
 import Moment from 'moment';
 import { callApproveCojamURI, callBettingCojamURI } from "@api/UseTransactions";
-import toastNotify from '@utils/toast';
 
 const doBetting = async (betting, walletData) => { 
     let result = {result: false, message: 'Voting failed'};
 
+    // compare with initial answer (if exist)
+    const bettingQuery = `*[_type == 'betting' && memberKey == '${betting.memberKey}' && questKey == ${betting.questKey} && questAnswerKey != '${betting.questAnswerKey._id}' && _id != '${Date.now()}'][0]`;
+    const res = await client.fetch(bettingQuery).then((betting) => {
+        if(betting?._id) {
+            return {
+                result: false,
+                message: `can vote more in only initial answer. initial answer : [${betting.answerTitle}]`
+            }
+        } else {
+            return {
+                result: true
+            }
+        }
+    });
+
+    if(!res.result) {
+        return res;
+    }
+
     // Quest 정보 load
     const questQuery = `*[_type == 'quests' && isActive == true && questKey == ${betting.questKey} && _id != '${Date.now()}'][0]`;
     await client.fetch(questQuery).then(async (quest) => {
-
         const seasonQuery = `*[_type == 'season' && isActive == true && _id == '${quest.season._ref}']{..., 'now': now()}[0]`;
         await client.fetch(seasonQuery).then(async (joinedSeason) => {
             const detail = Object.assign(joinedSeason, quest);
 
             // is Market closed
             if(Moment(detail.endDateTime).diff(Moment(detail.now), 'seconds') <= 0) {
-                toastNotify({
-                    state: 'warn',
-                    message: 'Voting is closed',
-                });
+                result = {
+                    result: false,
+                    message: `Voting is closed`,
+                };
                 return;
             }
 
-            const answerQuery = `*[_type == 'questAnswerList' && _id != '${Date.now()}' && _id == '${betting.questAnswerKey._id}'][0]`;
+            const answerQuery = `*[_type == 'questAnswerList' && _id == '${betting.questAnswerKey._id}' && _id != '${Date.now()}'][0]`;
             await client.fetch(answerQuery).then(async (answer) => {
                 if(!answer) {
-                    toastNotify({
-                        state: 'warn',
-                        message: 'questAnswer no data',
-                    });
+                    result = {
+                        result: false,
+                        message: `questAnswer no data`,
+                    };
                     return;
                 }
 
@@ -38,26 +55,26 @@ const doBetting = async (betting, walletData) => {
                 const walletAddress = walletData.account;
 
                 if(detail.finishTx) {
-                    toastNotify({
-                        state: 'warn',
-                        message: 'Already Finished!',
-                    });
+                    result = {
+                        result: false,
+                        message: `Already Finished!`,
+                    };
                     return;
                 }
 
                 if(detail.questStatus !== "APPROVE") {
-                    toastNotify({
-                        state: 'warn',
-                        message: "Market is not approved.",
-                    });
+                    result = {
+                        result: false,
+                        message: `Market is not approved.`,
+                    };
                     return;
                 }
 
                 if(detail.pending) {
-                    toastNotify({
-                        state: 'warn',
-                        message: "Market is pending.",
-                    });
+                    result = {
+                        result: false,
+                        message: `Market is pending.`,
+                    };
                     return;
                 }
                 
@@ -69,29 +86,30 @@ const doBetting = async (betting, walletData) => {
                 const memberQuery = `*[_type == 'member' && _id != '${Date.now()}' && _id == '${member.memberKey}']`;
                 await client.fetch(memberQuery).then(async (queryResult) => {
                     if(betting.curBalance < betting.bettingCoin) {
-                        toastNotify({
-                            state: 'warn',
-                            message: "Please check your balance.",
-                        });
+                        result = {
+                            result: false,
+                            message: `Please check your balance.`,
+                        };
                         return;
                     }
 
                     const min = detail.minimumPay;
-                    const max = detail.maximunPay;
+                    const max = detail.maximumPay;
                     
                     if(betting.bettingCoin < min) {
-                        toastNotify({
-                            state: 'warn',
+                        result = {
+                            result: false,
                             message: `You have to vote more CT than the minimum number of voting. (Minimum : ${min} CT)`,
-                        });
+                        };
                         return;
                     } 
 
                     if(betting.bettingCoin > max) {
-                        toastNotify({
-                            state: 'warn',
-                            message: `You have to vote more CT than the maximum number of voting. (Maximum : ${max} CT)`,
-                        });
+                        result = {
+                            result: false,
+                            message: `You have to vote more CT than the maximum number of voting. (Maximum : ${max} CT)`
+                        };
+
                         return;
                     }
 
