@@ -38,7 +38,7 @@ function Index() {
 		const walletAddress = walletData.account;
 		const votingArr = [];
 
-		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey && ^._id != '${Date.now()}'][0] {title, totalAmount} } | order(createdDateTime desc)`;
+		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey && ^._id != '${Date.now()}'][0] {title, totalAmount} } | order(_updatedAt desc)`;
 		await client.fetch(votingQuery).then(async (votingDatas) => {
 			votingDatas.forEach(async (votingData) => {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey} && _id != '${Date.now()}'][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
@@ -255,12 +255,12 @@ function Index() {
 		setLoading(true);
 		loadVotings();
 		
-		const groundQuery = `*[_type == 'quests' && creatorAddress == '${walletAddress}' && isActive == true && _id != '${Date.now()}'] {..., 'seasonNm': *[_type=='season' && _id == ^.season._ref]{title}[0], 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] } | order(createdDateTime desc)`;
+		const groundQuery = `*[_type == 'quests' && creatorAddress == '${walletAddress}' && isActive == true && _id != '${Date.now()}'] {..., 'seasonNm': *[_type=='season' && _id == ^.season._ref]{title}[0], 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] } | order(_updatedAt desc)`;
 		client.fetch(groundQuery).then((grounds) => {
 			setGrounds(grounds);
 		});
 
-		const transferQuery = `*[_type == 'transactions' && spenderAddress == '${walletAddress}' || recipientAddress == '${walletAddress}' && _id != '${Date.now()}' ] | order(createdDateTime desc)`;
+		const transferQuery = `*[_type == 'transactions' && spenderAddress == '${walletAddress}' || recipientAddress == '${walletAddress}' && _id != '${Date.now()}' ] | order(_updatedAt desc)`;
 		client.fetch(transferQuery).then((transfers) => {
 			setTransfers(transfers);
 		});

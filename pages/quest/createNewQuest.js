@@ -161,6 +161,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
         { title: "Gold", value: "#FFD700" },
     ];
 
+    const quest = {'answers': []}
 
     // title setting
     quest['titleEN'] = modalValues.title?.EN?.content ?? '';
@@ -169,7 +170,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
 
     delete modalValues.title;
 
-    const quest = {'answers': [], ...modalValues};
+    quest = {...quest, ...modalValues};
     answers && answers.forEach((answer) => quest.answers.push(answer.value));
 
     //현재 season 정보

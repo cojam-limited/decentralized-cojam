@@ -9,11 +9,6 @@ export default {
             type: 'string',
         },
         {
-            name: 'delYn',
-            title: 'delYn',
-            type: 'string',
-        },
-        {
             name: 'memberPass',
             title: 'Member Pass',
             type: 'string',
@@ -72,6 +67,11 @@ export default {
             name: 'rMemberId',
             title: 'R Member Id',
             type: 'string',
+        },
+        {
+            name: 'updateDateTime',
+            title: 'Update DateTime',
+            type: 'datetime',
         },
     ]
 }

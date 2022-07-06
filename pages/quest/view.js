@@ -21,7 +21,7 @@ import toastNotify from '@utils/toast';
 
 function Index(props) {
 	const history = useHistory();
-	const [ onBetting, setOnBetting ] = useState();
+	const [ onBetting, setOnBetting ] = useState(false);
 	const { setLoading } = useLoadingState();
 	const [ selectedAnswer, setSelectedAnswer ] = useState();
 	const { walletData } = useWalletData();
@@ -77,7 +77,7 @@ function Index(props) {
 				message: `${betResult.message}`,
 			});
 
-			setOnBetting('bet');
+			setOnBetting(!betting);
 		} catch(error) {
 			console.log(error);
 
