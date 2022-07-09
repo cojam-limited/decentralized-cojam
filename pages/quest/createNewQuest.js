@@ -161,16 +161,15 @@ const createNewQuest = async (modalValues, answers, walletData) => {
         { title: "Gold", value: "#FFD700" },
     ];
 
-    const quest = {'answers': []}
 
     // title setting
-    quest['titleEN'] = modalValues.title?.EN?.content ?? '';
-    quest['titleKR'] = modalValues.title?.KR?.content ?? '';
-    quest['titleCH'] = modalValues.title?.CH?.content ?? '';
+    modalValues['titleEN'] = modalValues.title?.EN?.content ?? '';
+    modalValues['titleKR'] = modalValues.title?.KR?.content ?? '';
+    modalValues['titleCH'] = modalValues.title?.CH?.content ?? '';
 
     delete modalValues.title;
 
-    quest = {...quest, ...modalValues};
+    const quest = {'answers': [], ...modalValues};
     answers && answers.forEach((answer) => quest.answers.push(answer.value));
 
     //현재 season 정보
