@@ -488,7 +488,7 @@ function Index() {
                         return;
                       }
 
-                      if(!modalValues.questTitleText[modalValues.questLanguage]) {
+                      if(!(modalValues.title && modalValues.title[modalValues.questLanguage].content !== '')) {
                         toastNotify({
                           state: 'error',
                           message: `put a ${modalValues.questLanguage} title, please`,
@@ -514,7 +514,7 @@ function Index() {
 
                       let numOfWrittenAnswer = 0;
                       document.querySelectorAll('.mqa-answers li input').forEach((answer) => {
-                        if(answer && answer != '') {
+                        if(answer && answer.value !== '') {
                           numOfWrittenAnswer++;
                         }
                       })
