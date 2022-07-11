@@ -487,6 +487,45 @@ function Index() {
                         });
                         return;
                       }
+
+                      if(!modalValues.questTitleText[modalValues.questLanguage]) {
+                        toastNotify({
+                          state: 'error',
+                          message: `put a ${modalValues.questLanguage} title, please`,
+                        });
+                        return;
+                      }
+
+                      if(!modalValues.seasonCategory) {
+                        toastNotify({
+                          state: 'error',
+                          message: 'select a category, please',
+                        });
+                        return;
+                      }
+
+                      if(!modalValues.imageFile && !modalValues.snsUrl) {
+                        toastNotify({
+                          state: 'error',
+                          message: 'upload image file or input url',
+                        });
+                        return;
+                      }
+
+                      let numOfWrittenAnswer = 0;
+                      document.querySelectorAll('.mqa-answers li input').forEach((answer) => {
+                        if(answer && answer != '') {
+                          numOfWrittenAnswer++;
+                        }
+                      })
+
+                      if(numOfWrittenAnswer < 2) {
+                        toastNotify({
+                          state: 'error',
+                          message: 'put the answer more than 2. please',
+                        });
+                        return;
+                      }
                       
                       setLoading(true);
                       await createNewQuest(modalValues, document.querySelectorAll('.mqa-answers li input'), walletData);

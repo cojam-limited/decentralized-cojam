@@ -192,6 +192,8 @@ function Index(props) {
 			const creteriaDate = Moment().subtract(5, 'days').format('YYYY-MM-DD');
 			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}' && _id != '${Date.now()}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey && ^._id != '${Date.now()}']{color}[0] } | order(createdDateTime desc)`;
 			client.fetch(answerHistoryQuery).then((answerHist) => {
+				console.log('answerHist', answerHist);
+
 				setAnswerHistory(answerHist);
 			});
 
