@@ -192,8 +192,8 @@ function Index() {
 
 			let transferRes;
 			try {
-				transferRes = await receiveToken({questKey: selectedVoting.questKey, bettingKey: selectedVoting.bettingKey});
 				setLoading(true);
+				transferRes = await receiveToken({ questKey: selectedVoting.questKey, bettingKey: selectedVoting.bettingKey });
 			} catch(error) {
 				setLoading(false);
 				toastNotify({
@@ -219,14 +219,12 @@ function Index() {
 				await client.create(transactionSet);
 
 				await client.patch(selectedVoting._id)
-							.set({
-								receiveAddress: walletAddress 
-							})
+							.set({ receiveAddress: walletAddress })
 							.commit();
 
-				setLoading(false);
 				setReloadData(!reloadData);
 
+				setLoading(false);
 				toastNotify({
 					state: 'success',
 					message: 'get quest reward successfully!',
@@ -253,8 +251,12 @@ function Index() {
 		const walletAddress = walletData.account;
 
 		setLoading(true);
-		loadVotings();
 		
+		async function fetchVoting() {
+			await loadVotings();			
+		}
+		fetchVoting();
+
 		const groundQuery = `*[_type == 'quests' && creatorAddress == '${walletAddress}' && isActive == true && _id != '${Date.now()}'] {..., 'seasonNm': *[_type=='season' && _id == ^.season._ref]{title}[0], 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] } | order(_updatedAt desc)`;
 		client.fetch(groundQuery).then((grounds) => {
 			setGrounds(grounds);
@@ -269,16 +271,10 @@ function Index() {
 		if(walletAddress) {
 			const loginRewardHistQuery = `*[_type == 'loginRewardHistory' && walletAddress == '${walletAddress}' && _id != '${Date.now()}']`;
 			subscription = client.listen(loginRewardHistQuery).subscribe((rewardHistory) => {
-				console.log('reward history update !!!', walletAddress);
-				
-				console.log('transaction rewardHistory', rewardHistory.result);
-				if(rewardHistory.result) {
-					setHadLoginReward(true);
-				} else {
-					setHadLoginReward(false);
-				}
+				setHadLoginReward(rewardHistory.result);
 			});	
 		}
+
 
 		return () => subscription?.unsubscribe();
 	}, [walletData, reloadData]);
@@ -341,11 +337,16 @@ function Index() {
 											style={{ cursor: 'pointer' }} 
 											onClick={() => {  
 												if(voting.questStatus !== 'ADJOURN') {
-													if(!voting.selectedAnswer) 
+													if(!voting.selectedAnswer) {
+														toastNotify({
+															state: 'error',
+															message: "answer is not selected.",
+														});
 														return;
+													}
 												}
 
-												if(voting.receiveAddress !== '') { 
+												if(voting.receiveAddress && voting.receiveAddress !== '') { 
 													toastNotify({
 														state: 'info',
 														message: "you've got reward already",

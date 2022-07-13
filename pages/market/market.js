@@ -78,6 +78,15 @@ function Index() {
 			return;
 		}
 
+		const walletAddress = walletData?.account;
+		if(activeAdmin?.walletAddress.toLowerCase() !== walletAddress?.toLowerCase()) {
+			toastNotify({
+				state: 'error',
+				message: 'you need a contract ownership',
+			});
+			return;
+		}
+
 		setLoading(true);
 		await changeStateFunction(state, walletData, selectedQuest);
 		setReloadData(!reloadData);
@@ -215,8 +224,6 @@ function Index() {
 		if(selectedAnswer) {
 			const rewardInfoQuery = `*[_type == 'betting' && questAnswerKey == '${selectedAnswer._id}' && answerTitle == '${selectedAnswer?.title}' && _id != '${Date.now()}']`;
 			client.fetch(rewardInfoQuery).then((rewardBettings) => {
-				console.log('rewardBettings', rewardBettings[0]);
-
 				const questInfoQuery = `*[_type == 'quests' && questKey == ${rewardBettings[0]?.questKey} && _id != '${Date.now()}'][0]`;
 				client.fetch(questInfoQuery).then((quest) => {	
 					const memberRewards = addGroupBy(rewardBettings, 'memberKey');
@@ -598,6 +605,15 @@ function Index() {
 													return;
 												}
 												
+												const walletAddress = walletData.account;
+												if(activeAdmin.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+													toastNotify({
+														state: 'error',
+														message: 'you need a contract ownership',
+													});
+													return;
+												}
+
 												setLoading(true);
 												await changeStateFunction('success', walletData, selectedQuest, selectedAnswer);
 												setLoading(false);
@@ -640,6 +656,15 @@ function Index() {
 													return;
 												}
 
+												const walletAddress = walletData.account;
+												if(activeAdmin.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+													toastNotify({
+														state: 'error',
+														message: 'you need a contract ownership',
+													});
+													return;
+												}
+
 												setLoading(true);
 												await changeStateFunction('adjourn', walletData, selectedQuest, selectedAnswer, adjournDesc);
 												setLoading(false);
@@ -678,6 +703,15 @@ function Index() {
 													toastNotify({
 														state: 'error',
 														message: 'put on invalid description. please',
+													});
+													return;
+												}
+
+												const walletAddress = walletData.account;
+												if(activeAdmin.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+													toastNotify({
+														state: 'error',
+														message: 'you need a contract ownership',
 													});
 													return;
 												}

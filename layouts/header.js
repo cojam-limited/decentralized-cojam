@@ -270,13 +270,9 @@ function Header() {
     getBalance();
 
     if(walletData && walletData.account) {
-      console.log('address', walletData.account);
-
       // admin check
-      const adminQuery = `*[_type == 'admin' && walletAddress == '${walletData.account}' && _id != '${Date.now()}'][0]`;
+      const adminQuery = `*[_type == 'admin' && walletAddress == '${walletData.account.toLowerCase()}' && _id != '${Date.now()}'][0]`;
       client.fetch(adminQuery).then((admin) => {
-        console.log('admin', admin);
-
         if(admin) {
           setMemberRole('admin');
         }
