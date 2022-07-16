@@ -9,7 +9,11 @@ import mainServiceIcon04 from '@assets/main_service_icon04.svg'
 import mainServiceIcon05 from '@assets/main_service_icon05.svg'
 import mainServiceIcon06 from '@assets/main_service_icon06.svg'
 
-import mainBackGround from '@assets/main_visual_img02.jpg';
+import mainBackGround00 from '@assets/main_visual_img00.jpg';
+import mainBackGround01 from '@assets/main_visual_img01.jpg';
+import mainBackGround02 from '@assets/main_visual_img02.jpg';
+import mainBackGround03 from '@assets/main_visual_img03.jpg';
+
 import serviceBackground from '@assets/main_service_bg.png';
 import phoneBackground from '@assets/main_service_phone.png';
 import qnaBackground from '@assets/main_qna_bg.jpg';
@@ -21,6 +25,7 @@ import Accordion from '../../components/Accordion';
 import { useLoadingState } from "../../assets/context/LoadingContext";
 import { useWalletData } from '@data/wallet';
 import { checkLogin } from "@api/UseTransactions";
+import BackgroundSlider from 'react-background-slider'
 
 function Index() {
 	const { walletData } = useWalletData();
@@ -70,21 +75,16 @@ function Index() {
 						setAnswerPercents(answerPercents);
 						setAnswerAllocations(answerAllocations);
 					});
-
-					console.log(answerTotalAmounts, answerPercents, answerAllocations);
 				});
 			});
 
 			const qnaQuery = '*[_type == "qnaList"] | order(order asc)';
 			await client.fetch(qnaQuery).then((data) => {
-				console.log('qna', data);
 				setQnas(data);
 			});
 
 			const popupQuery = `*[_type == 'popup' && isActive == true] | order(createdDateTime desc) [0]`;
-			await client.fetch(popupQuery).then((popup) => {
-				console.log('popup', popup);
-				
+			await client.fetch(popupQuery).then((popup) => {				
 				if(popup) {
 
 				}
@@ -101,11 +101,13 @@ function Index() {
 	return (
     	<div>
 			{/* 비주얼영역 */}
-			<div className="main-vegas" style={{
-				background: `url('${mainBackGround}') center no-repeat`, 
-				backgroundSize: 'cover',
+		
+			<div className="main-vegas">
+				<BackgroundSlider
+					images={[ mainBackGround00, mainBackGround01, mainBackGround02, mainBackGround03 ]}
+					duration={10} transition={1} 
+				/>
 
-			}}>
 				<div className="mv-btm"><img src={mainVisualScroll} width="30" alt="" title="" /></div>
 				<div className="mv-copy">
 					<h2>COJAM</h2>

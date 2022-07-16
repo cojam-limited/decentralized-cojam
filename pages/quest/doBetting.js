@@ -198,6 +198,7 @@ const doBetting = async (betting, walletData) => {
                                 _type: 'transactions',
                                 transactionId: res.transactionId,
                                 transactionType: 'BETTION_S',
+                                status: 'SUCCESS',
                                 amount: Number(betting.bettingCoin),
                                 recipientAddress: res.spenderAddress,
                                 spenderAddress: walletAddress,

@@ -391,6 +391,18 @@ function Index() {
                       ></textarea>
                     </li>
                     <li key='3'>
+                      <textarea
+                        name="questDetail"
+                        type="text"
+                        className="w100p"
+                        placeholder={'Please enter a quest detail.'}
+                        onChange={(e) => {
+                            setModalValues({...modalValues, questDetail: e.target.value});
+                        }}
+                        value={modalValues.questDetail}
+                      ></textarea>
+                    </li>
+                    <li key='4'>
                       <select name="name" title="" className="w100p" defaultValue="" onChange={(e) => setModalValues({...modalValues, 'seasonCategory': { _type: 'reference', _ref: e.target.value }})}>
                         <option value="">
                           Please select a category
@@ -402,7 +414,7 @@ function Index() {
                         }
                       </select>
                     </li>
-                    <li key='4'>
+                    <li key='5'>
                       <DatePicker
                         dateFormat="yyyy-MM-dd HH:mm:ss"
                         selected={endDateTime}
@@ -410,7 +422,7 @@ function Index() {
                         showTimeInput
                       />
                     </li>
-                    <li key='5'>
+                    <li key='6'>
                       <select name="questType" title="" className="w100p" defaultValue="I" onChange={(e) => setModalValues({...modalValues, 'questType': e.target.value})} >
                         <option value="I">
                           Image
@@ -421,7 +433,7 @@ function Index() {
 
                     {
                     (modalValues?.questType === 'I') &&
-                    <li key='6'>
+                    <li key='7'>
                       <div className="input-file">
                         <label>
                           File Attach
@@ -439,7 +451,7 @@ function Index() {
                       </div>
                     </li>
                     }
-                    <li key='7'>
+                    <li key='8'>
                       <input
                         name="name"
                         type="text"

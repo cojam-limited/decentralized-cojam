@@ -256,30 +256,28 @@ const createNewQuest = async (modalValues, answers, walletData) => {
             await client.create(quest).then(async (res) => {
                 if(quest.imageFile) {
                     // upload image
-                    await client.assets
-                    .upload('image', quest.imageFile)
-                    .then(async (imageAsset) => {
-                    await client.patch(res._id)
-                                .set({
-                                    imageFile: {
-                                        _type: 'image',
-                                        asset: {
-                                            _type: "reference",
-                                            _ref: imageAsset._id
+                    await client.assets.upload('image', quest.imageFile).then(async (imageAsset) => {
+                        await client.patch(res._id)
+                                    .set({
+                                        imageFile: {
+                                            _type: 'image',
+                                            asset: {
+                                                _type: "reference",
+                                                _ref: imageAsset._id
+                                            }
                                         }
-                                    }
-                                })
-                                .commit();
+                                    })
+                                    .commit();
 
-                    console.log('Image upload Done!');
+                        console.log('Image upload Done!');
                     })
                     .catch((err) => {
-                    toastNotify({
-                        state: 'error',
-                        message: 'quest create failed. image upload failed.'
-                    })
+                        toastNotify({
+                            state: 'error',
+                            message: 'quest create failed. image upload failed.'
+                        })
 
-                    return { statusCode: 400 } 
+                        return { statusCode: 400 } 
                     });
                 }
 

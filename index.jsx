@@ -4,12 +4,13 @@ import Router from './router';
 
 import { useWalletData } from '@data/wallet';
 import toastNotify from '@utils/toast';
+import { BalanceProvider } from './components/Context/BalanceContext';
 
 import './assets/css/style.css'
 
 const App = () => {
   const { walletData, mutateWalletData } = useWalletData();
-
+  
   useEffect(() => {
     //카이카스 설치된 경우
     if (window?.klaytn) {
@@ -46,4 +47,9 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(
+  <BalanceProvider> 
+    <App /> 
+  </BalanceProvider>,
+  document.getElementById('root')
+);

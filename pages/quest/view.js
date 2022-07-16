@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom'
 
 import { checkLogin } from "@api/UseTransactions";
@@ -14,6 +14,7 @@ import { urlFor, client } from "../../sanity";
 import { useWalletData } from '@data/wallet';
 
 import { callGetCojamBalance } from '../../api/UseTransactions';
+import { BalanceContext } from '../../components/Context/BalanceContext';
 
 import backgroundImage from '@assets/body_quest.jpg';
 
@@ -21,10 +22,11 @@ import toastNotify from '@utils/toast';
 
 function Index(props) {
 	const history = useHistory();
+	const { balance, setBalance } = useContext(BalanceContext);
 	const [ onBetting, setOnBetting ] = useState(false);
 	const { setLoading } = useLoadingState();
 	const [ selectedAnswer, setSelectedAnswer ] = useState();
-	const { walletData } = useWalletData();
+	const { walletData, mutateWalletData } = useWalletData();
 
 	const [ questId ] = useState(props.location.state.questId);
 	const [ quest, setQuest ] = useState();
@@ -77,6 +79,11 @@ function Index(props) {
 				message: `${betResult.message}`,
 			});
 
+			const cojamBalance = await callGetCojamBalance(walletData);
+			if(cojamBalance !== balance) {
+				setBalance(cojamBalance);
+			}
+
 			setOnBetting(!betting);
 		} catch(error) {
 			console.log(error);
@@ -103,37 +110,6 @@ function Index(props) {
 				history.push('/');
 			}
 		});
-
-		const questQuery = `*[_type == 'quests' && isActive == true && pending == false && _id == '${questId}' && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] {title, _id, questAnswerKey, totalAmount}} [0]`;
-		
-		let subscription;
-		client.fetch(questQuery).then((quest) => {
-			const answerList = quest.answerIds?.map((answerId, index) => {
-				return `${answerId.questAnswerKey}`;
-			});
-
-			const query = `*[_type == 'questAnswerList' && (questAnswerKey in [${answerList}])]`;
-			subscription = client.listen(query).subscribe((update) => {
-				const answers = quest.answerIds;
-				answers.forEach((answer) => {
-					if(answer.title === update.result.title) {
-						answer.totalAmount = update.result.totalAmount;
-					}
-
-					const resultPercent = answer.totalAmount / quest.totalAmount;
-					const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
-					answerTotalAmounts[answer.title] = answer.totalAmount;
-					answerPercents[answer.title] = resultPercent * 100;
-					answerAllocations[answer.title] = allocation;
-		
-					setAnswerTotalAmounts(answerTotalAmounts);
-					setAnswerPercents(answerPercents);
-					setAnswerAllocations(answerAllocations);
-				});
-			});
-		});
-
-		return () => subscription?.unsubscribe();
 	}, []);
 
 	useEffect(() => {
@@ -197,6 +173,7 @@ function Index(props) {
 				setAnswerHistory(answerHist);
 			});
 
+			mutateWalletData({ ...walletData });
 			setLoading(false);
 		});  
 		/**
@@ -283,7 +260,7 @@ function Index(props) {
 									<li key={index} onClick={() => setSelectedAnswer(answer)} style={{cursor:'pointer'}} className={`${selectedAnswer == answer && 'active'}`}>
 										<div>{answer}</div>
 										<p>{answerAllocations[answer] && answerAllocations[answer] !== '0%' ? `${answerAllocations[answer]} X` : '0%'} </p>
-										<h2><div style={{width:`${answerPercents[answer]}%`}}></div></h2>
+										<h2><div style={{width:`${answerPercents[answer] ?? 0}%`}}></div></h2>
 									</li>
 								))
 							}
@@ -316,7 +293,8 @@ function Index(props) {
 										rows="100" 
 										cols="500"
 										style={{ height: "500px" }}
-										defaultValue="Quest Detail"
+										defaultValue={quest?.questDetail}
+										readOnly
 									/>
 								</p>
 							</div>
@@ -371,13 +349,6 @@ function Index(props) {
 					</dl>
 				</div>
 				{/* 상세 끝 */}
-
-
-				{/* 등록버튼 */}
-				<div className="add-btn">
-					<Link to="#" onClick={() => modalQuestAdd(true)}><i className="uil uil-plus"></i></Link>
-				</div>
-				{/* 등록버튼 끝 */}
 			</div>
     </div>
   );

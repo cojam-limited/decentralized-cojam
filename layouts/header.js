@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom'
 import { Modal } from 'react-responsive-modal';
 import LogoWhite from '@assets/logo_white.png'
@@ -23,10 +23,12 @@ import toastNotify from '@utils/toast';
 
 import Moment from 'moment';
 import { useWalletData } from '@data/wallet';
+import { BalanceContext } from '../components/Context/BalanceContext';
 
 import { client } from "../sanity";
 
 function Header() {
+  const { balance, setBalance } = useContext(BalanceContext);
   const history = useHistory();
   const [openKlipAdd, modalKlipAdd] = useState(false);
   const [openKlipLogin, modalKlipLogin] = useState(false);
@@ -38,7 +40,7 @@ function Header() {
 
   const { modalData, mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
   const { walletData, mutateWalletData } = useWalletData();
-  const [ balance, setBalance ] = useState(-1);
+  //const [ balance, setBalance ] = useState(-1);
   const [ memberRole, setMemberRole ] = useState('');
 
   //scroll 이벤트 관련
@@ -291,7 +293,7 @@ function Header() {
             memberName: walletData.account,
             walletAddress: walletData.account,
             createdDateTime: Moment().format('yyyy-MM-DD HH:mm:ss'),
-            updateDateTime: Moment().add(-1000, 'years').format('yyyy-MM-DD HH:mm:ss') // set oldest date for current admin check
+            updateDateTime: Moment().add(-1000, 'years').format('yyyy-MM-DD HH:mm:ss')
           }
     
           client.createIfNotExists(memberDoc);

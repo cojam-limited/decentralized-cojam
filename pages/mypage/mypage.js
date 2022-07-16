@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Modal } from 'react-responsive-modal';
 
 import 'react-responsive-modal/styles.css';
@@ -9,11 +9,14 @@ import { useLoadingState } from "../../assets/context/LoadingContext";
 import Moment from 'moment';
 import { getRewardCojamURI, receiveToken } from "@api/UseKaikas";
 import toastNotify from '@utils/toast';
+import { callGetCojamBalance } from '../../api/UseTransactions';
+import { BalanceContext } from '../../components/Context/BalanceContext';
 
 import LogoBlack from '@assets/coin.png'
 
 function Index() {
 	const { setLoading } = useLoadingState();
+	const { balance, setBalance } = useContext(BalanceContext);
 	const [ reloadData, setReloadData ] = useState(false);
 	const [openMypageVoting, modalMypageVoting] = useState(false);
 	const [openMypageGround, modalMypageGround] = useState(false);
@@ -135,6 +138,11 @@ function Index() {
 						}
 
 						if(transferRes.status === 200) {
+							const cojamBalance = await callGetCojamBalance(walletData);
+							if(cojamBalance !== balance) {
+								setBalance(cojamBalance);
+							}
+
 							// remain transfer history
 							const loginRewardHistoryDoc = {
 								_type: 'loginRewardHistory',
@@ -204,6 +212,11 @@ function Index() {
 			}
 
 			if(transferRes.status === 200) {
+				const cojamBalance = await callGetCojamBalance(walletData);
+				if(cojamBalance !== balance) {
+					setBalance(cojamBalance);
+				}
+
 				// remain transaction history
 				const transactionSet = {
 					_type: 'transactions',
@@ -274,7 +287,6 @@ function Index() {
 				setHadLoginReward(rewardHistory.result);
 			});	
 		}
-
 
 		return () => subscription?.unsubscribe();
 	}, [walletData, reloadData]);

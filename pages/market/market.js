@@ -36,7 +36,7 @@ function Index() {
 	const [ selectedQuest, setSelectedQuest ] = useState([]);
 
 	const [ openSuccess, modalSuccess ] = useState(false);
-	const [ selectedAnswer, setSelectedAnswer ] = useState();
+	const [ selectedAnswer, setSelectedAnswer ] = useState('');
 	const [ rewardInfo, setRewardInfo ] = useState({});
 
 	const [ openAdjourn, modalAdjourn ] = useState(false);
@@ -145,7 +145,7 @@ function Index() {
  	*/
 	const loadDetailData = (questKey, openDetailModal) => {
 		 setLoading(true);
-		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] { title, questAnswerKey, _id } | order(questAnswerKey asc)}`;
+		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] { title, questKey, questAnswerKey, _id } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
 			 client.fetch(seasonQuery).then((season) => {
@@ -222,40 +222,43 @@ function Index() {
 
 	useEffect(() => {
 		if(selectedAnswer) {
+			setLoading(true);
 			const rewardInfoQuery = `*[_type == 'betting' && questAnswerKey == '${selectedAnswer._id}' && answerTitle == '${selectedAnswer?.title}' && _id != '${Date.now()}']`;
-			client.fetch(rewardInfoQuery).then((rewardBettings) => {
-				const questInfoQuery = `*[_type == 'quests' && questKey == ${rewardBettings[0]?.questKey} && _id != '${Date.now()}'][0]`;
-				client.fetch(questInfoQuery).then((quest) => {	
+			client.fetch(rewardInfoQuery).then(async (rewardBettings) => {
+				
+				const questInfoQuery = `*[_type == 'quests' && questKey == ${selectedAnswer.questKey} && _id != '${Date.now()}'][0]`;
+				await client.fetch(questInfoQuery).then((quest) => {	
 					const memberRewards = addGroupBy(rewardBettings, 'memberKey');
 
 					// set member reward. each member's wallet address
 					const memberRewardArr = [];
-					for(const [key, value] of Object.entries(memberRewards)) {
-						const cojam_ct = quest.totalAmount * quest.cojamFee / 100;
-						const creator_ct = quest.totalAmount * quest.creatorFee / 100 + quest.creatorPay;
-						const charity_ct = quest.totalAmount * quest.charityFee / 100;
-						const real_total_ct = quest.totalAmount - cojam_ct - creator_ct - charity_ct;
-						const magnification = real_total_ct / selectedAnswer.totalAmount * 100;
+					for(const [memberAddress, totalAmount] of Object.entries(memberRewards)) {
+						const cojam_ct = quest?.totalAmount * quest?.cojamFee / 100;
+						const creator_ct = quest?.totalAmount * quest?.creatorFee / 100 + quest?.creatorPay;
+						const charity_ct = quest?.totalAmount * quest?.charityFee / 100;
+						const real_total_ct = quest?.totalAmount - cojam_ct - creator_ct - charity_ct;
+						const magnification = real_total_ct / totalAmount * 100;
 
-						const predictionFee = (multiply * value) / 100;
-						memberRewardArr.push({ walletAddress: key, predictionFee: predictionFee, multiply: magnification });
+						const predictionFee = (magnification * totalAmount) / 100;
+						memberRewardArr.push({ walletAddress: memberAddress, predictionFee: predictionFee, multiply: magnification });
 					}
 
 					// group by member key
 					const curRewardInfo = {
-						minimumPay: quest.minimumPay,
-						maximumPay: quest.maximumPay,
-						charityFee: quest.charityFee,
-						cojamFee: quest.cojamFee,
-						creatorFee: quest.creatorFee,
-						creatorPay: quest.creatorPay,
-
+						minimumPay: quest?.minimumPay ?? 0,
+						maximumPay: quest?.maximumPay ?? 0,
+						charityFee: quest?.charityFee ?? 0,
+						cojamFee: quest?.cojamFee ?? 0,
+						creatorFee: quest?.creatorFee ?? 0,
+						creatorPay: quest?.creatorPay ?? 0,
+						
 						memberRewards: memberRewardArr
 					}
 
 					setRewardInfo(curRewardInfo);
-				})
+				});
 
+				setLoading(false);
 			});
 		}
 	}, [selectedAnswer]);
@@ -506,7 +509,9 @@ function Index() {
 													<span>Answer List</span>
 													{
 														activeDetailData?.answers?.map((answer, index) => (
-															<input key={index} name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={answer.title}
+															<input 
+																key={index} name="name" 
+																type="text" className="w100p" placeholder="" readOnly defaultValue={answer.title}
 																style={{ color: activeDetailData.selectedAnswer === answer.title ? '#fff' : 'black', background: activeDetailData.selectedAnswer === answer.title ? '#8950fc' : '' }}
 															/>
 														))
@@ -564,7 +569,17 @@ function Index() {
 													<span>Answer List</span>
 													{
 														activeDetailData?.answers?.map((answer, index) => (
-															<input key={index} name="name" type="text" className="w100p" placeholder="" style={{ color: 'black', cursor: 'pointer', background: answer.title === selectedAnswer?.title ? '#8950fc' : '' }} onClick={() => {setSelectedAnswer(answer)}} readOnly defaultValue={answer.title}/>
+															<input 
+																key={index} 
+																name="name" 
+																type="text" 
+																className="w100p" 
+																placeholder="" 
+																style={{ color: 'black', cursor: 'pointer', background: answer.title === selectedAnswer?.title ? '#8950fc' : '' }} 
+																onClick={() => {setSelectedAnswer(answer)}} 
+																readOnly 
+																defaultValue={answer.title}
+															/>
 														))
 													}
 												</li>
@@ -587,7 +602,7 @@ function Index() {
 												<li key={90}> address / multiply / predictionFee </li>
 											{
 												rewardInfo?.memberRewards?.map((memberReward, index) => (	
-													<li key={index}> {memberReward.walletAddress} / {memberReward.multiply} / {memberReward.predictionFee} CT </li>
+													<li key={index}> {memberReward.walletAddress} / {memberReward.multiply || 0} / {memberReward.predictionFee || 0} CT </li>
 												))
 											}
 											</>
