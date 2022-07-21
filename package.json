@@ -4,8 +4,7 @@
   "scripts": {
     "start": "cross-env webpack serve --env development",
     "build": "cross-env NODE_ENV=production webpack",
-    "lint": "eslint --fix --ext .js,.jsx .",
-    "prepare": "npm set-script prepare 'husky install'"
+    "lint": "eslint --fix --ext .js,.jsx ."
   },
   "dependencies": {
     "@emotion/babel-plugin": "^11.1.2",
