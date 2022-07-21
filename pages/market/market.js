@@ -145,7 +145,7 @@ function Index() {
  	*/
 	const loadDetailData = (questKey, openDetailModal) => {
 		 setLoading(true);
-		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {..., 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] { title, questKey, questAnswerKey, _id } | order(questAnswerKey asc)}`;
+		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {...,  'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] { title, totalAmount, questKey, questAnswerKey, _id } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
 			 client.fetch(seasonQuery).then((season) => {
@@ -194,6 +194,54 @@ function Index() {
 			modalDetail(true);
 		}
 
+		setRewardInfo({});
+
+		const rewardInfoQuery = `*[_type == 'betting' && questKey == ${activeDetailData.questKey} && _id != '${Date.now()}']`;
+		client.fetch(rewardInfoQuery).then(async (rewardBettings) => {
+			
+			const questInfoQuery = `*[_type == 'quests' && questKey == ${activeDetailData.questKey} && _id != '${Date.now()}'][0]`;
+			await client.fetch(questInfoQuery).then((quest) => {
+				const memberRewards = addGroupBy(rewardBettings, 'memberKey');
+
+				const titleRewards = addGroupBy(rewardBettings, 'answerTitle');
+
+				console.log('titleRewards', titleRewards);
+
+				// set member reward. each member's wallet address
+				const memberRewardArr = [];
+				for(const [memberAddress, rewardObj] of Object.entries(memberRewards)) {
+					const cojam_ct = quest?.totalAmount * quest?.cojamFee / 100;
+					const creator_ct = quest?.totalAmount * quest?.creatorFee / 100 + quest?.creatorPay;
+					const charity_ct = quest?.totalAmount * quest?.charityFee / 100;
+					const real_total_ct = quest?.totalAmount - cojam_ct - creator_ct - charity_ct;
+					const magnification = real_total_ct / rewardObj.bettingCoin * 100;
+
+					const predictionFee = (magnification * rewardObj.bettingCoin) / 100;
+					memberRewardArr.push({ title: rewardObj.title, walletAddress: memberAddress, predictionFee: predictionFee, multiply: magnification });
+				}
+
+				// group by member key
+				const curRewardInfo = {
+					minimumPay: quest?.minimumPay ?? 0,
+					maximumPay: quest?.maximumPay ?? 0,
+					charityFee: quest?.charityFee ?? 0,
+					cojamFee: quest?.cojamFee ?? 0,
+					creatorFee: quest?.creatorFee ?? 0,
+					creatorPay: quest?.creatorPay ?? 0,
+					
+					memberRewards: memberRewardArr,
+					titleRewards: titleRewards
+				}
+
+				console.log('memberRewards', memberRewardArr);
+				console.log('titleRewards', titleRewards);
+
+				setRewardInfo(curRewardInfo);
+			});
+
+			setLoading(false);
+		});
+
 		setLoading(false);
 	}, [activeDetailData]);
 	/**
@@ -212,14 +260,15 @@ function Index() {
 			var group = el[key];
 	
 			if (carry[group] === undefined) {
-				carry[group] = 0;
+				carry[group] = { title: el['answerTitle'], bettingCoin: 0 };
 			}
 			
-			carry[group] += el.bettingCoin ?? 0;
+			carry[group]['bettingCoin'] += el.bettingCoin ?? 0;
 			return carry
 		}, {})
 	}
 
+	/*
 	useEffect(() => {
 		if(selectedAnswer) {
 			setLoading(true);
@@ -262,6 +311,7 @@ function Index() {
 			});
 		}
 	}, [selectedAnswer]);
+	*/
 
 	useEffect(() => {
 		setLoading(true);
@@ -511,7 +561,11 @@ function Index() {
 														activeDetailData?.answers?.map((answer, index) => (
 															<input 
 																key={index} name="name" 
-																type="text" className="w100p" placeholder="" readOnly defaultValue={answer.title}
+																type="text" 
+																className="w100p" 
+																placeholder="" 
+																readOnly 
+																defaultValue={`${answer.title} (${addComma(answer.totalAmount)} CT)`}
 																style={{ color: activeDetailData.selectedAnswer === answer.title ? '#fff' : 'black', background: activeDetailData.selectedAnswer === answer.title ? '#8950fc' : '' }}
 															/>
 														))
@@ -601,8 +655,8 @@ function Index() {
 												<li key={80}> * Reward Address</li>
 												<li key={90}> address / multiply / predictionFee </li>
 											{
-												rewardInfo?.memberRewards?.map((memberReward, index) => (	
-													<li key={index}> {memberReward.walletAddress} / {memberReward.multiply || 0} / {memberReward.predictionFee || 0} CT </li>
+												rewardInfo?.memberRewards?.filter((reward) => selectedAnswer.title === reward.title).map((memberReward, index) => (	
+													<li key={index}> {memberReward.walletAddress} / {memberReward.multiply ? (memberReward.multiply / 100).toFixed(2) : 0} / {memberReward.predictionFee || 0} CT </li>
 												))
 											}
 											</>
@@ -880,6 +934,12 @@ function tabOpen03() {
 	document.querySelector('.mt-tab01').classList.remove("active");
 	document.querySelector('.mt-tab02').classList.remove("active");
 	document.querySelector('.mt-tab03').classList.add("active");
+}
+
+function addComma(data) {
+	if(!data) return 0;
+
+	return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 export default Index;

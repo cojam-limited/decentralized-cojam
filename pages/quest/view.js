@@ -84,7 +84,9 @@ function Index(props) {
 				setBalance(cojamBalance);
 			}
 
-			setOnBetting(!betting);
+			//setOnBetting(!betting);
+			// refresh after voting success.
+			window.location.reload();
 		} catch(error) {
 			console.log(error);
 
@@ -166,10 +168,8 @@ function Index(props) {
 			});
 
 			const creteriaDate = Moment().subtract(5, 'days').format('YYYY-MM-DD');
-			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}' && _id != '${Date.now()}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey && ^._id != '${Date.now()}']{color}[0] } | order(createdDateTime desc)`;
+			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}' && _id != '${Date.now()}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey && ^._id != '${Date.now()}']{color}[0] } | order(_updatedAt desc)`;
 			client.fetch(answerHistoryQuery).then((answerHist) => {
-				console.log('answerHist', answerHist);
-
 				setAnswerHistory(answerHist);
 			});
 
@@ -197,7 +197,6 @@ function Index(props) {
 		setRate(rateString);
 		setReceiveToken(tokenString);
 	}, [selectedAnswer, bettingCoin]);
-
 
   	return (
 		<div className="bg-quest" style={{background: `url('${backgroundImage}') center -150px no-repeat`}}>

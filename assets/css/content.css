@@ -1215,7 +1215,24 @@
 .modal-mypage-view .mmv-area .mqs-info div {margin-top:15px; padding-top:15px; border-top:#e5e5e5 1px solid;}
 .modal-mypage-view .mmv-area .mqs-info div span {font-weight:600; color:#222;}
 
-
+@media all and (max-width:479px) {
+  .markets-tab {justify-content:space-between; width:100%;}
+  .markets-tab li {display:flex; justify-content:center; width:33%; margin-right:0; padding:12px 5px; font-size:13px; line-height:14px;}
+  .markets-tab li i {margin-right:3px; font-size:16px;}
+}
+@media all and (min-width:480px) and (max-width:767px) {
+  .markets-tab {justify-content:space-between; width:100%;}
+  .markets-tab li {display:flex; justify-content:center; width:33%; margin-right:0; padding:12px 5px; font-size:13px; line-height:14px;}
+  .markets-tab li i {margin-right:3px; font-size:16px;}
+}
+@media all and (min-width:768px) and (max-width:991px) {
+  .markets-tab {justify-content:space-between; width:750px;}
+  .markets-tab li {display:flex; justify-content:center; width:33%; margin-right:0; padding:15px 5px; font-size:14px; line-height:14px;}
+  .markets-tab li i {margin-right:3px; font-size:16px;}
+}
+@media all and (min-width:992px) and (max-width:1199px) {
+  .markets-tab {width:1024px;}
+}
 
 
 /* 내용 */
@@ -1256,8 +1273,8 @@
 
 .mc-votings-result {
   display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
 }
 
@@ -1490,21 +1507,16 @@
 
 @media all and (max-width:479px) {
   .modal-mypage-view {width:90%;}
-  .modal-mypage-view .mmv-area {padding:25px;}
 }
 @media all and (min-width:480px) and (max-width:767px) {
-
+  .modal-mypage-view {width:100%;}
 }
 @media all and (min-width:768px) and (max-width:991px) {
-
+  .modal-mypage-view {width:100%;}
 }
 @media all and (min-width:992px) and (max-width:1299px) {
-
+  .modal-mypage-view {width:100%;}
 }
-@media all and (min-width:1300px) {
-
-}
-
 
 
 

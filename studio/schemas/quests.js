@@ -9,8 +9,18 @@ export default {
       type: "number",
     },
     {
-      name: "title",
-      title: "title",
+      name: "titleEN",
+      title: "Title EN",
+      type: "string",
+    },
+    {
+      name: "titleKR",
+      title: "Title KR",
+      type: "string",
+    },
+    {
+      name: "titleCH",
+      title: "Title CH",
       type: "string",
     },
     {
@@ -188,7 +198,7 @@ export default {
     },
     {
       name: "createdDateTime",
-      title: "Create DateTime",
+      title: "Created DateTime",
       type: "datetime",
     },
     {
@@ -282,12 +292,22 @@ export default {
       type: "string",
     },
     {
+      name: "imageUrl",
+      title: "Image Url",
+      type: "string",
+    },
+    {
       name: "imageFile",
       title: "Image File",
       type: "image",
       options: {
         hotspot: true,
       },
+    },
+    {
+      name: "questDetail",
+      title: "Quest Detail",
+      type: "string"
     },
     {
       name: "questType",

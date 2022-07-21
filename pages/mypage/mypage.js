@@ -41,7 +41,7 @@ function Index() {
 		const walletAddress = walletData.account;
 		const votingArr = [];
 
-		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey && ^._id != '${Date.now()}'][0] {title, totalAmount} } | order(_updatedAt desc)`;
+		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey && ^._id != '${Date.now()}'][0] {title, totalAmount} } | order(_createdAt desc)`;
 		await client.fetch(votingQuery).then(async (votingDatas) => {
 			votingDatas.forEach(async (votingData) => {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey} && _id != '${Date.now()}'][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
@@ -87,6 +87,14 @@ function Index() {
 						}
 						
 						votingArr.push({ ...votingSet });
+						votingArr.sort(function compare(a, b) {
+							if(a.bettingKey > b.bettingKey) {
+								return -1;
+							} else {
+								return 1;
+							}
+						});
+
 						setVotings( {...votings, votingSet: [...votings.votingSet, ...votingArr]} );
 					} 
 				});
@@ -175,6 +183,9 @@ function Index() {
 								state: 'success',
 								message: 'get login reward successfully!',
 							});
+
+							// refresh after get reward success.
+							window.location.reload();
 						} else {
 							toastNotify({
 								state: 'error',
@@ -235,13 +246,15 @@ function Index() {
 							.set({ receiveAddress: walletAddress })
 							.commit();
 
-				setReloadData(!reloadData);
-
 				setLoading(false);
 				toastNotify({
 					state: 'success',
 					message: 'get quest reward successfully!',
 				});
+				
+				// refresh after get reward success.
+				//setReloadData(!reloadData);
+				window.location.reload();
 			} else {
 				setLoading(false);
 				toastNotify({
@@ -251,7 +264,7 @@ function Index() {
 			}
 		} else {
 			toastNotify({
-				state: 'info',
+				state: 'error',
 				message: 'choose wrong. try another quest!',
 			});
 		}
@@ -372,18 +385,23 @@ function Index() {
 											<div className='mc-votings-result' style={{ 
 												background: voting.selectedAnswer 
 															?	(voting.selectedAnswer === voting.answerTitle 
-																	? '#58D68D' 
-																	: '#E74C3C') 
+																	? voting.receiveAddress !== '' 
+																		? '#FFB63F' // answer correct received
+																		: '#F591E2' // answer correct not-received
+																	: '#DFDFDF') 
 															:	(voting.questStatus === 'ADJOURN' 
-																	? '#8950fc' 
+																	? voting.receiveAddress !== '' 
+																		? '#FFB63F'  // adjourn received
+																		: '#3813CD'  // adjourn not-received
 																	: 'white'),
 												border: voting.selectedAnswer 
 														? '' 
 														: (voting.questStatus === 'ADJOURN' 
 																? voting.receiveAddress !== '' 
-																	? '4px solid #636363'
+																	? '2px solid #636363'
 																	: '' 
 																: '2px solid #3636')
+												// pink : F591E2, orange: FFB63F, indigo: 3813CD, 																
 											}} />
 										</li>
 										<li key='1'><span>Category : </span>{voting.categoryNm}</li>
@@ -754,7 +772,7 @@ function Index() {
 											}}
 											style={{ position: 'absolute', bottom: 0, width: '93%', marginBottom: '10px' }}
 										>
-											Get Reward!
+											Get Reward! ({selectedVoting.predictionFee} CT)
 										</a>
 									</p>
 								</div>

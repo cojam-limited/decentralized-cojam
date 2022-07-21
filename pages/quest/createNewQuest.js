@@ -101,7 +101,11 @@ const getSocialMediaCheck = async (snsUrl) => {
             snsInfo['snsType'] = 'O';
         }
 
+        console.log('snsUrl', snsUrl);
+
         await getHTML(snsUrl).then(html => {
+            console.log('html', html);
+
             if(html) {
                 const $ = cheerio.load(html.data);
             
@@ -123,6 +127,8 @@ const getSocialMediaCheck = async (snsUrl) => {
                 snsInfo['check'] = false;
                 return snsInfo;
             }
+
+            console.log('snsInfo', snsInfo);
         })
         .catch((e) => {
             console.log('error', e);
@@ -207,8 +213,12 @@ const createNewQuest = async (modalValues, answers, walletData) => {
             quest['snsTitle'] = snsInfo.snsTitle;
             quest['snsDesc'] = snsInfo.snsDesc;
 
+            console.log('check', snsInfo.check);
+
             if(snsInfo.check) {
                 let thumbnail;
+
+                console.log('snsType', snsInfo.snsType);
 
                 // youtube 일 경우, 썸네일 저장 
                 if(snsInfo.snsType === 'Y') {
@@ -231,6 +241,10 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                     }
                 }
             }
+
+            console.log('end');
+            return;
+
         } else {
             toastNotify({
                 state: 'error',

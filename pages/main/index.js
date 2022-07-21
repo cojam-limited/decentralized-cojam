@@ -10,9 +10,6 @@ import mainServiceIcon05 from '@assets/main_service_icon05.svg'
 import mainServiceIcon06 from '@assets/main_service_icon06.svg'
 
 import mainBackGround00 from '@assets/main_visual_img00.jpg';
-import mainBackGround01 from '@assets/main_visual_img01.jpg';
-import mainBackGround02 from '@assets/main_visual_img02.jpg';
-import mainBackGround03 from '@assets/main_visual_img03.jpg';
 
 import serviceBackground from '@assets/main_service_bg.png';
 import phoneBackground from '@assets/main_service_phone.png';
@@ -33,6 +30,7 @@ function Index() {
 	const { setLoading } = useLoadingState();
 	const [ quests, setQuests ] = useState([]);
 	const [ qnas, setQnas ] = useState([]);
+	const [ mainImages, setMainImages ] = useState([]);
 	
 	const [ answerTotalAmounts, setAnswerTotalAmounts] = useState({});
 	const [ answerPercents, setAnswerPercents] = useState({});
@@ -88,12 +86,22 @@ function Index() {
 				if(popup) {
 
 				}
-			})
+			});
+
+			const mainImageQuery = `*[_type == 'pageImages' && pageTitle == 'main' && pageTitle != '${Date.now()}']`;
+			await client.fetch(mainImageQuery).then((mainImages) => {
+				const mainImageArr = [];
+				mainImages.forEach((mainImage) => {
+					mainImageArr.push(urlFor(mainImage.pageImage));
+				});
+				setMainImages(mainImageArr);
+			});
+			
+			setLoading(false);
 		}
 
 		setLoading(true);
 		loadDatas();
-		setLoading(false);
 
 		return () => window.removeEventListener('resize', resizeFunc);
 	}, []);
@@ -104,7 +112,8 @@ function Index() {
 		
 			<div className="main-vegas">
 				<BackgroundSlider
-					images={[ mainBackGround00, mainBackGround01, mainBackGround02, mainBackGround03 ]}
+					//images={[ mainBackGround00, mainBackGround01, mainBackGround02, mainBackGround03 ]}
+					images={mainImages}
 					duration={10} transition={1} 
 				/>
 

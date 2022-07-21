@@ -41,6 +41,8 @@ function Index() {
 	const [ itemsToSend, setItemsToSend ] = useState([]);
 
   const action = (page, range, items) => {
+    console.log('items', items);
+
 		setItems(items);
 	};
 	// pagenation settings
@@ -98,12 +100,12 @@ function Index() {
         const questTotalAmount = quest.totalAmount;
         const answers = quest.answerIds;
 				answers.forEach((answer) => {
-					const resultPercent = answer.totalAmount / questTotalAmount;
+					const resultPercent = answer.totalAmount / (questTotalAmount || 1);
 					const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
-					answerTotalAmounts[answer.title] = answer.totalAmount;
-					answerPercents[answer.title] = resultPercent * 100;
-					answerAllocations[answer.title] = allocation;
-		
+					answerTotalAmounts[answer._id] = answer.totalAmount;
+					answerPercents[answer._id] = resultPercent * 100;
+					answerAllocations[answer._id] = allocation;
+
 					setAnswerTotalAmounts(answerTotalAmounts);
 					setAnswerPercents(answerPercents);
 					setAnswerAllocations(answerAllocations);
@@ -144,7 +146,7 @@ function Index() {
     let condition = `${activeCategory === 'All' ? '' : `&& seasonCategory._ref in *[_type == "seasonCategories" && seasonCategoryName == '${activeCategory}']._id`}`;
     condition = `${activeCategory === 'Hot Quest' ? '&& hot == true' : condition}`;
 
-    const questQuery = `*[_type == 'quests' && isActive == true && pending == false && questStatus == 'APPROVE' && _id != '${Date.now()}' ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(createdDateTime desc) | order(totalAmount desc)`;
+    const questQuery = `*[_type == 'quests' && isActive == true && pending == false && questStatus == 'APPROVE' && _id != '${Date.now()}' ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey && ^.questKey != '${Date.now()}'] {title, _id, totalAmount}} | order(createdDateTime desc) | order(totalAmount desc)`;
 		client.fetch(questQuery).then((datas) => {
       datas.forEach((quest) => {
         const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
@@ -164,11 +166,15 @@ function Index() {
         const questTotalAmount = quest.totalAmount;
         const answers = quest.answerIds;
 				answers.forEach((answer) => {
-					const resultPercent = answer.totalAmount / questTotalAmount;
+					const resultPercent = Number(answer.totalAmount) / (Number(questTotalAmount) || 1);
+
+          console.log('answer.totalAmount', answer.totalAmount);
+
 					const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
-					answerTotalAmounts[answer.title] = answer.totalAmount;
-					answerPercents[answer.title] = resultPercent * 100;
-					answerAllocations[answer.title] = allocation;
+					
+          answerTotalAmounts[answer._id] = Number(answer.totalAmount);
+					answerPercents[answer._id] = Number(resultPercent) * 100;
+					answerAllocations[answer._id] = allocation; 
 		
 					setAnswerTotalAmounts(answerTotalAmounts);
 					setAnswerPercents(answerPercents);
@@ -201,7 +207,7 @@ function Index() {
         categoryAggr[categoryName] = categoryAggr[categoryName] ? Number(categoryAggr[categoryName]) + 1 : 1;
       });
 
-      seasonInfos[0]['caregoryAggr'] = categoryAggr;
+      seasonInfos[0]['categoryAggr'] = categoryAggr;
       setSeasonInfos(seasonInfos);
     });
   }, [activeCategory]);
@@ -314,12 +320,12 @@ function Index() {
                   <h4>{questTitle}</h4>
                   <ul>
                     {
-                      quest.answers && quest.answers.map((answer, index) => (              
+                      quest.answerIds && quest.answerIds.map((answer, index) => (              
                         <li key={index}>
-                          <div>{answer}</div>
-                          <p>{answerAllocations[answer] && answerAllocations[answer] !== '0%' ? `${answerAllocations[answer]} X` : '0%'} </p>
+                          <div>{answer.title}</div>
+                          <p>{answerAllocations[answer._id] && answerAllocations[answer._id] !== '0%' ? `${answerAllocations[answer._id] || 0} X` : '0%'} </p>
                           <h2>
-                            <div style={{ width: `${answerPercents[answer]}%` }}></div>
+                            <div style={{ width: `${answerPercents[answer._id] ?? 0}%` }}></div>
                           </h2>
                         </li>
                       ))
@@ -346,8 +352,7 @@ function Index() {
 				/>
 				{/* 페이지네이션 끝 */}
 
-
-          {/* 등록버튼 */}
+        {/* 등록버튼 */}
         <div className="add-btn">
           <Link to="#" onClick={() => modalQuestAdd(true)}>
             <i className="uil uil-plus"></i>
@@ -581,8 +586,8 @@ function Index() {
                           <li key={index}>
                             <h3>{category.seasonCategoryName}</h3>
                             <div>
-                              <div style={{ width: `${seasonInfo.caregoryAggr && seasonInfo.caregoryAggr[category.seasonCategoryName] || 0}%` }}></div>
-                              <p>{seasonInfo.caregoryAggr && seasonInfo.caregoryAggr[category.seasonCategoryName] || 0} / 100</p>
+                              <div style={{ width: `${seasonInfo.categoryAggr && seasonInfo.categoryAggr[category.seasonCategoryName] || 0}%` }}></div>
+                              <p>{seasonInfo.categoryAggr && seasonInfo.categoryAggr[category.seasonCategoryName] || 0} / 100</p>
                             </div>
                           </li>
                         ))
@@ -620,7 +625,7 @@ function Index() {
 }
 
 function addComma(data) {
-  if(!data) return '';
+  if(!data) return 0;
 
 	return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

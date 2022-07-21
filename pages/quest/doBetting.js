@@ -2,7 +2,7 @@ import { client } from "../../sanity";
 import Moment from 'moment';
 import { callApproveCojamURI, callBettingCojamURI } from "@api/UseTransactions";
 
-const doBetting = async (betting, walletData) => { 
+const doBetting = async (betting, walletData) => {
     let result = {result: false, message: 'Voting failed'};
 
     // compare with initial answer (if exist)
@@ -169,8 +169,8 @@ const doBetting = async (betting, walletData) => {
                                 }, 0);
 
                                 await client.patch(betting.questAnswerKey._id)
-                                    .set({totalAmount: newAnswerTotal})
-                                    .commit();
+                                            .set({totalAmount: newAnswerTotal})
+                                            .commit();
                             });
 
                             // update quest total amount

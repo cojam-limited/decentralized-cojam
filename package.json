@@ -4,7 +4,8 @@
   "scripts": {
     "start": "cross-env webpack serve --env development",
     "build": "cross-env NODE_ENV=production webpack",
-    "lint": "eslint --fix --ext .js,.jsx ."
+    "lint": "eslint --fix --ext .js,.jsx .",
+    "prepare": "npm set-script prepare 'husky install'"
   },
   "dependencies": {
     "@emotion/babel-plugin": "^11.1.2",
@@ -67,6 +68,7 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^6.2.0",
+    "husky": "^8.0.1",
     "mini-css-extract-plugin": "^2.6.0",
     "prettier": "^2.2.1",
     "react-refresh": "^0.10.0",
