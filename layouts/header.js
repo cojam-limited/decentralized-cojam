@@ -124,7 +124,7 @@ function Header() {
         const url = `https://klipwallet.com/?target=a2a?request_key=${requestKey}`;
         generateQR(url);
       } else {
-        // 접속한 환경이 mobile이 아닐 때,
+        // 접속한 환경이 mobile이 아닐 때, Deep Link.
         request(requestKey, () => toastNotify({
           state: 'error',
           message: '모바일 환경에서 실행해주세요',

@@ -5,6 +5,7 @@ import axios from 'axios';
 import QRCode from 'qrcode';
 
 import { prepare, request, getResult } from 'klip-sdk';
+import isMobile from '@utils/isMobile';
 
 const caver = new Caver(window.klaytn);
 
@@ -557,12 +558,10 @@ export const approveCojamURI_KLIP = async (
   bettingCoinAmount, fromAddress,
   qr, setQr, qrModal, setQrModal
 ) => { 
-  /*
   const bappName = 'cojam-v2';
   const from = fromAddress;
   const to = cojamTokenAddress;
   const value = '0'
-  */
   
   const txTo = cojamTokenAddress;
   const txAbi = "{\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"}]," +
@@ -572,7 +571,26 @@ export const approveCojamURI_KLIP = async (
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   const txValue = '0'
   const txParams = `["${cojamMarketAddress}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
-            
+    
+  /*
+  await prepare.executeContract({
+    bappName: bappName, 
+    //from: from, 
+    to: to, 
+    value: txValue, 
+    abi: txAbi, 
+    params: txParams
+  }).then(async (res) => {
+    console.log('res', res);
+    
+    const {request_key} = res.request_key;
+    const qrUrl = `https://klipwallet.com/?target=/a2a?request_key=${request_key}`;
+
+    setQr(await QRCode.toDataURL(qrUrl));
+    setQrModal(true);
+  })
+  */
+
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
         bapp: { name: 'cojam-v2'},
@@ -587,9 +605,17 @@ export const approveCojamURI_KLIP = async (
         const {request_key} = response.data;
         const qrUrl = `https://klipwallet.com/?target=/a2a?request_key=${request_key}`;
 
-        setQr(await QRCode.toDataURL(qrUrl));
-        setQrModal(true);
-
+        if( !isMobile() ) {
+          setQr(await QRCode.toDataURL(qrUrl));
+          setQrModal(true); 
+        } else {
+          // 접속한 환경이 mobile이 아닐 때, Deep Link.
+          request(request_key, () => toastNotify({
+            state: 'error',
+            message: '모바일 환경에서 실행해주세요',
+          }));
+        }
+        
         let result;
         let time = new Date().getTime();
         const endTime = time + 60000;
@@ -613,7 +639,8 @@ export const approveCojamURI_KLIP = async (
         }
     }).catch((error) => {
         console.log(error);
-        });
+    });
+
 
   return result;
 }
