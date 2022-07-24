@@ -136,7 +136,6 @@ function Header() {
           if(authResult.result?.klaytn_address) {
             clearInterval(getAuthResult);
 
-            setQrModal(false);
             mutateWalletData({ account: authResult.result.klaytn_address, type: 'klip' });
           }
         });
@@ -273,6 +272,7 @@ function Header() {
     console.log('wallet address changed', walletData, walletData.account);
 
     getBalance();
+    setQrModal(false);
 
     if(walletData && walletData.account) {
       // admin check
