@@ -5,6 +5,7 @@ import Router from './router';
 import { useWalletData } from '@data/wallet';
 import toastNotify from '@utils/toast';
 import { BalanceProvider } from './components/Context/BalanceContext';
+import { QrProvider } from './components/Context/QrContext';
 
 import './assets/css/style.css'
 
@@ -50,8 +51,10 @@ const App = () => {
 };
 
 ReactDOM.render(
-  <BalanceProvider> 
-    <App /> 
-  </BalanceProvider>,
+  <QrProvider>
+    <BalanceProvider> 
+      <App /> 
+    </BalanceProvider>
+  </QrProvider>,
   document.getElementById('root')
 );

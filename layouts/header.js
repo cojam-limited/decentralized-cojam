@@ -24,15 +24,18 @@ import toastNotify from '@utils/toast';
 import Moment from 'moment';
 import { useWalletData } from '@data/wallet';
 import { BalanceContext } from '../components/Context/BalanceContext';
+import { QrContext } from '../components/Context/QrContext';
 
 import { client } from "../sanity";
 
 function Header() {
   const { balance, setBalance } = useContext(BalanceContext);
+  const { qr, setQr, qrModal, setQrModal } = useContext(QrContext);
+  //const [qrImage, setQrImage] = useState('');
+
   const history = useHistory();
   const [openKlipAdd, modalKlipAdd] = useState(false);
-  const [openKlipLogin, modalKlipLogin] = useState(false);
-  const [qrImage, setQrImage] = useState('');
+  //const [openKlipLogin, modalKlipLogin] = useState(false);
   const [currentPage, setCurrentPage] = useState('Home');
 
   const [minutes, setMinutes] = useState(0);
@@ -86,19 +89,17 @@ function Header() {
   // QR code 생성
   const generateQR = async text => {
     try {
-      setQrImage(await QRCode.toDataURL(text));
+      //setQrImage(await QRCode.toDataURL(text));
+      setQr(await QRCode.toDataURL(text));
     } catch (err) {
       console.error(err);
     }
   }
 
   const handleOpenKlipLogin = async () => {
-    console.log('handle open klip login');
-
     const bappName = 'cojam-v2';
-    //const successLink = 'myApp://...';
 
-    // TODO DEVELOP
+    // TODO MODIFY
     const successLink = 'https://musical-treacle-ae1281.netlify.app/';
     const failLink = 'myApp://...';
     const res = await prepare.auth({ bappName, successLink, failLink });
@@ -114,7 +115,7 @@ function Header() {
       */
       if( !isMobile() ) {
         modalKlipAdd(false);
-        modalKlipLogin(true);
+        setQrModal(true);
 
         // 5분 시간제한 설정
         setMinutes(5);
@@ -123,6 +124,7 @@ function Header() {
         const url = `https://klipwallet.com/?target=a2a?request_key=${requestKey}`;
         generateQR(url);
       } else {
+        // 접속한 환경이 mobile이 아닐 때,
         request(requestKey, () => toastNotify({
           state: 'error',
           message: '모바일 환경에서 실행해주세요',
@@ -134,7 +136,7 @@ function Header() {
           if(authResult.result?.klaytn_address) {
             clearInterval(getAuthResult);
 
-            modalKlipLogin(false);
+            setQrModal(false);
             mutateWalletData({ account: authResult.result.klaytn_address, type: 'klip' });
           }
         });
@@ -457,10 +459,10 @@ function Header() {
       {/* 모달 - 클레이트 연결 끝 */}
 
       {/* 모달 - KLIP 연결 시작 */}
-      <Modal open={openKlipLogin} onClose={() => modalKlipLogin(false)} center>
+      <Modal open={qrModal} onClose={() => setQrModal(false)} center>
         <div className="base-modal KlipWeb2AppModal">
           <section className="gen-modal klip-with-qr-modal">
-            <div className="gen-modal-close" onClick={() => modalKlipLogin(false)}></div>
+            <div className="gen-modal-close" onClick={() => setQrModal(false)}></div>
             <div className="gen-modal-title">
               <img src="https://klayswap.com/img/icon/ic-service-klip-bk.svg" alt="klip" />
               <label>카카오 Klip QR 연결 </label>
@@ -470,8 +472,7 @@ function Header() {
               <div className="klip-with-qr-modal__code">
                 <div className="klip-with-qr-modal__code__wrapper">
                   <div level="L" background="#fff" foreground="#000" className="">
-                    
-                    <img style={{width: '100%', height: '100%', top: '0px', left: '0px'}} src={qrImage} alt="pointer" />
+                    <img style={{width: '100%', height: '100%', top: '0px', left: '0px'}} src={qr} alt="pointer" />
                   </div>
                 </div>
                 

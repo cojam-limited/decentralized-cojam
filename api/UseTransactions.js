@@ -9,8 +9,6 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
       return true;
     }
 
-    console.log('check login', walletData, walletData?.type === 'klip');
-
     if (typeof window.klaytn !== 'undefined') {
       const accounts = await window.klaytn.enable();
 
@@ -189,13 +187,18 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
    */
   export const callApproveCojamURI = async (
     bettingCoinAmount, 
-    walletData
+    walletData,
+    qr, setQr, qrModal, setQrModal
   ) => { 
     let result;
     if(walletData?.type === 'kaikas') {
         await approveCojamURI(bettingCoinAmount).then(res => result = res);
     } else {
-        await approveCojamURI_KLIP(bettingCoinAmount, walletData?.account).then(res => result = res);
+        await approveCojamURI_KLIP(
+          bettingCoinAmount, 
+          walletData?.account,
+          qr, setQr, qrModal, setQrModal
+        ).then(res => result = res);
     }
 
     return result;

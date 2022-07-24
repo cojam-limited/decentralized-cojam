@@ -2,6 +2,7 @@ import Caver from 'caver-js';
 import toastNotify from '@utils/toast';
 
 import axios from 'axios';
+import QRCode from 'qrcode';
 
 import { prepare, request, getResult } from 'klip-sdk';
 
@@ -553,53 +554,66 @@ export const bettingCojamURI_KLIP = async ({
  * Quest Betting Approve function
  */
 export const approveCojamURI_KLIP = async (
-  bettingCoinAmount, fromAddress
+  bettingCoinAmount, fromAddress,
+  qr, setQr, qrModal, setQrModal
 ) => { 
+  /*
   const bappName = 'cojam-v2';
   const from = fromAddress;
   const to = cojamTokenAddress;
   const value = '0'
-  const abi = "{\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"}]," +
+  */
+  
+  const txTo = cojamTokenAddress;
+  const txAbi = "{\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"}]," +
               "\"name\":\"approve\"," +
               //"\"outputs\":[{\"name\":\"result\",\"type\":\"bool\"}]," +
               "\"outputs\":[]," +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+  const txValue = '0'
+  const txParams = `["${cojamMarketAddress}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
+            
+  await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
+    {
+        bapp: { name: 'cojam-v2'},
+        transaction: {
+            to: txTo,
+            abi: txAbi,
+            value: txValue,
+            params: txParams,
+        },
+        type: "execute_contract",
+    }).then(async (response) => {
+        const {request_key} = response.data;
+        const qrUrl = `https://klipwallet.com/?target=/a2a?request_key=${request_key}`;
 
-  const params = `["${cojamMarketAddress}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
-  //const params = `["${cojamMarketAddress}",${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
-  const result = { spenderAddress: fromAddress, status: 400 };
+        setQr(await QRCode.toDataURL(qrUrl));
+        setQrModal(true);
 
-  console.log('approve params', params);
+        let result;
+        let time = new Date().getTime();
+        const endTime = time + 60000;
+        while (time < endTime && !result) {
+          if( time % 500 === 0 ) {
+            await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
+                       .then((response)=> {
+                          console.log('response', response);
 
-  const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
-  if (res.err) {
-    // 에러 처리
-    console.log('approveCojamURI error', res.err);
-
-    debugger;
-
-  } else if (res.request_key) {
-    // request_key 보관
-    console.log('approveCojamURI request_key', res.request_key);
-    request(res.requestKey, (result) => console.log('approve request', result));
-
-    let time = new Date().getTime();
-    const endTime = time + 60000;
-    while (time < endTime) {
-      if( time % 500 === 0 ) {
-        await getResult(res.request_key).then((txResult) => {
-          console.log('txResult', txResult);
-
-          if(txResult.status === 'completed') {
-            alert('transaction success', txResult.result?.result);
-            result.status = txResult.result?.result ? 200 : 400;
+                          if(response.data.status === "completed") {
+                              const status = response.data.result.status;
+                              if (status === "success") {
+                                  alert('success !');
+                                  result = response.data.result;
+                              }
+                          }
+                        });
           }
-        });
-      } 
 
-      time = new Date().getTime();
-    }
-  }
+          time = new Date().getTime();
+        }
+    }).catch((error) => {
+        console.log(error);
+        });
 
   return result;
 }

@@ -19,9 +19,12 @@ import { BalanceContext } from '../../components/Context/BalanceContext';
 import backgroundImage from '@assets/body_quest.jpg';
 
 import toastNotify from '@utils/toast';
+import { QrContext } from '../../components/Context/QrContext';
 
 function Index(props) {
 	const history = useHistory();
+	const { qr, setQr, qrModal, setQrModal } = useContext(QrContext);
+
 	const { balance, setBalance } = useContext(BalanceContext);
 	const [ onBetting, setOnBetting ] = useState(false);
 	const { setLoading } = useLoadingState();
@@ -72,7 +75,7 @@ function Index(props) {
 				'predictionFee': receiveToken
 			}
 
-			const betResult = await doBetting(betting, walletData);
+			const betResult = await doBetting(betting, walletData, qr, setQr, qrModal, setQrModal);
 			
 			toastNotify({
 				state: betResult.result ? 'success' : 'error',
