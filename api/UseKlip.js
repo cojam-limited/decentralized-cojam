@@ -482,7 +482,8 @@ export const bettingCojamURI_KLIP = async ({
   questKey,
   questAnswerKey,
   bettingKey,
-  bettingCoinAmount
+  bettingCoinAmount,
+  setQr, setQrModal
 }, 
   fromAddress
 ) => {
@@ -512,6 +513,7 @@ export const bettingCojamURI_KLIP = async ({
 
   console.log('betting with klip', from, to, value, params);
 
+  /*
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
     // 에러 처리
@@ -546,6 +548,59 @@ export const bettingCojamURI_KLIP = async ({
       time = new Date().getTime();
     }
   }
+  */
+
+  await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
+    {
+        bapp: { name: 'cojam-v2'},
+        transaction: {
+            to: to,
+            abi: abi,
+            value: value,
+            params: params,
+        },
+        type: "execute_contract",
+    }).then(async (response) => {
+        const {request_key} = response.data;
+        const qrUrl = `https://klipwallet.com/?target=/a2a?request_key=${request_key}`;
+
+        if( !isMobile() ) {
+          setQr(await QRCode.toDataURL(qrUrl));
+          setQrModal(true); 
+        } else {
+          // 접속한 환경이 mobile이 아닐 때, Deep Link.
+          request(request_key, () => toastNotify({
+            state: 'error',
+            message: '모바일 환경에서 실행해주세요',
+          }));
+        }
+        
+        let result;
+        let time = new Date().getTime();
+        const endTime = time + 60000;
+        while (time < endTime && !result) {
+          if( time % 500 === 0 ) {
+            await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
+                       .then((response)=> {
+                          console.log('response', response);
+
+                          if(response.data.status === "completed") {
+                              const status = response.data.result.status;
+                              if (status === "success") {
+                                  alert('betting success !');
+                                  result = response.data.result;
+                              }
+
+                              setQrModal(false); 
+                          }
+                        });
+          }
+
+          time = new Date().getTime();
+        }
+    }).catch((error) => {
+        console.log(error);
+    });
 
   return result;
 }
@@ -556,7 +611,7 @@ export const bettingCojamURI_KLIP = async ({
  */
 export const approveCojamURI_KLIP = async (
   bettingCoinAmount, fromAddress,
-  qr, setQr, qrModal, setQrModal
+  setQr, setQrModal
 ) => { 
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -571,25 +626,6 @@ export const approveCojamURI_KLIP = async (
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   const txValue = '0'
   const txParams = `["${cojamMarketAddress}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
-    
-  /*
-  await prepare.executeContract({
-    bappName: bappName, 
-    //from: from, 
-    to: to, 
-    value: txValue, 
-    abi: txAbi, 
-    params: txParams
-  }).then(async (res) => {
-    console.log('res', res);
-    
-    const {request_key} = res.request_key;
-    const qrUrl = `https://klipwallet.com/?target=/a2a?request_key=${request_key}`;
-
-    setQr(await QRCode.toDataURL(qrUrl));
-    setQrModal(true);
-  })
-  */
 
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
@@ -628,9 +664,11 @@ export const approveCojamURI_KLIP = async (
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('success !');
+                                  alert('approve success !');
                                   result = response.data.result;
                               }
+
+                              setQrModal(false); 
                           }
                         });
           }

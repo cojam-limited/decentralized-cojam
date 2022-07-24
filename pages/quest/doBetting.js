@@ -119,7 +119,7 @@ const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal) =>
                     });
                 
                     // do approve
-                    await callApproveCojamURI(Number(betting.bettingCoin), walletData, qr, setQr, qrModal, setQrModal).then((res) => {
+                    await callApproveCojamURI(Number(betting.bettingCoin), walletData, setQr, setQrModal).then((res) => {
                         // TODO REMOVE
                     });
                     
@@ -128,7 +128,9 @@ const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal) =>
                         questKey: betting.questKey, 
                         questAnswerKey: betting.questAnswerKey.order,
                         bettingKey: newBettingKey, 
-                        bettingCoinAmount: betting.bettingCoin
+                        bettingCoinAmount: betting.bettingCoin,
+                        setQr, 
+                        setQrModal
                     }, walletData).then(async (res) => {
                         if(!res) {
                             return result = {
