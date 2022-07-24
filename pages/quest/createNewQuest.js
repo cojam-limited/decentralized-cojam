@@ -5,8 +5,6 @@ import cheerio from "cheerio";
 import Moment from 'moment';
 import toastNotify from '@utils/toast';
 
-// https://img.youtube.com/watch?v=3HNyXCPDQ7Q&t=7478s
-
 const fileUploadYoutube = async (youtubeId) => {
     const thumbNailArr = ['maxresdefault.jpg', 'sddefault.jpg', 'hqdefault.jpg', 'mqdefault.jpg', 'default.jpg'];
 

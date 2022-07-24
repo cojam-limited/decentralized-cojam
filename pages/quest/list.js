@@ -284,6 +284,9 @@ function Index() {
                       } 
 
                       let isLogin = false;
+
+                      console.log('questList walletData', walletData);
+
                       await checkLogin(walletData).then((res) => {
                         isLogin = res;
 

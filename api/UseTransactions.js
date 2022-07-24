@@ -3,14 +3,27 @@ import { getCojamBalance_KLIP, draftMarket_KLIP, addAnswerKeys_KLIP, approveMark
 import { approveCojamURI, bettingCojamURI, transferCojamURI } from "./UseKaikas";
 import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, transferOwnership_KLIP } from "./UseKlip";
 
-  export const checkLogin = async () => {    
-    const accounts = await window.klaytn.enable();
-
-    // TODO ADD KLIP LOGIC
-    if(accounts && accounts[0]) {
+  export const checkLogin = async (walletData) => {    
+    
+    if(!walletData || Object.keys(walletData).length === 0) {
       return true;
+    }
+
+    console.log('check login', walletData, walletData?.type === 'klip');
+
+    if (typeof window.klaytn !== 'undefined') {
+      const accounts = await window.klaytn.enable();
+
+      // TODO ADD KLIP LOGIC
+      if(accounts && accounts[0]) {
+        return true;
+      } else {
+        return false;
+      }
     } else {
-      return false;
+      console.log('check login walletData', walletData.account);
+
+      return walletData.account;
     }
   }
 

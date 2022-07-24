@@ -33,10 +33,12 @@ const App = () => {
       });
     } else {
       //카이카스 설치 안된 경우
+      /*
       toastNotify({
         state: 'error',
         message: 'There is No Kaikas',
       });
+      */
     }
   }, []);
 

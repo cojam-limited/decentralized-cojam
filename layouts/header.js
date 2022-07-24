@@ -98,7 +98,7 @@ function Header() {
     const bappName = 'cojam-v2';
     //const successLink = 'myApp://...';
 
-    // TODO MODIFY
+    // TODO DEVELOP
     const successLink = 'https://musical-treacle-ae1281.netlify.app/';
     const failLink = 'myApp://...';
     const res = await prepare.auth({ bappName, successLink, failLink });
@@ -228,6 +228,7 @@ function Header() {
 
   const logout = async () => {
     mutateWalletData({ account: '', type: '' });
+    history.push('/');
   }
 
   const getBalance = async () => {

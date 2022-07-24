@@ -101,7 +101,7 @@ function Index(props) {
 
 	useEffect(() => {
 		let isLogin = false;
-		checkLogin().then((res) => {
+		checkLogin(walletData).then((res) => {
 			isLogin = res;
 
 			if(!isLogin) {

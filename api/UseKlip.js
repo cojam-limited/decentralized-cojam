@@ -7,17 +7,12 @@ import { prepare, request, getResult } from 'klip-sdk';
 
 const caver = new Caver(window.klaytn);
 
-//const xChainId = '1001'; // dev
 const xChainId = '8217'; // prod
 
-//const authorization = 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='; // dev
 const authorization = 'Basic S0FTSzFQTzJSR1RZNU5LTjJERktDVVhMOkFpd1NDeUN3Z2Q4Wkc5aUtqWXNXS3ZBam96UXZRN3BwRjhCLWZqcWU='; // prod
 
 const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // prod
-//const cojamTokenAddress = "0xd6cdab407f47afaa8800af5006061db8dc92aae7";   // dev
-
 const cojamMarketAddress = '0xC31585Bf0808Ab4aF1acC29E0AA6c68D2B4C41CD' // prod
-//const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // dev
 
 export const kaikasLogin = async () => {
   try {
@@ -505,15 +500,23 @@ export const bettingCojamURI_KLIP = async ({
               "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
-  const params = `[${questKey},${questAnswerKey},${bettingKey},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
+  // TODO RECOVERY
+  
+
+  // TODO CHECK - number or string
+  // const params = `[${questKey},${questAnswerKey},${bettingKey},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
+  const params = `['QT2022071800000001',3974,${BigInt(Number.MAX_SAFE_INTEGER)},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
   const result = { spenderAddress: fromAddress, status: 400 };
+
+  console.log('betting with klip', from, to, value, params);
+
   const res = await prepare.executeContract({ bappName, from, to, value, abi, params });
   if (res.err) {
     // 에러 처리
     console.log('bettingCojamURI error', res.err);
   } else if (res.request_key) {
     // request_key 보관
-    console.log('bettingCojamURI request_key', res.request_key);
+    console.log('klip bettingCojamURI request_key', res.request_key);
 
     request(res.requestKey, (result) => console.log(result));
 
@@ -556,13 +559,14 @@ export const approveCojamURI_KLIP = async (
   const from = fromAddress;
   const to = cojamTokenAddress;
   const value = '0'
-  const abi = "{\"constant\":false, " +
-              "\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"}]," +
+  const abi = "{\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"}]," +
               "\"name\":\"approve\"," +
-              "\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
+              //"\"outputs\":[{\"name\":\"result\",\"type\":\"bool\"}]," +
+              "\"outputs\":[]," +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
-  const params =  "[\"" + cojamMarketAddress + "\", " + caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY') + "]";
+  const params = `["${cojamMarketAddress}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
+  //const params = `["${cojamMarketAddress}",${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
   const result = { spenderAddress: fromAddress, status: 400 };
 
   console.log('approve params', params);
@@ -571,19 +575,22 @@ export const approveCojamURI_KLIP = async (
   if (res.err) {
     // 에러 처리
     console.log('approveCojamURI error', res.err);
+
+    debugger;
+
   } else if (res.request_key) {
     // request_key 보관
     console.log('approveCojamURI request_key', res.request_key);
-    request(res.requestKey, (result) => console.log(result));
+    request(res.requestKey, (result) => console.log('approve request', result));
 
     let time = new Date().getTime();
-    const endTime = time + 3000;
+    const endTime = time + 60000;
     while (time < endTime) {
       if( time % 500 === 0 ) {
         await getResult(res.request_key).then((txResult) => {
           console.log('txResult', txResult);
 
-          if(txResult.result?.result) {
+          if(txResult.status === 'completed') {
             alert('transaction success', txResult.result?.result);
             result.status = txResult.result?.result ? 200 : 400;
           }
