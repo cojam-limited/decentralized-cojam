@@ -157,7 +157,7 @@ export const draftMarket_KLIP = async ({
       
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
@@ -233,7 +233,7 @@ export const approveMarket_KLIP = async (
       
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
@@ -309,7 +309,7 @@ export const adjournMarket_KLIP = async (
       
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
@@ -385,7 +385,7 @@ export const finishMarket_KLIP = async (
       
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
@@ -465,7 +465,7 @@ fromAddress
       
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
@@ -543,7 +543,7 @@ export const retrieveMarket_KLIP = async (
       
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
@@ -624,7 +624,7 @@ fromAddress
       
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
@@ -692,7 +692,7 @@ export const bettingCojamURI_KLIP = async ({
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
-        bapp: { name: bappName},
+        bapp: { name: bappName },
         transaction: {
             to: to,
             abi: abi,
@@ -720,7 +720,7 @@ export const bettingCojamURI_KLIP = async ({
       
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
@@ -745,8 +745,7 @@ export const bettingCojamURI_KLIP = async ({
     });
 
   // TODO MODIFY
-  return { spenderAddress: cojamMarketAddress, status: 200 };
-  //return result;
+  return result;
 }
 
 
@@ -768,6 +767,8 @@ export const approveCojamURI_KLIP = async (
   const txParams = `["${cojamMarketAddress}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
 
   const result = { spenderAddress: fromAddress, status: 400 };
+
+  try {
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
         bapp: { name: bappName},
@@ -798,7 +799,7 @@ export const approveCojamURI_KLIP = async (
         
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
@@ -819,8 +820,11 @@ export const approveCojamURI_KLIP = async (
           time = new Date().getTime();
         }
     }).catch((error) => {
-        console.log(error);
+        console.log('approve catch', error);
     });
+  } catch(e) {
+    log.error(e);
+  }
 
   return result;
 }
@@ -881,10 +885,9 @@ export const transferCojamURI_KLIP = async ({
           }));
         }
         
-        let result;
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
@@ -960,10 +963,9 @@ export const transferOwnership_KLIP = async (
           }));
         }
         
-        let result;
         let time = new Date().getTime();
         const endTime = time + 60000;
-        while (time < endTime && !result) {
+        while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {

@@ -119,109 +119,120 @@ const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal, mi
                     });
                 
                     // do approve
-                    await callApproveCojamURI(Number(betting.bettingCoin), walletData, setQr, setQrModal, minutes, setMinutes, seconds, setSeconds).then((res) => {
+                    await callApproveCojamURI(Number(betting.bettingCoin), walletData, setQr, setQrModal, minutes, setMinutes, seconds, setSeconds).then(async (res) => {
                         // TODO REMOVE
-                    });
-                    
-                    // do betting 
-                    await callBettingCojamURI({ 
-                        questKey: betting.questKey, 
-                        questAnswerKey: betting.questAnswerKey.order,
-                        bettingKey: newBettingKey, 
-                        bettingCoinAmount: betting.bettingCoin,
-                        setQr, 
-                        setQrModal, minutes, setMinutes, seconds, setSeconds
-                    }, walletData).then(async (res) => {
-                        if(!res) {
-                            return result = {
-                                result: false,
-                                message: 'Voting api failed'
-                            };;
-                        }
-
                         if(res.status === 200) {
-                            // insert betting info
-                            const bettingParam = {
-                                _type: 'betting',
-                                bettingKey: newBettingKey,
-                                multiply: betting.multiply,
-                                predictionFee: betting.predictionFee,
-                                bettingCoin: betting.bettingCoin,
-                                spenderAddress: '',
-                                transactionId: '',
-                                bettingStatus: 'ONGOING',
-                                questKey: betting.questKey,
-                                questAnswerKey: betting.questAnswerKey._id,
-                                memberKey: member.memberKey,
-                                receiveAddress: '',
-                                answerTitle: betting.answerTitle,
-                                createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
-                            }
-        
-                            await client.create(bettingParam).then((res) => {
-                                betting.bettingKey = newBettingKey;
-                                betting.bettingId = res._id;
+                            // do betting 
+                            await callBettingCojamURI({ 
+                                questKey: betting.questKey, 
+                                questAnswerKey: betting.questAnswerKey.order,
+                                bettingKey: newBettingKey, 
+                                bettingCoinAmount: betting.bettingCoin,
+                                setQr, 
+                                setQrModal, minutes, setMinutes, seconds, setSeconds
+                            }, walletData).then(async (res) => {
+                                if(!res) {
+                                    return result = {
+                                        result: false,
+                                        message: 'Voting api failed'
+                                    };;
+                                }
+
+                                console.log('betting', res);
+                                debugger;
+
+                                if(res.status === 200) {
+                                    // insert betting info
+                                    const bettingParam = {
+                                        _type: 'betting',
+                                        bettingKey: newBettingKey,
+                                        multiply: betting.multiply,
+                                        predictionFee: betting.predictionFee,
+                                        bettingCoin: betting.bettingCoin,
+                                        spenderAddress: '',
+                                        transactionId: '',
+                                        bettingStatus: 'ONGOING',
+                                        questKey: betting.questKey,
+                                        questAnswerKey: betting.questAnswerKey._id,
+                                        memberKey: member.memberKey,
+                                        receiveAddress: '',
+                                        answerTitle: betting.answerTitle,
+                                        createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
+                                    }
+                
+                                    await client.create(bettingParam).then((res) => {
+                                        betting.bettingKey = newBettingKey;
+                                        betting.bettingId = res._id;
+                                    });
+
+                                    // update each quest answer total amount
+                                    const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${betting.questAnswerKey._id}' && _id != '${Date.now()}'] {bettingCoin}`;
+                                    await client.fetch(newAnswerTotalQuery).then(async (bettingCoins) => {
+                                        const newAnswerTotal = bettingCoins.reduce((acc, bettingCoin) => {
+                                            return acc += Number(bettingCoin.bettingCoin);
+                                        }, 0);
+
+                                        await client.patch(betting.questAnswerKey._id)
+                                                    .set({totalAmount: newAnswerTotal})
+                                                    .commit();
+                                    });
+
+                                    // update quest total amount
+                                    const newQuestTotalQuery = `*[_type == 'betting' && questKey == ${betting.questKey} && _id != '${Date.now()}'] {bettingCoin}`;
+                                    await client.fetch(newQuestTotalQuery).then(async (bettingCoins) => {
+                                        const newQuestTotal = bettingCoins.reduce((acc, bettingCoin) => {
+                                            return acc += Number(bettingCoin.bettingCoin);
+                                        }, 0);
+
+                                        await client.patch(detail._id)
+                                                    .set({totalAmount: newQuestTotal})
+                                                    .commit();
+                                    });
+
+                                    // update betting result
+                                    const updateBetSet = {
+                                        spenderAddress: res.spenderAddress,
+                                        transactionId: res.transactionId,
+                                    }
+
+                                    await client.patch(betting.bettingId).set(updateBetSet).commit();
+
+                                    // insert transaction
+                                    const transactionSet = {
+                                        _type: 'transactions',
+                                        transactionId: res.transactionId,
+                                        transactionType: 'BETTION_S',
+                                        status: 'SUCCESS',
+                                        amount: Number(betting.bettingCoin),
+                                        recipientAddress: res.spenderAddress,
+                                        spenderAddress: walletAddress,
+                                        createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
+                                    }
+                
+                                    await client.create(transactionSet).then((res) => {
+                                        console.log('transaction add complete');
+                                    });
+
+                                    result = {
+                                        result: true,
+                                        message: 'Voting success'
+                                    };
+                                } else {
+                                    result =  {
+                                        result: false,
+                                        message: 'Voting failed'
+                                    };
+                                }
                             });
-
-                            // update each quest answer total amount
-                            const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${betting.questAnswerKey._id}' && _id != '${Date.now()}'] {bettingCoin}`;
-                            await client.fetch(newAnswerTotalQuery).then(async (bettingCoins) => {
-                                const newAnswerTotal = bettingCoins.reduce((acc, bettingCoin) => {
-                                    return acc += Number(bettingCoin.bettingCoin);
-                                }, 0);
-
-                                await client.patch(betting.questAnswerKey._id)
-                                            .set({totalAmount: newAnswerTotal})
-                                            .commit();
-                            });
-
-                            // update quest total amount
-                            const newQuestTotalQuery = `*[_type == 'betting' && questKey == ${betting.questKey} && _id != '${Date.now()}'] {bettingCoin}`;
-                            await client.fetch(newQuestTotalQuery).then(async (bettingCoins) => {
-                                const newQuestTotal = bettingCoins.reduce((acc, bettingCoin) => {
-                                    return acc += Number(bettingCoin.bettingCoin);
-                                }, 0);
-
-                                await client.patch(detail._id)
-                                            .set({totalAmount: newQuestTotal})
-                                            .commit();
-                            });
-
-                            // update betting result
-                            const updateBetSet = {
-                                spenderAddress: res.spenderAddress,
-                                transactionId: res.transactionId,
-                            }
-
-                            await client.patch(betting.bettingId).set(updateBetSet).commit();
-
-                            // insert transaction
-                            const transactionSet = {
-                                _type: 'transactions',
-                                transactionId: res.transactionId,
-                                transactionType: 'BETTION_S',
-                                status: 'SUCCESS',
-                                amount: Number(betting.bettingCoin),
-                                recipientAddress: res.spenderAddress,
-                                spenderAddress: walletAddress,
-                                createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
-                            }
-        
-                            await client.create(transactionSet).then((res) => {
-                                console.log('transaction add complete');
-                            });
-
-                            result = {
-                                result: true,
-                                message: 'Voting success'
-                            };
                         } else {
                             result =  {
                                 result: false,
-                                message: 'Voting failed'
+                                message: 'Approve failed'
                             };
                         }
                     });
+                    
+                    
                 });
             });
         });
