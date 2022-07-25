@@ -744,7 +744,9 @@ export const bettingCojamURI_KLIP = async ({
         console.log(error);
     });
 
-  return result;
+  // TODO MODIFY
+  return { spenderAddress: cojamMarketAddress, status: 200 };
+  //return result;
 }
 
 
@@ -805,7 +807,7 @@ export const approveCojamURI_KLIP = async (
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('approve success !');
+                                  alert('approve success !', response.data.result);
                                   result.status = 400;
                               }
 
@@ -818,7 +820,7 @@ export const approveCojamURI_KLIP = async (
         }
     }).catch((error) => {
         console.log(error);
-  });
+    });
 
   return result;
 }

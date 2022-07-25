@@ -9,7 +9,7 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
       return true;
     }
 
-    if (typeof window.klaytn !== 'undefined') {
+    if (typeof window.klaytn !== 'undefined' && walletData?.type === 'kaikas') {
       const accounts = await window.klaytn.enable();
 
       // TODO ADD KLIP LOGIC
