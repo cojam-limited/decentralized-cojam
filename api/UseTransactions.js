@@ -170,13 +170,17 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
   export const callBettingCojamURI = async (
       params,
       walletData,
-      setQr, setQrModal
+      setQr, setQrModal, minutes, setMinutes, seconds, setSeconds
   ) => {
     let result;
     if(walletData?.type === 'kaikas') {
         await bettingCojamURI(params).then(res => result = res);
     } else {
-        await bettingCojamURI_KLIP(params, walletData?.account, setQr, setQrModal).then(res => result = res);
+        await bettingCojamURI_KLIP(
+          params, 
+          walletData?.account, 
+          setQr, setQrModal, minutes, setMinutes, seconds, setSeconds
+        ).then(res => result = res);
     }
 
     return result;
@@ -189,7 +193,7 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
   export const callApproveCojamURI = async (
     bettingCoinAmount, 
     walletData,
-    setQr, setQrModal
+    setQr, setQrModal, minutes, setMinutes, seconds, setSeconds
   ) => { 
     let result;
     if(walletData?.type === 'kaikas') {
@@ -198,7 +202,7 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
         await approveCojamURI_KLIP(
           bettingCoinAmount, 
           walletData?.account,
-          setQr, setQrModal
+          setQr, setQrModal, minutes, setMinutes, seconds, setSeconds
         ).then(res => result = res);
     }
 

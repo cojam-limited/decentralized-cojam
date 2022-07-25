@@ -23,7 +23,7 @@ import { QrContext } from '../../components/Context/QrContext';
 
 function Index(props) {
 	const history = useHistory();
-	const { qr, setQr, qrModal, setQrModal } = useContext(QrContext);
+	const { qr, setQr, qrModal, setQrModal, minutes, setMinutes, seconds, setSeconds } = useContext(QrContext);
 
 	const { balance, setBalance } = useContext(BalanceContext);
 	const [ onBetting, setOnBetting ] = useState(false);
@@ -75,7 +75,7 @@ function Index(props) {
 				'predictionFee': receiveToken
 			}
 
-			const betResult = await doBetting(betting, walletData, qr, setQr, qrModal, setQrModal);
+			const betResult = await doBetting(betting, walletData, qr, setQr, qrModal, setQrModal, minutes, setMinutes, seconds, setSeconds);
 			
 			toastNotify({
 				state: betResult.result ? 'success' : 'error',

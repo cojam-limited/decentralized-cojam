@@ -2,7 +2,7 @@ import { client } from "../../sanity";
 import Moment from 'moment';
 import { callApproveCojamURI, callBettingCojamURI } from "@api/UseTransactions";
 
-const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal) => {
+const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal, minutes, setMinutes, seconds, setSeconds) => {
     let result = {result: false, message: 'Voting failed'};
 
     // compare with initial answer (if exist)
@@ -119,7 +119,7 @@ const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal) =>
                     });
                 
                     // do approve
-                    await callApproveCojamURI(Number(betting.bettingCoin), walletData, setQr, setQrModal).then((res) => {
+                    await callApproveCojamURI(Number(betting.bettingCoin), walletData, setQr, setQrModal, minutes, setMinutes, seconds, setSeconds).then((res) => {
                         // TODO REMOVE
                     });
                     
@@ -130,7 +130,7 @@ const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal) =>
                         bettingKey: newBettingKey, 
                         bettingCoinAmount: betting.bettingCoin,
                         setQr, 
-                        setQrModal
+                        setQrModal, minutes, setMinutes, seconds, setSeconds
                     }, walletData).then(async (res) => {
                         if(!res) {
                             return result = {

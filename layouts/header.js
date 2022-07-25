@@ -25,21 +25,20 @@ import Moment from 'moment';
 import { useWalletData } from '@data/wallet';
 import { BalanceContext } from '../components/Context/BalanceContext';
 import { QrContext } from '../components/Context/QrContext';
+import { useLoadingState } from "@assets/context/LoadingContext";
 
 import { client } from "../sanity";
 
 function Header() {
+  const { setLoading } = useLoadingState();
   const { balance, setBalance } = useContext(BalanceContext);
-  const { qr, setQr, qrModal, setQrModal } = useContext(QrContext);
+  const { qr, setQr, qrModal, setQrModal, minutes, setMinutes, seconds, setSeconds } = useContext(QrContext);
   //const [qrImage, setQrImage] = useState('');
 
   const history = useHistory();
   const [openKlipAdd, modalKlipAdd] = useState(false);
   //const [openKlipLogin, modalKlipLogin] = useState(false);
   const [currentPage, setCurrentPage] = useState('Home');
-
-  const [minutes, setMinutes] = useState(0);
-  const [seconds, setSeconds] = useState(0);
 
   const { modalData, mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
   const { walletData, mutateWalletData } = useWalletData();
@@ -57,23 +56,6 @@ function Header() {
       return false;
     }
   }
-
-  /* inactive method
-  const inactiveAll = async () => {
-    console.log('inactive all');
-
-    const questQuery = `*[_type == 'quests']`
-    await client.fetch(questQuery).then((quests) => {
-      quests.forEach(async (quest) => {
-        console.log('quest', quest.title, 'inactivated');
-
-        await client.patch( quest._id )
-              .set({isActive: false})
-              .commit();
-      });
-    });
-  }
-  */
 
   const handleOpenKaikasModal = async () => {
     const account = await kaikasLogin();
@@ -136,6 +118,7 @@ function Header() {
           if(authResult.result?.klaytn_address) {
             clearInterval(getAuthResult);
 
+            modalKlipAdd(false);
             mutateWalletData({ account: authResult.result.klaytn_address, type: 'klip' });
           }
         });
@@ -250,6 +233,10 @@ function Header() {
 
   // KLIP modal > count down setting
   useEffect(() => {
+    if(minutes === 5) {
+      setLoading(false);
+    }
+
     const countdown = setInterval(() => {
       if (parseInt(seconds) > 0) {
         setSeconds(parseInt(seconds) - 1);
@@ -272,7 +259,6 @@ function Header() {
     console.log('wallet address changed', walletData, walletData.account);
 
     getBalance();
-    setQrModal(false);
 
     if(walletData && walletData.account) {
       // admin check
