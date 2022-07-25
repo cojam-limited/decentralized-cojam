@@ -135,11 +135,8 @@ const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal, mi
                                     return result = {
                                         result: false,
                                         message: 'Voting api failed'
-                                    };;
+                                    };
                                 }
-
-                                console.log('betting', res);
-                                debugger;
 
                                 if(res.status === 200) {
                                     // insert betting info
