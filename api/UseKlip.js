@@ -167,7 +167,7 @@ export const draftMarket_KLIP = async ({
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('draftMarket success !');
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -243,7 +243,7 @@ export const approveMarket_KLIP = async (
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('approveMarket success !');
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -319,7 +319,7 @@ export const adjournMarket_KLIP = async (
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('adjournMarket success !');
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -395,7 +395,7 @@ export const finishMarket_KLIP = async (
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('finishMarket success !');
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -475,7 +475,7 @@ fromAddress
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('addAnswerMarket success !');
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -553,7 +553,7 @@ export const retrieveMarket_KLIP = async (
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('retrieveMarket success !');
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -634,7 +634,7 @@ fromAddress
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('successMarket success !');
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -730,7 +730,7 @@ export const bettingCojamURI_KLIP = async ({
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('betting success !');
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -808,7 +808,7 @@ export const approveCojamURI_KLIP = async (
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('approve success !', response.data.result);
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -894,7 +894,7 @@ export const transferCojamURI_KLIP = async ({
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('transfer success !');
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -973,7 +973,7 @@ export const transferOwnership_KLIP = async (
                               const status = response.data.result.status;
                               if (status === "success") {
                                   alert('transfer owner success !');
-                                  result.status = 400;
+                                  result.status = 200;
                               }
 
                               setQrModal(false); 
