@@ -474,8 +474,8 @@ fromAddress
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('addAnswerMarket success !');
                                   result.status = 200;
+                                  time = Number.MAX_SAFE_INTEGER;
                               }
 
                               setQrModal(false); 
@@ -552,8 +552,8 @@ export const retrieveMarket_KLIP = async (
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('retrieveMarket success !');
                                   result.status = 200;
+                                  time = Number.MAX_SAFE_INTEGER;
                               }
 
                               setQrModal(false); 
@@ -633,8 +633,8 @@ fromAddress
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('successMarket success !');
                                   result.status = 200;
+                                  time = Number.MAX_SAFE_INTEGER;
                               }
 
                               setQrModal(false); 
@@ -729,8 +729,8 @@ export const bettingCojamURI_KLIP = async ({
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('betting success !');
                                   result.status = 200;
+                                  time = Number.MAX_SAFE_INTEGER;
                               }
 
                               setQrModal(false); 
@@ -808,8 +808,8 @@ export const approveCojamURI_KLIP = async (
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('approve success !', response.data.result);
                                   result.status = 200;
+                                  time = Number.MAX_SAFE_INTEGER;
                               }
 
                               setQrModal(false); 
