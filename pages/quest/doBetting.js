@@ -2,7 +2,7 @@ import { client } from "../../sanity";
 import Moment from 'moment';
 import { callApproveCojamURI, callBettingCojamURI } from "@api/UseTransactions";
 
-const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal, minutes, setMinutes, seconds, setSeconds) => {
+const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, setSeconds) => {
     let result = {result: false, message: 'Voting failed'};
 
     // compare with initial answer (if exist)
@@ -119,18 +119,16 @@ const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal, mi
                     });
                 
                     // do approve
-                    await callApproveCojamURI(Number(betting.bettingCoin), walletData, setQr, setQrModal, minutes, setMinutes, seconds, setSeconds).then(async (res) => {
-                        // TODO REMOVE
+                    await callApproveCojamURI(Number(betting.bettingCoin), walletData, setQr, setQrModal, setMinutes, setSeconds).then(async (res) => {
                         if(res.status === 200) {
                             // do betting 
                             await callBettingCojamURI({ 
-                                questKey: betting.questKey, 
-                                questAnswerKey: betting.questAnswerKey.order,
-                                bettingKey: newBettingKey, 
-                                bettingCoinAmount: betting.bettingCoin,
-                                setQr, 
-                                setQrModal, minutes, setMinutes, seconds, setSeconds
-                            }, walletData).then(async (res) => {
+                                    questKey: betting.questKey, 
+                                    questAnswerKey: betting.questAnswerKey.order,
+                                    bettingKey: newBettingKey, 
+                                    bettingCoinAmount: betting.bettingCoin,
+                                }, walletData, setQr, setQrModal, setMinutes, setSeconds
+                            ).then(async (res) => {
                                 if(!res) {
                                     return result = {
                                         result: false,
@@ -206,9 +204,7 @@ const doBetting = async (betting, walletData, qr, setQr, qrModal, setQrModal, mi
                                         createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
                                     }
                 
-                                    await client.create(transactionSet).then((res) => {
-                                        console.log('transaction add complete');
-                                    });
+                                    await client.create(transactionSet);
 
                                     result = {
                                         result: true,

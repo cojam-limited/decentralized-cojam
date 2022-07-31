@@ -6,7 +6,7 @@ import toastNotify from '@utils/toast';
 
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
 
-export const changeStateFunction = async (state, walletData, selectedQuest, selectedAnswer, description) => {
+export const changeStateFunction = async ({state, walletData, selectedQuest, selectedAnswer, description, setQr, setQrModal, setMinutes, setSeconds}) => {
     if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
         return;
     }
@@ -79,9 +79,10 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                                 creatorFee: creatorPay, 
                                 creatorFeePercentage: season.creatorFee, 
                                 cojamFeePercentage: season.cojamFee, 
-                                charityFeePercentage: season.charityFee
+                                charityFeePercentage: season.charityFee,
                             }, 
-                            walletData
+                            walletData,
+                            setQr, setQrModal, setMinutes, setSeconds
                         ).then(async (res) => {
                             if(res.status === 200) {
                                 await client.patch(selectedQuest._id)
@@ -165,10 +166,10 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                         }
                     }
 
-                    addAnswerRes = await callAddAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyListCopy}, walletData);
+                    addAnswerRes = await callAddAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyListCopy}, walletData, setQr, setQrModal, setMinutes, setSeconds);
                 }
             } else {
-                addAnswerRes = await callAddAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyList}, walletData);
+                addAnswerRes = await callAddAnswerKeys({marketKey: selectedQuest.questKey, answerKeys: bettingKeyList}, walletData, setQr, setQrModal, setMinutes, setSeconds);
             }
 
             if(addAnswerRes.status === 200) {
@@ -220,7 +221,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const approveMarketRes = await callApproveMarket(selectedQuest.questKey, walletData);
+            const approveMarketRes = await callApproveMarket(selectedQuest.questKey, walletData, setQr, setQrModal, setMinutes, setSeconds);
 
             if(approveMarketRes.status === 200) {
                 await client.patch(selectedQuest._id)
@@ -282,7 +283,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
             }
 
             const questKey = selectedQuest.questKey;
-            await callFinishMarket(questKey, walletData).then(async (res) => {
+            await callFinishMarket(questKey, walletData, setQr, setQrModal, setMinutes, setSeconds).then(async (res) => {
                 if(res.status === 200) {
                     await client.patch(selectedQuest._id)
                           .set({
@@ -325,7 +326,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const adjournRes = await callAdjournMarket(selectedQuest.questKey, walletData);
+            const adjournRes = await callAdjournMarket(selectedQuest.questKey, walletData, setQr, setQrModal, setMinutes, setSeconds);
             if(adjournRes.status === 200) {
                 await client.patch(selectedQuest._id)
                           .set({
@@ -368,7 +369,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const successRes = await callSuccessMarket({ questKey: selectedQuest.questKey, questAnswerKey: selectedAnswer.questAnswerKey}, walletData);
+            const successRes = await callSuccessMarket({ questKey: selectedQuest.questKey, questAnswerKey: selectedAnswer.questAnswerKey}, walletData, setQr, setQrModal, setMinutes, setSeconds);
             if(successRes.status === 200) {
                 await client.patch(selectedQuest._id)
                       .set({
@@ -444,7 +445,7 @@ export const changeStateFunction = async (state, walletData, selectedQuest, sele
                 return;
             }
 
-            const retrieveRes = await callRetrieveMarket(selectedQuest.questKey, walletData);
+            const retrieveRes = await callRetrieveMarket(selectedQuest.questKey, walletData, setQr, setQrModal, setMinutes, setSeconds);
             if(retrieveRes.status === 200) {
                 await client.patch(selectedQuest._id)
                             .set({statusType: 'RETRIEVE', retrieveTx: retrieveRes.transactionId})

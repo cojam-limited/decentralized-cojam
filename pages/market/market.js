@@ -12,6 +12,7 @@ import backgroundImage from '@assets/body_mypage.jpg';
 import { useWalletData } from '@data/wallet';
 import { useLoadingState } from "@assets/context/LoadingContext";
 import { changeStateFunction } from './statusFunctions';
+import { QrContext } from '../../components/Context/QrContext';
 
 import { transferOwnership } from '@api/UseKaikas';
 import { checkLogin } from "@api/UseTransactions";
@@ -21,6 +22,7 @@ import toastNotify from '@utils/toast';
 
 function Index() {
 	const history = useHistory();
+	const { setQr, setQrModal, setMinutes, setSeconds } = useContext(QrContext);
 	const [ openDetail, modalDetail ] = useState(false);
 	const { setLoading } = useLoadingState();
 	const { walletData } = useWalletData();
@@ -88,7 +90,7 @@ function Index() {
 		}
 
 		setLoading(true);
-		await changeStateFunction(state, walletData, selectedQuest);
+		await changeStateFunction({state, walletData, selectedQuest, setQr, setQrModal, setMinutes, setSeconds});
 		setReloadData(!reloadData);
 		setLoading(false);
 	}
@@ -684,7 +686,7 @@ function Index() {
 												}
 
 												setLoading(true);
-												await changeStateFunction('success', walletData, selectedQuest, selectedAnswer);
+												await changeStateFunction({state: 'success', walletData, selectedQuest, selectedAnswer, setQr, setQrModal, setMinutes, setSeconds});
 												setLoading(false);
 
 												modalSuccess(false);
@@ -735,7 +737,7 @@ function Index() {
 												}
 
 												setLoading(true);
-												await changeStateFunction('adjourn', walletData, selectedQuest, selectedAnswer, adjournDesc);
+												await changeStateFunction({state: 'adjourn', walletData, selectedQuest, selectedAnswer, description: adjournDesc, setQr, setQrModal, setMinutes, setSeconds});
 												setLoading(false);
 
 												modalAdjourn(false);
@@ -786,7 +788,7 @@ function Index() {
 												}
 
 												setLoading(true);
-												await changeStateFunction('invalid', walletData, selectedQuest, selectedAnswer, invalidDesc);
+												await changeStateFunction({state: 'invalid', walletData, selectedQuest, selectedAnswer, description: invalidDesc, setQr, setQrModal, setMinutes, setSeconds});
 												setLoading(false);
 
 												modalInvalid(false);

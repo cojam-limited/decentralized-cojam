@@ -104,7 +104,7 @@ export const draftMarket_KLIP = async ({
   creatorFeePercentage,
   cojamFeePercentage,
   charityFeePercentage,
-}, fromAddress) => {
+}, fromAddress, setQr, setQrModal, setMinutes, setSeconds) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
   const to = cojamMarketAddress;
@@ -125,7 +125,7 @@ export const draftMarket_KLIP = async ({
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}"
 
-  const params = `[${marketKey},"${creator}","${title}",${creatorFee},${creatorFeePercentage},${cojamFeePercentage},${charityFeePercentage}]`;
+  const params = `["${marketKey}","${creator}","${title}","${creatorFee}","${creatorFeePercentage}","${cojamFeePercentage}","${charityFeePercentage}"]`;
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
@@ -161,21 +161,22 @@ export const draftMarket_KLIP = async ({
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('draft market response', response);
 
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('draftMarket success !');
-                                  result.status = 200;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log(error);
@@ -185,7 +186,8 @@ export const draftMarket_KLIP = async ({
 }
 
 export const approveMarket_KLIP = async (
-  marketKey, fromAddress
+  marketKey, fromAddress,
+  setQr, setQrModal, setMinutes, setSeconds
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -201,7 +203,7 @@ export const approveMarket_KLIP = async (
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
-  const params = `[${marketKey}]`;
+  const params = `["${marketKey}"]`;
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
@@ -237,21 +239,22 @@ export const approveMarket_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('approve market response', response);
 
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('approveMarket success !');
-                                  result.status = 200;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log(error);
@@ -261,7 +264,8 @@ export const approveMarket_KLIP = async (
 }
 
 export const adjournMarket_KLIP = async (
-  marketKey, fromAddress
+  marketKey, fromAddress,
+  setQr, setQrModal, setMinutes, setSeconds
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -276,7 +280,7 @@ export const adjournMarket_KLIP = async (
               //"\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
-  const params = `[${marketKey}]`;
+  const params = `["${marketKey}"]`;
   
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
@@ -313,21 +317,22 @@ export const adjournMarket_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('adjorun market response', response);
 
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('adjournMarket success !');
-                                  result.status = 200;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log(error);
@@ -337,7 +342,8 @@ export const adjournMarket_KLIP = async (
 }
 
 export const finishMarket_KLIP = async (
-  marketKey, fromAddress
+  marketKey, fromAddress,
+  setQr, setQrModal, setMinutes, setSeconds
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -353,7 +359,7 @@ export const finishMarket_KLIP = async (
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
-  const params = `[${marketKey}]`;
+  const params = `["${marketKey}"]`;
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
@@ -389,21 +395,22 @@ export const finishMarket_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('finish response', response);
 
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('finishMarket success !');
-                                  result.status = 200;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log(error);
@@ -416,7 +423,7 @@ export const addAnswerKeys_KLIP = async ({
   marketKey,
   answerKeys 
 }, 
-fromAddress
+fromAddress, setQr, setQrModal, setMinutes, setSeconds
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -433,7 +440,7 @@ fromAddress
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
-  const params = `[${marketKey},"${answerKeys}"]`;
+  const params = `["${marketKey}","${answerKeys}"]`;
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
@@ -469,21 +476,22 @@ fromAddress
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('add answerKeys response', response);
 
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  result.status = 200;
-                                  time = Number.MAX_SAFE_INTEGER;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log(error);
@@ -495,7 +503,8 @@ fromAddress
 
 export const retrieveMarket_KLIP = async (
   questKey, 
-  fromAddress
+  fromAddress,
+  setQr, setQrModal, setMinutes, setSeconds
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -511,7 +520,7 @@ export const retrieveMarket_KLIP = async (
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
-  const params = `[${questKey},${questAnswerKey}]`;
+  const params = `["${questKey}","${questAnswerKey}"]`;
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
@@ -547,21 +556,22 @@ export const retrieveMarket_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('retrieve response', response);
 
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  result.status = 200;
-                                  time = Number.MAX_SAFE_INTEGER;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log(error);
@@ -575,7 +585,7 @@ export const successMarket_KLIP = async ({
   questKey,
   questAnswerKey  
 },
-fromAddress
+fromAddress, setQr, setQrModal, setMinutes, setSeconds
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -592,7 +602,7 @@ fromAddress
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
-  const params = `[${questKey},${questAnswerKey}]`;
+  const params = `["${questKey}","${questAnswerKey}"]`;
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
@@ -628,21 +638,22 @@ fromAddress
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('success response', response);
 
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  result.status = 200;
-                                  time = Number.MAX_SAFE_INTEGER;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log(error);
@@ -663,16 +674,14 @@ export const bettingCojamURI_KLIP = async ({
   questAnswerKey,
   bettingKey,
   bettingCoinAmount,
-  setQr, setQrModal, minutes, setMinutes, seconds, setSeconds
 }, 
-  fromAddress
+  fromAddress, setQr, setQrModal, setMinutes, setSeconds
 ) => {
   const bappName = 'cojam-v2';
-  const from = fromAddress;
+  //const from = fromAddress;
   const to = cojamMarketAddress;
   const value = '0'
-  const abi = "{\"constant\":false, " + 
-              "\"inputs\":"+
+  const abi = "{\"inputs\":"+
                 "[" +
                   "{\"name\":\"marketKey\",\"type\":\"uint256\"}," +
                   "{\"name\":\"answerKey\",\"type\":\"uint256\"}," +
@@ -685,9 +694,10 @@ export const bettingCojamURI_KLIP = async ({
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
   // const params = `[${questKey},${questAnswerKey},${bettingKey},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
-  const params = `['QT2022071800000001',3974,${BigInt(Number.MAX_SAFE_INTEGER)},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
+  // const params = `["QT2022071800000001",3974,${BigInt(Number.MAX_SAFE_INTEGER)},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
+  const params = `["2022071800000001","3974","${BigInt(Number.MAX_SAFE_INTEGER)}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
 
-  console.log('betting with klip', from, to, value, params);
+  console.log('betting with klip', fromAddress, to, value, params);
 
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
@@ -724,27 +734,27 @@ export const bettingCojamURI_KLIP = async ({
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('betting response', response);
 
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  result.status = 200;
-                                  time = Number.MAX_SAFE_INTEGER;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log(error);
     });
 
-  // TODO MODIFY
   return result;
 }
 
@@ -754,7 +764,7 @@ export const bettingCojamURI_KLIP = async ({
  */
 export const approveCojamURI_KLIP = async (
   bettingCoinAmount, fromAddress,
-  setQr, setQrModal, minutes, setMinutes, seconds, setSeconds
+  setQr, setQrModal, setMinutes, setSeconds
 ) => { 
   const bappName = 'cojam-v2';
   const txTo = cojamTokenAddress;
@@ -803,13 +813,12 @@ export const approveCojamURI_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('approve response', response);
 
-                          if(response.data.status === "completed") {
-                              const status = response.data.result.status;
+                          if(response.data?.status === "completed") {
+                              const status = response.data?.result.status;
                               if (status === "success") {
                                   result.status = 200;
-                                  time = Number.MAX_SAFE_INTEGER;
                               }
 
                               setQrModal(false); 
@@ -817,7 +826,7 @@ export const approveCojamURI_KLIP = async (
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status === 200 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log('approve catch', error);
@@ -836,7 +845,8 @@ export const approveCojamURI_KLIP = async (
 export const transferCojamURI_KLIP = async ({
   fromAddress, 
   toAddress, 
-  amount
+  amount,
+  setQr, setQrModal, setMinutes, setSeconds
 }, walletAddress) => {
   const bappName = 'cojam-v2';
   //const from = fromAddress;
@@ -855,7 +865,7 @@ export const transferCojamURI_KLIP = async ({
               "\"outputs\": [], " +
               "\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}";
   
-  const params = `["${toAddress}",${caver.utils.toPeb(Number(amount), 'KLAY')}]`;
+  const params = `["${toAddress}","${caver.utils.toPeb(Number(amount), 'KLAY')}"]`;
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
@@ -891,21 +901,22 @@ export const transferCojamURI_KLIP = async ({
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('transfer cojam token response', response);
 
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('transfer success !');
-                                  result.status = 200;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log(error);
@@ -916,7 +927,8 @@ export const transferCojamURI_KLIP = async ({
 
 export const transferOwnership_KLIP = async (
   walletAddress,
-  fromAddress
+  fromAddress,
+  setQr, setQrModal, setMinutes, setSeconds
 ) => {
   const bappName = 'cojam-v2';
   const from = fromAddress;
@@ -969,21 +981,22 @@ export const transferOwnership_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('response', response);
+                          console.log('transfer ownership response', response);
 
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
-                                  alert('transfer owner success !');
-                                  result.status = 200;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         });
           }
 
-          time = new Date().getTime();
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
         console.log(error);

@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import Router from './router';
 
 import { useWalletData } from '@data/wallet';
-import toastNotify from '@utils/toast';
 import { BalanceProvider } from './components/Context/BalanceContext';
 import { QrProvider } from './components/Context/QrContext';
 

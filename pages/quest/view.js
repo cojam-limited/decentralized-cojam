@@ -23,7 +23,17 @@ import { QrContext } from '../../components/Context/QrContext';
 
 function Index(props) {
 	const history = useHistory();
-	const { qr, setQr, qrModal, setQrModal, minutes, setMinutes, seconds, setSeconds } = useContext(QrContext);
+
+	if(!props?.location?.state?.questId) {
+		toastNotify({
+			state: 'error',
+			message: 'wrong access.',
+		});
+
+		history.push('/');
+	}
+
+	const { setQr, setQrModal, setMinutes, setSeconds } = useContext(QrContext);
 
 	const { balance, setBalance } = useContext(BalanceContext);
 	const [ onBetting, setOnBetting ] = useState(false);
@@ -37,8 +47,6 @@ function Index(props) {
 	const [ answerTotalAmounts, setAnswerTotalAmounts ] = useState({});
 	const [ answerPercents, setAnswerPercents ] = useState({});
 	const [ answerAllocations, setAnswerAllocations ] = useState({});
-
-	const [ openQuestAdd, modalQuestAdd ] = useState(false);
 
 	const [ bettingCoin, setBettingCoin ] = useState(1);
 	const [ rate, setRate ] = useState(0);
@@ -75,7 +83,7 @@ function Index(props) {
 				'predictionFee': receiveToken
 			}
 
-			const betResult = await doBetting(betting, walletData, qr, setQr, qrModal, setQrModal, minutes, setMinutes, seconds, setSeconds);
+			const betResult = await doBetting(betting, walletData, setQr, setQrModal, setMinutes, setSeconds);
 			
 			toastNotify({
 				state: betResult.result ? 'success' : 'error',
