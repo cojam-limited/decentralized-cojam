@@ -14,7 +14,8 @@ const xChainId = '8217'; // prod
 const authorization = 'Basic S0FTSzFQTzJSR1RZNU5LTjJERktDVVhMOkFpd1NDeUN3Z2Q4Wkc5aUtqWXNXS3ZBam96UXZRN3BwRjhCLWZqcWU='; // prod
 
 const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // prod
-const cojamMarketAddress = '0xC31585Bf0808Ab4aF1acC29E0AA6c68D2B4C41CD' // prod
+//const cojamMarketAddress = '0xC31585Bf0808Ab4aF1acC29E0AA6c68D2B4C41CD' // prod
+const cojamMarketAddress = '0x2078466926E4Af541DC47d954C487517bcE49c28' // prod
 
 export const kaikasLogin = async () => {
   try {
@@ -695,7 +696,7 @@ export const bettingCojamURI_KLIP = async ({
 
   // const params = `[${questKey},${questAnswerKey},${bettingKey},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
   // const params = `["QT2022071800000001",3974,${BigInt(Number.MAX_SAFE_INTEGER)},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
-  const params = `["2022071800000001","3974","${BigInt(Number.MAX_SAFE_INTEGER)}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
+  const params = `["2022071800000001","3974","${BigInt(Number.MAX_SAFE_INTEGER-1)}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
 
   console.log('betting with klip', fromAddress, to, value, params);
 

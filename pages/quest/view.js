@@ -83,7 +83,7 @@ function Index(props) {
 				'predictionFee': receiveToken
 			}
 
-			const betResult = await doBetting(betting, walletData, setQr, setQrModal, setMinutes, setSeconds);
+			const betResult = await doBetting(betting, walletData, setQr, setQrModal, setMinutes, setSeconds, setLoading);
 			
 			toastNotify({
 				state: betResult.result ? 'success' : 'error',
