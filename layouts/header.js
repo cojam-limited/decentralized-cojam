@@ -116,6 +116,7 @@ function Header() {
             clearInterval(getAuthResult);
 
             modalKlipAdd(false);
+            setQrModal(false);
             mutateWalletData({ account: authResult.result.klaytn_address, type: 'klip' });
           }
         });

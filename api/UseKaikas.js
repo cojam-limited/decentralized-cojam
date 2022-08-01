@@ -10,7 +10,7 @@ const caverExt = new CaverExtKAS('1001', 'KASKABM99U30BTVDXCYDMQQF', 'P6vSKCjKxY
 //const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // prod
 const cojamTokenAddress = "0xd6cdab407f47afaa8800af5006061db8dc92aae7";   // dev
 
-//const cojamMarketAddress = '0xC31585Bf0808Ab4aF1acC29E0AA6c68D2B4C41CD' // prod
+//const cojamMarketAddress = '0x2078466926E4Af541DC47d954C487517bcE49c28' // prod
 const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // dev
 
 // cojam token address ?
