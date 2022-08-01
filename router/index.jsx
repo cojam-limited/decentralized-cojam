@@ -17,7 +17,6 @@ import CommunityList from '../pages/community/list'
 import CommunityView from '../pages/community/view'
 import Mypage from '../pages/mypage/mypage'
 import Market from '../pages/market/market'
-import Account from '../pages/account/account'
 
 const Routers = () => {
   return (
@@ -36,7 +35,6 @@ const Routers = () => {
               <Route path='/CommunityView' exact component={CommunityView} />
               <Route path='/Mypage' exact component={Mypage} />
               <Route path='/Market' exact component={Market} />
-              <Route path='/Account' exact component={Account} />
             </Switch>
 
             <ToastContainer />
