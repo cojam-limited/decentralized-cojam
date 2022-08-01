@@ -264,7 +264,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                         toastNotify({
                             state: 'error',
                             message: 'quest create failed. image upload failed.'
-                        })
+                        });
 
                         return { statusCode: 400 } 
                     });
@@ -272,11 +272,12 @@ const createNewQuest = async (modalValues, answers, walletData) => {
 
                 // Answer 생성
                 if(answers) {
-                    // get increment
-                    await client.fetch(`*[_type == "questAnswerList" && _id != '${Date.now()}'] | order(questAnswerKey desc)[0]`).then((lastAnswer) => {
-                        let order = lastAnswer.questAnswerKey; 
+                    // get increment by day
+                    await client.fetch(`count(*[_type == "questAnswerList" && _createdAt > '${Moment().format("yyyy-MM-DD")}' && _id != '${Date.now()}'])`).then((numOfAnswerByDay) => {
+                        order = Number( Moment().format("yyyyMMDD") + String(numOfAnswerByDay + 1).padStart(8, '0') );
+
                         // create new quest answer
-                        answers.forEach(async (answer, index) => {   
+                        answers.forEach(async (answer, index) => {
                             order = order + 1;
                             
                             const arrIndex = index % defaultLineColorArr.length;

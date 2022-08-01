@@ -9,8 +9,6 @@ import mainServiceIcon04 from '@assets/main_service_icon04.svg'
 import mainServiceIcon05 from '@assets/main_service_icon05.svg'
 import mainServiceIcon06 from '@assets/main_service_icon06.svg'
 
-import mainBackGround00 from '@assets/main_visual_img00.jpg';
-
 import serviceBackground from '@assets/main_service_bg.png';
 import phoneBackground from '@assets/main_service_phone.png';
 import qnaBackground from '@assets/main_qna_bg.jpg';
@@ -112,7 +110,6 @@ function Index() {
 		
 			<div className="main-vegas">
 				<BackgroundSlider
-					//images={[ mainBackGround00, mainBackGround01, mainBackGround02, mainBackGround03 ]}
 					images={mainImages}
 					duration={10} transition={1} 
 				/>

@@ -13,6 +13,7 @@ function Index(props) {
 
 	useEffect(() => {
 		setLoading(true);
+		
 		const newRelatedPost = [];
 		post?.related?.forEach((related) => {
 			const query = `*[_type == 'resultList' && _id == '${related._ref}' && _id != '${Date.now()}'][0]`;
@@ -82,7 +83,6 @@ function Index(props) {
 					</div>
 				</div>
 				{/* 상세 끝 */}
-
 			</div>
     </div>
   );

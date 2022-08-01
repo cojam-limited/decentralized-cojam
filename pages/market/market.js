@@ -204,10 +204,7 @@ function Index() {
 			const questInfoQuery = `*[_type == 'quests' && questKey == ${activeDetailData.questKey} && _id != '${Date.now()}'][0]`;
 			await client.fetch(questInfoQuery).then((quest) => {
 				const memberRewards = addGroupBy(rewardBettings, 'memberKey');
-
 				const titleRewards = addGroupBy(rewardBettings, 'answerTitle');
-
-				console.log('titleRewards', titleRewards);
 
 				// set member reward. each member's wallet address
 				const memberRewardArr = [];
@@ -234,9 +231,6 @@ function Index() {
 					memberRewards: memberRewardArr,
 					titleRewards: titleRewards
 				}
-
-				console.log('memberRewards', memberRewardArr);
-				console.log('titleRewards', titleRewards);
 
 				setRewardInfo(curRewardInfo);
 			});
@@ -269,52 +263,7 @@ function Index() {
 			return carry
 		}, {})
 	}
-
-	/*
-	useEffect(() => {
-		if(selectedAnswer) {
-			setLoading(true);
-			const rewardInfoQuery = `*[_type == 'betting' && questAnswerKey == '${selectedAnswer._id}' && answerTitle == '${selectedAnswer?.title}' && _id != '${Date.now()}']`;
-			client.fetch(rewardInfoQuery).then(async (rewardBettings) => {
-				
-				const questInfoQuery = `*[_type == 'quests' && questKey == ${selectedAnswer.questKey} && _id != '${Date.now()}'][0]`;
-				await client.fetch(questInfoQuery).then((quest) => {	
-					const memberRewards = addGroupBy(rewardBettings, 'memberKey');
-
-					// set member reward. each member's wallet address
-					const memberRewardArr = [];
-					for(const [memberAddress, totalAmount] of Object.entries(memberRewards)) {
-						const cojam_ct = quest?.totalAmount * quest?.cojamFee / 100;
-						const creator_ct = quest?.totalAmount * quest?.creatorFee / 100 + quest?.creatorPay;
-						const charity_ct = quest?.totalAmount * quest?.charityFee / 100;
-						const real_total_ct = quest?.totalAmount - cojam_ct - creator_ct - charity_ct;
-						const magnification = real_total_ct / totalAmount * 100;
-
-						const predictionFee = (magnification * totalAmount) / 100;
-						memberRewardArr.push({ walletAddress: memberAddress, predictionFee: predictionFee, multiply: magnification });
-					}
-
-					// group by member key
-					const curRewardInfo = {
-						minimumPay: quest?.minimumPay ?? 0,
-						maximumPay: quest?.maximumPay ?? 0,
-						charityFee: quest?.charityFee ?? 0,
-						cojamFee: quest?.cojamFee ?? 0,
-						creatorFee: quest?.creatorFee ?? 0,
-						creatorPay: quest?.creatorPay ?? 0,
-						
-						memberRewards: memberRewardArr
-					}
-
-					setRewardInfo(curRewardInfo);
-				});
-
-				setLoading(false);
-			});
-		}
-	}, [selectedAnswer]);
-	*/
-
+	
 	useEffect(() => {
 		setLoading(true);
 

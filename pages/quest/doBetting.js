@@ -114,8 +114,8 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                     }
 
                     let newBettingKey;
-                    await client.fetch(`*[_type == "betting" && _id != '${Date.now()}'] | order(bettingKey desc)[0]`).then(async (lastBetting) => {
-                        newBettingKey = Number(lastBetting.bettingKey) + 1;
+                    await client.fetch(`count(*[_type == "betting" && _createdAt > '${Moment().format("yyyy-MM-DD")}' && _id != '${Date.now()}'])`).then(async (numOfBettingKeyByDay) => {
+                        newBettingKey = Number( Moment().format("yyyyMMDD") + String(numOfBettingKeyByDay + 1).padStart(8, '0') );
                     });
                 
                     // do approve

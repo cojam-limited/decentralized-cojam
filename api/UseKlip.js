@@ -13,8 +13,9 @@ const xChainId = '8217'; // prod
 
 const authorization = 'Basic S0FTSzFQTzJSR1RZNU5LTjJERktDVVhMOkFpd1NDeUN3Z2Q4Wkc5aUtqWXNXS3ZBam96UXZRN3BwRjhCLWZqcWU='; // prod
 
-const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // prod
-const cojamMarketAddress = '0x2078466926E4Af541DC47d954C487517bcE49c28' // prod
+// klip은 dev (baobab)가 없음 
+const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';  // prod
+const cojamMarketAddress = '0x2078466926E4Af541DC47d954C487517bcE49c28'; // prod
 
 export const kaikasLogin = async () => {
   try {
