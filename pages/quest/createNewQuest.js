@@ -240,8 +240,8 @@ const createNewQuest = async (modalValues, answers, walletData) => {
         quest['createdDateTime'] = Moment().format("yyyy-MM-DD HH:mm:ss");
         quest['endDateTime'] = modalValues.endDateTime;
 
-        await client.fetch(`*[_type == "quests"  && _id != '${Date.now()}'] | order(questKey desc)[0]`).then(async (lastQuest) => {
-            quest['questKey'] = lastQuest.questKey + 1;
+        await client.fetch(`count(*[_type == "quests"  && _createdAt > '${Moment().format("yyyy-MM-DD")}' && _id != '${Date.now()}'])`).then(async (numOfQuestByDay) => {
+            quest['questKey'] = Number( Moment().format("yyyyMMDD") + String(numOfQuestByDay + 1).padStart(8, '0') );
 
             // create new quest
             await client.create(quest).then(async (res) => {

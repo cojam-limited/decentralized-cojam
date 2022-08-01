@@ -41,8 +41,6 @@ function Index() {
 	const [ itemsToSend, setItemsToSend ] = useState([]);
 
   const action = (page, range, items) => {
-    console.log('items', items);
-
 		setItems(items);
 	};
 	// pagenation settings
@@ -97,6 +95,7 @@ function Index() {
         quest.startDateTime = Moment(quest.startDateTime).format('yyyy-MM-DD HH:mm:ss');
         quest.endDateTime = Moment(quest.endDateTime).format('yyyy-MM-DD HH:mm:ss');
 
+        // calculate quest, totalAmount, percent, allocations
         const questTotalAmount = quest.totalAmount;
         const answers = quest.answerIds;
 				answers.forEach((answer) => {
@@ -163,13 +162,11 @@ function Index() {
         quest.startDateTime = Moment(quest.startDateTime).format('yyyy-MM-DD HH:mm:ss');
         quest.endDateTime = Moment(quest.endDateTime).format('yyyy-MM-DD HH:mm:ss');
 
+        // calculate quest, totalAmount, percent, allocations
         const questTotalAmount = quest.totalAmount;
         const answers = quest.answerIds;
 				answers.forEach((answer) => {
 					const resultPercent = Number(answer.totalAmount) / (Number(questTotalAmount) || 1);
-
-          console.log('answer.totalAmount', answer.totalAmount);
-
 					const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
 					
           answerTotalAmounts[answer._id] = Number(answer.totalAmount);
@@ -194,6 +191,7 @@ function Index() {
      * Quest 리스트 & 데이터 조회
      */ 
 
+    // set season info
     const seasonInfoQuery = `*[_type == 'season' && isActive == true] {
       ...,
       'quests': *[_type == 'quests' && ^._id == season._ref && ^._id != '${Date.now()}'] 
@@ -284,8 +282,6 @@ function Index() {
                       } 
 
                       let isLogin = false;
-
-                      console.log('questList walletData', walletData);
 
                       await checkLogin(walletData).then((res) => {
                         isLogin = res;

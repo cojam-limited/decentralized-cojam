@@ -36,7 +36,6 @@ function Index(props) {
 	const { setQr, setQrModal, setMinutes, setSeconds } = useContext(QrContext);
 
 	const { balance, setBalance } = useContext(BalanceContext);
-	const [ onBetting, setOnBetting ] = useState(false);
 	const { setLoading } = useLoadingState();
 	const [ selectedAnswer, setSelectedAnswer ] = useState();
 	const { walletData, mutateWalletData } = useWalletData();
@@ -74,7 +73,7 @@ function Index(props) {
 				'transactionId': '',
 				'bettingStatus': '',
 				'questKey': quest?.questKey,
-				'questAnswerKey': questAnswerId[0], // TODO answer key
+				'questAnswerKey': questAnswerId[0],
 				'memberKey': walletData.account,
 				'receiveAddress': '',
 				'answerTitle': selectedAnswer,
@@ -95,12 +94,8 @@ function Index(props) {
 				setBalance(cojamBalance);
 			}
 
-			//setOnBetting(!betting);
-			// refresh after voting success.
 			window.location.reload();
 		} catch(error) {
-			console.log(error);
-
 			toastNotify({
 				state: 'error',
 				message: `Voting failed.`,
@@ -123,8 +118,6 @@ function Index(props) {
 				history.push('/');
 			}
 		});
-
-		window.scrollTo(0,0);
 	}, []);
 
 	useEffect(() => {
@@ -192,7 +185,7 @@ function Index(props) {
 		/**
 		 * Quest 리스트 & 데이터 조회
 		 */ 
-	}, [onBetting]);
+	}, []);
 
 	useEffect(() => {
 		if(!bettingCoin) {

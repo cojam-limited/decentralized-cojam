@@ -161,8 +161,6 @@ export const draftMarket_KLIP = async ({
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('draft market response', response);
-
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
@@ -239,8 +237,6 @@ export const approveMarket_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('approve market response', response);
-
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
@@ -317,8 +313,6 @@ export const adjournMarket_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('adjorun market response', response);
-
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
@@ -395,8 +389,6 @@ export const finishMarket_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('finish response', response);
-
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
@@ -476,8 +468,6 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('add answerKeys response', response);
-
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
@@ -556,8 +546,6 @@ export const retrieveMarket_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('retrieve response', response);
-
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
@@ -638,8 +626,6 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('success response', response);
-
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
@@ -695,8 +681,6 @@ export const bettingCojamURI_KLIP = async ({
   //const params = `["${questKey}","${questAnswerKey}","${bettingKey}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
   const params = `["2022071800000001","3974","${bettingKey}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
 
-  console.log('betting with klip', fromAddress, to, value, params);
-
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
@@ -732,8 +716,6 @@ export const bettingCojamURI_KLIP = async ({
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('betting response', response);
-
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
@@ -811,8 +793,6 @@ export const approveCojamURI_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('approve response', response);
-
                           if(response.data?.status === "completed") {
                               const status = response.data?.result.status;
                               if (status === "success") {
@@ -899,8 +879,6 @@ export const transferCojamURI_KLIP = async ({
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('transfer cojam token response', response);
-
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
@@ -979,8 +957,6 @@ export const transferOwnership_KLIP = async (
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
                        .then((response)=> {
-                          console.log('transfer ownership response', response);
-
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {

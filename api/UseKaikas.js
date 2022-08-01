@@ -100,7 +100,6 @@ export const transferOwnership = async (walletAddress) => {
   )
   .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('transfer owner', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
@@ -164,7 +163,6 @@ export const draftMarket = async ({
   )
   .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('draft', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
@@ -195,7 +193,6 @@ export const approveMarket = async (
   )
   .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('approve', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
@@ -226,7 +223,6 @@ export const adjournMarket = async (
   )
   .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('adjourn', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
@@ -257,8 +253,6 @@ export const finishMarket = async (
   )
   .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('finish recipt', receipt);
-
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
@@ -294,8 +288,6 @@ export const addAnswerKeys = async ({
     )
     .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
     .then(function(receipt) {
-      console.log('add answers recipt', receipt);
-
       result.transactionId = receipt.transactionHash;
       result.status = receipt.status ? 200 : 400;
     });
@@ -326,7 +318,6 @@ export const retrieveMarket = async ({
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('retrieve', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
@@ -363,7 +354,6 @@ export const successMarket = async ({
   )
   .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('success', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
@@ -398,7 +388,6 @@ export const getMarketCojamURI = async ({
   )
   .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('get market', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   })
@@ -446,7 +435,6 @@ export const bettingCojamURI = async ({
   )
   .send({from: klaytn.selectedAddress, value: 0, gas: '9000000'})
   .then(function(receipt) {
-    console.log('voting', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
@@ -484,7 +472,6 @@ export const approveCojamURI = async (
   )
   .send({from: klaytn.selectedAddress, value: 0, gas: '9000000'})
   .then(function(receipt) {
-    console.log('approve', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   })
@@ -535,7 +522,6 @@ export const getRewardCojamURI = async ({
 
   const result = { spenderAddress: fromAddress };
   await axios.request(options).then(function (response) {
-    console.log('reward', response);
     result.status = 200;
   }).catch(function (error) {
     console.error(error);
@@ -572,12 +558,10 @@ export const transferCojamURI = async ({
   )
   .send({from: fromAddress, value: 0, gas: '9000000'})
   .then(function(receipt) {
-    console.log('transfer receipt', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   })
   .catch(function(err) {
-    console.log('transfer err', err);
     result.status = 400;
   });
 
@@ -617,7 +601,6 @@ export const transferFromCojamURI = async ({
   )
   .call({from: klaytn.selectedAddress, value: 0, gas: '9000000'})
   .then(function(receipt) {
-    console.log('transfer from', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
@@ -653,7 +636,6 @@ export const receiveToken = async ({
   )
   .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('receive token', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
@@ -689,7 +671,6 @@ export const setAccounts = async ({
   )
   .send({from: klaytn.selectedAddress, to: cojamMarketAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('set account', receipt);
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });

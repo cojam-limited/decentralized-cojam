@@ -154,13 +154,11 @@ function Header() {
 						try {
 							transferRes = await transferCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
-              console.log(error);
-
-							//ignore
               toastNotify({
                 state: 'error',
                 message: 'transfer api error. try again.',
               });
+              
 							return;
 						}
 
@@ -195,8 +193,6 @@ function Header() {
 
 							await client.create(transactionSet);
 						}
-
-						console.log('transfer history complete');
 					});
 				}
 			});
@@ -254,8 +250,6 @@ function Header() {
 
   // login 에 따라 wallet, balance 상태 관리
   useEffect(() => {
-    console.log('wallet address changed', walletData, walletData.account);
-
     getBalance();
 
     if(walletData && walletData.account) {
