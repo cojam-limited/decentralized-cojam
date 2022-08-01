@@ -122,7 +122,6 @@ export const draftMarket_KLIP = async ({
                   "{\"name\":\"charityFeePercentage\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"draftMarket\"," +
-              //"\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}"
 
@@ -198,7 +197,6 @@ export const approveMarket_KLIP = async (
                   "{\"name\":\"marketKey\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"approveMarket\"," +
-              //"\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
@@ -274,7 +272,6 @@ export const adjournMarket_KLIP = async (
                   "{\"name\":\"marketKey\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"adjournMarket\"," +
-              //"\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   const params = `["${marketKey}"]`;
@@ -350,7 +347,6 @@ export const finishMarket_KLIP = async (
                   "{\"name\":\"marketKey\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"finishMarket\"," +
-              //"\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
@@ -429,7 +425,6 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
                   "{\"name\":\"answerKeys\",\"type\":\"uint256[]\"}" +
                 "]," +
               "\"name\":\"addAnswerKeys\"," +
-              //"\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
@@ -507,7 +502,6 @@ export const retrieveMarket_KLIP = async (
                   "{\"name\":\"marketKey\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"retrievedMarket\"," +
-              //"\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
@@ -587,7 +581,6 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
                   "{\"name\":\"selectedAnswerKey\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"successMarket\"," +
-              //"\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
@@ -751,7 +744,6 @@ export const approveCojamURI_KLIP = async (
   const txTo = cojamTokenAddress;
   const txAbi = "{\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"}]," +
               "\"name\":\"approve\"," +
-              //"\"outputs\":[{\"name\":\"result\",\"type\":\"bool\"}]," +
               "\"outputs\":[]," +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   const txValue = '0'
@@ -839,8 +831,6 @@ export const transferCojamURI_KLIP = async ({
                   "{\"name\":\"amount\",\"type\":\"uint256\"}" +
                 "]," +
               "\"name\":\"transfer\"," +
-              //"\"outputs\": [{\"name\":\"success\", \"type\":\"bool\"}], " +
-              //"\"outputs\": [{\"type\":\"bool\"}], " +
               "\"outputs\": [], " +
               "\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}";
   
@@ -917,7 +907,6 @@ export const transferOwnership_KLIP = async (
                   "{\"name\":\"newOwner\",\"type\":\"address\"}" +
                 "]," +
               "\"name\":\"transferOwnership\"," +
-              //"\"outputs\": [{\"name\":\"result\",\"type\":\"bool\"}], " +
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
   
