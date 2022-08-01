@@ -123,6 +123,8 @@ function Index(props) {
 				history.push('/');
 			}
 		});
+
+		window.scrollTo(0,0);
 	}, []);
 
 	useEffect(() => {
