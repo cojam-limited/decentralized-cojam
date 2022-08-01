@@ -696,7 +696,7 @@ export const bettingCojamURI_KLIP = async ({
 
   // const params = `[${questKey},${questAnswerKey},${bettingKey},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
   // const params = `["QT2022071800000001",3974,${BigInt(Number.MAX_SAFE_INTEGER)},${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}]`;
-  const params = `["2022071800000001","3974","${BigInt(Number.MAX_SAFE_INTEGER-1)}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
+  const params = `["2022071800000001","3974","${BigInt(Number.MAX_SAFE_INTEGER-2)}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
 
   console.log('betting with klip', fromAddress, to, value, params);
 
