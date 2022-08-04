@@ -40,7 +40,7 @@ function Index(props) {
 	const [ selectedAnswer, setSelectedAnswer ] = useState();
 	const { walletData, mutateWalletData } = useWalletData();
 
-	const [ questId ] = useState(props.location.state.questId);
+	const [ questId ] = useState(props?.location?.state?.questId);
 	const [ quest, setQuest ] = useState();
 	const [ questTotalAmount, setQuestTotalAmount ] = useState();
 	const [ answerTotalAmounts, setAnswerTotalAmounts ] = useState({});
