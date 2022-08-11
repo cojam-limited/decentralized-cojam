@@ -658,7 +658,6 @@ export const bettingCojamURI_KLIP = async ({
   fromAddress, setQr, setQrModal, setMinutes, setSeconds
 ) => {
   const bappName = 'cojam-v2';
-  //const from = fromAddress;
   const to = cojamMarketAddress;
   const value = '0'
   const abi = "{\"inputs\":"+
