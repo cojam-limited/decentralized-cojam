@@ -672,8 +672,8 @@ export const bettingCojamURI_KLIP = async ({
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
-  //const params = `["${questKey}","${questAnswerKey}","${bettingKey}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
-  const params = `["2022071800000001","3974","${bettingKey}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
+  const params = `["${questKey}","${questAnswerKey}","${bettingKey}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
+  //const params = `["2022071800000001","3974","${bettingKey}","${caver.utils.toPeb(Number(bettingCoinAmount), 'KLAY')}"]`;
 
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
