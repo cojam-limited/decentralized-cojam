@@ -124,7 +124,7 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                             // do betting 
                             await callBettingCojamURI({
                                     questKey: betting.questKey, 
-                                    questAnswerKey: betting.questAnswerKey.order,
+                                    questAnswerKey: betting.questAnswerKey,
                                     bettingKey: newBettingKey, 
                                     bettingCoinAmount: betting.bettingCoin,
                                 }, walletData, setQr, setQrModal, setMinutes, setSeconds
