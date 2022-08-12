@@ -418,6 +418,8 @@ export const addAnswerKeys_KLIP = async ({
 }, 
 fromAddress, setQr, setQrModal, setMinutes, setSeconds
 ) => {
+  console.log('add answerkeys', marketKey, answerKeys);
+
   const bappName = 'cojam-v2';
   const from = fromAddress;
   const to = cojamMarketAddress;
@@ -432,7 +434,7 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
 
-  const params = `["${marketKey}","${answerKeys}"]`;
+  const params = `["${marketKey}",${JSON.stringify(answerKeys)}]`;
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
