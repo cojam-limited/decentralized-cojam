@@ -909,7 +909,7 @@ export const transferOwnership_KLIP = async (
   const value = '0'
   const abi = "{\"inputs\":"+
                 "[" +
-                  "{\"name\":\"newOwner\",\"type\":\"address\"}," +
+                  "{\"name\":\"newOwner\",\"type\":\"address\"}" +
                 "]," +
               "\"name\":\"transferOwnership\"," +
               "\"outputs\": [], " +
@@ -920,7 +920,7 @@ export const transferOwnership_KLIP = async (
   const result = { spenderAddress: walletAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
-        bapp: { name: bappName},
+        bapp: { name: bappName },
         transaction: {
             to: to,
             abi: abi,
@@ -945,7 +945,7 @@ export const transferOwnership_KLIP = async (
             message: '모바일 환경에서 실행해주세요',
           }));
         }
-        
+      
         let time = new Date().getTime();
         const endTime = time + 60000;
         while (time < endTime) {
@@ -969,8 +969,8 @@ export const transferOwnership_KLIP = async (
           time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
-        alert(error);
-  });
+        console.log(error);
+    });
 
   return result;
 }

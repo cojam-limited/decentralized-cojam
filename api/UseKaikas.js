@@ -96,7 +96,7 @@ export const transferOwnership = async (walletAddress) => {
   const contractAddress = cojamMarketAddress;
   const contract = new caver.klay.Contract(contractABI, contractAddress)
 
-  let result = { spenderAddress: contractAddress, status: 400 };
+  let result = { spenderAddress: walletAddress, status: 400 };
   await contract.methods.transferOwnership(
     walletAddress
   )
