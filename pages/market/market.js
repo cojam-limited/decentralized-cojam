@@ -290,7 +290,7 @@ function Index() {
 				if(admins) {
 					let isAdmin = false;
 					admins.forEach((admin) => {
-						if(admin.walletAddress === walletAddress) {
+						if(admin.walletAddress?.toUpperCase() === walletAddress?.toUpperCase()) {
 							isAdmin = true;
 						}
 					});
