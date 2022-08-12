@@ -164,6 +164,7 @@ export const draftMarket_KLIP = async ({
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
                                 result.status = 200;
                               }
 
@@ -239,6 +240,7 @@ export const approveMarket_KLIP = async (
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
                                 result.status = 200;
                               }
 
@@ -314,6 +316,7 @@ export const adjournMarket_KLIP = async (
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
                                 result.status = 200;
                               }
 
@@ -389,6 +392,7 @@ export const finishMarket_KLIP = async (
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
                                 result.status = 200;
                               }
 
@@ -467,6 +471,7 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
                                 result.status = 200;
                               }
 
@@ -544,6 +549,7 @@ export const retrieveMarket_KLIP = async (
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
                                 result.status = 200;
                               }
 
@@ -623,6 +629,7 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
                                 result.status = 200;
                               }
 
@@ -712,6 +719,7 @@ export const bettingCojamURI_KLIP = async ({
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
                                 result.status = 200;
                               }
 
@@ -788,7 +796,8 @@ export const approveCojamURI_KLIP = async (
                           if(response.data?.status === "completed") {
                               const status = response.data?.result.status;
                               if (status === "success") {
-                                  result.status = 200;
+                                result.transactionId = response.data.result.tx_hash;
+                                result.status = 200;
                               }
 
                               setQrModal(false); 
@@ -872,6 +881,7 @@ export const transferCojamURI_KLIP = async ({
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
                                 result.status = 200;
                               }
 
@@ -949,6 +959,7 @@ export const transferOwnership_KLIP = async (
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
                                 result.status = 200;
                               }
 
