@@ -274,7 +274,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                 if(answers) {
                     // get increment by day
                     await client.fetch(`count(*[_type == "questAnswerList" && _createdAt > '${Moment().format("yyyy-MM-DD")}' && _id != '${Date.now()}'])`).then((numOfAnswerByDay) => {
-                        order = Number( Moment().format("yyyyMMDD") + String(numOfAnswerByDay + 1).padStart(8, '0') );
+                        let order = Number( Moment().format("yyyyMMDD") + String(numOfAnswerByDay + 1).padStart(8, '0') );
 
                         // create new quest answer
                         answers.forEach(async (answer, index) => {

@@ -50,7 +50,7 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                     return;
                 }
 
-                betting.questAnswerKey.order = answer.questAnswerKey;
+                betting.questAnswerKey = answer.questAnswerKey;
 
                 const walletAddress = walletData.account;
 
