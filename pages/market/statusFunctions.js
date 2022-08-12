@@ -179,17 +179,17 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                           answerTx: addAnswerRes.transactionId,
                           answerDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                           updateMember: walletData.account
-                        })
+                        })  
                       .commit();
 
                 toastNotify({
                     state: 'success',
-                    message: 'Answer success',
+                    message: 'Add answer key success',
                 });
             } else {
                 toastNotify({
                     state: 'error',
-                    message: "Answer fail.",
+                    message: "Add answer key failed",
                 });
                 return;
             }

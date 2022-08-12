@@ -252,6 +252,8 @@ function Header() {
   useEffect(() => {
     getBalance();
 
+    console.log('wallet data', walletData);
+
     if(walletData && walletData.account) {
       // admin check
       const adminQuery = `*[_type == 'admin' && walletAddress == '${walletData.account.toLowerCase()}' && _id != '${Date.now()}'][0]`;

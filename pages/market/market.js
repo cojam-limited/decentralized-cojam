@@ -14,7 +14,7 @@ import { useLoadingState } from "@assets/context/LoadingContext";
 import { changeStateFunction } from './statusFunctions';
 import { QrContext } from '../../components/Context/QrContext';
 
-import { transferOwnership } from '@api/UseKaikas';
+import { callTransferOwnership } from '@api/UseTransactions';
 import { checkLogin } from "@api/UseTransactions";
 
 import Moment from 'moment';
@@ -112,7 +112,8 @@ function Index() {
 				return;
 			}
 
-			const result = await transferOwnership(walletAddress);
+			//const result = await callTransferOwnership(walletAddress, setQr, setQrModal, setMinutes, setSeconds);
+			const result = await callTransferOwnership(walletData, setQr, setQrModal, setMinutes, setSeconds);
 
 			if(result.status === 200) {
 				await client.patch(activeAdmin._id)

@@ -902,12 +902,11 @@ export const transferCojamURI_KLIP = async ({
 }
 
 export const transferOwnership_KLIP = async (
-  walletAddress,
-  fromAddress,
+  walletData,
   setQr, setQrModal, setMinutes, setSeconds
 ) => {
+  const walletAddress = walletData?.account;
   const bappName = 'cojam-v2';
-  const from = fromAddress;
   const to = cojamTokenAddress;
   const value = '0'
   const abi = "{\"constant\":false, " + 
@@ -921,7 +920,7 @@ export const transferOwnership_KLIP = async (
   
   const params = `["${walletAddress}"]`;
 
-  const result = { spenderAddress: fromAddress, status: 400 };
+  const result = { spenderAddress: walletAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
         bapp: { name: bappName},
