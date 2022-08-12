@@ -909,8 +909,7 @@ export const transferOwnership_KLIP = async (
   const bappName = 'cojam-v2';
   const to = cojamTokenAddress;
   const value = '0'
-  const abi = "{\"constant\":false, " + 
-              "\"inputs\":"+
+  const abi = "{\"inputs\":"+
                 "[" +
                   "{\"name\":\"newOwner\",\"type\":\"address\"}" +
                 "]," +

@@ -45,7 +45,7 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
     ) => {
         let result;
         if(walletData?.type === 'kaikas') {
-            await transferOwnership(walletData).then(res => result = res);
+            await transferOwnership(walletData.account).then(res => result = res);
         } else {
             await transferOwnership_KLIP(walletData, setQr, setQrModal, setMinutes, setSeconds).then(res => result = res);
         }
