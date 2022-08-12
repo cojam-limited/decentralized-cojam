@@ -5,13 +5,15 @@ import toastNotify from '@utils/toast';
 import axios from 'axios';
 
 const caver = new Caver(window.klaytn);
-const caverExt = new CaverExtKAS('1001', 'KASKABM99U30BTVDXCYDMQQF', 'P6vSKCjKxYuXdpp7e1H7JJjQNVvjwr46FYdcZhdm', { useNodeAPIWithHttp: true });
 
-//const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // prod
-const cojamTokenAddress = "0xd6cdab407f47afaa8800af5006061db8dc92aae7";   // dev
+// baobab: 1001, cypress: 8217
+const caverExt = new CaverExtKAS('8217', 'KASKABM99U30BTVDXCYDMQQF', 'P6vSKCjKxYuXdpp7e1H7JJjQNVvjwr46FYdcZhdm', { useNodeAPIWithHttp: true });
 
-//const cojamMarketAddress = '0x2078466926E4Af541DC47d954C487517bcE49c28' // prod
-const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // dev
+const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';   // prod
+//const cojamTokenAddress = "0xd6cdab407f47afaa8800af5006061db8dc92aae7";   // dev
+
+const cojamMarketAddress = '0x2078466926E4Af541DC47d954C487517bcE49c28' // prod
+//const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // dev
 
 // cojam token address ?
 const cojamToken = new caver.kct.kip7(cojamTokenAddress);
@@ -570,7 +572,6 @@ export const transferCojamURI = async ({
 
 /**
  * Cojam Token transferFrom function 
- */
 export const transferFromCojamURI = async ({
   fromAddress, toAddress, amount
 }) => {
@@ -607,6 +608,7 @@ export const transferFromCojamURI = async ({
 
   return result;
 }
+ */
 
 export const receiveToken = async ({
   questKey,
