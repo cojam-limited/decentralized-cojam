@@ -905,16 +905,16 @@ export const transferOwnership_KLIP = async (
   setQr, setQrModal, setMinutes, setSeconds
 ) => {
   const bappName = 'cojam-v2';
-  const to = cojamTokenAddress;
+  const to = cojamMarketAddress;
   const value = '0'
   const abi = "{\"inputs\":"+
                 "[" +
-                  "{\"name\":\"newOwner\",\"type\":\"address\"}" +
+                  "{\"name\":\"newOwner\",\"type\":\"address\"}," +
                 "]," +
               "\"name\":\"transferOwnership\"," +
               "\"outputs\": [], " +
               "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
-  
+
   const params = `["${walletAddress}"]`;
 
   const result = { spenderAddress: walletAddress, status: 400 };
