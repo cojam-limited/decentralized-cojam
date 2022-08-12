@@ -113,7 +113,7 @@ function Index() {
 			}
 
 			//const result = await callTransferOwnership(walletAddress, setQr, setQrModal, setMinutes, setSeconds);
-			const result = await callTransferOwnership(walletData, setQr, setQrModal, setMinutes, setSeconds);
+			const result = await callTransferOwnership(walletAddress, setQr, setQrModal, setMinutes, setSeconds);
 
 			if(result.status === 200) {
 				await client.patch(activeAdmin._id)

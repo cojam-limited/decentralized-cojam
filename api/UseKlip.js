@@ -832,8 +832,7 @@ export const transferCojamURI_KLIP = async ({
   const from = walletAddress;
   const to = cojamTokenAddress;
   const value = '0'
-  const abi = "{\"constant\":false, " + 
-              "\"inputs\":" +
+  const abi = "{\"inputs\":" +
                 "[" +
                   "{\"name\":\"to\",\"type\":\"address\"}," +
                   "{\"name\":\"amount\",\"type\":\"uint256\"}" +
@@ -902,10 +901,9 @@ export const transferCojamURI_KLIP = async ({
 }
 
 export const transferOwnership_KLIP = async (
-  walletData,
+  walletAddress,
   setQr, setQrModal, setMinutes, setSeconds
 ) => {
-  const walletAddress = walletData?.account;
   const bappName = 'cojam-v2';
   const to = cojamTokenAddress;
   const value = '0'
@@ -971,7 +969,7 @@ export const transferOwnership_KLIP = async (
           time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
     }).catch((error) => {
-        console.log(error);
+        alert(error);
   });
 
   return result;
