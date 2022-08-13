@@ -112,7 +112,7 @@ function Index() {
 				return;
 			}
 
-			const result = await callTransferOwnership(walletData, setQr, setQrModal, setMinutes, setSeconds);
+			const result = await callTransferOwnership(walletData, walletAddress, setQr, setQrModal, setMinutes, setSeconds);
 
 			if(result.status === 200) {
 				await client.patch(activeAdmin._id)
@@ -782,7 +782,7 @@ function Index() {
 											toastNotify({
 												state: 'error',
 												message: 'select member for grant'
-											})
+											});
 											return;
 										}
 
