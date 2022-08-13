@@ -212,7 +212,7 @@ function Index() {
 					const cojam_ct = quest?.totalAmount * quest?.cojamFee / 100;
 					const creator_ct = quest?.totalAmount * quest?.creatorFee / 100 + quest?.creatorPay;
 					const charity_ct = quest?.totalAmount * quest?.charityFee / 100;
-					const real_total_ct = quest?.totalAmount - cojam_ct - creator_ct - charity_ct;
+					//const real_total_ct = quest?.totalAmount - cojam_ct - creator_ct - charity_ct;
 					
 					//const magnification = real_total_ct / rewardObj.bettingCoin * 100;
 					const multiply = quest.questStatus === 'ADJOURN' ? 
@@ -223,8 +223,8 @@ function Index() {
 											- (quest.totalAmount * quest.charityFee / 100)) / rewardObj.bettingCoin).toFixed(2);
 
 					const predictionFee = quest.questStatus === 'ADJOURN' ? 
-											votingData.bettingCoin
-										:	(multiply * votingData.bettingCoin).toFixed(2);
+											rewardObj.bettingCoin
+										:	(multiply * rewardObj.bettingCoin).toFixed(2);
 
 					memberRewardArr.push({ title: rewardObj.title, walletAddress: memberAddress, predictionFee: predictionFee, multiply: multiply });
 				}
