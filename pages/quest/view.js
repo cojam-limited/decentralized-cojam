@@ -88,8 +88,8 @@ function Index(props) {
 				state: betResult.result ? 'success' : 'error',
 				message: `${betResult.message}`,
 			});
-
-			if(betResult.result === 'success') {
+			
+			if(betResult.result) {
 				const cojamBalance = await callGetCojamBalance(walletData);
 				if(cojamBalance !== balance) {
 					setBalance(cojamBalance);
