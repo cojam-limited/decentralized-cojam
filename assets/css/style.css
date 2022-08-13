@@ -31,8 +31,8 @@ table {border-collapse: collapse; border-spacing: 0;}
 /* 사이트 기본구성 */
 html {height:100%;}
 body {height:100%; word-break:keep-all;}
-body,input,textarea,select,button {font-family:'Montserrat', 'Malgun Gothic', '맑은 고딕', '돋움', 'Tahoma'; font-weight:normal; font-size:13px; line-height:20px; color:#777;}
-table,th,h1,h2,h3,h4,h5,h6 {font-size:13px; font-weight:normal;}
+body,input,textarea,select,button {font-family:'Montserrat', 'Malgun Gothic', '맑은 고딕', '돋움', 'Tahoma'; font-weight:normal; font-family: "Poppins-Black"; font-size:13px; line-height:20px; color:#777;}
+table,th,h1,h2,h3,h4,h5,h6 {font-family: "Poppins-Black"; font-size:13px; font-weight:normal;}
 legend, caption {display:none;}
 img,input,select,textarea {vertical-align:middle; box-sizing: border-box;}
 a {text-decoration:none; color:#777; transition:all 0.3s;}
@@ -100,14 +100,14 @@ html {
 .header > dl > dt {display:flex; align-items:center;}
 .header > dl > dt > h2 {padding:0 50px 0 0;}
 .header > dl > dt > div {padding:20px 0; transition:all 0.3s;}
-.header > dl > dt > div > a {display:inline-block; padding:13px 25px; font-weight:600; font-size:14px; line-height:14px; color:#fff;}
+.header > dl > dt > div > a {display:inline-block; padding:13px 25px; font-weight:600; font-family: "Poppins-Black"; font-size:14px; line-height:14px; color:#fff;}
 .header > dl > dt > div > a:hover {border-radius:3px; background:rgba(255,255,255,0.2);}
 .header > dl > dt > div > a.active {border-radius:3px; background:rgba(255,255,255,0.2);}
 .header > dl > dd {display:flex; align-items:center;}
-.header > dl > dd > h2 {font-size:13px; line-height:13px; color:#fff; transition:all 0.3s;}
-.header > dl > dd > h2 > span {font-weight:600; transition:all 0.3s;}
+.header > dl > dd > h2 {font-family: "Poppins-Black"; font-size:13px; line-height:13px; color:#fff; transition:all 0.3s;}
+.header > dl > dd > h2 > span {font-weight:600; font-family: "Poppins-Black"; transition:all 0.3s;}
 .header > dl > dd > div {margin-left:20px;}
-.header > dl > dd > div > a {display:inline-block; margin-left:5px; padding:7px 15px; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:rgba(255,255,255,0.2);}
+.header > dl > dd > div > a {display:inline-block; margin-left:5px; padding:7px 15px; font-family: "Poppins-Black"; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:rgba(255,255,255,0.2);}
 .header > dl > dd > div > a:hover {color:#222; background:#fff;}
 
 @media all and (max-width:479px) {
@@ -128,7 +128,7 @@ html {
 
 
 /* 하단영역 */
-.footer {width:100%; margin:0 auto; padding:30px 0; text-align:center; font-size:13px; color:#aaa; border-top:#e5e5e5 1px solid; background:#fff; overflow:hidden;}
+.footer {width:100%; margin:0 auto; padding:30px 0; text-align:center; font-family: "Poppins-Black"; font-size:13px; color:#aaa; border-top:#e5e5e5 1px solid; background:#fff; overflow:hidden;}
 .footer span {font-weight:700; color:#222;}
 
 @media all and (max-width:479px) {
@@ -154,9 +154,9 @@ html {
 .header-mobile > dl > dt {width:50%;}
 .header-mobile > dl > dt img {height:25px;}
 .header-mobile > dl > dd {width:50%; text-align:right;}
-.header-mobile > dl > dd a {margin-left:3px; font-size:26px; color:#222;}
+.header-mobile > dl > dd a {margin-left:3px; font-family: "Poppins-Black"; font-size:26px; color:#222;}
 .header-mobile > ul {display:flex; justify-content:space-between; align-items:center; padding:8px 20px; background:rgba(0,0,0,0.6); overflow:hidden;}
-.header-mobile > ul > li {font-size:13px; line-height:13px; color:#fff;}
+.header-mobile > ul > li {font-family: "Poppins-Black"; font-size:13px; line-height:13px; color:#fff;}
 
 @media all and (max-width:479px) {
   .header-mobile {display:block;}
@@ -179,8 +179,8 @@ html {
 .footer-mobile {position:fixed; bottom:0px; width:100%; box-shadow:0 0 10px 0 rgba(0,0,0,0.1); background:#fff; z-index:999;}
 .footer-mobile > ul {width:100%; overflow:hidden;}
 .footer-mobile > ul > li {float:left; width:20%; padding:8px 0; text-align:center; cursor:pointer;}
-.footer-mobile > ul > li p {font-size:22px; color:#222;}
-.footer-mobile > ul > li div {padding-top:4px; font-size:11px; line-height:11px; color:#777;}
+.footer-mobile > ul > li p {font-family: "Poppins-Black"; font-size:22px; color:#222;}
+.footer-mobile > ul > li div {padding-top:4px; font-family: "Poppins-Black"; font-size:11px; line-height:11px; color:#777;}
 .footer-mobile > ul > li.active p {color:#ef168f;}
 .footer-mobile > ul > li.active div {color:#ef168f;}
 
@@ -352,6 +352,7 @@ html {
 
 .klip-with-qr-modal .gen-modal-title label {
   font-size: 16px;
+  font-family: "Poppins-Black";
 }
 
 .klip-with-qr-modal .klip-with-qr-modal__notice .klip-with-qr-modal__notice__flow__icon {
@@ -370,12 +371,14 @@ html {
 
 .klip-with-qr-modal .klip-with-qr-modal__notice .klip-with-qr-modal__notice__warning {
   font-size: 12px;
+  font-family: "Poppins-Black";
   color: #666;
   margin-top: 25px;
 }
 
 .klip-with-qr-modal .klip-with-qr-modal__body .klip-with-qr-modal__code .klip-with-qr-modal__code__timer p {
   font-size: 12px;
+  font-family: "Poppins-Black";
   color: #999;
 }
 
@@ -405,28 +408,28 @@ html {
 
 
 /* 버튼 ////////////////////////////////////////////////////////////////////////// */
-.btn-blue {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#6993ff; transition: 0.3s;}
+.btn-blue {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-family: "Poppins-Black"; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#6993ff; transition: 0.3s;}
 .btn-blue:hover {color:#fff; box-shadow:inset 0 0 8px rgba(0,0,0,0.4);}
 
-.btn-green {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#1bc5bd; transition: 0.3s;}
+.btn-green {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-family: "Poppins-Black"; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#1bc5bd; transition: 0.3s;}
 .btn-green:hover {color:#fff; box-shadow:inset 0 0 8px rgba(0,0,0,0.4);}
 
-.btn-red {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#ef168f; transition: 0.3s;}
+.btn-red {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-family: "Poppins-Black"; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#ef168f; transition: 0.3s;}
 .btn-red:hover {color:#fff; box-shadow:inset 0 0 8px rgba(0,0,0,0.4);}
 
-.btn-orange {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#ffa800; transition: 0.3s;}
+.btn-orange {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-family: "Poppins-Black"; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#ffa800; transition: 0.3s;}
 .btn-orange:hover {color:#fff; box-shadow:inset 0 0 8px rgba(0,0,0,0.4);}
 
-.btn-purple {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#8950fc; transition: 0.3s;}
+.btn-purple {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-family: "Poppins-Black"; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#8950fc; transition: 0.3s;}
 .btn-purple:hover {color:#fff; box-shadow:inset 0 0 8px rgba(0,0,0,0.4);}
 
-.btn-grey {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-size:13px; line-height:13px; color:#222; border-radius:3px; background:#e4e6ef; transition: 0.3s;}
+.btn-grey {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-family: "Poppins-Black"; font-size:13px; line-height:13px; color:#222; border-radius:3px; background:#e4e6ef; transition: 0.3s;}
 .btn-grey:hover {color:#222; box-shadow:inset 0 0 8px rgba(0,0,0,0.4);}
 
-.btn-dark {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#181c32; transition: 0.3s;}
+.btn-dark {display:inline-block; height:38px; padding:12px 12px 0 12px; text-align:center; font-family: "Poppins-Black"; font-size:13px; line-height:13px; color:#fff; border-radius:3px; background:#181c32; transition: 0.3s;}
 .btn-dark:hover {color:#fff; box-shadow:inset 0 0 8px rgba(0,0,0,0.4);}
 
-.btn-more {display:inline-block; padding:12px 40px; text-align:center; vertical-align:middle; font-size:14px; line-height:14px; color:#333; letter-spacing:-1px; border:#e5e5e5 3px solid; transition: 0.3s;}
+.btn-more {display:inline-block; padding:12px 40px; text-align:center; vertical-align:middle; font-family: "Poppins-Black"; font-size:14px; line-height:14px; color:#333; letter-spacing:-1px; border:#e5e5e5 3px solid; transition: 0.3s;}
 .btn-more:hover {color:#fff; background:#333;}
 
 
@@ -692,12 +695,12 @@ html {
 .pl50 {padding-left:50px !important;}
 
 /* 폰트사이즈 */
-.font11 {font-size:11px !important;}
-.font12 {font-size:12px !important;}
-.font14 {font-size:14px !important;}
-.font16 {font-size:16px !important;}
-.font18 {font-size:18px !important;}
-.font20 {font-size:20px !important;}
+.font11 {font-family: "Poppins-Black"; font-size:11px !important;}
+.font12 {font-family: "Poppins-Black"; font-size:12px !important;}
+.font14 {font-family: "Poppins-Black"; font-size:14px !important;}
+.font16 {font-family: "Poppins-Black"; font-size:16px !important;}
+.font18 {font-family: "Poppins-Black"; font-size:18px !important;}
+.font20 {font-family: "Poppins-Black"; font-size:20px !important;}
 
 /* 폰트색상 */
 .fontColor-blue {color:#007bff !important;}
