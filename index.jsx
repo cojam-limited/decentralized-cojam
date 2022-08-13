@@ -7,6 +7,7 @@ import { BalanceProvider } from './components/Context/BalanceContext';
 import { QrProvider } from './components/Context/QrContext';
 
 import './assets/css/style.css'
+import './assets/css/default.css'
 
 const App = () => {
   const { walletData, mutateWalletData } = useWalletData();
