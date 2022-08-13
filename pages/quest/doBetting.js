@@ -52,9 +52,6 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                     return;
                 }
 
-                console.log('questAnswerKeyId', questAnswerKeyId);
-                debugger;
-
                 const walletAddress = walletData.account;
 
                 if(detail.finishTx) {
