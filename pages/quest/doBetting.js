@@ -224,7 +224,7 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                         } else {
                             result =  {
                                 result: false,
-                                message: 'Approve failed'
+                                message: 'Voting approve failed'
                             };
                         }
                     });
