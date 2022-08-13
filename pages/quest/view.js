@@ -66,6 +66,8 @@ function Index(props) {
 		try {
 			const questAnswerId = quest.answerIds.filter((answerId) => answerId.title === selectedAnswer);
 
+			console.log('questAnswerId[0]', questAnswerId[0]);
+
 			let curBalance = await callGetCojamBalance(walletData);
 			const betting = {
 				'bettingCoin': Number(bettingCoin),

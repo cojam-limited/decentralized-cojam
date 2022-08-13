@@ -50,7 +50,8 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                     return;
                 }
 
-                betting.questAnswerKey = answer.questAnswerKey;
+                console.log('answer.questAnswerKey', answer.questAnswerKey);
+                //betting.questAnswerKey = answer.questAnswerKey;
 
                 const walletAddress = walletData.account;
 
@@ -124,7 +125,7 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                             // do betting 
                             await callBettingCojamURI({
                                     questKey: betting.questKey, 
-                                    questAnswerKey: betting.questAnswerKey,
+                                    questAnswerKey: answer.questAnswerKey,
                                     bettingKey: newBettingKey, 
                                     bettingCoinAmount: betting.bettingCoin,
                                 }, walletData, setQr, setQrModal, setMinutes, setSeconds
