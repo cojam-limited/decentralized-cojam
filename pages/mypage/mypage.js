@@ -43,7 +43,7 @@ function Index() {
 		const walletAddress = walletData.account;
 		const votingArr = [];
 
-		const votingQuery = `*[_type == 'betting' && memberKey == '${String(walletAddress).toUpperCase()}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey && ^._id != '${Date.now()}'][0] {title, totalAmount} } | order(_createdAt desc)`;
+		const votingQuery = `*[_type == 'betting' && memberKey == '${String(walletAddress).toLowerCase()}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey && ^._id != '${Date.now()}'][0] {title, totalAmount} } | order(_createdAt desc)`;
 		await client.fetch(votingQuery).then(async (votingDatas) => {
 			votingDatas.forEach(async (votingData) => {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey} && _id != '${Date.now()}'][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;

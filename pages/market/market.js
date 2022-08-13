@@ -81,7 +81,7 @@ function Index() {
 		}
 
 		const walletAddress = walletData?.account;
-		if(activeAdmin?.walletAddress.toUpperCase() !== walletAddress?.toUpperCase()) {
+		if(activeAdmin?.walletAddress.toLowerCase() !== walletAddress?.toLowerCase()) {
 			toastNotify({
 				state: 'error',
 				message: 'you need a contract ownership',
@@ -278,7 +278,7 @@ function Index() {
 		}
 		
 		if(walletAddress) {
-			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
+			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toLowerCase()}'`}`;
 			const questQuery = `*[_type == 'quests' && _id != '${Date.now()}' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
 			client.fetch(questQuery).then((quest) => {
 				setTransactionDatas(quest ?? []);
@@ -291,7 +291,7 @@ function Index() {
 				if(admins) {
 					let isAdmin = false;
 					admins.forEach((admin) => {
-						if(admin.walletAddress?.toUpperCase() === walletAddress?.toUpperCase()) {
+						if(admin.walletAddress?.toLowerCase() === walletAddress?.toLowerCase()) {
 							isAdmin = true;
 						}
 					});
@@ -627,7 +627,7 @@ function Index() {
 												}
 												
 												const walletAddress = walletData.account;
-												if(activeAdmin.walletAddress.toUpperCase() !== walletAddress.toUpperCase()) {
+												if(activeAdmin.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
 													toastNotify({
 														state: 'error',
 														message: 'you need a contract ownership',
@@ -678,7 +678,7 @@ function Index() {
 												}
 
 												const walletAddress = walletData.account;
-												if(activeAdmin.walletAddress.toUpperCase() !== walletAddress.toUpperCase()) {
+												if(activeAdmin.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
 													toastNotify({
 														state: 'error',
 														message: 'you need a contract ownership',
@@ -729,7 +729,7 @@ function Index() {
 												}
 
 												const walletAddress = walletData.account;
-												if(activeAdmin.walletAddress.toUpperCase() !== walletAddress.toUpperCase()) {
+												if(activeAdmin.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
 													toastNotify({
 														state: 'error',
 														message: 'you need a contract ownership',

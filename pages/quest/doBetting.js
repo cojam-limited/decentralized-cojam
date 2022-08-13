@@ -80,7 +80,7 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                 
                 // memberKey == walletAddress
                 const member = {
-                    memberKey: String(walletAddress).toUpperCase(),
+                    memberKey: String(walletAddress).toLowerCase(),
                 }
                 
                 const memberQuery = `*[_type == 'member' && _id != '${Date.now()}' && _id == '${member.memberKey}']`;
@@ -151,7 +151,7 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                                         bettingStatus: 'ONGOING',
                                         questKey: betting.questKey,
                                         questAnswerKey: questAnswerKeyId,
-                                        memberKey: String(member.memberKey).toUpperCase(),
+                                        memberKey: String(member.memberKey).toLowerCase(),
                                         receiveAddress: '',
                                         answerTitle: betting.answerTitle,
                                         createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),

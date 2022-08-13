@@ -129,7 +129,7 @@ function Header() {
 		const walletAddress = walletData.account;
 
 		if(walletAddress) {
-			const joinRewardHistQuery = `*[_type == 'joinRewardHistory' && walletAddress == '${walletAddress.toUpperCase()}' && _id != '${Date.now()}'][0]`;
+			const joinRewardHistQuery = `*[_type == 'joinRewardHistory' && walletAddress == '${walletAddress.toLowerCase()}' && _id != '${Date.now()}'][0]`;
 			client.fetch(joinRewardHistQuery).then((joinRewardHistory) => {
 			
 				if(!joinRewardHistory) {
@@ -148,7 +148,7 @@ function Header() {
             //const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // KAS reward wallet
             const rewardAddress = '0x62CF255C71D23EbC116B47bFC9801A167536136C'; // KAS reward wallet
 						try {
-							transferRes = await transferCojamURI({fromAddress: rewardAddress, toAddress: walletAddress.toUpperCase(), amount: Number(rewardInfo.amount)});
+							transferRes = await transferCojamURI({fromAddress: rewardAddress, toAddress: walletAddress.toLowerCase(), amount: Number(rewardInfo.amount)});
 						} catch(error) {
               toastNotify({
                 state: 'error',
@@ -162,7 +162,7 @@ function Header() {
 							// remain transfer history
 							const joinRewardHistoryDoc = {
 								_type: 'joinRewardHistory',
-								walletAddress: walletAddress.toUpperCase(),
+								walletAddress: walletAddress.toLowerCase(),
 								rewardAmount: Number(rewardInfo.amount),
 								transactionId: transferRes.transactionId,
 								createDatedTime: Moment().format("yyyy-MM-DD HH:mm:ss")
@@ -179,7 +179,7 @@ function Header() {
 							const transactionSet = {
 								_type: 'transactions',
 								amount: Number(rewardInfo.amount),
-								recipientAddress: walletAddress.toUpperCase(),
+								recipientAddress: walletAddress.toLowerCase(),
 								spenderAddress: rewardAddress,
 								status: 'SUCCESS',
 								transactionId: transferRes.transactionId,
@@ -251,16 +251,21 @@ function Header() {
     console.log('wallet data', walletData);
 
     if(walletData && walletData.account) {
+      console.log('is admin ? ', walletData.account.toLowerCase());
+
       // admin check
-      const adminQuery = `*[_type == 'admin' && walletAddress == '${walletData.account.toUpperCase()}' && _id != '${Date.now()}'][0]`;
+      const adminQuery = `*[_type == 'admin' && walletAddress == '${walletData.account.toLowerCase()}' && _id != '${Date.now()}'][0]`;
       client.fetch(adminQuery).then((admin) => {
+      
         if(admin) {
+          console.log('this is admin');
+
           setMemberRole('admin');
         }
       });
 
       // if new user then, add member info & give a join reward - start
-      const getMemberQuery = `*[_type == 'member' && walletAddress == '${walletData.account.toUpperCase()}' && _id != '${Date.now()}'][0]`;
+      const getMemberQuery = `*[_type == 'member' && walletAddress == '${walletData.account.toLowerCase()}' && _id != '${Date.now()}'][0]`;
       client.fetch(getMemberQuery).then((member) => {
         if(!member) {
           // send join reward to user
@@ -268,7 +273,7 @@ function Header() {
 
           const memberDoc = {
             _type: 'member',
-            _id: String(walletData.account).toUpperCase(),
+            _id: String(walletData.account).toLowerCase(),
             memberName: walletData.account,
             walletAddress: walletData.account,
             createdDateTime: Moment().format('yyyy-MM-DD HH:mm:ss'),

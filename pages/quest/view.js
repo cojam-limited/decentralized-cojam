@@ -74,7 +74,7 @@ function Index(props) {
 				'bettingStatus': '',
 				'questKey': quest?.questKey,
 				'questAnswerKey': questAnswerId[0],
-				'memberKey': String(walletData.account).toUpperCase(),
+				'memberKey': String(walletData.account).toLowerCase(),
 				'receiveAddress': '',
 				'answerTitle': selectedAnswer,
 				'curBalance': curBalance,
