@@ -112,7 +112,6 @@ function Index() {
 				return;
 			}
 
-			//const result = await callTransferOwnership(walletAddress, setQr, setQrModal, setMinutes, setSeconds);
 			const result = await callTransferOwnership(walletData, setQr, setQrModal, setMinutes, setSeconds);
 
 			if(result.status === 200) {
@@ -214,10 +213,20 @@ function Index() {
 					const creator_ct = quest?.totalAmount * quest?.creatorFee / 100 + quest?.creatorPay;
 					const charity_ct = quest?.totalAmount * quest?.charityFee / 100;
 					const real_total_ct = quest?.totalAmount - cojam_ct - creator_ct - charity_ct;
-					const magnification = real_total_ct / rewardObj.bettingCoin * 100;
+					
+					//const magnification = real_total_ct / rewardObj.bettingCoin * 100;
+					const multiply = quest.questStatus === 'ADJOURN' ? 
+										  1 
+										: ((quest?.totalAmount
+											- (quest.totalAmount * quest.cojamFee / 100)
+											- ((quest.totalAmount * quest.creatorFee / 100) + quest.creatorPay)
+											- (quest.totalAmount * quest.charityFee / 100)) / rewardObj.bettingCoin).toFixed(2);
 
-					const predictionFee = (magnification * rewardObj.bettingCoin) / 100;
-					memberRewardArr.push({ title: rewardObj.title, walletAddress: memberAddress, predictionFee: predictionFee, multiply: magnification });
+					const predictionFee = quest.questStatus === 'ADJOURN' ? 
+											votingData.bettingCoin
+										:	(multiply * votingData.bettingCoin).toFixed(2);
+
+					memberRewardArr.push({ title: rewardObj.title, walletAddress: memberAddress, predictionFee: predictionFee, multiply: multiply });
 				}
 
 				// group by member key
@@ -278,7 +287,7 @@ function Index() {
 		}
 		
 		if(walletAddress) {
-			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toLowerCase()}'`}`;
+			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
 			const questQuery = `*[_type == 'quests' && _id != '${Date.now()}' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
 			client.fetch(questQuery).then((quest) => {
 				setTransactionDatas(quest ?? []);
