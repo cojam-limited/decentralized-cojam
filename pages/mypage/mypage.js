@@ -41,7 +41,7 @@ function Index() {
 		const walletAddress = walletData.account;
 		const votingArr = [];
 
-		const votingQuery = `*[_type == 'betting' && memberKey == '${walletAddress}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey && ^._id != '${Date.now()}'][0] {title, totalAmount} } | order(_createdAt desc)`;
+		const votingQuery = `*[_type == 'betting' && memberKey == '${String(walletAddress).toUpperCase()}' && _id != '${Date.now()}'] {..., 'answer': *[_type=='questAnswerList' && _id == ^.questAnswerKey && ^._id != '${Date.now()}'][0] {title, totalAmount} } | order(_createdAt desc)`;
 		await client.fetch(votingQuery).then(async (votingDatas) => {
 			votingDatas.forEach(async (votingData) => {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey} && _id != '${Date.now()}'][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
@@ -134,7 +134,8 @@ function Index() {
 
 						// send coin from master wallet
 						let transferRes;
-						const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // dev KAS reward wallet
+						//const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // dev KAS reward wallet
+						const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // prod KAS reward wallet
 						try {
 							transferRes = await getRewardCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {

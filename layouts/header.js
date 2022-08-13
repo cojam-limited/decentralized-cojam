@@ -272,7 +272,7 @@ function Header() {
 
           const memberDoc = {
             _type: 'member',
-            _id: walletData.account,
+            _id: String(walletData.account).toUpperCase(),
             memberName: walletData.account,
             walletAddress: walletData.account,
             createdDateTime: Moment().format('yyyy-MM-DD HH:mm:ss'),

@@ -735,8 +735,6 @@ export const bettingCojamURI_KLIP = async ({
 
           time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
         }
-
-        alert('betting process tx_hash : ' + result.transactionId + ', status : ' + result.status);
     }).catch((error) => {
         console.log(error);
     });

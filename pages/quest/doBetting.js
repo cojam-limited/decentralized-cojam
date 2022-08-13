@@ -5,8 +5,10 @@ import { callApproveCojamURI, callBettingCojamURI } from "@api/UseTransactions";
 const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, setSeconds, setLoading) => {
     let result = {result: false, message: 'Voting failed'};
 
+    const questAnswerKeyId = betting.questAnswerKey._id;
+
     // compare with initial answer (if exist)
-    const bettingQuery = `*[_type == 'betting' && memberKey == '${betting.memberKey}' && questKey == ${betting.questKey} && questAnswerKey != '${betting.questAnswerKey._id}' && _id != '${Date.now()}'][0]`;
+    const bettingQuery = `*[_type == 'betting' && memberKey == '${betting.memberKey}' && questKey == ${betting.questKey} && questAnswerKey != '${questAnswerKeyId}' && _id != '${Date.now()}'][0]`;
     const res = await client.fetch(bettingQuery).then((betting) => {
         if(betting?._id) {
             return {
@@ -40,7 +42,7 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                 return;
             }
 
-            const answerQuery = `*[_type == 'questAnswerList' && _id == '${betting.questAnswerKey._id}' && _id != '${Date.now()}'][0]`;
+            const answerQuery = `*[_type == 'questAnswerList' && _id == '${questAnswerKeyId}' && _id != '${Date.now()}'][0]`;
             await client.fetch(answerQuery).then(async (answer) => {
                 if(!answer) {
                     result = {
@@ -50,8 +52,8 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                     return;
                 }
 
-                console.log('answer.questAnswerKey', answer.questAnswerKey);
-                //betting.questAnswerKey = answer.questAnswerKey;
+                console.log('questAnswerKeyId', questAnswerKeyId);
+                debugger;
 
                 const walletAddress = walletData.account;
 
@@ -81,7 +83,7 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                 
                 // memberKey == walletAddress
                 const member = {
-                    memberKey: walletAddress,
+                    memberKey: String(walletAddress).toUpperCase(),
                 }
                 
                 const memberQuery = `*[_type == 'member' && _id != '${Date.now()}' && _id == '${member.memberKey}']`;
@@ -151,8 +153,8 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                                         transactionId: '',
                                         bettingStatus: 'ONGOING',
                                         questKey: betting.questKey,
-                                        questAnswerKey: betting.questAnswerKey._id,
-                                        memberKey: member.memberKey,
+                                        questAnswerKey: questAnswerKeyId,
+                                        memberKey: String(member.memberKey).toUpperCase(),
                                         receiveAddress: '',
                                         answerTitle: betting.answerTitle,
                                         createdDateTime: Moment().format('YYYY-MM-DD HH:mm:ss'),
@@ -164,13 +166,13 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                                     });
 
                                     // update each quest answer total amount
-                                    const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${betting.questAnswerKey._id}' && _id != '${Date.now()}'] {bettingCoin}`;
+                                    const newAnswerTotalQuery = `*[_type == 'betting' && questAnswerKey == '${questAnswerKeyId}' && _id != '${Date.now()}'] {bettingCoin}`;
                                     await client.fetch(newAnswerTotalQuery).then(async (bettingCoins) => {
                                         const newAnswerTotal = bettingCoins.reduce((acc, bettingCoin) => {
                                             return acc += Number(bettingCoin.bettingCoin);
                                         }, 0);
 
-                                        await client.patch(betting.questAnswerKey._id)
+                                        await client.patch(questAnswerKeyId)
                                                     .set({totalAmount: newAnswerTotal})
                                                     .commit();
                                     });
