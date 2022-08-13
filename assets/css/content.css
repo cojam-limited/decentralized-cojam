@@ -286,6 +286,7 @@
 .main-vegas {position:relative; height:800px; background:url('@assets/main_visual_img02.jpg') center no-repeat; background-size:cover;}
 .main-vegas .mv-btm {position:absolute; bottom:30px; left:50%; width:100px; margin:0 0 0 -50px; cursor:pointer; z-index:9;}
 .main-vegas .mv-copy {position:absolute; top:50%; left:50%; width:1000px; margin:-80px 0 0 -500px; text-align:center;}
+.main-vegas .mv-copy h2 span {font-family: "Poppins-Bold";}
 .main-vegas .mv-copy h2 {font-weight:800; font-family: "Poppins"; font-size:70px; line-height:70px; color:#fff;}
 .main-vegas .mv-copy h3 {margin-top:20px; font-family: "Poppins"; font-weight:200; font-size:36px; line-height:46px; color:#fff;}
 

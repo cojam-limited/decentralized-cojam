@@ -116,7 +116,7 @@ function Index() {
 
 				<div className="mv-btm"><img src={mainVisualScroll} width="30" alt="" title="" /></div>
 				<div className="mv-copy">
-					<h2>COJAM</h2>
+					<h2><span>C</span>OJAM</h2>
 					<h3>Let's enjoy the prediction platform through COJAM</h3>
 				</div>
 			</div>
