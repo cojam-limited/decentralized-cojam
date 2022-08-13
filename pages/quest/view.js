@@ -89,12 +89,14 @@ function Index(props) {
 				message: `${betResult.message}`,
 			});
 
-			const cojamBalance = await callGetCojamBalance(walletData);
-			if(cojamBalance !== balance) {
-				setBalance(cojamBalance);
-			}
+			if(betResult.result === 'success') {
+				const cojamBalance = await callGetCojamBalance(walletData);
+				if(cojamBalance !== balance) {
+					setBalance(cojamBalance);
+				}
 
-			window.location.reload();
+				window.location.reload();
+			}
 		} catch(error) {
 			toastNotify({
 				state: 'error',
