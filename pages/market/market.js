@@ -81,7 +81,7 @@ function Index() {
 		}
 
 		const walletAddress = walletData?.account;
-		if(activeAdmin?.walletAddress.toLowerCase() !== walletAddress?.toLowerCase()) {
+		if(activeAdmin?.walletAddress.toUpperCase() !== walletAddress?.toUpperCase()) {
 			toastNotify({
 				state: 'error',
 				message: 'you need a contract ownership',
@@ -627,7 +627,7 @@ function Index() {
 												}
 												
 												const walletAddress = walletData.account;
-												if(activeAdmin.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+												if(activeAdmin.walletAddress.toUpperCase() !== walletAddress.toUpperCase()) {
 													toastNotify({
 														state: 'error',
 														message: 'you need a contract ownership',
@@ -678,7 +678,7 @@ function Index() {
 												}
 
 												const walletAddress = walletData.account;
-												if(activeAdmin.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+												if(activeAdmin.walletAddress.toUpperCase() !== walletAddress.toUpperCase()) {
 													toastNotify({
 														state: 'error',
 														message: 'you need a contract ownership',
@@ -729,7 +729,7 @@ function Index() {
 												}
 
 												const walletAddress = walletData.account;
-												if(activeAdmin.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+												if(activeAdmin.walletAddress.toUpperCase() !== walletAddress.toUpperCase()) {
 													toastNotify({
 														state: 'error',
 														message: 'you need a contract ownership',

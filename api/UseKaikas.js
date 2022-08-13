@@ -502,14 +502,24 @@ export const getRewardCojamURI = async ({
     }]
   }, [toAddress, caver.utils.toPeb(Number(amount), 'KLAY')])
 
+  /*
+  'x-krn': 'krn:8217:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:feepayer-pool:Cojam',
+  Authorization: 'Basic S0FTS0FDUktIQ0VSVFo0WVhETTNNOUFVOmpEb3FadnhWMnpXOS1fUnRNRWxlUTc4aGVBaF9IRVlJQzZlb3V2UHM='
+  */
+
+  /*
+  'x-krn': 'krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:account-pool:Reward',
+  Authorization: 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='
+  */
+
   var options = {
     method: 'POST',
     url: 'https://wallet-api.klaytnapi.com/v2/tx/fd/contract/execute',
     headers: {
         'Content-Type': 'application/json',
-        'x-chain-id': '1001',
-        'x-krn': 'krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:account-pool:Reward',
-        Authorization: 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='
+        'x-chain-id': '8217', // 1001 or 8217
+        'x-krn': 'krn:8217:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:feepayer-pool:Cojam',
+        Authorization: 'Basic S0FTS0FDUktIQ0VSVFo0WVhETTNNOUFVOmpEb3FadnhWMnpXOS1fUnRNRWxlUTc4aGVBaF9IRVlJQzZlb3V2UHM='
     },
     data: {
         from: fromAddress,
@@ -564,6 +574,7 @@ export const transferCojamURI = async ({
     result.status = receipt.status ? 200 : 400;
   })
   .catch(function(err) {
+    console.log('err', err);
     result.status = 400;
   });
 
@@ -610,10 +621,10 @@ export const transferFromCojamURI = async ({
 }
  */
 
-export const receiveToken = async ({
+export const receiveToken = async (
   questKey,
   bettingKey
-}) => {
+) => {
   const contractABI = [{
     name: 'receiveToken',
     type: 'function',

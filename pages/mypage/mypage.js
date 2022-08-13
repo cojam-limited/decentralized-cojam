@@ -9,19 +9,21 @@ import { useLoadingState } from "../../assets/context/LoadingContext";
 import Moment from 'moment';
 import { getRewardCojamURI, receiveToken } from "@api/UseKaikas";
 import toastNotify from '@utils/toast';
-import { callGetCojamBalance } from '../../api/UseTransactions';
+import { callGetCojamBalance, callReceiveToken } from '../../api/UseTransactions';
 import { BalanceContext } from '../../components/Context/BalanceContext';
+import { QrContext } from '../../components/Context/QrContext';
 
 import LogoBlack from '@assets/coin.png'
 
 function Index() {
 	const { setLoading } = useLoadingState();
+	const { setQr, setQrModal, setMinutes, setSeconds } = useContext(QrContext);
 	const { balance, setBalance } = useContext(BalanceContext);
 	const [ reloadData, setReloadData ] = useState(false);
-	const [openMypageVoting, modalMypageVoting] = useState(false);
-	const [openMypageGround, modalMypageGround] = useState(false);
-	const [openMypageTransfer, modalMypageTransfer] = useState(false);
-	const [openQuestReward, modalQuestReward ] = useState(false);
+	const [ openMypageVoting, modalMypageVoting ] = useState(false);
+	const [ openMypageGround, modalMypageGround ] = useState(false);
+	const [ openMypageTransfer, modalMypageTransfer ] = useState(false);
+	const [ openQuestReward, modalQuestReward ] = useState(false);
 
 	const stateList = ['ONGOING', 'INVALID', 'APPROVE', 'ADJOURN', 'SUCCESS'];
 	const [ votings, setVotings ] = useState({votingSet: []});
@@ -135,7 +137,7 @@ function Index() {
 						// send coin from master wallet
 						let transferRes;
 						//const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // dev KAS reward wallet
-						const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // prod KAS reward wallet
+						const rewardAddress = '0x62CF255C71D23EbC116B47bFC9801A167536136C'; // prod KAS reward wallet
 						try {
 							transferRes = await getRewardCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
@@ -213,12 +215,12 @@ function Index() {
 			let transferRes;
 			try {
 				setLoading(true);
-				transferRes = await receiveToken({ questKey: selectedVoting.questKey, bettingKey: selectedVoting.bettingKey });
+				transferRes = await callReceiveToken(walletData, selectedVoting.questKey, selectedVoting.bettingKey, setQr, setQrModal, setMinutes, setSeconds);
 			} catch(error) {
 				setLoading(false);
 				toastNotify({
 					state: 'error',
-					message: 'transfer api error. try again.',
+					message: 'receive token error. try again.',
 				});
 				return;
 			}

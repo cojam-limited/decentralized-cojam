@@ -977,3 +977,81 @@ export const transferOwnership_KLIP = async (
 
   return result;
 }
+
+export const receiveToken_KLIP = async (
+  walletData,
+  questKey,
+  bettingKey,
+  setQr, setQrModal, setMinutes, setSeconds
+) => {
+  const bappName = 'cojam-v2';
+  const to = cojamMarketAddress;
+  const value = '0'
+  const abi = "{\"inputs\":"+
+                "[" +
+                  "{\"name\":\"marketKey\",\"type\":\"uint256\"}," +
+                  "{\"name\":\"bettingKey\",\"type\":\"uint256\"}" +
+                "]," +
+              "\"name\":\"receiveToken\"," +
+              "\"outputs\": [], " +
+              "\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}";
+
+  const params = `["${questKey}","${bettingKey}"]`;
+
+  const result = { spenderAddress: walletData.account, status: 400 };
+  await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
+    {
+        bapp: { name: bappName },
+        transaction: {
+            to: to,
+            abi: abi,
+            value: value,
+            params: params,
+        },
+        type: "execute_contract",
+    }).then(async (response) => {
+        const {request_key} = response.data;
+        const qrUrl = `https://klipwallet.com/?target=/a2a?request_key=${request_key}`;
+
+        if( !isMobile() ) {
+          setMinutes(5); 
+          setSeconds(0);
+
+          setQr(await QRCode.toDataURL(qrUrl));
+          setQrModal(true); 
+        } else {
+          // 접속한 환경이 mobile이 아닐 때, Deep Link.
+          request(request_key, () => toastNotify({
+            state: 'error',
+            message: '모바일 환경에서 실행해주세요',
+          }));
+        }
+      
+        let time = new Date().getTime();
+        const endTime = time + 60000;
+        while (time < endTime) {
+          if( time % 500 === 0 ) {
+            await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
+                       .then((response)=> {
+                          if(response.data.status === "completed") {
+                              const status = response.data.result.status;
+                              if (status === "success") {
+                                result.transactionId = response.data.result.tx_hash;
+                                result.status = 200;
+                              }
+
+                              setQrModal(false); 
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
+                          }
+                        });
+          }
+
+          time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
+        }
+    }).catch((error) => {
+        console.log(error);
+    });
+
+  return result;
+}

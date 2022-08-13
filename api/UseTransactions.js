@@ -1,7 +1,7 @@
 import { getCojamBalance, draftMarket, addAnswerKeys, approveMarket, adjournMarket, retrieveMarket, successMarket, finishMarket } from "@api/UseKaikas";
 import { getCojamBalance_KLIP, draftMarket_KLIP, addAnswerKeys_KLIP, approveMarket_KLIP, adjournMarket_KLIP, retrieveMarket_KLIP, successMarket_KLIP, finishMarket_KLIP } from "@api/UseKlip";
-import { approveCojamURI, bettingCojamURI, transferCojamURI } from "./UseKaikas";
-import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, transferOwnership_KLIP } from "./UseKlip";
+import { approveCojamURI, bettingCojamURI, receiveToken, transferCojamURI } from "./UseKaikas";
+import { approveCojamURI_KLIP, bettingCojamURI_KLIP, receiveToken_KLIP, transferCojamURI_KLIP, transferOwnership_KLIP } from "./UseKlip";
 
   export const checkLogin = async (walletData) => {    
     
@@ -226,6 +226,19 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, transferCojamURI_KLIP, tran
         await transferCojamURI(params).then(res => result = res);
     } else {
         await transferCojamURI_KLIP(params, walletData?.account, setQr, setQrModal, setMinutes, setSeconds).then(res => result = res);
+    }
+
+    return result;
+  }
+
+  export const callReceiveToken = async (
+    walletData, questKey, bettingKey, setQr, setQrModal, setMinutes, setSeconds
+  ) => {
+    let result;
+    if(walletData?.type === 'kaikas') {
+      await receiveToken(questKey, bettingKey).then(res => result = res);
+    } else {
+      await receiveToken_KLIP(walletData, questKey, bettingKey, setQr, setQrModal, setMinutes, setSeconds).then(res => result = res);
     }
 
     return result;

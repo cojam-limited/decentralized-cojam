@@ -129,15 +129,10 @@ function Header() {
 		const walletAddress = walletData.account;
 
 		if(walletAddress) {
-			const joinRewardHistQuery = `*[_type == 'joinRewardHistory' && walletAddress == '${walletAddress}' && _id != '${Date.now()}'][0]`;
+			const joinRewardHistQuery = `*[_type == 'joinRewardHistory' && walletAddress == '${walletAddress.toUpperCase()}' && _id != '${Date.now()}'][0]`;
 			client.fetch(joinRewardHistQuery).then((joinRewardHistory) => {
 			
-				if(joinRewardHistory) {
-          toastNotify({
-            state: 'default',
-            message: '모바일 환경에서 실행해주세요',
-          });
-				} else {
+				if(!joinRewardHistory) {
 					const rewardInfoQuery = `*[_type == 'rewardInfo' && isActive == true && rewardType == 'join' && _id != '${Date.now()}'][0]`;
 					client.fetch(rewardInfoQuery).then(async (rewardInfo) => {
             if(!rewardInfo.amount) {
@@ -150,9 +145,10 @@ function Header() {
 
 						// send coin from master wallet
 						let transferRes;
-            const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // KAS reward wallet - no CT
+            //const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // KAS reward wallet
+            const rewardAddress = '0x62CF255C71D23EbC116B47bFC9801A167536136C'; // KAS reward wallet
 						try {
-							transferRes = await transferCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
+							transferRes = await transferCojamURI({fromAddress: rewardAddress, toAddress: walletAddress.toUpperCase(), amount: Number(rewardInfo.amount)});
 						} catch(error) {
               toastNotify({
                 state: 'error',
@@ -162,11 +158,11 @@ function Header() {
 							return;
 						}
 
-						if(transferRes.status) {
+						if(transferRes.status === 200) {
 							// remain transfer history
 							const joinRewardHistoryDoc = {
 								_type: 'joinRewardHistory',
-								walletAddress: walletAddress,
+								walletAddress: walletAddress.toUpperCase(),
 								rewardAmount: Number(rewardInfo.amount),
 								transactionId: transferRes.transactionId,
 								createDatedTime: Moment().format("yyyy-MM-DD HH:mm:ss")
@@ -183,7 +179,7 @@ function Header() {
 							const transactionSet = {
 								_type: 'transactions',
 								amount: Number(rewardInfo.amount),
-								recipientAddress: walletAddress,
+								recipientAddress: walletAddress.toUpperCase(),
 								spenderAddress: rewardAddress,
 								status: 'SUCCESS',
 								transactionId: transferRes.transactionId,
@@ -256,7 +252,7 @@ function Header() {
 
     if(walletData && walletData.account) {
       // admin check
-      const adminQuery = `*[_type == 'admin' && walletAddress == '${walletData.account.toLowerCase()}' && _id != '${Date.now()}'][0]`;
+      const adminQuery = `*[_type == 'admin' && walletAddress == '${walletData.account.toUpperCase()}' && _id != '${Date.now()}'][0]`;
       client.fetch(adminQuery).then((admin) => {
         if(admin) {
           setMemberRole('admin');
@@ -264,7 +260,7 @@ function Header() {
       });
 
       // if new user then, add member info & give a join reward - start
-      const getMemberQuery = `*[_type == 'member' && walletAddress == '${walletData.account}' && _id != '${Date.now()}'][0]`;
+      const getMemberQuery = `*[_type == 'member' && walletAddress == '${walletData.account.toUpperCase()}' && _id != '${Date.now()}'][0]`;
       client.fetch(getMemberQuery).then((member) => {
         if(!member) {
           // send join reward to user
