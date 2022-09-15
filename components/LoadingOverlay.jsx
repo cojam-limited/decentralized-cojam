@@ -19,7 +19,7 @@ export default function LoadingOverlay({
         zIndex: 9999,
       }}
     >
-      <DotLoader color={"#8950fc"} loading={true} size={120} />
+      <DotLoader color={"#0045f4"} loading={true} size={120} />
     </div>
   );
 }

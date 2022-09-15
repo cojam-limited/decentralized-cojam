@@ -9,7 +9,6 @@ import mainServiceIcon04 from '@assets/main_service_icon04.svg'
 import mainServiceIcon05 from '@assets/main_service_icon05.svg'
 import mainServiceIcon06 from '@assets/main_service_icon06.svg'
 
-import serviceBackground from '@assets/main_service_bg.png';
 import phoneBackground from '@assets/main_service_phone.png';
 import qnaBackground from '@assets/main_qna_bg.jpg';
 
@@ -122,21 +121,20 @@ function Index() {
 			</div>
 			{/* 비주얼영역 끝 */}
 
-
 			{/* 리스트 끝 */}
 			<div className="container container-main">
 				<div className="quest-list-columns">
 					<h2>Popular Vote</h2>
-					<h3>Convergence Platform of Knowledge based on Prediction</h3>
+					<h3 class="about-content">Convergence Platform of Knowledge based on Prediction</h3>
 					<ul>
 						{/* Quest 리스트 루프 Start*/}
-						{ 
+						{
 						quests.map((quest, index) => {
 							return (
-								<li key={index} onClick={async () => { 
+								<li key={index} onClick={async () => {
 									if(quest.dDay === 'expired') {
 										return;
-									} 
+									}
 
 									let isLogin = false;
 									await checkLogin(walletData).then((res) => {
@@ -196,7 +194,7 @@ function Index() {
 
 
 			{/* 서비스 */}
-			<div className="main-service" style={{background: `url('${serviceBackground}') center no-repeat`}}>
+			<div className="main-service">
 				<div className="main-service-phone" style= {{ background: window.innerWidth < 1000 ? 'none' : `url('${phoneBackground}') -280px no-repeat` }}>
 					<h2>Cojam Service</h2>
 					<h3>Operate the Service Through Advanced Technology</h3>
@@ -205,42 +203,54 @@ function Index() {
 						<dd>
 							<div>
 								<p>
-									<span><img src={mainServiceIcon01} alt="" title="" /></span>
+									<span style={{ backgroundColor: '#fafbff', opacity: 0.5 }}>
+										<img src={mainServiceIcon01} alt="" title="" />
+									</span>
 								</p>
 								<h2>AWS Cloud</h2>
 								<h3>Our Service based on AWS Cloud Service for Security and Stability.</h3>
 							</div>
 							<div>
 								<p>
-									<span><img src={mainServiceIcon02} alt="" title="" /></span>
+									<span style={{ backgroundColor: '#fafbff', opacity: 0.5 }}>
+										<img src={mainServiceIcon02} alt="" title="" />
+									</span>
 								</p>
 								<h2>Blockchain</h2>
 								<h3>It ensures transparency and stability and can participate in predictive platforms.</h3>
 							</div>
 							<div>
 								<p>
-									<span><img src={mainServiceIcon03} alt="" title="" /></span>
+									<span style={{ backgroundColor: '#fafbff', opacity: 0.5 }}>
+										<img src={mainServiceIcon03} alt="" title="" />
+									</span>
 								</p>
 								<h2>HTML5 Web Standard</h2>
 								<h3>Developed by HTML5 Web Standard to support a variety of browsers.</h3>
 							</div>
 							<div>
 								<p>
-									<span><img src={mainServiceIcon04} alt="" title="" /></span>
+									<span style={{ backgroundColor: '#fafbff', color: '#0045f4', opacity: 0.5 }}>
+										<img src={mainServiceIcon04} alt="" title="" />
+									</span>
 								</p>
 								<h2>Mobile Application</h2>
 								<h3>Any Where! Any Time! You can enjoy with Mobile.</h3>
 							</div>
 							<div>
 								<p>
-									<span><img src={mainServiceIcon05} alt="" title="" /></span>
+									<span style={{ backgroundColor: '#fafbff', opacity: 0.5 }}>
+										<img src={mainServiceIcon05} alt="" title="" />
+									</span>
 								</p>
 								<h2>Responsible Web</h2>
 								<h3>It is possible to participate in services from browsers on various devices through Responsible Web.</h3>
 							</div>
 							<div>
 								<p>
-									<span><img src={mainServiceIcon06} alt="" title="" /></span>
+									<span style={{ backgroundColor: '#fafbff', opacity: 0.5 }}>
+										<img src={mainServiceIcon06} alt="" title="" />
+									</span>
 								</p>
 								<h2>Realtime Service</h2>
 								<h3>If you have any questions about the service, please feel free to contact us.</h3>
@@ -255,15 +265,13 @@ function Index() {
 			{/* 질문답변 */}
 			<div className="main-qna" style={{background: `url('${qnaBackground}') center -50px no-repeat`}}>
 				<div>
-					<h2>Q&A</h2>
-					<h3>If you have any other questions, please feel free to ask us!</h3>
-					<div className="qna_list">
-						{
-							qnas && qnas.map((qna, index) => (
-								<Accordion key={index} question={qna.question} answer={qna.answer} link={qna.linkAddress} />
-							))
-						}
-					</div>
+					<h2>What is COJAM</h2>
+					<h3>
+						Can you predict? <br/>
+						This is a reward-type prediction platform where users who produce content and those <br/>
+						who participate solve the answers, compete, and receive compensation based on the results. <br/>
+						Start Prediction with COJAM!
+					</h3>
 				</div>
 			</div>
 			{/* 질문답변 끝 */}

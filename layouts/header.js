@@ -13,7 +13,7 @@ import { ConnectKaikasButton } from './styles';
 //import isMobile from '@utils/isMobile';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import isMobile from '@utils/isMobile';
-import { kaikasLogin, transferCojamURI } from '@api/UseKaikas';
+import { kaikasLogin, getRewardCojamURI } from '@api/UseKaikas';
 import { callGetCojamBalance } from '@api/UseTransactions';
 
 import { prepare, request, getResult } from 'klip-sdk';
@@ -145,14 +145,15 @@ function Header() {
 
 						// send coin from master wallet
 						let transferRes;
-            //const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // KAS reward wallet
-            const rewardAddress = '0x62CF255C71D23EbC116B47bFC9801A167536136C'; // KAS reward wallet
 						try {
-							transferRes = await transferCojamURI({fromAddress: rewardAddress, toAddress: walletAddress.toLowerCase(), amount: Number(rewardInfo.amount)});
+							transferRes = await getRewardCojamURI({toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
+              console.log(error);
+              debugger;
+
               toastNotify({
                 state: 'error',
-                message: 'transfer api error. try again.',
+                message: 'get join reward api error. try again.',
               });
               
 							return;
@@ -165,7 +166,7 @@ function Header() {
 								walletAddress: walletAddress.toLowerCase(),
 								rewardAmount: Number(rewardInfo.amount),
 								transactionId: transferRes.transactionId,
-								createDatedTime: Moment().format("yyyy-MM-DD HH:mm:ss")
+								createdDateTime: Moment().format("yyyy-MM-DD HH:mm:ss")
 							}
 
 							await client.create(joinRewardHistoryDoc);
@@ -180,7 +181,7 @@ function Header() {
 								_type: 'transactions',
 								amount: Number(rewardInfo.amount),
 								recipientAddress: walletAddress.toLowerCase(),
-								spenderAddress: rewardAddress,
+								spenderAddress: transferRes.spenderAddress,
 								status: 'SUCCESS',
 								transactionId: transferRes.transactionId,
 								transactionType: 'JOIN_REWARD',
@@ -188,6 +189,14 @@ function Header() {
 							}
 
 							await client.create(transactionSet);
+
+              const cojamBalance = await callGetCojamBalance(walletData);
+							if(cojamBalance !== balance) {
+								setBalance(cojamBalance);
+							}
+
+							// refresh after get reward success.
+							window.location.reload();
 						}
 					});
 				}
@@ -322,7 +331,7 @@ function Header() {
                 </>
               : /* 로그인 안했을때 */
                 <>
-                  <Link to="#" onClick={() => modalKlipAdd(true)}><i className="uil uil-sign-in-alt"></i> LOGIN</Link>
+                  <Link to="#" onClick={() => modalKlipAdd(true)} style={{ color: '#ffffff' }}><i className="uil uil-sign-in-alt"></i> LOGIN</Link>
                 </> 
               }
           </dd>
@@ -531,6 +540,7 @@ function resizeHeaderOnScroll() {
       document.querySelector('.header > dl > dt > div a:nth-child(3)').style.color = '#222';
       document.querySelector('.header > dl > dt > div a:nth-child(4)').style.color = '#222';
       document.querySelector('.header > dl > dt > div a:nth-child(5)').style.color = '#222';
+      document.querySelector('.header > dl > dt > div a:hover').style.color = '#00c486';
       document.querySelector('.header > dl > dd > h2').style.color = '#222';
       document.querySelector('.header > dl > dd > h2 > span').style.color = '#222';
       document.querySelector('.header > dl > dd > div > a:nth-child(1)').style.color = '#222';
@@ -539,6 +549,8 @@ function resizeHeaderOnScroll() {
       document.querySelector('.header > dl > dd > div > a:nth-child(2)').style.background = '#edf3f8';
       document.querySelector('.header > dl > dd > div > a:nth-child(3)').style.color = '#222';
       document.querySelector('.header > dl > dd > div > a:nth-child(3)').style.background = '#edf3f8';
+      document.querySelector('.header > dl > dt > div > a:hover').style.color = '#00c486';
+      
     } else {
       document.querySelector('.header').style.background = 'none';
       document.querySelector('.header').style.boxShadow = 'none';
@@ -549,6 +561,12 @@ function resizeHeaderOnScroll() {
       document.querySelector('.header > dl > dt > div a:nth-child(3)').style.color = '#fff';
       document.querySelector('.header > dl > dt > div a:nth-child(4)').style.color = '#fff';
       document.querySelector('.header > dl > dt > div a:nth-child(5)').style.color = '#fff';
+      document.querySelector('.header > dl > dt > div a:nth-child(1):hover').style.color = '#00c486';
+      document.querySelector('.header > dl > dt > div a:nth-child(2):hover').style.color = '#00c486';
+      document.querySelector('.header > dl > dt > div a:nth-child(3):hover').style.color = '#00c486';
+      document.querySelector('.header > dl > dt > div a:nth-child(4):hover').style.color = '#00c486';
+      document.querySelector('.header > dl > dt > div a:nth-child(5):hover').style.color = '#00c486';
+      document.querySelector('.header > dl > dt > div a:hover').style.color = '#00c486';
       document.querySelector('.header > dl > dd > h2').style.color = '#fff';
       document.querySelector('.header > dl > dd > h2 > span').style.color = '#fff';
       document.querySelector('.header > dl > dd > div > a:nth-child(1)').style.color = '#fff';
@@ -557,6 +575,7 @@ function resizeHeaderOnScroll() {
       document.querySelector('.header > dl > dd > div > a:nth-child(2)').style.background = 'rgba(255,255,255,0.3)';
       document.querySelector('.header > dl > dd > div > a:nth-child(3)').style.color = '#fff';
       document.querySelector('.header > dl > dd > div > a:nth-child(3)').style.background = 'rgba(255,255,255,0.3)';
+      document.querySelector('.header > dl > dt > div > a:hover').style.color = '#00c486';
     }
   } catch(e) {
     // ignore

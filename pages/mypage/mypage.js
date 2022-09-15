@@ -7,7 +7,7 @@ import { useWalletData } from '@data/wallet';
 import { client, urlFor } from '../../sanity';
 import { useLoadingState } from "../../assets/context/LoadingContext";
 import Moment from 'moment';
-import { getRewardCojamURI, receiveToken } from "@api/UseKaikas";
+import { getRewardCojamURI } from "@api/UseKaikas";
 import toastNotify from '@utils/toast';
 import { callGetCojamBalance, callReceiveToken } from '../../api/UseTransactions';
 import { BalanceContext } from '../../components/Context/BalanceContext';
@@ -136,14 +136,12 @@ function Index() {
 
 						// send coin from master wallet
 						let transferRes;
-						//const rewardAddress = '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // dev KAS reward wallet
-						const rewardAddress = '0x62CF255C71D23EbC116B47bFC9801A167536136C'; // prod KAS reward wallet
 						try {
-							transferRes = await getRewardCojamURI({fromAddress: rewardAddress, toAddress: walletAddress, amount: Number(rewardInfo.amount)});
+							transferRes = await getRewardCojamURI({toAddress: walletAddress, amount: Number(rewardInfo.amount)});
 						} catch(error) {
 							toastNotify({
 								state: 'error',
-								message: 'transfer api error. try again.',
+								message: 'get login reward api error. try again.',
 							});
 							return;
 						}
@@ -161,7 +159,7 @@ function Index() {
 								loginDate: creteriaDate,
 								rewardAmount: Number(rewardInfo.amount),
 								transactionId: transferRes.transactionId,
-								createDatedTime: Moment().format("yyyy-MM-DD HH:mm:ss")
+								createdDateTime: Moment().format("yyyy-MM-DD HH:mm:ss")
 							}
 
 							await client.create(loginRewardHistoryDoc);
@@ -171,7 +169,7 @@ function Index() {
 								_type: 'transactions',
 								amount: Number(rewardInfo.amount),
 								recipientAddress: walletAddress,
-								spenderAddress: rewardAddress,
+								spenderAddress: transferRes.spenderAddress,
 								status: 'SUCCESS',
 								transactionId: transferRes.transactionId,
 								transactionType: 'LOGIN_REWARD',
@@ -323,7 +321,7 @@ function Index() {
 					<div><i className="uil uil-wallet"></i> Wallet address : <span> { walletData?.account }</span></div>
 				</dt>
 				<dd>
-					<a href="#" className="btn-red" onClick={() => getLoginReward()}>Login Reward</a>
+					<a href="#" className="btn-main" onClick={() => getLoginReward()}>Login Reward</a>
 					{/*<a href="#" className="btn-blue" onClick={() => getReward()}>Click to be Reward!</a>*/}
 				</dd>
 			</div>
@@ -773,7 +771,7 @@ function Index() {
 
 												modalQuestReward(false); 
 											}}
-											style={{ position: 'absolute', bottom: 0, width: '93%', marginBottom: '10px' }}
+											style={{ position: 'absolute', bottom: 0, width: '88%', marginBottom: '10px' }}
 										>
 											Get Reward! ({selectedVoting.predictionFee} CT)
 										</a>

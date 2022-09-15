@@ -11,7 +11,7 @@ const toastNotify = (props) => {
   if (state === 'default') {
     return toast(message, {
       position: 'top-center',
-      autoClose: 1500,
+      autoClose: 3500,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -20,7 +20,7 @@ const toastNotify = (props) => {
   } else {
     return toast[state](message, {
       position: 'top-center',
-      autoClose: 1500,
+      autoClose: 3500,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,

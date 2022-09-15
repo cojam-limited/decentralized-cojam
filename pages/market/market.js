@@ -527,7 +527,7 @@ function Index() {
 																placeholder="" 
 																readOnly 
 																defaultValue={`${answer.title} (${addComma(answer.totalAmount)} CT)`}
-																style={{ color: activeDetailData.selectedAnswer === answer.title ? '#fff' : 'black', background: activeDetailData.selectedAnswer === answer.title ? '#8950fc' : '' }}
+																style={{ color: activeDetailData.selectedAnswer === answer.title ? '#fff' : 'black', background: activeDetailData.selectedAnswer === answer.title ? '#0045f4' : '' }}
 															/>
 														))
 													}
@@ -590,7 +590,7 @@ function Index() {
 																type="text" 
 																className="w100p" 
 																placeholder="" 
-																style={{ color: 'black', cursor: 'pointer', background: answer.title === selectedAnswer?.title ? '#8950fc' : '' }} 
+																style={{ color: 'black', cursor: 'pointer', background: answer.title === selectedAnswer?.title ? '#0045f4' : '' }} 
 																onClick={() => {setSelectedAnswer(answer)}} 
 																readOnly 
 																defaultValue={answer.title}
