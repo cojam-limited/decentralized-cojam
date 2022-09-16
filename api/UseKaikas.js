@@ -9,7 +9,7 @@ const caver = new Caver(window.klaytn);
 const profile = 'dev';
 
 // baobab: 1001, cypress: 8217
-const caverExt = new CaverExtKAS('8217', 'KASKABM99U30BTVDXCYDMQQF', 'P6vSKCjKxYuXdpp7e1H7JJjQNVvjwr46FYdcZhdm', { useNodeAPIWithHttp: true });
+const caverExt = new CaverExtKAS( profile === 'prod' ? 8217: 1001, 'KASKABM99U30BTVDXCYDMQQF', 'P6vSKCjKxYuXdpp7e1H7JJjQNVvjwr46FYdcZhdm', { useNodeAPIWithHttp: true });
 
 const cojamTokenAddress = profile === 'prod' 
                         ? '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b'    // prod
