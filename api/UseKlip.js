@@ -9,13 +9,14 @@ import isMobile from '@utils/isMobile';
 
 const caver = new Caver(window.klaytn);
 
+// klip은 dev (baobab)가 없음 
 const xChainId = '8217'; // prod
-
 const authorization = 'Basic S0FTSzFQTzJSR1RZNU5LTjJERktDVVhMOkFpd1NDeUN3Z2Q4Wkc5aUtqWXNXS3ZBam96UXZRN3BwRjhCLWZqcWU='; // prod
 
-// klip은 dev (baobab)가 없음 
 const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';  // prod
 const cojamMarketAddress = '0x2078466926E4Af541DC47d954C487517bcE49c28'; // prod
+
+const klipTimeLimitMs = 60000;
 
 export const kaikasLogin = async () => {
   try {
@@ -127,6 +128,7 @@ export const draftMarket_KLIP = async ({
 
   const params = `["${marketKey}","${creator}","${title}","${creatorFee}","${creatorFeePercentage}","${cojamFeePercentage}","${charityFeePercentage}"]`;
   const result = { spenderAddress: fromAddress, status: 400 };
+  
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
         bapp: { name: bappName},
@@ -156,11 +158,11 @@ export const draftMarket_KLIP = async ({
         }
       
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
-                       .then((response)=> {
+                       .then((response) => {
                           if(response.data.status === "completed") {
                               const status = response.data.result.status;
                               if (status === "success") {
@@ -172,6 +174,9 @@ export const draftMarket_KLIP = async ({
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -232,7 +237,7 @@ export const approveMarket_KLIP = async (
         }
       
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -248,6 +253,9 @@ export const approveMarket_KLIP = async (
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -308,7 +316,7 @@ export const adjournMarket_KLIP = async (
         }
       
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -324,6 +332,9 @@ export const adjournMarket_KLIP = async (
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -384,7 +395,7 @@ export const finishMarket_KLIP = async (
         }
       
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -400,6 +411,9 @@ export const finishMarket_KLIP = async (
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -465,7 +479,7 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
         }
       
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -481,6 +495,9 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -543,7 +560,7 @@ export const retrieveMarket_KLIP = async (
         }
       
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -559,6 +576,9 @@ export const retrieveMarket_KLIP = async (
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -623,7 +643,7 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
         }
       
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -639,6 +659,9 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -713,7 +736,7 @@ export const bettingCojamURI_KLIP = async ({
         }
       
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -730,6 +753,9 @@ export const bettingCojamURI_KLIP = async ({
                             result.transactionId = response.data?.result?.tx_hash;
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -791,7 +817,7 @@ export const approveCojamURI_KLIP = async (
         }
         
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -805,6 +831,9 @@ export const approveCojamURI_KLIP = async (
 
                               setQrModal(false); 
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -875,7 +904,7 @@ export const transferCojamURI_KLIP = async ({
         }
         
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -891,6 +920,9 @@ export const transferCojamURI_KLIP = async ({
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -950,7 +982,7 @@ export const transferOwnership_KLIP = async (
         }
       
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -966,6 +998,9 @@ export const transferOwnership_KLIP = async (
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
@@ -1028,7 +1063,7 @@ export const receiveToken_KLIP = async (
         }
       
         let time = new Date().getTime();
-        const endTime = time + 60000;
+        const endTime = time + klipTimeLimitMs;
         while (time < endTime) {
           if( time % 500 === 0 ) {
             await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`)
@@ -1044,6 +1079,9 @@ export const receiveToken_KLIP = async (
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
+                        })
+                        .catch((error) => {
+                          result.status = 500;
                         });
           }
 
