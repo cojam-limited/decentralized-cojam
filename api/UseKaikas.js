@@ -24,14 +24,28 @@ const rewardAddress = profile === 'prod'
                     : '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // dev KAS reward wallet
 
 /* prod
-'x-krn': 'krn:8217:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:feepayer-pool:Cojam',
-Authorization: 'Basic S0FTS0FDUktIQ0VSVFo0WVhETTNNOUFVOmpEb3FadnhWMnpXOS1fUnRNRWxlUTc4aGVBaF9IRVlJQzZlb3V2UHM='
+  'x-krn': 'krn:8217:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:feepayer-pool:Cojam',
+  Authorization: 'Basic S0FTS0FDUktIQ0VSVFo0WVhETTNNOUFVOmpEb3FadnhWMnpXOS1fUnRNRWxlUTc4aGVBaF9IRVlJQzZlb3V2UHM='
 */
 
 /* dev
-'x-krn': 'krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:account-pool:Reward',
-Authorization: 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='
+  'x-krn': 'krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:account-pool:Reward',
+  Authorization: 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='
 */
+
+const xChainId = profile === 'prod'
+               ? 8217
+               : 1001;
+
+const xKrn = profile === 'prod'
+           ? 'krn:8217:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:feepayer-pool:Cojam'
+           : 'krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:account-pool:Reward';
+
+const walletAuth = profile === 'prod'
+           ? 'Basic S0FTS0FDUktIQ0VSVFo0WVhETTNNOUFVOmpEb3FadnhWMnpXOS1fUnRNRWxlUTc4aGVBaF9IRVlJQzZlb3V2UHM='
+           : 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0=';
+
+
 
 // cojam token address ?
 const cojamToken = new caver.kct.kip7(cojamTokenAddress);
@@ -525,9 +539,9 @@ export const getRewardCojamURI = async ({
     url: 'https://wallet-api.klaytnapi.com/v2/tx/fd/contract/execute',
     headers: {
         'Content-Type': 'application/json',
-        'x-chain-id': '1001', // 1001 or 8217
-        'x-krn': 'krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:account-pool:Reward',
-        Authorization: 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='
+        'x-chain-id': xChainId,
+        'x-krn': xKrn,
+        Authorization: walletAuth
     },
     data: {
         from: rewardAddress,
