@@ -1507,16 +1507,20 @@
 .modal-mypage-view .mmv-area p a:hover {background:#222;}
 
 @media all and (max-width:479px) {
-  .modal-mypage-view {width:470%;}
+  .modal-mypage-view {width:300px;}
+  .modal-mypage-view form { width: 100%; }
 }
 @media all and (min-width:480px) and (max-width:767px) {
   .modal-mypage-view {width:480px;}
+  .modal-mypage-view form { width: 100%; }
 }
 @media all and (min-width:768px) and (max-width:991px) {
   .modal-mypage-view {width:650px;}
+  .modal-mypage-view form { width: 100%; }
 }
 @media all and (min-width:992px) and (max-width:1299px) {
   .modal-mypage-view {width:100%;}
+  .modal-mypage-view form { width: 100%; }
 }
 
 
