@@ -467,7 +467,8 @@ function Index() {
 															cursor: activeDetailData?.imageLink ? 'pointer' : '',
 															backgroundImage: `url('${activeDetailData && (activeDetailData.imageFile ? urlFor(activeDetailData.imageFile) : activeDetailData.imageUrl)}')`, 
 															backgroundPosition: `center`, 
-															backgroundSize: `cover` 
+															backgroundSize: `contain`,
+															backgroundRepeat: 'no-repeat' 
 														}}
 													/>
 												</li>
