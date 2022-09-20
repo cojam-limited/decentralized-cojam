@@ -210,7 +210,7 @@ export const approveMarket_KLIP = async (
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
-        bapp: { name: bappName},
+        bapp: { name: bappName },
         transaction: {
             to: to,
             abi: abi,
@@ -289,7 +289,7 @@ export const adjournMarket_KLIP = async (
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
-        bapp: { name: bappName},
+        bapp: { name: bappName },
         transaction: {
             to: to,
             abi: abi,
@@ -368,7 +368,7 @@ export const finishMarket_KLIP = async (
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
-        bapp: { name: bappName},
+        bapp: { name: bappName },
         transaction: {
             to: to,
             abi: abi,
@@ -452,7 +452,7 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
-        bapp: { name: bappName},
+        bapp: { name: bappName },
         transaction: {
             to: to,
             abi: abi,
@@ -533,7 +533,7 @@ export const retrieveMarket_KLIP = async (
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
-        bapp: { name: bappName},
+        bapp: { name: bappName },
         transaction: {
             to: to,
             abi: abi,
@@ -616,7 +616,7 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
-        bapp: { name: bappName},
+        bapp: { name: bappName },
         transaction: {
             to: to,
             abi: abi,
@@ -790,7 +790,7 @@ export const approveCojamURI_KLIP = async (
   try {
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
-        bapp: { name: bappName},
+        bapp: { name: bappName },
         transaction: {
             to: txTo,
             abi: txAbi,
@@ -877,7 +877,7 @@ export const transferCojamURI_KLIP = async ({
   const result = { spenderAddress: fromAddress, status: 400 };
   await axios.post("https://a2a-api.klipwallet.com/v2/a2a/prepare",
     {
-        bapp: { name: bappName},
+        bapp: { name: bappName },
         transaction: {
             to: to,
             abi: abi,
