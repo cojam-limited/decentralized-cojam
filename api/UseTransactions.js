@@ -1,6 +1,6 @@
 import { getCojamBalance, draftMarket, addAnswerKeys, approveMarket, adjournMarket, retrieveMarket, successMarket, finishMarket } from "@api/UseKaikas";
 import { getCojamBalance_KLIP, draftMarket_KLIP, addAnswerKeys_KLIP, approveMarket_KLIP, adjournMarket_KLIP, retrieveMarket_KLIP, successMarket_KLIP, finishMarket_KLIP } from "@api/UseKlip";
-import { approveCojamURI, bettingCojamURI, receiveToken, transferCojamURI } from "./UseKaikas";
+import { approveCojamURI, bettingCojamURI, receiveToken, transferOwnership, transferCojamURI } from "./UseKaikas";
 import { approveCojamURI_KLIP, bettingCojamURI_KLIP, receiveToken_KLIP, transferCojamURI_KLIP, transferOwnership_KLIP } from "./UseKlip";
 
   export const checkLogin = async (walletData) => {    
