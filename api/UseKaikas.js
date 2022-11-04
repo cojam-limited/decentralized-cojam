@@ -113,6 +113,31 @@ export const getCojamBalance = async (walletAddress) => {
   }
 }
 
+export const owner = async () => {
+  const abi = [{
+    name: 'owner',
+    type: 'function',
+    inputs: []
+  }];
+
+  const contractAddress = cojamMarketAddress;
+  const contract = new caver.klay.Contract(abi, contractAddress)
+
+  let result = { spenderAddress: klaytn.selectedAddress, status: 400 };
+
+  await contract.methods.owner()
+  .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
+  .then(function(receipt) {
+    console.log('owner receipt', receipt);
+
+    result.transactionId = receipt.transactionHash;
+    result.status = receipt.status ? 200 : 400;
+  });
+
+  return result;
+
+}
+
 export const transferOwnership = async (walletAddress) => {
   const contractABI = [{
     name: 'transferOwnership',
@@ -129,7 +154,7 @@ export const transferOwnership = async (walletAddress) => {
   const contract = new caver.klay.Contract(contractABI, contractAddress)
 
   let result = { spenderAddress: walletAddress, status: 400 };
-  
+
   await contract.methods.transferOwnership(
     walletAddress
   )

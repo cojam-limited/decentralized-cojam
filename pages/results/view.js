@@ -16,7 +16,7 @@ function Index(props) {
 		
 		const newRelatedPost = [];
 		post?.related?.forEach((related) => {
-			const query = `*[_type == 'resultList' && _id == '${related._ref}' && _id != '${Date.now()}'][0]`;
+			const query = `*[_type == 'resultList' && isActive == true && _id == '${related._ref}' && _id != '${Date.now()}'][0]`;
 			client.fetch(query).then((res) => {
 				if(res) {
 					newRelatedPost.push(res);

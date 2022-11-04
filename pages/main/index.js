@@ -15,7 +15,6 @@ import qnaBackground from '@assets/main_qna_bg.jpg';
 import { urlFor, client } from "../../sanity";
 
 import Moment from 'moment';
-import Accordion from '../../components/Accordion';
 import { useLoadingState } from "../../assets/context/LoadingContext";
 import { useWalletData } from '@data/wallet';
 import { checkLogin } from "@api/UseTransactions";
@@ -26,7 +25,6 @@ function Index() {
 	const history = useHistory();
 	const { setLoading } = useLoadingState();
 	const [ quests, setQuests ] = useState([]);
-	const [ qnas, setQnas ] = useState([]);
 	const [ mainImages, setMainImages ] = useState([]);
 	
 	const [ answerTotalAmounts, setAnswerTotalAmounts] = useState({});
@@ -71,11 +69,6 @@ function Index() {
 						setAnswerAllocations(answerAllocations);
 					});
 				});
-			});
-
-			const qnaQuery = '*[_type == "qnaList"] | order(order asc)';
-			await client.fetch(qnaQuery).then((data) => {
-				setQnas(data);
 			});
 
 			const popupQuery = `*[_type == 'popup' && isActive == true] | order(createdDateTime desc) [0]`;

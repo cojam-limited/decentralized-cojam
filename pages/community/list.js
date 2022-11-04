@@ -28,7 +28,7 @@ function Index() {
 	
 	useEffect(() => {
 		setLoading(true);
-		const query = `*[_type == 'communityList' && _id != '${Date.now()}' ${activeCategory == 'All' ? '' : `&& type == '${activeCategory}'`}]`;
+		const query = `*[_type == 'communityList' && isActive == true && _id != '${Date.now()}' ${activeCategory == 'All' ? '' : `&& type == '${activeCategory}'`}]`;
 		client.fetch(query).then((datas) => {
 			datas.forEach((data) => {
 				data.postDate = Moment(data.postDate).format('YYYY-MM-DD HH:mm');

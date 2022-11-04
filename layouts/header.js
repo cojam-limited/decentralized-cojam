@@ -14,7 +14,7 @@ import { ConnectKaikasButton } from './styles';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import isMobile from '@utils/isMobile';
 import { kaikasLogin, getRewardCojamURI } from '@api/UseKaikas';
-import { callGetCojamBalance } from '@api/UseTransactions';
+import { callGetCojamBalance, getOwner } from '@api/UseTransactions';
 
 import { prepare, request, getResult } from 'klip-sdk';
 import QRCode from 'qrcode';
@@ -325,7 +325,6 @@ function Header() {
                   <div>
                     <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
                     {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-md"></i> ADMIN</Link>}
-                    {/* <Link to="#" onClick={() => { inactiveAll() }}><i className="uil uil-user-circle"></i> REMOVE ALL</Link> */}
                     <Link to="#" onClick={() => { logout() }}><i className="uil uil-sign-out-alt"></i> LOGOUT</Link>
                   </div>
                 </>
