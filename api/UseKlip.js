@@ -10,11 +10,11 @@ import isMobile from '@utils/isMobile';
 const caver = new Caver(window.klaytn);
 
 // klip은 dev (baobab)가 없음 
-const xChainId = '8217'; // prod
-const authorization = 'Basic S0FTSzFQTzJSR1RZNU5LTjJERktDVVhMOkFpd1NDeUN3Z2Q4Wkc5aUtqWXNXS3ZBam96UXZRN3BwRjhCLWZqcWU='; // prod
+const xChainId = process.env.REACT_APP_CHAIN_ID;
+const authorization = process.env.REACT_APP_KLIP_AUTH;
 
-const cojamTokenAddress = '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b';  // prod
-const cojamMarketAddress = '0x2078466926E4Af541DC47d954C487517bcE49c28'; // prod
+const cojamTokenAddress = process.env.REACT_APP_TOKEN_ADDRESS;
+const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;
 
 const klipTimeLimitMs = 60000;
 
@@ -81,8 +81,6 @@ export const getCojamBalance_KLIP = async (walletAddress) => {
   
     let result = { balance: 0, status: 400};
     await axios.request(options).then(function (response) {
-      console.log('balance', response);
-
       result.status = 200;
       result.balance = parseInt(response?.data?.balance, 16);
     }).catch(function (error) {
@@ -432,8 +430,6 @@ export const addAnswerKeys_KLIP = async ({
 }, 
 fromAddress, setQr, setQrModal, setMinutes, setSeconds
 ) => {
-  console.log('add answerkeys', marketKey, answerKeys);
-
   const bappName = 'cojam-v2';
   const from = fromAddress;
   const to = cojamMarketAddress;

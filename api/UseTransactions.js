@@ -19,8 +19,6 @@ import { approveCojamURI_KLIP, bettingCojamURI_KLIP, receiveToken_KLIP, transfer
         return false;
       }
     } else {
-      console.log('check login walletData', walletData.account);
-
       return walletData.account;
     }
   }

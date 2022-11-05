@@ -118,7 +118,7 @@ function Index() {
 			<div className="container container-main">
 				<div className="quest-list-columns">
 					<h2>Popular Vote</h2>
-					<h3 class="about-content">Convergence Platform of Knowledge based on Prediction</h3>
+					<h3 className="about-content">Convergence Platform of Knowledge based on Prediction</h3>
 					<ul>
 						{/* Quest 리스트 루프 Start*/}
 						{

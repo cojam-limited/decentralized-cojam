@@ -14,7 +14,7 @@ import { ConnectKaikasButton } from './styles';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import isMobile from '@utils/isMobile';
 import { kaikasLogin, getRewardCojamURI } from '@api/UseKaikas';
-import { callGetCojamBalance, getOwner } from '@api/UseTransactions';
+import { callGetCojamBalance } from '@api/UseTransactions';
 
 import { prepare, request, getResult } from 'klip-sdk';
 import QRCode from 'qrcode';
@@ -41,6 +41,8 @@ function Header() {
   const { modalData, mutateModalData } = useModalData(WALLET_MODAL_DATA_KEY);
   const { walletData, mutateWalletData } = useWalletData();
   const [ memberRole, setMemberRole ] = useState('');
+
+  console.log('running profile', process.env.REACT_APP_PROFILE);
 
   //scroll 이벤트 관련
   const isNumber = (balance) => {
@@ -257,18 +259,12 @@ function Header() {
   useEffect(() => {
     getBalance();
 
-    console.log('wallet data', walletData);
-
     if(walletData && walletData.account) {
-      console.log('is admin ? ', walletData.account.toLowerCase());
-
       // admin check
       const adminQuery = `*[_type == 'admin' && walletAddress == '${walletData.account.toLowerCase()}' && _id != '${Date.now()}'][0]`;
       client.fetch(adminQuery).then((admin) => {
       
         if(admin) {
-          console.log('this is admin');
-
           setMemberRole('admin');
         }
       });

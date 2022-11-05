@@ -6,46 +6,15 @@ import axios from 'axios';
 
 const caver = new Caver(window.klaytn);
 
-const profile = 'dev';
+const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;
+const cojamTokenAddress = process.env.REACT_APP_TOKENADDRESS;
+const xChainId = process.env.REACT_APP_CHAIN_ID;
 
-// baobab: 1001, cypress: 8217
-const caverExt = new CaverExtKAS( profile === 'prod' ? 8217: 1001, 'KASKABM99U30BTVDXCYDMQQF', 'P6vSKCjKxYuXdpp7e1H7JJjQNVvjwr46FYdcZhdm', { useNodeAPIWithHttp: true });
+const rewardAddress = process.env.REACT_APP_REWARD_ADDRESS;
+const xKrn = process.env.REACT_APP_REWARD_KRN;
+const walletAuth = process.env.REACT_APP_REWARD_AUTH;
 
-const cojamTokenAddress = profile === 'prod' 
-                        ? '0x7f223b1607171b81ebd68d22f1ca79157fd4a44b'    // prod
-                        : "0xd6cdab407f47afaa8800af5006061db8dc92aae7";   // dev
- 
-const cojamMarketAddress = profile === 'prod' 
-                          ? '0x2078466926E4Af541DC47d954C487517bcE49c28'   // prod
-                          : '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // dev
-
-const rewardAddress = profile === 'prod' 
-                    ? '0x62CF255C71D23EbC116B47bFC9801A167536136C'  // prod KAS reward wallet
-                    : '0xfA4fF8b168894141c1d6FAf21A58cb3962C93B84'; // dev KAS reward wallet
-
-/* prod
-  'x-krn': 'krn:8217:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:feepayer-pool:Cojam',
-  Authorization: 'Basic S0FTS0FDUktIQ0VSVFo0WVhETTNNOUFVOmpEb3FadnhWMnpXOS1fUnRNRWxlUTc4aGVBaF9IRVlJQzZlb3V2UHM='
-*/
-
-/* dev
-  'x-krn': 'krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:account-pool:Reward',
-  Authorization: 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0='
-*/
-
-const xChainId = profile === 'prod'
-               ? 8217
-               : 1001;
-
-const xKrn = profile === 'prod'
-           ? 'krn:8217:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:feepayer-pool:Cojam'
-           : 'krn:1001:wallet:737eb99e-bce5-4daf-9ad2-45f2bef83c2a:account-pool:Reward';
-
-const walletAuth = profile === 'prod'
-           ? 'Basic S0FTS0FDUktIQ0VSVFo0WVhETTNNOUFVOmpEb3FadnhWMnpXOS1fUnRNRWxlUTc4aGVBaF9IRVlJQzZlb3V2UHM='
-           : 'Basic S0FTS0FCTTk5VTMwQlRWRFhDWURNUVFGOlA2dlNLQ2pLeFl1WGRwcDdlMUg3SkpqUU5Wdmp3cjQ2RllkY1poZG0=';
-
-
+const caverExt = new CaverExtKAS( xChainId, 'KASKABM99U30BTVDXCYDMQQF', 'P6vSKCjKxYuXdpp7e1H7JJjQNVvjwr46FYdcZhdm', { useNodeAPIWithHttp: true });
 
 // cojam token address ?
 const cojamToken = new caver.kct.kip7(cojamTokenAddress);
@@ -128,8 +97,6 @@ export const owner = async () => {
   await contract.methods.owner()
   .send({from: klaytn.selectedAddress, to: contractAddress, gas: '9000000'})
   .then(function(receipt) {
-    console.log('owner receipt', receipt);
-
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   });
