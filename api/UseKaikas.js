@@ -7,7 +7,7 @@ import axios from 'axios';
 const caver = new Caver(window.klaytn);
 
 const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;
-const cojamTokenAddress = process.env.REACT_APP_TOKENADDRESS;
+const cojamTokenAddress = process.env.REACT_APP_TOKEN_ADDRESS;
 const xChainId = process.env.REACT_APP_CHAIN_ID;
 
 const rewardAddress = process.env.REACT_APP_REWARD_ADDRESS;
