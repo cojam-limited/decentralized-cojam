@@ -229,6 +229,8 @@ function Header() {
   const handleOpenKaikasModal = async () => {
     setLoading(true);
     
+    console.log('daumtools', daumtools);
+
     if(isMobile()) {
       alert('kaikas mobile login!');
 
@@ -285,7 +287,7 @@ function Header() {
 
             setLoading(false);
         }).catch((error) => {
-            alert('error !', error);
+            alert(error);
             console.log(error);
             setLoading(false);
         });
