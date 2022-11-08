@@ -55,8 +55,58 @@ function Header() {
   }
 
   const handleOpenKaikasModal = async () => {
-    const account = await kaikasLogin();
-    mutateWalletData({ account: account, type: 'kaikas' });
+    
+    if(isMobile()) {
+      await axios.post("https://api.kaikas.io/api/v1/k/prepare",
+        {
+            bapp: { name: 'cojam_v1' },
+            type: "auth",
+        }).then(async (response) => {
+            alert('kaikas mobile', response);
+
+            const { request_key } = response.data;
+            const qrUrl = `https://app.kaikas.io/a/${request_key}`;
+    
+            setMinutes(5); 
+            setSeconds(0);
+  
+            setQr(await QRCode.toDataURL(qrUrl));
+            setQrModal(true); 
+          
+            let time = new Date().getTime();
+            const endTime = time + klipTimeLimitMs;
+            while (time < endTime) {
+              if( time % 500 === 0 ) {
+                await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
+                           .then((response) => {
+                              if(response.data.status === "completed") {
+                                  const status = response.data.result.status;
+                                  if (status === "success") {
+                                    result.transactionId = response.data.result.tx_hash;
+                                    result.status = 200;
+                                  }
+    
+                                  setQrModal(false); 
+                              } else if(response.data.status === "error") {
+                                result.status = 500;
+                              }
+                            })
+                            .catch((error) => {
+                              result.status = 500;
+                            });
+              }
+    
+              time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
+    } else {
+      const account = await kaikasLogin();
+      mutateWalletData({ account: account, type: 'kaikas' });
+    }
+
+
     mutateModalData({ open: false });
     modalKlipAdd(false);
   }
@@ -100,7 +150,7 @@ function Header() {
         setMinutes(5);
         setSeconds(0);
 
-        const url = `https://app.kaikas.io/a/${requestKey}`;
+        const url = `https://klipwallet.com/?target=a2a?request_key=${requestKey}`;
         generateQR(url);
       } else {
         // 접속한 환경이 mobile이 아닐 때, Deep Link.
