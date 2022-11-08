@@ -28,6 +28,7 @@ import { QrContext } from '../components/Context/QrContext';
 import { useLoadingState } from "@assets/context/LoadingContext";
 
 import { client } from "../sanity";
+import axios from 'axios';
 
 function Header() {
   const { setLoading } = useLoadingState();
@@ -55,6 +56,7 @@ function Header() {
   }
 
   const handleOpenKaikasModal = async () => {
+    setLoading(true);
     
     if(isMobile()) {
       alert('kaikas mobile login!');
@@ -105,15 +107,18 @@ function Header() {
     
               time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
             }
+
+            setLoading(false);
         }).catch((error) => {
             alert('error !', error);
             console.log(error);
+            setLoading(false);
         });
     } else {
       const account = await kaikasLogin();
       mutateWalletData({ account: account, type: 'kaikas' });
+      setLoading(false);
     }
-
 
     mutateModalData({ open: false });
     modalKlipAdd(false);
