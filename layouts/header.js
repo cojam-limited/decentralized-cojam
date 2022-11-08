@@ -56,7 +56,7 @@ function Header() {
 
   const handleOpenKaikasModal = async () => {
     
-    if(!isMobile()) {
+    if(isMobile()) {
       await axios.post("https://api.kaikas.io/api/v1/k/prepare",
         {
             bapp: { name: 'cojam_v1' },
@@ -129,7 +129,7 @@ function Header() {
     const bappName = 'cojam-v2';
 
     // TODO MODIFY
-    const successLink = 'https://musical-treacle-ae1281.netlify.app/';
+    const successLink = 'https://decentralized-cojam.vercel.app//';
     const failLink = 'myApp://...';
     const res = await prepare.auth({ bappName, successLink, failLink });
 
