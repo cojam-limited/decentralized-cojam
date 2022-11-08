@@ -57,6 +57,8 @@ function Header() {
   const handleOpenKaikasModal = async () => {
     
     if(isMobile()) {
+      alert('kaikas mobile login!');
+
       await axios.post("https://api.kaikas.io/api/v1/k/prepare",
         {
             bapp: { name: 'cojam_v1' },
@@ -99,6 +101,7 @@ function Header() {
               time = result.status !== 400 ? Number.MAX_SAFE_INTEGER : new Date().getTime();
             }
         }).catch((error) => {
+            alert('error !', error);
             console.log(error);
         });
     } else {
