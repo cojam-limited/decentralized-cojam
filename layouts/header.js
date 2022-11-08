@@ -56,7 +56,7 @@ function Header() {
 
   const handleOpenKaikasModal = async () => {
     
-    if(isMobile()) {
+    if(!isMobile()) {
       await axios.post("https://api.kaikas.io/api/v1/k/prepare",
         {
             bapp: { name: 'cojam_v1' },
