@@ -251,6 +251,8 @@ function Header() {
             let time = new Date().getTime();
             const endTime = time + klipTimeLimitMs;
             while (time < endTime) {
+              
+              const result = { status: 400 };
               if( time % 500 === 0 ) {
                 //await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                 daumtools.web2app({
@@ -262,8 +264,7 @@ function Header() {
                   onAppMissing  : function() { alert('KAIKAS mobile 설치가 필요합니다.') },					// fallback function (default. move to appstore)
                   onUnsupportedEnvironment : function() {}		// fallback function
                 });
-
-                const result = { status: 400 };
+                
                 await axios.get(`kaikas://wallet/api?request_key=${request_key}`)
                            .then((response) => {
                               if(response.data.status === "completed") {
