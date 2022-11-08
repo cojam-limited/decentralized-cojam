@@ -231,7 +231,7 @@ function Header() {
     
     console.log('daumtools', daumtools);
 
-    if(!isMobile()) {
+    if(isMobile()) {
       alert('kaikas mobile login!');
 
       await axios.post("https://api.kaikas.io/api/v1/k/prepare",
