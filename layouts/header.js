@@ -70,23 +70,17 @@ function Header() {
             'Content-Type': 'application/json; charset=utf-8'
           },
         }).then(async (response) => {
-            alert('kaikas mobile', response);
-
             const { request_key } = response.data;
-            const qrUrl = `https://app.kaikas.io/a/${request_key}`;
-    
-            setMinutes(5); 
-            setSeconds(0);
-  
-            setQr(await QRCode.toDataURL(qrUrl));
-            setQrModal(true); 
-          
+
+            alert(request_key);
+            
             const klipTimeLimitMs = 60000;
             let time = new Date().getTime();
             const endTime = time + klipTimeLimitMs;
             while (time < endTime) {
               if( time % 500 === 0 ) {
-                await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
+                //await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
+                await axios.get(`kaikas://wallet/api?request_key=${request_key}`)
                            .then((response) => {
                               if(response.data.status === "completed") {
                                   const status = response.data.result.status;
