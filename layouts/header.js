@@ -42,8 +42,6 @@ function Header() {
   const { walletData, mutateWalletData } = useWalletData();
   const [ memberRole, setMemberRole ] = useState('');
 
-  console.log('running profile', process.env.REACT_APP_PROFILE);
-
   //scroll 이벤트 관련
   const isNumber = (balance) => {
     if(balance) {
@@ -102,7 +100,7 @@ function Header() {
         setMinutes(5);
         setSeconds(0);
 
-        const url = `https://klipwallet.com/?target=a2a?request_key=${requestKey}`;
+        const url = `https://app.kaikas.io/a/${requestKey}`;
         generateQR(url);
       } else {
         // 접속한 환경이 mobile이 아닐 때, Deep Link.
