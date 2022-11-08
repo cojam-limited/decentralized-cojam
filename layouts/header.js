@@ -60,9 +60,13 @@ function Header() {
       alert('kaikas mobile login!');
 
       await axios.post("https://api.kaikas.io/api/v1/k/prepare",
-        {
-            bapp: { name: 'cojam_v1' },
-            type: "auth",
+        { 
+          bapp: { name: 'cojam_v1' },
+          type: "auth",
+        }, {
+          headers: {            
+            'Content-Type': 'application/json; charset=utf-8'
+          },
         }).then(async (response) => {
             alert('kaikas mobile', response);
 
@@ -75,6 +79,7 @@ function Header() {
             setQr(await QRCode.toDataURL(qrUrl));
             setQrModal(true); 
           
+            const klipTimeLimitMs = 60000;
             let time = new Date().getTime();
             const endTime = time + klipTimeLimitMs;
             while (time < endTime) {
