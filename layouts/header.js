@@ -231,7 +231,7 @@ function Header() {
     
     console.log('daumtools', daumtools);
 
-    if(isMobile()) {
+    if(!isMobile()) {
       alert('kaikas mobile login!');
 
       await axios.post("https://api.kaikas.io/api/v1/k/prepare",
@@ -263,6 +263,7 @@ function Header() {
                   onUnsupportedEnvironment : function() {}		// fallback function
                 });
 
+                const result = { status: 400 };
                 await axios.get(`kaikas://wallet/api?request_key=${request_key}`)
                            .then((response) => {
                               if(response.data.status === "completed") {
