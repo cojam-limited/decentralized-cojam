@@ -82,7 +82,7 @@ function Header() {
                               if(response.data.status === "completed") {
                                   const status = response.data.result.status;
                                   if (status === "success") {
-                                    result.transactionId = response.data.result.tx_hash;
+                                    mutateWalletData({ account: response.data.result.klaytn_address, type: 'kaikas' });
                                     result.status = 200;
                                   }
     
