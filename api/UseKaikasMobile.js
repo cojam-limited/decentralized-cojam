@@ -149,8 +149,8 @@ export const draftMarket_MOBILE = async ({
           message: '모바일 환경에서 실행해주세요',
         })); */
 
-        // web 2 app
-        location.href(`kaikas://wallet/api?request_key=${request_key}`);
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -215,21 +215,9 @@ export const approveMarket_MOBILE = async (
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
 
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -294,21 +282,9 @@ export const adjournMarket_MOBILE = async (
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
 
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -373,21 +349,8 @@ export const finishMarket_MOBILE = async (
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
-
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -455,21 +418,8 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
-
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -536,21 +486,8 @@ export const retrieveMarket_MOBILE = async (
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
-
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -619,21 +556,8 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
-
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -714,21 +638,8 @@ export const bettingCojamURI_MOBILE = async ({
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
-
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -795,21 +706,8 @@ export const approveCojamURI_MOBILE = async (
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
-
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
         
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -882,21 +780,8 @@ export const transferCojamURI_MOBILE = async ({
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
-
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
         
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -960,21 +845,8 @@ export const transferOwnership_MOBILE = async (
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
-
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
@@ -1041,21 +913,8 @@ export const receiveToken_MOBILE = async (
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
-
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
-
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // request - web 2 app
+        location.href = `kaikas://wallet/api?request_key=${request_key}`;
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
