@@ -32,8 +32,14 @@ import isMobile from '@utils/isMobile';
     walletData 
   ) => {
     let newBalance = 0;
+
+    alert('get cojambalance');
+    alert(walletData?.type);
+
     if(walletData?.type === 'kaikas') {
       newBalance = await getCojamBalance(walletData?.account);
+
+      alert('new balance');
     } else {
       const cojamBalance = await getCojamBalance_KLIP(walletData?.account);
       newBalance = cojamBalance?.balance ?? 0;
