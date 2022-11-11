@@ -90,9 +90,7 @@ function Header() {
         { 
           bapp: { name: 'cojam_v1' },
           type: "auth",
-          "add_network": {
-            "chain_id": "1001"
-          }
+          chain_id: "1001"
         }, {
           headers: {            
             'Content-Type': 'application/json; charset=utf-8'
