@@ -159,13 +159,8 @@ export const draftMarket_MOBILE = async ({
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response) => {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                            result.transactionId = response.data.result.tx_hash;
+                            result.status = 200; 
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
@@ -226,13 +221,8 @@ export const approveMarket_MOBILE = async (
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                            result.transactionId = response.data.result.tx_hash;
+                            result.status = 200;
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
@@ -293,13 +283,8 @@ export const adjournMarket_MOBILE = async (
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                            result.transactionId = response.data.result.tx_hash;
+                            result.status = 200;
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
@@ -359,13 +344,8 @@ export const finishMarket_MOBILE = async (
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                            result.transactionId = response.data.result.tx_hash;
+                            result.status = 200;
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
@@ -428,13 +408,8 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                            result.transactionId = response.data.result.tx_hash;
+                            result.status = 200;
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
@@ -496,13 +471,8 @@ export const retrieveMarket_MOBILE = async (
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                              result.transactionId = response.data.result.tx_hash;
+                              result.status = 200;
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
@@ -566,13 +536,8 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                              result.transactionId = response.data.result.tx_hash;
+                              result.status = 200;
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
@@ -648,13 +613,8 @@ export const bettingCojamURI_MOBILE = async ({
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                            result.transactionId = response.data.result.tx_hash;
+                            result.status = 200;
                           } else if(response.data.status === "error") {
                             result.transactionId = response.data?.result?.tx_hash;
                             result.status = 500;
@@ -716,13 +676,10 @@ export const approveCojamURI_MOBILE = async (
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data?.status === "completed") {
-                              const status = response.data?.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                            result.transactionId = response.data.result.tx_hash;
+                            result.status = 200;
+                          } else if(response.data.status === "error") {
+                            result.status = 500;
                           }
                         })
                         .catch((error) => {
@@ -790,13 +747,8 @@ export const transferCojamURI_MOBILE = async ({
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                            result.transactionId = response.data.result.tx_hash;
+                            result.status = 200;
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
@@ -855,13 +807,8 @@ export const transferOwnership_MOBILE = async (
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                            result.transactionId = response.data.result.tx_hash;
+                            result.status = 200;
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
@@ -923,13 +870,8 @@ export const receiveToken_MOBILE = async (
             await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                        .then((response)=> {
                           if(response.data.status === "completed") {
-                              const status = response.data.result.status;
-                              if (status === "success") {
-                                result.transactionId = response.data.result.tx_hash;
-                                result.status = 200;
-                              }
-
-                              setQrModal(false); 
+                            result.transactionId = response.data.result.tx_hash;
+                            result.status = 200;
                           } else if(response.data.status === "error") {
                             result.status = 500;
                           }
