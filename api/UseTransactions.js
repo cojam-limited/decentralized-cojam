@@ -40,6 +40,7 @@ import isMobile from '@utils/isMobile';
       newBalance = await getCojamBalance(walletData?.account);
 
       alert('new balance');
+      alert(newBalance);
     } else {
       const cojamBalance = await getCojamBalance_KLIP(walletData?.account);
       newBalance = cojamBalance?.balance ?? 0;
