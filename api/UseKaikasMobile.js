@@ -141,21 +141,16 @@ export const draftMarket_MOBILE = async ({
         type: "execute_contract",
     }).then(async (response) => {
         const {request_key} = response.data;
-        const qrUrl = `https://app.kaikas.io/a/${request_key}`;
+        const schema = "kaikas://wallet/browser?url=" + encodeURIComponent("https://google.com/search?q=kaikas");
 
-        if( !isMobile() ) {
-          setMinutes(5); 
-          setSeconds(0);
+        // 접속한 환경이 mobile이 아닐 때, Deep Link.
+        /* request(request_key, () => toastNotify({
+          state: 'error',
+          message: '모바일 환경에서 실행해주세요',
+        })); */
 
-          setQr(await QRCode.toDataURL(qrUrl));
-          setQrModal(true); 
-        } else {
-          // 접속한 환경이 mobile이 아닐 때, Deep Link.
-          request(request_key, () => toastNotify({
-            state: 'error',
-            message: '모바일 환경에서 실행해주세요',
-          }));
-        }
+        // web 2 app
+        location.href(`kaikas://wallet/api?request_key=${request_key}`);
       
         let time = new Date().getTime();
         const endTime = time + klipTimeLimitMs;
