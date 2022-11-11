@@ -214,6 +214,30 @@ function Header() {
   const { walletData, mutateWalletData } = useWalletData();
   const [ memberRole, setMemberRole ] = useState('');
 
+  useEffect(() => {
+    //카이카스 설치된 경우
+    if (window?.klaytn) {
+      window?.klaytn.on('accountsChanged', function (accounts) {
+        // 카이카스에서 계정 전환했을 때 지갑 주소 업데이트
+        mutateWalletData({ account: accounts[0], type: 'kaikas' });
+      });
+
+      window?.klaytn.on('networkChanged', function () {
+        // 유저가 네트워크 변경했을 때 지갑 업데이트
+        toastNotify({
+          state: 'warn',
+          message: 'network Changed.',
+        });
+      });
+    } else {
+      //카이카스 설치 안된 경우
+      /* toastNotify({
+        state: 'error',
+        message: 'There is No Kaikas',
+      }); */
+    }
+  }, []);
+
   //scroll 이벤트 관련
   const isNumber = (balance) => {
     if(balance) {
@@ -229,8 +253,6 @@ function Header() {
   const handleOpenKaikasModal = async () => {
     setLoading(true);
     
-    console.log('daumtools', daumtools);
-
     if(isMobile()) {
       alert('kaikas mobile login!');
 
@@ -459,6 +481,9 @@ function Header() {
   const getBalance = async () => {
     if (walletData?.account && walletData?.account !== '') {
       const cojamBalance = await callGetCojamBalance(walletData);
+
+      console.log('getBalance', cojamBalance, balance);
+
       if(cojamBalance !== balance) {
         setBalance(cojamBalance);
       }
@@ -498,6 +523,8 @@ function Header() {
   // login 에 따라 wallet, balance 상태 관리
   useEffect(() => {
     getBalance();
+
+    console.log('walletData', walletData);
 
     if(walletData && walletData.account) {
       // admin check

@@ -8,7 +8,7 @@ const option = {
   fallbackData: {}, // 에러 방지 초기 데이터 삽입
   revalidateOnFocus: false, // 포커스 시에 자동 갱신 비활성화
 };
-
+WALLET_DATA_KEY
 export const useWalletData = () => {
   const { data: walletData, mutate } = useSWR(WALLET_DATA_KEY, localDataFetcher, option);
 
