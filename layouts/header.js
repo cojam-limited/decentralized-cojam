@@ -98,9 +98,11 @@ function Header() {
             'Content-Type': 'application/json; charset=utf-8'
           },
         }).then(async (response) => {
-            const { request_key } = response.data;
+            const { request_key, chain_id } = response.data;
 
             alert(request_key);
+
+            alert(chain_id);
 
             // request - web 2 app
             location.href = `kaikas://wallet/api?request_key=${request_key}`;
