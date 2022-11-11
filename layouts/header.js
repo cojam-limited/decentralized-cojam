@@ -116,7 +116,11 @@ function Header() {
                 
                 await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                            .then((response) => {
-                              if(response.data.status === "completed") {
+                              const { status } = response.data;
+
+                              alert(status);
+
+                              if(status === "completed") {
                                   const status = response.data.result.status;
                                   if (status === "success") {
                                     mutateWalletData({ account: response.data.result.klaytn_address, type: 'kaikas' });
