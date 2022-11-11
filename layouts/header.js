@@ -100,7 +100,7 @@ function Header() {
             alert(request_key);
 
             // request - web 2 app
-            location.href(`kaikas://wallet/api?request_key=${request_key}`);
+            location.href = `kaikas://wallet/api?request_key=${request_key}`;
             
             // result
             const klipTimeLimitMs = 60000;
