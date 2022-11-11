@@ -98,10 +98,6 @@ function Header() {
         }).then(async (response) => {
             const { request_key, chain_id } = response.data;
 
-            alert(request_key);
-
-            alert(chain_id);
-
             // request - web 2 app
             location.href = `kaikas://wallet/api?request_key=${request_key}`;
             
@@ -116,19 +112,12 @@ function Header() {
                 
                 await axios.get(`https://api.kaikas.io/api/v1/k/result/${request_key}`)
                            .then((response) => {
-                              const { status } = response.data;
-
-                              alert(status);
+                              const { status, result: resResult } = response.data;
 
                               if(status === "completed") {
-                                  const status = response.data.result.status;
-                                  if (status === "success") {
-                                    mutateWalletData({ account: response.data.result.klaytn_address, type: 'kaikas' });
-                                    result.status = 200;
-                                  }
-    
-                                  setQrModal(false); 
-                              } else if(response.data.status === "error") {
+                                  mutateWalletData({ account: resResult.klaytn_address, type: 'kaikas' });
+                                  result.status = 200;
+                              } else if(status === "error") {
                                 result.status = 500;
                               }
                             })
