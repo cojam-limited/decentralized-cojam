@@ -139,15 +139,9 @@ export const draftMarket_MOBILE = async ({
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
-        const schema = "kaikas://wallet/browser?url=" + encodeURIComponent("https://google.com/search?q=kaikas");
-
-        // 접속한 환경이 mobile이 아닐 때, Deep Link.
-        /* request(request_key, () => toastNotify({
-          state: 'error',
-          message: '모바일 환경에서 실행해주세요',
-        })); */
 
         // request - web 2 app
         location.href = `kaikas://wallet/api?request_key=${request_key}`;
@@ -208,6 +202,7 @@ export const approveMarket_MOBILE = async (
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
 
@@ -270,6 +265,7 @@ export const adjournMarket_MOBILE = async (
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
 
@@ -332,6 +328,7 @@ export const finishMarket_MOBILE = async (
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
         // request - web 2 app
@@ -396,6 +393,7 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
         // request - web 2 app
@@ -459,6 +457,7 @@ export const retrieveMarket_MOBILE = async (
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
         // request - web 2 app
@@ -524,6 +523,7 @@ fromAddress, setQr, setQrModal, setMinutes, setSeconds
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
         // request - web 2 app
@@ -601,6 +601,7 @@ export const bettingCojamURI_MOBILE = async ({
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
         // request - web 2 app
@@ -664,6 +665,7 @@ export const approveCojamURI_MOBILE = async (
             params: txParams,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
         // request - web 2 app
@@ -735,6 +737,7 @@ export const transferCojamURI_MOBILE = async ({
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
         // request - web 2 app
@@ -795,6 +798,7 @@ export const transferOwnership_MOBILE = async (
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
         // request - web 2 app
@@ -858,6 +862,7 @@ export const receiveToken_MOBILE = async (
             params: params,
         },
         type: "execute_contract",
+        chain_id: xChainId
     }).then(async (response) => {
         const {request_key} = response.data;
         // request - web 2 app
