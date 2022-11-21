@@ -16,9 +16,9 @@
 .eslintcache
 
 # local env files
-#.env
-#.env.development
-#.env.production
+.env
+.env.development
+.env.production
 
 # debug
 npm-debug.log*

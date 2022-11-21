@@ -31,6 +31,8 @@ function Index() {
 	const [ answerPercents, setAnswerPercents] = useState({});
 	const [ answerAllocations, setAnswerAllocations ] = useState({});
 
+	console.log('profile', process.env.REACT_APP_PROFILE);
+
 	const resizeFunc = () => {
 		//창크기 변화 감지
 		if(window.innerWidth < 1000) {
