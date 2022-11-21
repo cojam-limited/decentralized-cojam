@@ -7,11 +7,11 @@ import Moment from 'moment';
 
 import Pagination from "react-sanity-pagination";
 import { useLoadingState } from "../../assets/context/LoadingContext";
-import backgroundImage from '@assets/body_notice.jpg';
 
 function Index() {
 	const history = useHistory();
 	const { setLoading } = useLoadingState();
+	const [ bannerImage, setBannerImage ] = useState();
 	
 	{/* 페이지네이션 세팅 */}
 	let postsPerPage = 6;
@@ -25,6 +25,14 @@ function Index() {
 	{/* 페이지네이션 세팅 끝 */}
 
 	useEffect(() => {
+		// banner image 조회
+		const imageQuery = `*[_type == 'pageImages' && pageTitle == 'results'][0]`;
+		client.fetch(imageQuery).then((image) => {
+			if(image) {
+				setBannerImage(image.pageImage);
+			}
+		});
+
 		setLoading(true);
 		const query = `*[_type == 'resultList' && isActive == true && _id != '${Date.now()}']`;
 		client.fetch(query).then((datas) => {
@@ -43,7 +51,7 @@ function Index() {
 	}, []);
 	
 	return (
-		<div className="bg-notice" style={{background: `url('${backgroundImage}') center -590px no-repeat, #fff`}}>
+		<div className="bg-notice" style={{background: `${bannerImage && `url(${urlFor(bannerImage)})`} center -590px no-repeat, #fff`}}>
 			{/* 타이틀영역 */}
 			<div className="title-area">
 				Results
@@ -89,7 +97,9 @@ function Index() {
 
 
 				{/* 페이지네이션 */}
-				<Pagination
+				{
+					itemsToSend.length > 0 && 
+					<Pagination
 						nextButton={true}
 						prevButton={true}
 						nextButtonLabel={">"}
@@ -97,7 +107,8 @@ function Index() {
 						items={itemsToSend}
 						action={action}
 						postsPerPage={postsPerPage}
-				/>
+					/>
+				}
 				{/* 페이지네이션 끝 */}
 			</div>
 

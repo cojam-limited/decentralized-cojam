@@ -7,13 +7,13 @@ import Moment from 'moment';
 
 import Pagination from "react-sanity-pagination";
 import { useLoadingState } from "../../assets/context/LoadingContext";
-import backgroundImage from '@assets/body_service.jpg';
 
 function Index() {
 	const history = useHistory();
 	const { setLoading } = useLoadingState();
 	const [categories, setCategories] = useState(['All', 'News', 'Notice']);
 	const [activeCategory, setActiveCategory] = useState('All');
+	const [ bannerImage, setBannerImage ] = useState();
 
 	{/* 페이지네이션 세팅 */}
 	let postsPerPage = 6;
@@ -25,9 +25,20 @@ function Index() {
 		setItems(items);
 	};
 	{/* 페이지네이션 세팅 끝 */}
+
+	useEffect(() => {
+		// banner image 조회
+		const imageQuery = `*[_type == 'pageImages' && pageTitle == 'community'][0]`;
+		client.fetch(imageQuery).then((image) => {
+			if(image) {
+				setBannerImage(image.pageImage);
+			}
+		});
+	}, []);
 	
 	useEffect(() => {
 		setLoading(true);
+		// community list 조회
 		const query = `*[_type == 'communityList' && isActive == true && _id != '${Date.now()}' ${activeCategory == 'All' ? '' : `&& type == '${activeCategory}'`}]`;
 		client.fetch(query).then((datas) => {
 			datas.forEach((data) => {
@@ -45,7 +56,7 @@ function Index() {
 
 
   return (
-	<div className="bg-service" style={{background: `url('${backgroundImage}') center -590px no-repeat, #fff`}}>
+	<div className="bg-service" style={{background: `${bannerImage && `url(${urlFor(bannerImage)})`} center -590px no-repeat, #fff`}}>
 			{/* 타이틀영역 */}
 			<div className="title-area">
 				Community
@@ -100,7 +111,9 @@ function Index() {
 				{/* 리스트 끝 */}
 				
 				{/* 페이지네이션 */}
-				<Pagination
+				{	
+					itemsToSend.length > 0 &&
+					<Pagination
 						nextButton={true}
 						prevButton={true}
 						nextButtonLabel={">"}
@@ -108,7 +121,8 @@ function Index() {
 						items={itemsToSend}
 						action={action}
 						postsPerPage={postsPerPage}
-				/>
+					/>
+				}
 				{/* 페이지네이션 끝 */}
 			</div>
     </div>

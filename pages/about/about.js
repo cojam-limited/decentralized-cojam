@@ -1,12 +1,5 @@
-//import { Link } from 'react-router-dom'
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-import serviceIcn04 from '@assets/service_icn04.png'
-import serviceIcn06 from '@assets/service_icn06.png'
-import serviceIcn08 from '@assets/service_icn08.png'
-import serviceIcn09 from '@assets/service_icn09.png'
-import serviceIcn10 from '@assets/service_icn10.png'
-import serviceIcn11 from '@assets/service_icn11.png'
 import aboutContatIcn01 from '@assets/about_contat_icn01.png'
 import aboutContatIcn04 from '@assets/about_contat_icn04.png'
 import snsIconNaver from '@assets/sns_icon_naver.png'
@@ -18,14 +11,27 @@ import snsIconKakao from '@assets/sns_icon_kakao.png'
 
 import aboutMovie from '@assets/about_movie.mp4'
 
-import backgroundImage from '@assets/body_about.jpg';
 import appStoreImage from '@assets/app_store.jpg';
 import googleStoreImage from '@assets/google_store.jpg';
 import gitBookImage from '@assets/git_book.jpg';
 
+import { urlFor, client } from "../../sanity";
+
 function Index() {
+	const [ bannerImage, setBannerImage ] = useState();
+
+	useEffect(() => {
+		// banner image 조회
+		const imageQuery = `*[_type == 'pageImages' && pageTitle == 'about'][0]`;
+		client.fetch(imageQuery).then((image) => {
+			if(image) {
+				setBannerImage(image.pageImage);
+			}
+		});
+	}, []);
+
   return (
-	<div className="bg-about" style={{background: `url('${backgroundImage}') center -590px no-repeat, #fff`}}>
+	<div className="bg-about" style={{background: `${bannerImage && `url(${urlFor(bannerImage)})`} center -590px no-repeat, #fff`}}>
 		{/* 타이틀영역 */}
 		<div className="title-area">
 			About the Company

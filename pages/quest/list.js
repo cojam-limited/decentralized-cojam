@@ -11,7 +11,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { urlFor, client } from "../../sanity";
-import backgroundImage from '@assets/body_quest.jpg';
 import { useLoadingState } from "@assets/context/LoadingContext";
 import Pagination from "react-sanity-pagination";
 import createNewQuest from './createNewQuest';``
@@ -34,6 +33,7 @@ function Index() {
   const [ seasonInfos, setSeasonInfos ] = useState([]);
   const [ categories, setCategories ] = useState([]);
   const [ activeCategory, setActiveCategory ] = useState('All');
+  const [ bannerImage, setBannerImage ] = useState();
 
 	// pagenation settings
 	let postsPerPage = 6;
@@ -134,6 +134,14 @@ function Index() {
     /**
      * 시즌 카테고리 리스트 조회
      */
+
+    // banner image 조회
+		const imageQuery = `*[_type == 'pageImages' && pageTitle == 'quest'][0]`;
+		client.fetch(imageQuery).then((image) => {
+      if(image) {
+        setBannerImage(image.pageImage);
+      }
+		});
   }, []);
 
   useEffect(() => {
@@ -211,7 +219,7 @@ function Index() {
   }, [activeCategory]);
 
   return (
-  <div className="bg-quest" style={{background: `url('${backgroundImage}') center -150px no-repeat, #fff`}}>
+  <div className="bg-quest" style={{background: `${bannerImage && `url(${urlFor(bannerImage)})`} center -150px no-repeat, #fff`}}>
       {/* 기본영역 (타이틀/네비/버튼) */}
       <dl className="title-section">
         <dt>
@@ -340,7 +348,9 @@ function Index() {
         {/* 리스트 끝 */}
 
         {/* 페이지네이션 */}
-				<Pagination
+				{
+          itemsToSend.length > 0 && 
+          <Pagination
 						nextButton={true}
 						prevButton={true}
 						nextButtonLabel={">"}
@@ -348,7 +358,8 @@ function Index() {
 						items={itemsToSend}
 						action={action}
 						postsPerPage={postsPerPage}
-				/>
+				  />
+        }
 				{/* 페이지네이션 끝 */}
 
         {/* 등록버튼 */}
