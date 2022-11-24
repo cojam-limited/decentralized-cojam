@@ -154,9 +154,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
 
 
     // title setting
-    modalValues['titleEN'] = modalValues.title?.EN?.content ?? '';
     modalValues['titleKR'] = modalValues.title?.KR?.content ?? '';
-    modalValues['titleCH'] = modalValues.title?.CH?.content ?? '';
 
     delete modalValues.title;
 

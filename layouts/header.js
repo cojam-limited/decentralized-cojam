@@ -54,10 +54,10 @@ function Header() {
 
       window?.klaytn.on('networkChanged', function () {
         // 유저가 네트워크 변경했을 때 지갑 업데이트
-        toastNotify({
+        /* toastNotify({
           state: 'warn',
           message: 'network Changed.',
-        });
+        }); */
       });
     } else {
       //카이카스 설치 안된 경우
@@ -299,8 +299,6 @@ function Header() {
   const getBalance = async () => {
     if (walletData?.account && walletData?.account !== '') {
       const cojamBalance = await callGetCojamBalance(walletData);
-
-      console.log('getBalance', cojamBalance, balance);
 
       if(cojamBalance !== balance) {
         setBalance(cojamBalance);

@@ -133,9 +133,9 @@ import isMobile from '@utils/isMobile';
     let result;
     if(walletData?.type === 'kaikas') {
       if(isMobile()) {
-        await finishMarket(marketKey).then(res => result = res);
-      } else {
         await finishMarket_MOBILE(marketKey, walletData?.account, setQr, setQrModal, setMinutes, setSeconds).then(res => result = res);
+      } else {
+        await finishMarket(marketKey).then(res => result = res);
       }
     } else {
         await finishMarket_KLIP(marketKey, walletData?.account, setQr, setQrModal, setMinutes, setSeconds).then(res => result = res);

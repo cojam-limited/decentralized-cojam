@@ -15,6 +15,8 @@ import { QrContext } from '../../components/Context/QrContext';
 
 import LogoBlack from '@assets/coin.png'
 
+const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;
+
 function Index() {
 	const { setLoading } = useLoadingState();
 	const { setQr, setQrModal, setMinutes, setSeconds } = useContext(QrContext);
@@ -25,7 +27,7 @@ function Index() {
 	const [ openMypageTransfer, modalMypageTransfer ] = useState(false);
 	const [ openQuestReward, modalQuestReward ] = useState(false);
 
-	const stateList = ['ONGOING', 'INVALID', 'APPROVE', 'ADJOURN', 'SUCCESS'];
+	const stateList = ['ONGOING', 'INVALID', 'APPROVE', 'SUCCESS'];
 	const [ votings, setVotings ] = useState({votingSet: []});
 	const [ selectedVoting, setSelectedVoting ] = useState({});
 	const [ grounds, setGrounds ] = useState([]);
@@ -64,7 +66,7 @@ function Index() {
 							categoryNm: quest.categoryNm.seasonCategoryName,
 							questKey: quest.questKey,
 							questStatus: quest.questStatus,
-							questTitle: quest[`title${quest.questLanguage}`],
+							questTitle: quest[`titleKR`],
 							approveTx: quest.approveTx,
 							adjournTx: quest.adjournTx,
 							successTx: quest.successTx,
@@ -151,7 +153,7 @@ function Index() {
 							if(cojamBalance !== balance) {
 								setBalance(cojamBalance);
 							}
-
+							
 							// remain transfer history
 							const loginRewardHistoryDoc = {
 								_type: 'loginRewardHistory',
@@ -168,8 +170,8 @@ function Index() {
 							const transactionSet = {
 								_type: 'transactions',
 								amount: Number(rewardInfo.amount),
-								recipientAddress: walletAddress,
-								spenderAddress: transferRes.spenderAddress,
+								recipientAddress: walletAddress + `${walletAddress === cojamMarketAddress ? ' (COJAM MARKET)' : ''}`,
+								spenderAddress: transferRes.spenderAddress + `${transferRes.spenderAddress === cojamMarketAddress ? ' (COJAM MARKET)' : ''}`,
 								status: 'SUCCESS',
 								transactionId: transferRes.transactionId,
 								transactionType: 'LOGIN_REWARD',
@@ -233,8 +235,8 @@ function Index() {
 				const transactionSet = {
 					_type: 'transactions',
 					amount: Number(selectedVoting.predictionFee),
-					recipientAddress: walletAddress,
-					spenderAddress: transferRes.spenderAddress,
+					recipientAddress: walletAddress + `${walletAddress === cojamMarketAddress ? ' (COJAM MARKET)' : ''}`,
+					spenderAddress: transferRes.spenderAddress + `${transferRes.spenderAddress === cojamMarketAddress ? ' (COJAM MARKET)' : ''}`,
 					status: 'SUCCESS',
 					transactionId: transferRes.transactionId,
 					transactionType: 'QUEST_REWARD',
@@ -416,6 +418,12 @@ function Index() {
 											{
 												stateList.map((state, index) => {
 													let complete = statePass ? '' : 'complete';
+													if(state === 'SUCCESS') {
+														if(voting.questStatus === 'ADJOURN') {
+															state = 'ADJOURN';
+														}
+													}
+
 													if(state === voting.questStatus) {
 														statePass = true;
 														complete = 'ing';
@@ -461,7 +469,7 @@ function Index() {
 								return (
 									<ul key={index}>
 										<li key='1'><span>Category : </span> { ground.categoryNm.seasonCategoryName } </li>
-										<li key='2' style={{ cursor: 'pointer' }} onClick={() => { setSelectedGround(ground); modalMypageGround(true); }}><span>Title : </span> { ground[`title${ground.questLanguage}`] } </li>
+										<li key='2' style={{ cursor: 'pointer' }} onClick={() => { setSelectedGround(ground); modalMypageGround(true); }}><span>Title : </span> { ground[`titleKR`] } </li>
 										<li key='3'>
 											{ground.pending && <p>Pending</p>}
 											{ground.questStatus === 'INVALID' && <p>INVALID</p>}
@@ -510,8 +518,8 @@ function Index() {
 						{
 							transfers?.map((transfer, index) => (
 								<ul key={index} style={{ cursor: 'pointer' }} onClick={() => { setSelectedTransfer(transfer); modalMypageTransfer(true);}}>
-									<li key="1"><span>Spender Address : </span>{transfer.spenderAddress}</li>
-									<li key="2"><span>Recipient Address : </span>{transfer.recipientAddress}</li>
+									<li key="1"><span>Spender Address : </span>{transfer.spenderAddress + `${transfer.spenderAddress === cojamMarketAddress ? ' (COJAM MARKET)' : ''}`}</li>
+									<li key="2"><span>Recipient Address : </span>{transfer.recipientAddress + `${transfer.recipientAddress === cojamMarketAddress ? ' (COJAM MARKET)' : ''}`}</li>
 									<li key="3"><span>CT Amount : </span>{transfer.amount} CT</li>
 									<li key="4"><span>Created DTTM : </span>{transfer.createdDateTime}</li>
 								</ul>
@@ -715,11 +723,11 @@ function Index() {
 								<ul>
 									<li key='1'>
 										<span>Spender Address</span>
-										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedTransfer.spenderAddress}/>
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedTransfer.spenderAddress + `${selectedTransfer.spenderAddress === cojamMarketAddress ? ' (COJAM MARKET)' : ''}`}/>
 									</li>
 									<li key='2'>
 										<span>Recipient Address</span>
-										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedTransfer.recipientAddress}/>
+										<input name="name" type="text" className="w100p" placeholder="" readOnly value={selectedTransfer.recipientAddress + `${selectedTransfer.recipientAddress === cojamMarketAddress ? ' (COJAM MARKET)' : ''}`}/>
 									</li>
 									<li key='3'>
 										<span>CT Amount</span>

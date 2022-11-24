@@ -147,8 +147,10 @@ function Index() {
  	*/
 	const loadDetailData = (questKey, openDetailModal) => {
 		 setLoading(true);
-		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {...,  'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] { title, totalAmount, questKey, questAnswerKey, _id } | order(questAnswerKey asc)}`;
+		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] { title, totalAmount, questKey, questAnswerKey, _id } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
+			console.log('quest', quest);
+
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
 			 client.fetch(seasonQuery).then((season) => {
 				const detailDatas = {
@@ -156,12 +158,10 @@ function Index() {
 					imageFile: quest.imageFile,
 					imageLink: quest.imageLink,
 					imageUrl: quest.imageUrl,
-					titleEN: quest.titleEN,
 					titleKR: quest.titleKR,
-					titleCH: quest.titleCH,
-					categoryName: quest.categoryName,
+					categoryName: quest.categoryNm?.seasonCategoryName,
 					status: quest.questStatus,
-					description: quest.description,
+					description: quest.questDetail,
 					draftTx: quest.draftTx,
 					answerTx: quest.answerTx,
 					approveTx: quest.approveTx,
@@ -184,6 +184,8 @@ function Index() {
 					maximumPay: season.maximumPay,
 					openDetailModal: openDetailModal
 				}
+
+				console.log('detailDatas', detailDatas);
 
 				setActiveDetailData(detailDatas);
 			 });
@@ -290,6 +292,8 @@ function Index() {
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
 			const questQuery = `*[_type == 'quests' && _id != '${Date.now()}' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
 			client.fetch(questQuery).then((quest) => {
+				console.log('quests', quest);
+
 				setTransactionDatas(quest ?? []);
 				setLoading(false);
 			});	
@@ -407,13 +411,7 @@ function Index() {
 										<li key='2'><span>No. : </span> {index + 1} </li>
 										<li key='3'><span>Category : </span> {transactionData.categoryNm?.seasonCategoryName} </li>
 										<li key='4' onClick={() => { loadDetailData(transactionData.questKey, true); }} style={{ cursor: 'pointer' }}>
-											<span>Title : </span> 
-											{
-												transactionData.questLanguage === 'EN'  ? transactionData.titleEN
-																					    : transactionData.questLanguage === 'KR' 
-																							 ? transactionData.titleKR
-																							 : transactionData.titleCH
-											} 
+											<span>Title : </span>  { transactionData.titleKR } 
 										</li>
 										<li key='5'><span>End Date : </span> {Moment(transactionData.endDateTime).format('YYYY-MM-DD HH:mm:ss')} </li>
 										<li key='6'><span>Total(minimum) : </span> {transactionData.totalAmount} ({transactionData.minimumPay})</li>
@@ -474,16 +472,8 @@ function Index() {
 												</li>
 												
 												<li>
-													<span>Title(English)</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.titleEN}/>
-												</li>
-												<li>
-													<span>Title(Korean)</span>
+													<span>Title</span>
 													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.titleKR}/>
-												</li>
-												<li>
-													<span>Title(Chinese)</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.titleCH}/>
 												</li>
 												<li>
 													<span>Category</span>
@@ -647,6 +637,7 @@ function Index() {
 
 												setLoading(true);
 												await changeStateFunction({state: 'success', walletData, selectedQuest, selectedAnswer, setQr, setQrModal, setMinutes, setSeconds});
+												setReloadData(!reloadData);
 												setLoading(false);
 
 												modalSuccess(false);
@@ -698,6 +689,7 @@ function Index() {
 
 												setLoading(true);
 												await changeStateFunction({state: 'adjourn', walletData, selectedQuest, selectedAnswer, description: adjournDesc, setQr, setQrModal, setMinutes, setSeconds});
+												setReloadData(!reloadData);
 												setLoading(false);
 
 												modalAdjourn(false);
@@ -749,6 +741,7 @@ function Index() {
 
 												setLoading(true);
 												await changeStateFunction({state: 'invalid', walletData, selectedQuest, selectedAnswer, description: invalidDesc, setQr, setQrModal, setMinutes, setSeconds});
+												setReloadData(!reloadData);
 												setLoading(false);
 
 												modalInvalid(false);

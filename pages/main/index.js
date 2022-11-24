@@ -31,8 +31,6 @@ function Index() {
 	const [ answerPercents, setAnswerPercents] = useState({});
 	const [ answerAllocations, setAnswerAllocations ] = useState({});
 
-	console.log('profile', process.env.REACT_APP_PROFILE);
-
 	const resizeFunc = () => {
 		//창크기 변화 감지
 		if(window.innerWidth < 1000) {
@@ -163,18 +161,16 @@ function Index() {
 									<h3>
 										<span>{quest.dDay}</span> {quest.endDateTime}
 									</h3>
-									<h4>{quest[`title${quest.questLanguage}`]}</h4>
+									<h4>{quest[`titleKR`]}</h4>
 									<ul>
 										{
-										quest.answers && quest.answers.map((answer, index) => (              
-											<li key={index}>
-											<div>{answer}</div>
-											<p>{answerAllocations[answer] ? `${answerAllocations[answer]} X` : ''}</p>
-											<h2>
-												<div style={{ width: `${answerPercents[answer]}%` }}></div>
-											</h2>
-											</li>
-										))
+											quest.answers && quest.answers.map((answer, index) => (              
+												<li key={index}>
+													<div>{answer}</div>
+													<p>{answerAllocations[answer] && answerAllocations[answer] !== '0%' ? `${answerAllocations[answer]} X` : '0%'} </p>
+													<h2><div style={{width:`${answerPercents[answer] ?? 0}%`}}></div></h2>
+												</li>
+											))
 										}
 									</ul>
 								</li>
@@ -275,7 +271,7 @@ function Index() {
 }
 
 function addComma(data) {
-	if(!data) return '';
+	if(!data) return '0';
 
 	return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

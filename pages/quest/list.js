@@ -53,10 +53,10 @@ function Index() {
   const [fileKey, setFileKey] = useState('');
   const [endDateTime, setEndDateTime] = useState(new Date());
   const [modalValues, setModalValues] = useState({'_type': 'quests', 'questType': 'I', 'questLanguage': 'EN', 'endDateTime': endDateTime});
-  const [ questLanguage, setQuestlanguage ] = useState('EN');
+  const [ questLanguage, setQuestlanguage ] = useState('KR');
   const [ questTitleText, setQuestTitleText ] = useState({ 
                                                             EN: { placeholder: "Please enter a title(English)", content: '' },
-                                                            KR: { placeholder: "Please enter a title(Korean)",  content: '' },
+                                                            KR: { placeholder: "Please enter a title",  content: '' },
                                                             CH: { placeholder: "Please enter a title(Chinese)", content: '' } 
                                                          });
   // modal values
@@ -274,8 +274,7 @@ function Index() {
           <ul className="paginationContent">
           {
             items && items.map((quest, index) => {
-              const questTitle = quest.questLanguage == 'EN' ? quest.titleEN 
-                                                             : quest.questLanguage == 'KR' ? quest.titleKR : quest.titleCH;
+              const questTitle = quest.titleKR;
 
               return (
                 <li 
@@ -385,13 +384,6 @@ function Index() {
                   </dl>
                   <ul className="mqa-content2">
                     <li key='1'>
-                      <select className="w100p" name="languageSelect" onChange={(e) => { setQuestlanguage(e.target.value); setModalValues({...modalValues, questLanguage: e.target.value}); }}>
-                        <option value="EN">&nbsp;🇺🇸&nbsp;&nbsp;English</option>
-                        <option value="KR">&nbsp;🇰🇷&nbsp;&nbsp;Korean</option>
-                        <option value="CH">&nbsp;🇨🇳&nbsp;&nbsp;Chinese</option>
-                      </select>
-                    </li>
-                    <li key='2'>
                       <textarea
                         name="title"
                         type="text"
@@ -405,7 +397,7 @@ function Index() {
                         value={questTitleText[questLanguage].content}
                       ></textarea>
                     </li>
-                    <li key='3'>
+                    <li key='2'>
                       <textarea
                         name="questDetail"
                         type="text"
@@ -417,19 +409,19 @@ function Index() {
                         value={modalValues.questDetail}
                       ></textarea>
                     </li>
-                    <li key='4'>
+                    <li key='3'>
                       <select name="name" title="" className="w100p" defaultValue="" onChange={(e) => setModalValues({...modalValues, 'seasonCategory': { _type: 'reference', _ref: e.target.value }})}>
                         <option value="">
                           Please select a category
                         </option>
                         {
-                          categories?.filter((category) => category.seasonCategoryName !== 'All').map((category, index) => (
+                          categories?.filter((category) => category.seasonCategoryName !== 'All' && category.seasonCategoryName !== 'Hot Quest').map((category, index) => (
                             <option key={index} value={category._id}>{category.seasonCategoryName}</option>
                           ))
                         }
                       </select>
                     </li>
-                    <li key='5'>
+                    <li key='4'>
                       <DatePicker
                         dateFormat="yyyy-MM-dd HH:mm:ss"
                         selected={endDateTime}
@@ -437,7 +429,7 @@ function Index() {
                         showTimeInput
                       />
                     </li>
-                    <li key='6'>
+                    <li key='5'>
                       <select name="questType" title="" className="w100p" defaultValue="I" onChange={(e) => setModalValues({...modalValues, 'questType': e.target.value})} >
                         <option value="I">
                           Image
@@ -448,7 +440,7 @@ function Index() {
 
                     {
                     (modalValues?.questType === 'I') &&
-                    <li key='7'>
+                    <li key='6'>
                       <div className="input-file">
                         <label>
                           File Attach
@@ -466,7 +458,7 @@ function Index() {
                       </div>
                     </li>
                     }
-                    <li key='8'>
+                    <li key='7'>
                       <input
                         name="name"
                         type="text"
@@ -476,6 +468,7 @@ function Index() {
                       />
                     </li>
                   </ul>
+                  
                   <ol className="mqa-content1">
                     <li key='1'>Select a Type</li>
                     <li key='2'>
@@ -487,6 +480,7 @@ function Index() {
                       </Link>
                     </li>
                   </ol>
+
                   <ul className="mqa-content2 mqa-answers">
                     <li key='1'> 
                       <input
@@ -518,7 +512,7 @@ function Index() {
                       if(!(modalValues.title && modalValues.title[modalValues.questLanguage].content !== '')) {
                         toastNotify({
                           state: 'error',
-                          message: `put a ${modalValues.questLanguage} title, please`,
+                          message: `put a title, please`,
                         });
                         return;
                       }
