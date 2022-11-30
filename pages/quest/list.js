@@ -52,13 +52,9 @@ function Index() {
   // modal values
   const [fileKey, setFileKey] = useState('');
   const [endDateTime, setEndDateTime] = useState(new Date());
-  const [modalValues, setModalValues] = useState({'_type': 'quests', 'questType': 'I', 'questLanguage': 'EN', 'endDateTime': endDateTime});
+  const [modalValues, setModalValues] = useState({'_type': 'quests', 'questType': 'I', 'questLanguage': 'KR', 'endDateTime': endDateTime});
   const [ questLanguage, setQuestlanguage ] = useState('KR');
-  const [ questTitleText, setQuestTitleText ] = useState({ 
-                                                            EN: { placeholder: "Please enter a title(English)", content: '' },
-                                                            KR: { placeholder: "Please enter a title",  content: '' },
-                                                            CH: { placeholder: "Please enter a title(Chinese)", content: '' } 
-                                                         });
+  const [ questTitleText, setQuestTitleText ] = useState({ KR: { placeholder: "Please enter a title",  content: '' }, });
   // modal values
 
   const handleOpenKaikasModal = async () => {
