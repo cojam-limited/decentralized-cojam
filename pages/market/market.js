@@ -149,8 +149,6 @@ function Index() {
 		 setLoading(true);
 		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] { title, totalAmount, questKey, questAnswerKey, _id } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
-			console.log('quest', quest);
-
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
 			 client.fetch(seasonQuery).then((season) => {
 				const detailDatas = {
@@ -184,8 +182,6 @@ function Index() {
 					maximumPay: season.maximumPay,
 					openDetailModal: openDetailModal
 				}
-
-				console.log('detailDatas', detailDatas);
 
 				setActiveDetailData(detailDatas);
 			 });
@@ -292,8 +288,6 @@ function Index() {
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
 			const questQuery = `*[_type == 'quests' && _id != '${Date.now()}' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
 			client.fetch(questQuery).then((quest) => {
-				console.log('quests', quest);
-
 				setTransactionDatas(quest ?? []);
 				setLoading(false);
 			});	
