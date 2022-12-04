@@ -253,9 +253,6 @@ export const adjournMarket = async (
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
   })
-  .error(function(error) {
-    console.log('adjournMarket error', error);
-  });
 
   return result;
 }
@@ -288,9 +285,6 @@ export const finishMarket = async (
 
     console.log('finishMarket receipt ?', receipt.status);
   })
-  .error(function(error) {
-    console.log('finishMarket', error);
-  });
 
   return result;
 }

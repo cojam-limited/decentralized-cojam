@@ -288,7 +288,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                     await client.patch(selectedQuest._id)
                             .set({
                                 statusType: 'FINISH', 
-                                finishTx: res.transactionId, 
+                                finishTx: finishRes.transactionId, 
                                 finishDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                                 completed: true,
                                 updateMember: walletData.account
@@ -462,6 +462,8 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                 break;	
         }
     } catch(error) {
+        console.log(error);
+
         toastNotify({
             state: 'error',
             message: "transaction execute failed",

@@ -135,6 +135,8 @@ import isMobile from '@utils/isMobile';
       if(isMobile()) {
         await finishMarket_MOBILE(marketKey, walletData?.account, setQr, setQrModal, setMinutes, setSeconds).then(res => result = res);
       } else {
+        console.log('finish market kaikas pc');
+
         await finishMarket(marketKey).then(res => result = res);
       }
     } else {
