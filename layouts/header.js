@@ -85,9 +85,6 @@ function Header() {
     
     if(isMobile()) {
       const userAgent = navigator?.userAgent?.toLowerCase();
-
-      alert(userAgent);
-
       if(userAgent && !userAgent?.includes('kaikas')) {
         alert('Kaikas Mobile App을 사용해주세요.');
 
