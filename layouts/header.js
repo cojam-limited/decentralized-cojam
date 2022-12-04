@@ -84,6 +84,11 @@ function Header() {
     setLoading(true);
     
     if(isMobile()) {
+      // https://app.kaikas.io/u/${URL}
+      var userAgent = navigator.userAgent.toLowerCase();
+
+      alert( userAgent );
+
       await axios.post("https://api.kaikas.io/api/v1/k/prepare",
         { 
           bapp: { name: 'cojam_v1' },
