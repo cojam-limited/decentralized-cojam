@@ -85,7 +85,7 @@ function Header() {
     
     if(isMobile()) {
       // https://app.kaikas.io/u/${URL}
-      var userAgent = navigator.userAgent.toLowerCase();
+      const userAgent = navigator.userAgent.toLowerCase();
 
       alert( userAgent );
 
