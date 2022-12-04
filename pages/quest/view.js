@@ -224,7 +224,7 @@ function Index(props) {
 					{
 						quest?.snsUrl && quest?.questType === 'S' &&
 						<div>
-							<h2><span>Confirmed</span> BTS reached #1 on the Billboard Chart with a song "Dynamite". Will BTS be able to win "The album of the year" at the Grammy Awards held on January 31, 2021?</h2>
+							<h2>{quest?.titleKR}</h2>
 							<p>
 								<iframe 
 									width="100%" 

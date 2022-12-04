@@ -252,6 +252,9 @@ export const adjournMarket = async (
   .then(function(receipt) {
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
+  })
+  .error(function(error) {
+    console.log('adjournMarket error', error);
   });
 
   return result;
@@ -282,6 +285,11 @@ export const finishMarket = async (
   .then(function(receipt) {
     result.transactionId = receipt.transactionHash;
     result.status = receipt.status ? 200 : 400;
+
+    console.log('finishMarket receipt ?', receipt.status);
+  })
+  .error(function(error) {
+    console.log('finishMarket', error);
   });
 
   return result;
