@@ -88,7 +88,7 @@ function Header() {
 
       alert(userAgent);
 
-      if(userAgent && userAgent?.contains('kaikas')) {
+      if(userAgent && userAgent?.includes('kaikas')) {
         alert('Kaikas Mobile App을 사용해주세요.');
 
         // go kaikas mobile app
