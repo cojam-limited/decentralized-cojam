@@ -4,7 +4,7 @@ import { checkLogin, callDraftMarket, callAddAnswerKeys, callApproveMarket, call
 import Moment from 'moment';
 import toastNotify from '@utils/toast';
 
-const cojamMarketAddress = '0x864804674770a531b1cd0CC66DF8e5b12Ba84A09';  // KAS address
+const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;  // KAS address
 
 export const changeStateFunction = async ({state, walletData, selectedQuest, selectedAnswer, description, setQr, setQrModal, setMinutes, setSeconds}) => {
     if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {

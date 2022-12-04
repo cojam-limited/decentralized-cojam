@@ -149,8 +149,6 @@ function Index() {
 		 setLoading(true);
 		 const questQuery = `*[_type == 'quests' && questKey == ${questKey} && _id != '${Date.now()}'][0] {..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerKeys': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] { title, totalAmount, questKey, questAnswerKey, _id } | order(questAnswerKey asc)}`;
 		 client.fetch(questQuery).then((quest) => {
-			console.log('quest', quest);
-
 			 const seasonQuery = `*[_type == 'season' && _id == '${quest.season?._ref}'][0]`
 			 client.fetch(seasonQuery).then((season) => {
 				const detailDatas = {
@@ -184,8 +182,6 @@ function Index() {
 					maximumPay: season.maximumPay,
 					openDetailModal: openDetailModal
 				}
-
-				console.log('detailDatas', detailDatas);
 
 				setActiveDetailData(detailDatas);
 			 });
@@ -292,8 +288,6 @@ function Index() {
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
 			const questQuery = `*[_type == 'quests' && _id != '${Date.now()}' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
 			client.fetch(questQuery).then((quest) => {
-				console.log('quests', quest);
-
 				setTransactionDatas(quest ?? []);
 				setLoading(false);
 			});	
@@ -440,111 +434,110 @@ function Index() {
 										<dd><i className="uil uil-times" onClick={() => modalDetail(false)}></i></dd>
 									</dl>
 									<ul>
-										{
-											activeDetailData &&
-											<>
-												<li
-													style={{ 
-														width: '100%',
-														height: '450px'
-													}}
-												>
-													<p 
-														onClick={() => {
-															if(activeDetailData?.imageLink && activeDetailData?.imageLink !== '') { 
-																const toUrl = activeDetailData?.imageLink.indexOf('http') === -1 
-																			? `https://${activeDetailData?.imageLink}` 
-																			: `${activeDetailData?.imageLink}`;
+									{
+										activeDetailData &&
+										<>
+											<li
+												style={{ 
+													width: '100%',
+													height: '450px'
+												}}
+											>
+												<p 
+													onClick={() => {
+														if(activeDetailData?.imageLink && activeDetailData?.imageLink !== '') { 
+															const toUrl = activeDetailData?.imageLink.indexOf('http') === -1 
+																		? `https://${activeDetailData?.imageLink}` 
+																		: `${activeDetailData?.imageLink}`;
 
-																window.open(toUrl, '_blank').focus();
-															}
-														}} 
-														style={{
-															width: '100%',
-															height: '100%',
-															cursor: activeDetailData?.imageLink ? 'pointer' : '',
-															backgroundImage: `url('${activeDetailData && (activeDetailData.imageFile ? urlFor(activeDetailData.imageFile) : activeDetailData.imageUrl)}')`, 
-															backgroundPosition: `center`, 
-															backgroundSize: `contain`,
-															backgroundRepeat: 'no-repeat' 
-														}}
-													/>
-												</li>
-												
-												<li>
-													<span>Title</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.titleKR}/>
-												</li>
-												<li>
-													<span>Category</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.categoryName}/>
-												</li>
-												<li>
-													<span>Status</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.status}/>
-												</li>
-												<li>
-													<span>Description</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.description}/>
-												</li>
-												<li>
-													<span>Draft Transaction</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.draftTx}/>
-												</li>
-												<li>
-													<span>Answers Transaction</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.answerTx}/>
-												</li>
-												<li>
-													<span>Apporve Transaction</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.approveTx}/>
-												</li>
-												<li>
-													<span>Adjourn Transaction</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.adjournTx}/>
-												</li>
-												<li>
-													<span>Success Transaction</span>
-													<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.successTx}/>
-												</li>
-												<li>
-													<span>Answer List</span>
-													{
-														activeDetailData?.answers?.map((answer, index) => (
-															<input 
-																key={index} name="name" 
-																type="text" 
-																className="w100p" 
-																placeholder="" 
-																readOnly 
-																defaultValue={`${answer.title} (${addComma(answer.totalAmount)} CT)`}
-																style={{ color: activeDetailData.selectedAnswer === answer.title ? '#fff' : 'black', background: activeDetailData.selectedAnswer === answer.title ? '#0045f4' : '' }}
-															/>
-														))
-													}
-													
-												</li>
-												<li>
-													<div className="mqs-info">
-														<h2>Title : {activeDetailData.seasonTitle}</h2>
-														<h2>Description : {activeDetailData.seasonDesc}</h2>
-														<div>
-															COJAM Fee : <span>{activeDetailData.cojamFee}%</span>
-															<br />
-															Charity Fee : <span>{activeDetailData.charityFee}%</span>
-															<br />
-															Creator Fee : <span>{activeDetailData.creatorFee}%</span>
-															<br />
-															Creator Pay : <span>{activeDetailData.creatorPay} CT</span>
-															<br />
-															Minimum Pay : <span>{activeDetailData.minimumPay} CT</span>
-															<br />
-															Maximum Pay : <span>{activeDetailData.maximumPay} CT</span>
-														</div>
+															window.open(toUrl, '_blank').focus();
+														}
+													}} 
+													style={{
+														width: '100%',
+														height: '100%',
+														cursor: activeDetailData?.imageLink ? 'pointer' : '',
+														backgroundImage: `url('${activeDetailData && (activeDetailData.imageFile ? urlFor(activeDetailData.imageFile) : activeDetailData.imageUrl)}')`, 
+														backgroundPosition: `center`, 
+														backgroundSize: `contain`,
+														backgroundRepeat: 'no-repeat' 
+													}}
+												/>
+											</li>
+											
+											<li>
+												<span>Title</span>
+												<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.titleKR}/>
+											</li>
+											<li>
+												<span>Category</span>
+												<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.categoryName}/>
+											</li>
+											<li>
+												<span>Status</span>
+												<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.status}/>
+											</li>
+											<li>
+												<span>Description</span>
+												<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.description}/>
+											</li>
+											<li>
+												<span>Draft Transaction</span>
+												<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.draftTx}/>
+											</li>
+											<li>
+												<span>Answers Transaction</span>
+												<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.answerTx}/>
+											</li>
+											<li>
+												<span>Apporve Transaction</span>
+												<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.approveTx}/>
+											</li>
+											<li>
+												<span>Adjourn Transaction</span>
+												<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.adjournTx}/>
+											</li>
+											<li>
+												<span>Success Transaction</span>
+												<input name="name" type="text" className="w100p" placeholder="" readOnly defaultValue={activeDetailData.successTx}/>
+											</li>
+											<li>
+												<span>Answer List</span>
+												{
+													activeDetailData?.answers?.map((answer, index) => (
+														<input 
+															key={index} name="name" 
+															type="text" 
+															className="w100p" 
+															placeholder="" 
+															readOnly 
+															defaultValue={`${answer.title} (${addComma(answer.totalAmount)} CT)`}
+															style={{ color: activeDetailData.selectedAnswer === answer.title ? '#fff' : 'black', background: activeDetailData.selectedAnswer === answer.title ? '#0045f4' : '' }}
+														/>
+													))
+												}
+											</li>
+											<li>
+												<div className="mqs-info">
+													<h2>Title : {activeDetailData.seasonTitle}</h2>
+													<h2>Description : {activeDetailData.seasonDesc}</h2>
+													<div>
+														COJAM Fee : <span>{activeDetailData.cojamFee}%</span>
+														<br />
+														Charity Fee : <span>{activeDetailData.charityFee}%</span>
+														<br />
+														Creator Fee : <span>{activeDetailData.creatorFee}%</span>
+														<br />
+														Creator Pay : <span>{activeDetailData.creatorPay} CT</span>
+														<br />
+														Minimum Pay : <span>{activeDetailData.minimumPay} CT</span>
+														<br />
+														Maximum Pay : <span>{activeDetailData.maximumPay} CT</span>
 													</div>
-												</li>
-											</>
-										}
+												</div>
+											</li>
+										</>
+									}
 									</ul>
 									<p>
 										<a href="#" onClick={() => modalDetail(false)}>Confirm</a>

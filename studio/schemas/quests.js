@@ -307,7 +307,7 @@ export default {
     {
       name: "questDetail",
       title: "Quest Detail",
-      type: "string"
+      type: "text"
     },
     {
       name: "questType",
