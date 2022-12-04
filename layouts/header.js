@@ -84,10 +84,17 @@ function Header() {
     setLoading(true);
     
     if(isMobile()) {
-      // https://app.kaikas.io/u/${URL}
-      const userAgent = navigator.userAgent.toLowerCase();
+      const userAgent = navigator?.userAgent?.toLowerCase();
 
-      alert( userAgent );
+      alert(userAgent);
+
+      if(userAgent && userAgent?.contains('kaikas')) {
+        alert('Kaikas Mobile App을 사용해주세요.');
+
+        // go kaikas mobile app
+        const URL = 'decentralized-cojam.vercel.app/';
+        location.href = `https://app.kaikas.io/u/${URL}`;
+      }
 
       await axios.post("https://api.kaikas.io/api/v1/k/prepare",
         { 
