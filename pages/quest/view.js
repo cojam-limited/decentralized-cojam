@@ -236,6 +236,35 @@ function Index(props) {
 							</p>
 						</div>
 					}
+
+					{
+						quest?.questType !== 'S' &&
+						<div>
+							<h2>{quest?.titleKR}</h2>
+							<p>
+								<div
+									onClick={() => {
+										if(quest?.imageLink && quest?.imageLink !== '') {
+											const toUrl = quest?.imageLink.indexOf('http') === -1 
+														? `https://${quest?.imageLink}` 
+														: `${quest?.imageLink}`;
+
+											window.open(toUrl, '_blank').focus();
+										} 
+									}} 
+
+									style={{ 
+										height: '550',
+										cursor: quest?.imageLink ? 'pointer' : '', 
+										backgroundImage: `url('${quest && (quest.imageFile ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
+										backgroundPosition: `center`, 
+										backgroundSize: `cover` 
+									}}
+								>
+								</div>
+							</p>
+						</div>
+					}
 					<dl>
 						<dt>
 							<h2><span>{quest?.dDay}</span> {quest?.endDateTime}</h2>
