@@ -71,10 +71,11 @@ function Index() {
 				});
 			});
 
+			// POP UP
 			const popupQuery = `*[_type == 'popup' && isActive == true] | order(createdDateTime desc) [0]`;
-			await client.fetch(popupQuery).then((popup) => {				
+			await client.fetch(popupQuery).then((popup) => {
 				if(popup) {
-
+					window.open(urlFor(popup.imageFile), popup.title, "height=500,width=500");
 				}
 			});
 

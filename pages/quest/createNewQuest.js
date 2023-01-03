@@ -133,6 +133,16 @@ const createNewQuest = async (modalValues, answers, walletData) => {
     if(!window.confirm('do you want to create new quest ?')) {
         return;
     }
+
+    console.log('Date ??', modalValues?.endDateTime, Date.now(), modalValues?.endDateTime <= Date.now());
+
+    if(!modalValues?.endDateTime || modalValues?.endDateTime <= Date.now()) {
+        toastNotify({
+            state: 'error',
+            message: `end date time must be after than today. input end date time : ${Moment(modalValues.endDateTime).format('YYYY-MM-DD HH:mm:ss')}.`
+        });
+        return;
+    }
     
     /*
         Default Graph line color values
@@ -151,7 +161,6 @@ const createNewQuest = async (modalValues, answers, walletData) => {
         { title: "Azure", value: "#F0FFFF" },
         { title: "Gold", value: "#FFD700" },
     ];
-
 
     // title setting
     modalValues['titleKR'] = modalValues.title?.KR?.content ?? '';
