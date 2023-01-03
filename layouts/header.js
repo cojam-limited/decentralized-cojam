@@ -91,6 +91,7 @@ function Header() {
         // go kaikas mobile app
         const URL = 'decentralized-cojam.vercel.app/';
         location.href = `https://app.kaikas.io/u/${URL}`;
+        return;
       }
 
       await axios.post("https://api.kaikas.io/api/v1/k/prepare",
