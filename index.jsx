@@ -5,6 +5,7 @@ import Router from './router';
 import { useWalletData } from '@data/wallet';
 import { BalanceProvider } from './components/Context/BalanceContext';
 import { QrProvider } from './components/Context/QrContext';
+import { CookiesProvider } from 'react-cookie';
 
 import './assets/css/style.css'
 import './assets/css/default.css'
@@ -20,7 +21,9 @@ const App = () => {
 ReactDOM.render(
   <QrProvider>
     <BalanceProvider> 
-      <App /> 
+      <CookiesProvider>
+        <App /> 
+      </CookiesProvider>
     </BalanceProvider>
   </QrProvider>,
   document.getElementById('root')

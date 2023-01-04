@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect, useRef } from 'react'; 
 import { useHistory } from 'react-router-dom'
 import toastNotify from '@utils/toast';
 
@@ -21,6 +21,26 @@ import { useWalletData } from '@data/wallet';
 import { checkLogin } from "@api/UseTransactions";
 import BackgroundSlider from 'react-background-slider'
 
+import Modal from 'react-modal';
+import { useCookies } from 'react-cookie';
+
+const modalStyles = {
+  content : {
+    width : '500px',
+    height: '500px',
+	padding: '5px',
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+	opacity: 0,
+	transition: 'opacity 0.5s',
+	backgroundColor: '#000000'
+  }
+};
+
 function Index() {
 	const { walletData } = useWalletData();
 	const history = useHistory();
@@ -31,6 +51,26 @@ function Index() {
 	const [ answerTotalAmounts, setAnswerTotalAmounts] = useState({});
 	const [ answerPercents, setAnswerPercents] = useState({});
 	const [ answerAllocations, setAnswerAllocations ] = useState({});
+
+	/* POPUP MODAL */
+	const modalRef = useRef(null);
+	const [notOpenToday, setCookie, removeCookie] = useCookies(['notOpenToday']);
+	const [modalIsOpen, setModalIsOpen] = useState(false);
+	const [popupImage, setPopupImage] = useState();
+	const openModal = () => {
+		modalRef.current.props.style.content.opacity = 1;
+		setModalIsOpen(true);
+	}
+
+	const afterOpenModal = () => {
+		// references are now sync'd and can be accessed.
+		/* this.subtitle.style.color = '#f00'; */
+	}
+
+	const closeModal = () => {
+		setModalIsOpen(false);
+	}
+	/* //POPUP MODAL */
 
 	const resizeFunc = () => {
 		//창크기 변화 감지
@@ -72,14 +112,6 @@ function Index() {
 				});
 			});
 
-			// POP UP
-			const popupQuery = `*[_type == 'popup' && isActive == true] | order(createdDateTime desc) [0]`;
-			await client.fetch(popupQuery).then((popup) => {
-				if(popup) {
-					window.open(urlFor(popup.imageFile), popup.title, "height=500,width=500");
-				}
-			});
-
 			const mainImageQuery = `*[_type == 'pageImages' && pageTitle == 'main' && pageTitle != '${Date.now()}']`;
 			await client.fetch(mainImageQuery).then((mainImages) => {
 				const mainImageArr = [];
@@ -88,8 +120,19 @@ function Index() {
 				});
 				setMainImages(mainImageArr);
 			});
-			
+
 			setLoading(false);
+
+			// POP UP
+			if(!notOpenToday?.notOpenToday) {
+				const popupQuery = `*[_type == 'popup' && isActive == true] | order(createdDateTime desc) [0]`;
+				await client.fetch(popupQuery).then((popup) => {
+					if(popup) {
+						setPopupImage(popup.imageFile);
+						openModal();
+					}
+				});
+			}
 		}
 
 		setLoading(true);
@@ -100,8 +143,26 @@ function Index() {
 
 	return (
     	<div>
+			{/* POINT */}
+			<Modal
+				isOpen={modalIsOpen}
+				onAfterOpen={afterOpenModal}
+				onRequestClose={closeModal}
+				style={modalStyles}
+				contentLabel="COJAM Popup Modal"
+				ref={modalRef}
+			>
+				<div>
+					<img src={urlFor(popupImage)} alt="COJAM POPUP" title="" style={{ width: '490px', height: '460px', objectFit: 'cover' }} />
+				</div>
+
+				<div style={{ marginTop: '5px' }}>
+					<button style={{ float: 'left', color: 'white' }} onClick={() => { setCookie('notOpenToday', true, { path: '/', maxAge: 86400 }); closeModal();}}>Don't open any more today</button>
+					<button style={{ float: 'right', color: 'white' }} onClick={closeModal}>close</button>
+				</div>
+			</Modal>
+
 			{/* 비주얼영역 */}
-		
 			<div className="main-vegas">
 				<BackgroundSlider
 					images={mainImages}
