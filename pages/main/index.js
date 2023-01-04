@@ -28,6 +28,7 @@ const modalStyles = {
   content : {
     width : '500px',
     height: '500px',
+	maxWidth: '100%',
 	padding: '5px',
     top: '50%',
     left: '50%',
@@ -143,7 +144,6 @@ function Index() {
 
 	return (
     	<div>
-			{/* POINT */}
 			<Modal
 				isOpen={modalIsOpen}
 				onAfterOpen={afterOpenModal}
@@ -153,7 +153,7 @@ function Index() {
 				ref={modalRef}
 			>
 				<div>
-					<img src={urlFor(popupImage)} alt="COJAM POPUP" title="" style={{ width: '490px', height: '460px', objectFit: 'cover' }} />
+					<img src={urlFor(popupImage)} alt="COJAM POPUP" title="" style={{ width: '100%', height: '95%', objectFit: 'cover' }} />
 				</div>
 
 				<div style={{ marginTop: '5px' }}>
