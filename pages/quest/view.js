@@ -257,7 +257,7 @@ function Index(props) {
 										width: '100%',
 										height: '100%',
 										cursor: quest?.imageLink ? 'pointer' : '', 
-										backgroundImage: `url('${quest && (quest.imageFile ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
+										backgroundImage: `url('${quest && (quest.imageFile && quest.imageFile.asset ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
 										backgroundPosition: `center`, 
 										backgroundSize: `cover` 
 									}}
@@ -283,7 +283,7 @@ function Index(props) {
 
 								style={{ 
 									cursor: quest?.imageLink ? 'pointer' : '', 
-									backgroundImage: `url('${quest && (quest.imageFile ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
+									backgroundImage: `url('${quest && (quest.imageFile && quest.imageFile.asset ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
 									backgroundPosition: `center`, 
 									backgroundSize: `cover` 
 								}}
