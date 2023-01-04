@@ -206,8 +206,6 @@ function Index(props) {
 		setReceiveToken(tokenString);
 	}, [selectedAnswer, bettingCoin]);
 
-	console.log('backgroundImage', backgroundImage);
-
   	return (
 		<div className="bg-quest" style={{background: `url('${backgroundImage}') center -150px no-repeat`}}>
 

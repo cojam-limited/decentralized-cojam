@@ -9,9 +9,8 @@ import { approveCojamURI_MOBILE, bettingCojamURI_MOBILE, receiveToken_MOBILE, tr
 import isMobile from '@utils/isMobile';
 
   export const checkLogin = async (walletData) => {    
-    
     if(!walletData || Object.keys(walletData).length === 0) {
-      return true;
+      return false;
     }
 
     // kaikas or klip

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'; 
 import { useHistory } from 'react-router-dom'
+import toastNotify from '@utils/toast';
 
 import mainVisualScroll from '@assets/main_visual_scroll02.png'
 import mainServiceIcon01 from '@assets/main_service_icon01.svg'
@@ -115,7 +116,7 @@ function Index() {
 			</div>
 			{/* 비주얼영역 끝 */}
 
-			{/* 리스트 끝 */}
+			{/* 리스트 시작 */}
 			<div className="container container-main">
 				<div className="quest-list-columns">
 					<h2>Popular Vote</h2>
@@ -125,19 +126,19 @@ function Index() {
 						{
 						quests.map((quest, index) => {
 							return (
-								<li key={index} onClick={async () => {
+								<li key={index} onClick={() => {
 									if(quest.dDay === 'expired') {
 										return;
 									}
 
 									let isLogin = false;
-									await checkLogin(walletData).then((res) => {
+									checkLogin(walletData).then((res) => {
 										isLogin = res;
 
 										if(!isLogin) {
 											toastNotify({
 												state: 'error',
-												message: 're login or check lock. please',
+												message: 'login please',
 											});
 
 											return;
@@ -164,15 +165,15 @@ function Index() {
 									</h3>
 									<h4>{quest[`titleKR`]}</h4>
 									<ul>
-										{
-											quest.answers && quest.answers.map((answer, index) => (              
-												<li key={index}>
-													<div>{answer}</div>
-													<p>{answerAllocations[answer] && answerAllocations[answer] !== '0%' ? `${answerAllocations[answer]} X` : '0%'} </p>
-													<h2><div style={{width:`${answerPercents[answer] ?? 0}%`}}></div></h2>
-												</li>
-											))
-										}
+									{
+										quest.answers && quest.answers.map((answer, index) => (              
+											<li key={index}>
+												<div>{answer}</div>
+												<p>{answerAllocations[answer] && answerAllocations[answer] !== '0%' ? `${answerAllocations[answer]} X` : '0%'} </p>
+												<h2><div style={{width:`${answerPercents[answer] ?? 0}%`}}></div></h2>
+											</li>
+										))
+									}
 									</ul>
 								</li>
 							);

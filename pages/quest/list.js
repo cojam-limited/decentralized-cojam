@@ -287,6 +287,8 @@ function Index() {
                       let isLogin = false;
 
                       await checkLogin(walletData).then((res) => {
+                        console.log('checkLogin', res);
+
                         isLogin = res;
 
                         if(!isLogin) {
@@ -310,7 +312,7 @@ function Index() {
                   <p>
                     <span
                       style={{
-                        backgroundImage: `url('${quest && (quest.imageFile ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
+                        backgroundImage: `url('${quest && (quest.imageFile && quest.imageFile.asset ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
                         backgroundPosition: `center`,
                         backgroundSize: `cover`,
                       }}
