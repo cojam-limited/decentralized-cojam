@@ -63,13 +63,6 @@ export default {
         name: "answerCount",
         title: "Answer Count",
         type: "number",
-      },
-      {
-        name: "questKey",
-        title: "QuestKey",
-        type: "reference",
-        to: [{type: 'quests'}],
-        description: "Which Quest has governance"
       }
     ],
   };
