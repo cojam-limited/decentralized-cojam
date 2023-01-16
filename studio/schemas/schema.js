@@ -22,6 +22,11 @@ import rewardInfo from "./rewardInfo";
 import qnaList from "./qnaList";
 import popup from "./popup";
 import admin from "./admin";
+import governanceItem from "./governanceItem";
+import governanceItemVote from "./governanceItemVote";
+import proposal from "./proposal";
+import proposalOptionList from "./proposalOptionList";
+import proposalVote from "./proposalVote";
 
 {/* 새로 추가한 부분 */}
 
@@ -58,5 +63,10 @@ export default createSchema({
     rewardInfo,
     popup,
     admin,
+    governanceItem,
+    governanceItemVote,
+    proposal,
+    proposalOptionList,
+    proposalVote,
   ]),
 });
