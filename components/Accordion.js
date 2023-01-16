@@ -30,7 +30,7 @@ function Accordion({ question, answer, link }) {
           <div>
             {
               link 
-              ? <a href={link} target="_blank">{answer}</a>
+              ? <a href={link} target="_blank" rel="noreferrer">{answer}</a>
               : answer
             }
           </div>

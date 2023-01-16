@@ -17,6 +17,10 @@ import CommunityList from '../pages/community/list'
 import CommunityView from '../pages/community/view'
 import Mypage from '../pages/mypage/mypage'
 import Market from '../pages/market/market'
+import Dao from '../pages/dao/dao'
+import DaoList from '../pages/dao/list/list'
+import DaoView from '../pages/dao/view/view'
+import DaoProposal from '../pages/dao/proposal/proposal'
 
 const Routers = () => {
   return (
@@ -35,6 +39,10 @@ const Routers = () => {
               <Route path='/CommunityView' exact component={CommunityView} />
               <Route path='/Mypage' exact component={Mypage} />
               <Route path='/Market' exact component={Market} />
+              <Route path='/Dao' exact component={Dao} />
+              <Route path='/Dao/DaoList' exact component={DaoList}></Route>
+              <Route path='/Dao/DaoView' exact component={DaoView}></Route>
+              <Route path='/Dao/Proposals' exact component={DaoProposal}></Route>
             </Switch>
 
             <ToastContainer />

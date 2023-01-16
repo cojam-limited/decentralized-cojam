@@ -12,7 +12,7 @@ import './assets/css/default.css'
 
 const App = () => {
   return (
-    <div style={{ paddingBottom: '60px', height: 'auto' }}>
+    <div style={{ paddingBottom: '53px', height: 'auto' }}>
         <Router />
     </div>
   );
