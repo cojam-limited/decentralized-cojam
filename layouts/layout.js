@@ -4,6 +4,9 @@ import Header from "./header";
 import Footer from "./footer";
 import DaoHeader from "./daoHeader"
 import ProposalHeader from "../pages/dao/proposal/header"
+import ProposalCreate from "../pages/dao/proposal/create"
+import ProposalView from '../pages/dao/proposal/view'
+import DaoProposal from "../pages/dao/proposal/proposal"
 
 import LoadingContext from "../assets/context/LoadingContext";
 import LoadingOverlay from "../components/LoadingOverlay";
@@ -12,7 +15,7 @@ import toastNotify from '@utils/toast';
 import { Icon } from '@iconify/react';
 import { Link, useHistory } from "react-router-dom";
 
-const Layout = ({ children }) => {
+const Layout = ({ children, needNftModal, setNeedNftModal }) => {
   const [loading, setLoading] = useState(false);
   const [toggleMyPage, setToggleMyPage] = useState(false);
   const getSession = sessionStorage?.getItem('data/wallet')?.replace(/[{}]/g, '');
@@ -23,6 +26,11 @@ const Layout = ({ children }) => {
   const CloseMyPageHandler = () => {
     if (toggleMyPage === true) {
       setToggleMyPage(false);
+    }
+  }
+  const CloseNeedNftModalHandler = () => {
+    if (needNftModal) {
+      setNeedNftModal(false);
     }
   }
 
@@ -44,9 +52,9 @@ const Layout = ({ children }) => {
   }
 
   return (
-    <div className={`${toggleMyPage ? 'dimmed-wrap' : ''}`}>
+    <div className={`${toggleMyPage ? 'dimmed-wrap' : ''} ${needNftModal ? 'proposal-dimmed-wrap' : ''}`}>
       <div
-        className={`${toggleMyPage ? 'dimmed-layer' : ''}`}
+        className={`${toggleMyPage ? 'dimmed-layer' : ''} ${needNftModal ? 'proposal-dimmed-layer' : ''}`}
         onClick={CloseMyPageHandler}
       ></div>
       {toggleMyPage ?
@@ -65,7 +73,7 @@ const Layout = ({ children }) => {
               <p>1/5</p>
             </div>
             <ul>
-              <li onClick={() => PageMoveHandler('Proposals')}>Proposal</li>
+              <li onClick={() => PageMoveHandler('DaoProposals')}>Proposal</li>
               <li onClick={() => PageMoveHandler('VotingHistory')}>Voting History</li>
               <li onClick={() => PageMoveHandler('RewardHistory')}>Reward History</li>
             </ul>
@@ -81,11 +89,21 @@ const Layout = ({ children }) => {
         path.includes('Dao' && 'Proposals') ?
         (
           <>
-            <ProposalHeader
-              toggleMyPage={toggleMyPage}
-              setToggleMyPage={setToggleMyPage}
-            />
-            {children}
+            <ProposalHeader />
+              {children}
+            <Footer />
+            {
+              needNftModal ? (
+                <div className='nft-notice-modal' >
+                  <p>You need 5 membership NFTs</p>
+                  <button
+                    onClick={CloseNeedNftModalHandler}
+                  >확인</button>
+                </div>
+              ) : (
+                null
+              )
+            }
           </>
         )
         :

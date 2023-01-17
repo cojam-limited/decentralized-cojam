@@ -227,7 +227,8 @@ function Index() {
         { answer: 'No', vote: '3'},
         { answer: 'Abstain', vote: '5'}
       ],
-      endTime: '3'
+      endTime: '3',
+      _id: 1
     },
     {
       address: '0xf27f5282e41875504636f9A6356eE2984B2CFdFd',
@@ -239,7 +240,8 @@ function Index() {
         { answer: 'No', vote: '7'},
         { answer: 'Abstain', vote: '2'}
       ],
-      endTime: '3'
+      endTime: '3',
+      _id: 2
     },
     {
       address: '0xbB12b62dB8Ef3Be3AfCbf7B3f8806280d165626d',
@@ -251,7 +253,8 @@ function Index() {
         { answer: 'No', vote: '5'},
         { answer: 'Abstain', vote: '1'}
       ],
-      endTime: '3'
+      endTime: '3',
+      _id: 3
     },
     {
       address: '0x2b51a766F3bFC98C47253e8756EDC90BECDD88cB',
@@ -263,19 +266,31 @@ function Index() {
         { answer: 'No', vote: '5'},
         { answer: 'Abstain', vote: '0'}
       ],
-      endTime: '3'
+      endTime: '3',
+      _id: 4
     }
   ]
 
-  const [ yesAnswer, setYesAnswer ] = useState('');
-  const [ noAnswer, setNoAnswer ] = useState('');
+  const totalCount = testdata.length
+
+  const clickViewHandler = (list) => {
+    console.log(list)
+    history.push({
+      pathname: `/Dao/DaoProposals/View`,
+      state: {proposalId: list._id}
+    })
+  }
+
+  const goToCreateProposal = () => {
+    history.push('/Dao/DaoProposals/Create')
+  }
 
   return (
   <div className="bg-quest">
       <div className="dao-container proposal">
         {/* 카테고리 영역 */}
         <div className="dao-proposal-section">
-          <p>Total <span>32</span></p>
+          <p>Total <span>{totalCount}</span></p>
           <select
             style={{
               backgroundImage: 'url("../../../assets/caret-down-light.svg")'
@@ -299,9 +314,12 @@ function Index() {
             <ul className='dao-proposal-content'>
               {
                 testdata.map((list, idx) => {
-                  console.log(list.answer[0]['vote'])
+                  // console.log(list)
                   return (
-                <li key={idx}>
+                <li
+                  key={idx}
+                  onClick={() => clickViewHandler(list)}
+                >
                   <div>
                     <h3>
                       {list.address.slice(0, 6) + '...' + list.address.slice(-4)}
@@ -362,7 +380,10 @@ function Index() {
 				{/* 페이지네이션 끝 */}
 
         {/* Proposal-footer Start */}
-        <div className='proposal-footer'>
+        <div
+          className='proposal-footer'
+          onClick={goToCreateProposal}
+        >
           <p>Create Proposal</p>
         </div>
         {/* Proposal-footer End */}

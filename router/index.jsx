@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import Layout from "../layouts/layout";
 
@@ -21,13 +21,16 @@ import Dao from '../pages/dao/dao'
 import DaoList from '../pages/dao/list/list'
 import DaoView from '../pages/dao/view/view'
 import DaoProposal from '../pages/dao/proposal/proposal'
+import DaoProposalView from '../pages/dao/proposal/view'
+import DaoProposalCreate from '../pages/dao/proposal/create'
 
 const Routers = () => {
+  const [needNftModal, setNeedNftModal] = useState(false);
   return (
     <Router>
       <Switch>
         <Route>
-          <Layout>
+          <Layout needNftModal={needNftModal} setNeedNftModal={setNeedNftModal}>
             <Switch>
               <Route path='/' exact component={Home} />
               <Route path='/QuestList' exact component={QuestList} />
@@ -42,7 +45,10 @@ const Routers = () => {
               <Route path='/Dao' exact component={Dao} />
               <Route path='/Dao/DaoList' exact component={DaoList}></Route>
               <Route path='/Dao/DaoView' exact component={DaoView}></Route>
-              <Route path='/Dao/Proposals' exact component={DaoProposal}></Route>
+              <Route path='/Dao/DaoProposals' exact component={DaoProposal}></Route>
+              <Route path='/Dao/DaoProposals/View' exact component={DaoProposalView}></Route>
+              {/* <Route path='/Dao/DaoProposals/Create' exact component={DaoProposalCreate} needNftModal={needNftModal} setNeedNftModal={setNeedNftModal}></Route> */}
+              <Route path='/Dao/DaoProposals/Create' exact render={() => <DaoProposalCreate needNftModal={needNftModal} setNeedNftModal={setNeedNftModal} />} />
             </Switch>
 
             <ToastContainer />

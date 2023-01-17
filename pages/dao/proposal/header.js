@@ -2,19 +2,19 @@ import React from 'react'
 import { Icon } from '@iconify/react';
 import { useHistory } from 'react-router-dom'
 
-const header = ({toggleMyPage, setToggleMyPage}) => {
+const header = () => {
   const path = location.pathname;
-  const title = path.split('/')[2];
+  const titleArray = path.split('/')[2];
+  const title = titleArray.includes('Proposals') ? 'Proposals' : '';
   const getSession = sessionStorage?.getItem('data/wallet')?.replace(/[{}]/g, '');
   const account = getSession?.split(',')[0]?.split(':')[1]?.replace(/["]/g, '');
   const history = useHistory();
 
   const goToHomeHandler = () => {
-    history.push('/Dao/DaoList');
-  }
-  const OpenMyPageHandler = () => {
-    if (toggleMyPage === false) {
-      setToggleMyPage(true);
+    if(location.pathname === '/Dao/DaoProposals') {
+      history.push('/Dao/DaoList');
+    } else {
+      history.push('/Dao/DaoProposals')
     }
   }
 
@@ -27,7 +27,7 @@ const header = ({toggleMyPage, setToggleMyPage}) => {
           onClick={goToHomeHandler}
         />
         <div className='account'>
-          <p onClick={OpenMyPageHandler}>{account}</p>
+          <p>{account}</p>
         </div>
         <h2>{title}</h2>
       </div>
