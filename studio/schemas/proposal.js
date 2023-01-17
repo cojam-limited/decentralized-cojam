@@ -1,8 +1,4 @@
-function setEndTime() {
-    let currentDate = new Date();
-    currentDate.setUTCDate(currentDate.getUTCDate() + 3);
-    return currentDate.toISOString();
-}
+import { setEndTime, keyMaker } from '../src/makerHero'
 
 export default {
     name: "proposal",
@@ -13,6 +9,8 @@ export default {
         name: "proposalKey",
         title: "Proposal Key",
         type: "number",
+        readOnly: true,
+        initialValue: keyMaker('proposal'),
       },
       {
         name: "title",
@@ -28,7 +26,7 @@ export default {
         name: "options",
         title: "Options",
         type: "array",
-        of: [{type: "string"}]
+        of: [{type: "string"}],
       },
       {
         name: "creator",
@@ -40,7 +38,7 @@ export default {
         title: "End Time",
         type: "datetime",
         readOnly: true,
-        initialValue: setEndTime(),
+        initialValue: setEndTime(3),
       },
     ],
   };

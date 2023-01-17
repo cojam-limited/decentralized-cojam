@@ -1,19 +1,3 @@
-import { client } from "../../sanity";
-
-const isUniqueKey = (voter, context) => {
-  const { document } = context;
-  const id = document._id.replace(/^drafts\./, '');
-  if(!document.governanceItemId) {
-    return true;
-  }
-  const qurey = `!defined(*[_type == 'governanceItemVote' &&
-    !(_id in ['drafts.${id}', '${id}']) &&
-    governanceItemId == '${document.governanceItemId}' &&
-    voter == '${voter}'
-  ][0]._id)`;
-  return client.fetch(qurey)
-}
-
 export default {
     name: "governanceItemVote",
     title: "Governance Item Vote",
@@ -28,11 +12,6 @@ export default {
         name: "voter",
         title: "Voter",
         type: "string",
-        validation: Rule => Rule.custom(async (voter, context) => {
-          const check = await isUniqueKey(voter, context)
-          if(!check) return `Already Voted by ${voter} on Quest`
-          return true
-        })
       },
       {
         name: "draftOption",
