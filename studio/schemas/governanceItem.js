@@ -16,6 +16,21 @@ export default {
       type: "string",
     },
     {
+      name: "draftStartTime",
+      title: "Draft Start Time",
+      type: "dateTime"
+    },
+    {
+      name: "successStartTime",
+      title: "Success Start Time",
+      type: "dateTime"
+    },
+    {
+      name: "answerStartTime",
+      title: "Answer Start Time",
+      type: "dateTime"
+    },
+    {
       name: "draftEndTime",
       title: "Draft End Time",
       type: "datetime",
@@ -44,6 +59,6 @@ export default {
       name: "answerTotalVote",
       title: "Answer Total Vote",
       type: "number"
-    }
+    },
   ],
 };
