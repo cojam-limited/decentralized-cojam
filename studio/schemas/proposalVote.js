@@ -4,13 +4,13 @@ export default {
     type: "document",
     fields: [
       {
-        name: "proposalId",
-        title: "Proposal ID",
-        type: "string",
+        name: "proposalKey",
+        title: "proposal Key",
+        type: "number",
       },
       {
-        name: "votedOption",
-        title: "Voted Option",
+        name: "proposalOptionId",
+        title: "Proposal Option ID",
         type: "string",
       },
       {
