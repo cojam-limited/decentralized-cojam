@@ -20,8 +20,8 @@ export default {
         description: "Wallet address who loggin in from window.klaytn",
       },
       {
-        name: "answerCount",
-        title: "Answer Count",
+        name: "count",
+        title: "Count",
         type: "number",
         description: "how many nft is voted to proposal from ERC-721.balanceOf()"
       },
