@@ -3,11 +3,11 @@ import toastNotify from '@utils/toast';
 
 /*
     params is object which contain requirements for GROQ query
-    ex ) schema, name, id, key ...
+    ex ) schema, name, value, key ...
 */
 
-export const isUniqueKey = async (params) => {
-    const existing = await client.fetch(`*[_type == '${params.schema}' && !(_id in path("drafts.**")) && ${params.name} == '${params.id}' && voter == '${params.voter}']`);
+export const isUniqueKeyForVote = async (params) => {
+    const existing = await client.fetch(`*[_type == '${params.schema}' && !(_id in path("drafts.**")) && ${params.name} == '${params.value}' && voter == '${params.voter}']`);
     if(existing.length > 0) {
         toastNotify({
             state: 'error',
