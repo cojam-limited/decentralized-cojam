@@ -23,14 +23,19 @@ import DaoView from '../pages/dao/view/view'
 import DaoProposal from '../pages/dao/proposal/proposal'
 import DaoProposalView from '../pages/dao/proposal/view'
 import DaoProposalCreate from '../pages/dao/proposal/create'
+import DaoVotingHistory from '../pages/dao/votinghistory/list'
+import DaoRewardHistory from '../pages/dao/rewardhistory/list'
 
-const Routers = () => {
-  const [needNftModal, setNeedNftModal] = useState(false);
+const Routers = ({ needNftModal, setNeedNftModal, toggleMyPage, setToggleMyPage }) => {
   return (
     <Router>
       <Switch>
         <Route>
-          <Layout needNftModal={needNftModal} setNeedNftModal={setNeedNftModal}>
+          <Layout
+            toggleMyPage={toggleMyPage}
+            setToggleMyPage={setToggleMyPage}
+            needNftModal={needNftModal}
+            setNeedNftModal={setNeedNftModal}>
             <Switch>
               <Route path='/' exact component={Home} />
               <Route path='/QuestList' exact component={QuestList} />
@@ -47,8 +52,9 @@ const Routers = () => {
               <Route path='/Dao/DaoView' exact component={DaoView}></Route>
               <Route path='/Dao/DaoProposals' exact component={DaoProposal}></Route>
               <Route path='/Dao/DaoProposals/View' exact component={DaoProposalView}></Route>
-              {/* <Route path='/Dao/DaoProposals/Create' exact component={DaoProposalCreate} needNftModal={needNftModal} setNeedNftModal={setNeedNftModal}></Route> */}
               <Route path='/Dao/DaoProposals/Create' exact render={() => <DaoProposalCreate needNftModal={needNftModal} setNeedNftModal={setNeedNftModal} />} />
+              <Route path='/Dao/VotingHistory' exact component={DaoVotingHistory}></Route>
+              <Route path='/Dao/RewardHistory' exact component={DaoRewardHistory}></Route>
             </Switch>
 
             <ToastContainer />

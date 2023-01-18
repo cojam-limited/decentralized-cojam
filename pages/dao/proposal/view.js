@@ -138,6 +138,7 @@ const view = (props) => {
                         ))
                       }
                     </ul>
+                    <button>Confirm</button>
                   </div>
                   <div className='proposal-votelist'>
                     <h3>Vote</h3>

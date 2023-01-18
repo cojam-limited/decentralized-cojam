@@ -167,10 +167,10 @@
 .dimmed-layer::after {content:''; position:absolute; top:0; bottom:0; left:0; right:0; background-color: rgba(0, 0, 0, 0.7);}
 
 /* proposal-dimmed-Wrap */
-.proposal-dimmed-wrap {width:100%; height:100%; overflow: hidden;}
+.proposal-dimmed-wrap {width:100%; height:110%; position:relative; box-sizing: border-box; overflow: hidden;}
 
 /* proposal-Dimmed-Layer */
-.proposal-dimmed-layer {position:relative; width:100%; height:100%; overflow: hidden; position:fixed; top:0; bottom:0; left:0; right:0; background-color: rgba(0, 0, 0, 0.7); z-index: 9999;}
+.proposal-dimmed-layer {position: fixed; top:0; bottom:0; left:0; right:0; overflow: hidden; background-color: rgba(0, 0, 0, 0.7); z-index: 9999;}
 
 /* MyPage */
 .mypage {position:absolute; top:0; bottom:0; right:0; z-index: 999; width:85%; height:100%; background-color:#fff; padding: 24px 0 24px 24px; }
@@ -221,7 +221,6 @@
 /* Proposal-View */
 .proposal-view-content {padding:24px;}
 .proposal-view-header {padding-bottom: 24px; border-bottom: 1px solid #EFEFEF; margin-bottom:24px;}
-.proposal-
 .proposal-view-header > h2 {font-family: 'Pretendard'; font-weight: 700; font-size: 24px; line-height: 34px; margin-bottom: 16px; color:#000;}
 .proposal-view-header > div {display: flex; justify-content: space-between; align-items: center;}
 .proposal-view-header > div > p {font-family: 'Pretendard'; font-weight: 700; font-size: 14px; line-height: 22px; color:#000;}
@@ -231,11 +230,12 @@
 .proposal-view-desc > p.closed {display:-webkit-box;  -webkit-line-clamp:16; -webkit-box-orient:vertical; text-overflow:ellipsis; overflow:hidden;}
 .proposal-view-desc > button {width: 100%; height:40px; border: 1px solid #EFEFEF; border-radius: 20px; font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color: #949494;}
 .proposal-answer > h3 {font-family: 'Pretendard'; font-weight: 700; font-size: 14px; line-height: 22px; color:#000; margin-bottom:16px;}
-.proposal-answer > ul {border: 1px solid #EFEFEF; border-radius: 4px; margin-bottom: 40px;}
+.proposal-answer > ul {border: 1px solid #EFEFEF; border-radius: 4px; margin-bottom: 16px;}
 .proposal-answer > ul > li {width: 100%; height: 50px; display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #EFEFEF; cursor: pointer;}
 .proposal-answer > ul > li:last-child {border-bottom: none;}
 .proposal-answer > ul > li:hover {background-color: #FDD22C;}
 .proposal-answer > ul > li > p {font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color: #000;}
+.proposal-answer > button {width: 100%; height: 56px; border-radius: 4px; background-color: #000; color: #fff; font-family: 'Pretendard'; font-weight: 300; font-size: 16px; line-height: 24px; margin-bottom: 40px; cursor: pointer;}
 .proposal-votelist > h3 {font-family: 'Pretendard'; font-weight: 700; font-size: 14px; line-height: 22px; color:#000; margin-bottom:16px;}
 .proposal-votelist > ul > li {display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EFEFEF; padding: 12px 0;}
 .proposal-votelist > ul > li > p {font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color: #000; display: flex; justify-content: center; align-items: center; width: 30%;}
@@ -260,3 +260,75 @@
 .nft-notice-modal {position: fixed; top: 50%; left: 50%; right: 0; bottom: 0; width: 90%; height: 176px; background-color: #fff; z-index: 10000; transform: translate(-50%, -50%); border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;}
 .nft-notice-modal > P {font-family: 'Pretendard'; font-weight: 300; font-size: 16px; line-height: 24px; color: #000; padding: 40px;}
 .nft-notice-modal > button {width: 85%; height: 48px; background-color: #000; color: #fff; font-family: 'Pretendard'; font-weight: 300; font-size: 16px; line-height: 24px; border-radius: 4px;}
+
+/* Voting-History Section */
+.voting-history-section {padding:24px 24px 0 24px; background-color:#fff;}
+.voting-history-section > div {display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px;}
+.voting-history-section > div > p {font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color:#000;}
+.voting-history-section > div > p > span {font-family: 'Pretendard'; font-style: normal; font-weight: 700; font-size: 14px; line-height: 22px; color:#000;}
+.voting-history-section > div > button {font-family: 'Pretendard'; font-weight: 600; font-size: 14px; line-height: 22px; color: #C8C8C8; cursor: pointer;}
+.voting-history-section > select {width: 100%; height:48px; padding:12px 16px; background-color: #fff; color:#000; border-radius: 4px; -webkit-appearance: none; appearance: none; background-size: 24px; background-repeat: no-repeat; background-position: calc(100% - 8px) center;}
+
+/* Voting-History List */
+.voting-history-list {width: 100%;}
+.voting-history-list .voting-history-content {width: 100%; background-color: #F5F5F5;}
+.voting-history-list .voting-history-content > li > input {display: none;}
+.voting-history-list .voting-history-content > li > label {padding: 40px 24px; margin-bottom: 20px; background-color: #fff; display: block;}
+.voting-history-list .voting-history-content > li > label.activate {display: flex; justify-content: space-between; align-items: center;}
+.voting-history-list .voting-history-content > li:last-child {margin-bottom: 0;}
+.voting-history-list .voting-history-content > li > label > div {width: 100%;}
+.voting-history-list .voting-history-content > li > label.activate > div {width: 86%; position: relative;}
+.voting-history-list .voting-history-content > li > label.activate > span.checkbox {display: block; width: 24px; height: 24px; border: 1px solid #777; border-radius: 4px; margin-bottom: 160px; box-sizing: border-box;}
+.voting-history-list .voting-history-content > li > input:checked + label.activate > span.checkbox {background-color: #000; position: relative;}
+.voting-history-list .voting-history-content > li > input:checked + label.activate > span.checkbox::before {position: absolute; content: ''; width: 10px; height: 2px; background-color: #fff; top: 50%; left: 2.5px; transform: rotate(45deg) translateY(-50%);}
+.voting-history-list .voting-history-content > li > input:checked + label.activate > span.checkbox::after {position: absolute; content: ''; width: 10px; height: 2px; background-color: #fff; top: 50%; right: 2.5px; transform: rotate(-45deg) translateY(-50%);}
+.voting-history-list .voting-history-content > li > label > div > h3 {font-family: 'Pretendard'; font-weight: 600; font-size: 14px; line-height: 22px; color: #000; margin-bottom: 20px;}
+.voting-history-list .voting-history-content > li > label > div > div {display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px;}
+.voting-history-list .voting-history-content > li > label > div > div > img {width: 118px; height: 66px; margin-right: 20px;}
+.voting-history-list .voting-history-content > li > label > div > div > p {font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color: #000;}
+.voting-history-list .voting-history-content > li > label > div > ul {border: 1px solid #EFEFEF; border-radius: 4px; margin-bottom: 16px;}
+.voting-history-list .voting-history-content > li > label > div > ul > li {display: flex; justify-content: space-between; align-items: center; width: 100%; height: 50px; padding: 16px 24px; box-sizing: border-box; border-bottom: 1px solid #EFEFEF; font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px;}
+.voting-history-list .voting-history-content > li > label > div > ul > li:last-child {border-bottom: none;}
+.voting-history-list .voting-history-content > li > label > div > ul + div {display: flex; justify-content: space-between; align-items: center; margin: 0;}
+.voting-history-list .voting-history-content > li > label > div > ul + div > p {font-family: 'Pretendard'; font-weight: 300; font-size: 12px; line-height: 18px; color: #000;}
+.voting-history-list .voting-history-content > li > label > div > ul + div > p:nth-child(2) {font-family: 'Pretendard'; font-weight: 300; font-size: 12px; line-height: 18px; color: #949494;}
+
+/* Voting-History-Footer */
+.voting-history-footer {width: 100%; height: 64px; background-color: #000; position: fixed; bottom: 0; left: 0; right:0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+.voting-history-footer > p {width: 33%; display: flex; justify-content: center; align-items: center; color:#fff; font-family: 'Pretendard'; font-style: normal; font-weight: 300; font-size: 16px; line-height: 24px;}
+.voting-history-footer > p:nth-child(2) {position: relative;}
+.voting-history-footer > p:nth-child(2)::after {position:absolute; content: ''; top: calc(50% - 6px); left: 0; right: 0; border-left: 1px solid #777; border-right: 1px solid #777; height: 12px;}
+
+/* Reward-History Section */
+.reward-history-section {padding:0; background-color:#fff;}
+.reward-history-section > div {padding:24px; display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid #000;}
+.reward-history-section > div > p {font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color:#000;}
+.reward-history-section > div > p > span {font-family: 'Pretendard'; font-style: normal; font-weight: 700; font-size: 14px; line-height: 22px; color:#000;}
+.reward-history-section > div > button {font-family: 'Pretendard'; font-weight: 600; font-size: 14px; line-height: 22px; color: #C8C8C8; cursor: pointer;}
+
+/* Reward-History List */
+.reward-history-list {width: 100%;}
+.reward-history-list .reward-history-content {width: 100%; background-color: #F5F5F5; margin-bottom: 40px;}
+.reward-history-list .reward-history-content > li {padding: 40px 24px 0 40px; background-color: #fff;}
+.reward-history-list .reward-history-content > li > input {display: none;}
+.reward-history-list .reward-history-content > li > label { background-color: #fff; display: block; border-bottom: 1px solid #EFEFEF; cursor: pointer; padding-bottom: 40px;}
+.reward-history-list .reward-history-content > li > label.activate {display: flex; justify-content: space-between; align-items: center;}
+.reward-history-list .reward-history-content > li:last-child {margin-bottom: 0;}
+.reward-history-list .reward-history-content > li > label > div {width: 100%;}
+.reward-history-list .reward-history-content > li > label.activate > div {width: 86%; position: relative;}
+.reward-history-list .reward-history-content > li > label.activate > span.checkbox {display: block; width: 24px; height: 24px; border: 1px solid #777; border-radius: 4px; margin-bottom: -20px; box-sizing: border-box;}
+.reward-history-list .reward-history-content > li > input:checked + label.activate > span.checkbox {background-color: #000; position: relative;}
+.reward-history-list .reward-history-content > li > input:checked + label.activate > span.checkbox::before {position: absolute; content: ''; width: 10px; height: 2px; background-color: #fff; top: 50%; left: 2.5px; transform: rotate(45deg) translateY(-50%);}
+.reward-history-list .reward-history-content > li > input:checked + label.activate > span.checkbox::after {position: absolute; content: ''; width: 10px; height: 2px; background-color: #fff; top: 50%; right: 2.5px; transform: rotate(-45deg) translateY(-50%);}
+.reward-history-list .reward-history-content > li > label > div > h3 {font-family: 'Pretendard'; font-weight: 600; font-size: 14px; line-height: 22px; color: #000; margin-bottom: 20px;}
+.reward-history-list .reward-history-content > li > label > div > div {display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px;}
+.reward-history-list .reward-history-content > li > label > div > div > img {width: 118px; height: 66px; margin-right: 20px;}
+.reward-history-list .reward-history-content > li > label > div > div > div {position: relative;}
+.reward-history-list .reward-history-content > li > label > div > div > div > p {font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color: #000;}
+.reward-history-list .reward-history-content > li > label > div > div > div > p:last-child {font-family: 'Pretendard'; font-weight: 300; font-size: 12px; line-height: 18px; color: #949494; position: absolute; left: 0; bottom: -22px;}
+
+/* Reward-History-Footer */
+.reward-history-footer {width: 100%; height: 64px; background-color: #000; position: fixed; bottom: 0; left: 0; right:0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+.reward-history-footer > p {width: 33%; display: flex; justify-content: center; align-items: center; color:#fff; font-family: 'Pretendard'; font-style: normal; font-weight: 300; font-size: 16px; line-height: 24px;}
+.reward-history-footer > p:nth-child(2) {position: relative;}
+.reward-history-footer > p:nth-child(2)::after {position:absolute; content: ''; top: calc(50% - 6px); left: 0; right: 0; border-left: 1px solid #777; border-right: 1px solid #777; height: 12px;}

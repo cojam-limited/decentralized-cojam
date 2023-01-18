@@ -3,17 +3,18 @@ import { Icon } from '@iconify/react';
 import { useHistory } from 'react-router-dom'
 
 const header = () => {
-  const path = location.pathname;
+  const path = window.location.pathname;
   const titleArray = path.split('/')[2];
-  const title = titleArray.includes('Proposals') ? 'Proposals' : '';
+  const title = titleArray.includes('Proposals') ? 'Proposals' : titleArray.includes('VotingHistory') ? 'Voting History' : 'Reward History';
   const getSession = sessionStorage?.getItem('data/wallet')?.replace(/[{}]/g, '');
   const account = getSession?.split(',')[0]?.split(':')[1]?.replace(/["]/g, '');
   const history = useHistory();
 
   const goToHomeHandler = () => {
-    if(location.pathname === '/Dao/DaoProposals') {
+    // eslint-disable-next-line no-constant-condition
+    if(path === '/Dao/DaoProposals' || '/Dao/VotingHistory') {
       history.push('/Dao/DaoList');
-    } else {
+    } else if(path.includes('DaoProposals/View')) {
       history.push('/Dao/DaoProposals')
     }
   }

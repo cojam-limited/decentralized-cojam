@@ -1,11 +1,9 @@
 import React from 'react'
 import { Icon } from '@iconify/react';
 
-const create = ({ needNftModal, setNeedNftModal }) => {
-  console.log(setNeedNftModal)
+const create = ({ setNeedNftModal }) => {
   const createBtnHandler = () => {
     setNeedNftModal(true)
-    console.log(needNftModal)
   }
   return (
     <div className='proposal-create-content'>

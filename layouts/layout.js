@@ -4,9 +4,6 @@ import Header from "./header";
 import Footer from "./footer";
 import DaoHeader from "./daoHeader"
 import ProposalHeader from "../pages/dao/proposal/header"
-import ProposalCreate from "../pages/dao/proposal/create"
-import ProposalView from '../pages/dao/proposal/view'
-import DaoProposal from "../pages/dao/proposal/proposal"
 
 import LoadingContext from "../assets/context/LoadingContext";
 import LoadingOverlay from "../components/LoadingOverlay";
@@ -15,13 +12,13 @@ import toastNotify from '@utils/toast';
 import { Icon } from '@iconify/react';
 import { Link, useHistory } from "react-router-dom";
 
-const Layout = ({ children, needNftModal, setNeedNftModal }) => {
+const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeedNftModal }) => {
   const [loading, setLoading] = useState(false);
-  const [toggleMyPage, setToggleMyPage] = useState(false);
   const getSession = sessionStorage?.getItem('data/wallet')?.replace(/[{}]/g, '');
   const account = getSession?.split(',')[0]?.split(':')[1]?.replace(/["]/g, '');
   const skipAccount = account?.slice(0, 6) + '...' + account?.slice(-4);
   const path = window.location.pathname;
+  const DAOPathCheck = path.includes('Proposals') || path.includes('VotingHistory') || path.includes('RewardHistory')
   const history = useHistory();
   const CloseMyPageHandler = () => {
     if (toggleMyPage === true) {
@@ -86,7 +83,7 @@ const Layout = ({ children, needNftModal, setNeedNftModal }) => {
       <LoadingContext loading={loading} setLoading={setLoading}>
         {loading && <LoadingOverlay />}
       {
-        path.includes('Dao' && 'Proposals') ?
+        DAOPathCheck ?
         (
           <>
             <ProposalHeader />
