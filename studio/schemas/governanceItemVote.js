@@ -42,6 +42,21 @@ export default {
         name: "answerCount",
         title: "Answer Count",
         type: "number",
-      }
+      },
+      {
+        name: "draftTxHash",
+        title: "Draft Transaction Hash",
+        type: "string"
+      },
+      {
+        name: "successTxHash",
+        title: "Success Transaction Hash",
+        type: "string"
+      },
+      {
+        name: "answerTxHash",
+        title: "Answer Transaction Hash",
+        type: "string"
+      },
     ],
   };

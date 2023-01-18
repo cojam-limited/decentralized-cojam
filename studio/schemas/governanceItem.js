@@ -14,13 +14,6 @@ export default {
       name: "level",
       title: "Level",
       type: "string",
-      options: {
-        list: [
-          {title: 'DRAFT', value: 'draft'},
-          {title: 'SUCCESS', value: 'success'},
-          {title: 'ANSWER', value: 'answer'}
-        ],
-      },
     },
     {
       name: "draftEndTime",
