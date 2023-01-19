@@ -1,0 +1,498 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "token", "type": "address" }
+    ],
+    "stateMutability": "nonpayable", "type": "constructor", "signature": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "market", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256[]", "name": "answerKeys", "type": "uint256[]" }
+    ],
+    "name": "AddAnswerKeys",
+    "type": "event",
+    "signature": "0xfa4e24e993fbdd34f315ecda6e5ef8eaa9df443497a36cc4e54c0dc2368062cf"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "market", "type": "uint256" }
+    ],
+    "name": "AdjournMarket",
+    "type": "event",
+    "signature": "0x08ad4b8c34ee57b9e19a0aa2349b5962188beca5180d3ae0d9539b915eeb9088"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "market", "type": "uint256" }
+    ],
+    "name": "ApproveMarket",
+    "type": "event",
+    "signature": "0x5ab1e1af80e02debb1ebdac73281011e832523d43ccb02db5ca0e19177f4e3d8"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "market", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "answer", "type": "uint256" },
+      {"indexed":false,"internalType":"uint256","name":"betting","type":"uint256"},
+      {"indexed":false,"internalType":"uint256","name":"tokens","type":"uint256"}
+    ],
+    "name":"Bet",
+    "type":"event",
+    "signature":"0x9081ce9d818a5e04f71a33279791ee023291ecd76fe89b7cf1eafcaae0e8290d"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "market", "type": "uint256" },
+      { "indexed": false, "internalType": "string", "name": "title", "type": "string" },
+      { "indexed": false, "internalType": "address", "name": "creator", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "creatorFee", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "creatorFeePercentage", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "cojamFeePercentage", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "charityFeePercentage", "type": "uint256" }
+    ],
+    "name": "DraftMarket",
+    "type": "event",
+    "signature": "0x194dd52ae67adf300f172b7fb5e3e408123c5239f46b1d966b47cb8bedd335a1"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "market", "type": "uint256" }
+    ],
+    "name": "FinishMarket",
+    "type": "event",
+    "signature": "0x84559d4021c16877e4575b5ef6db96bb82e953e6d7ef199822aa24bc98141073"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "user", "type": "address" }
+    ],
+    "name": "LockUser",
+    "type": "event",
+    "signature": "0x169aadf55dc2098830ccf9f334e3ce3933b6e895b9114fc9f49242f2be61fe8e"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "currentOwner", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event",
+    "signature": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "market", "type": "uint256" },
+      { "indexed": false, "internalType": "string", "name": "title", "type": "string" },
+      { "indexed": false, "internalType": "address", "name": "creator", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "creatorFee", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "creatorFeePercentage", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "cojamFeePercentage", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "charityFeePercentage", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256[]", "name": "answerKeys", "type": "uint256[]" }
+    ],
+    "name": "PublishMarket",
+    "type": "event",
+    "signature": "0x2851ddc0f9f45c0459c7ff4cbd03088c06139ef7e49683e2a17d7af86c5ae1d3"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "market", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "RetrievedMarket",
+    "type": "event",
+    "signature": "0xbf004399565ddf6633fe779f298281a0357558f9b0f968e99b32c9b0bd89d369"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "string", "name": "key", "type": "string" },
+      { "indexed":false, "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "SetAccount",
+    "type": "event",
+    "signature": "0x1f7c86bf84a9b55687467c9cdbec7f225b9e7949eabe6538a58e67453c90b580"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+        { "indexed": false, "internalType": "uint256", "name": "market", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "answer", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "creatorFee", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "cojamFee", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "charityFee", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "remains", "type": "uint256" }
+      ],
+      "name": "SuccessMarket",
+      "type": "event",
+      "signature": "0xd65d5200403c91ce7099fe932b5af1a35b7306493cc7cfd67e867f7c34489434"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "receiver", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "market", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "betting", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "received", "type": "uint256" }
+    ],
+    "name": "TokenReceived",
+    "type": "event",
+    "signature": "0xdef422a44f208b3108bd6fee4f92da9332641cdc3e5885e36ffc8b72d5498dc1"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "user", "type": "address" }
+    ],
+    "name": "UnlockUser",
+    "type": "event",
+    "signature": "0x687691c08a3e67a160ba20a32cb1c56791955f12c5ff5d5fcf62bc456ad79ea1"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      { "internalType": "address", "name": "ownerAddress", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0x8da5cb5b"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [
+      { "internalType": "bool", "name": "success", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x715018a6"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "transferOwnership",
+    "outputs": [
+      { "internalType": "bool", "name": "success", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xf2fde38b"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "answerKeys", "type": "uint256[]" }
+    ],
+    "name": "publishMarket",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x0e6ee809"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" }
+    ],
+    "name": "getMarket",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "string", "name": "", "type": "string" },
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "string", "name": "", "type": "string" },
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0xeb44fdd3"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" }
+    ],
+    "name": "getMarketFee",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0x7ef1c3c7"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "answerKey", "type": "uint256" }
+    ],
+    "name": "getAnswer",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0xb5ab58dc"
+  },
+  {
+    "inputs": [
+      {"internalType":"uint256","name":"bettingKey","type":"uint256"}
+    ],
+    "name":"getBetting",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0x486ce80c"
+  },
+  {
+    "inputs": [],
+    "name": "getAccounts",
+    "outputs": [
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "address", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0x8a48ac03"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" },
+      { "internalType": "uint256", "name": "bettingKey", "type": "uint256" }
+    ],
+    "name": "availableReceiveTokens",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0x46ab0a9d"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" },
+      { "internalType": "uint256", "name": "bettingKey", "type": "uint256" }
+    ],
+    "name": "receiveToken",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xfed6b657"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" }
+    ],
+    "name": "isRetrievable",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0xc68feb88"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" }
+    ],
+    "name": "retrieveTokens",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x09f29d1b"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" }
+    ],
+    "name": "finishMarket",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x588359b0"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" },
+      { "internalType": "uint256", "name": "answerKey", "type": "uint256" }
+    ],
+    "name": "successMarket",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xdd8441ab"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" }
+    ],
+    "name": "adjournMarket",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x5f25f51a"
+  },
+  {
+    "inputs": [
+      {"internalType":"string","name":"key","type":"string"},{"internalType":"address","name":"account","type":"address"}],"name":"setAccount","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function","signature":"0x16220f9b"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" },
+      { "internalType": "uint256", "name": "answerKey", "type": "uint256" },
+      { "internalType": "uint256", "name": "bettingKey", "type": "uint256" },
+      { "internalType": "uint256", "name": "tokens", "type": "uint256" }
+    ],
+    "name": "bet",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x567bb0b6"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" },
+      { "internalType": "uint256", "name": "answerKey", "type": "uint256" },
+      { "internalType": "uint256", "name": "bettingKey", "type": "uint256" },
+      { "internalType": "uint256", "name": "tokens", "type": "uint256" }
+    ],
+    "name": "availableBet",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0x2976789c"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" },
+      { "internalType": "address", "name": "creator", "type": "address" },
+      { "internalType": "string", "name": "title", "type": "string" },
+      { "internalType": "uint256", "name": "creatorFee", "type": "uint256" },
+      { "internalType": "uint256", "name": "creatorFeePercentage", "type": "uint256" },
+      { "internalType": "uint256", "name": "cojamFeePercentage", "type": "uint256" },
+      { "internalType": "uint256", "name": "charityFeePercentage", "type": "uint256" }
+    ],
+    "name": "draftMarket",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x40c0b823"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" }
+    ],
+    "name": "approveMarket",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xcabe2ae1"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "marketKey", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "answerKeys", "type": "uint256[]" }
+    ],
+    "name": "addAnswerKeys",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xbfc16767"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "target", "type": "address" }
+    ],
+    "name": "isLock",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0x5016128e"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "targets", "type": "address[]" }
+    ],
+    "name": "lock",
+    "outputs": [
+      { "internalType": "bool[]", "name": "", "type": "bool[]" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x42f6208e"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "targets", "type": "address[]" }
+    ],
+    "name": "unlock",
+    "outputs": [
+      { "internalType": "bool[]", "name": "", "type": "bool[]" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xd791de63"
+  }
+]

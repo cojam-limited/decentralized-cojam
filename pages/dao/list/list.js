@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-
-import { Modal } from "react-responsive-modal";
 import Moment from 'moment';
 
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { urlFor, client } from "../../../sanity";
 import { useLoadingState } from "@assets/context/LoadingContext";
 import Pagination from "react-sanity-pagination";
-import createNewQuest from '../../quest/createNewQuest';
 
 import "react-responsive-modal/styles.css";
 import { useWalletData } from '@data/wallet';
@@ -56,16 +50,6 @@ function Index() {
   const [ questLanguage, setQuestlanguage ] = useState('KR');
   const [ questTitleText, setQuestTitleText ] = useState({ KR: { placeholder: "Please enter a title",  content: '' }, });
   // modal values
-
-  const handleOpenKaikasModal = async () => {
-    const kaikasUnlocked = await isKaikasUnlocked();
-    if (!kaikasUnlocked) {
-      const account = await kaikasLogin();
-      mutateWalletData({ account: account, type: 'kaikas' });
-      mutateModalData({ open: false });
-      modalKlipAdd(false);
-    }
-  }
 
   const getQuestHistory = async () => {
     setLoading(true);

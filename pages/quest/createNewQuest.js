@@ -4,6 +4,10 @@ import axios from "axios";
 import cheerio from "cheerio";
 import Moment from 'moment';
 import toastNotify from '@utils/toast';
+import Caver from "caver-js";
+import GovernanceContractABI from "../../api/ABI/GovernanceContractABI.json"
+
+const caver = new Caver(window.klaytn);
 
 const fileUploadYoutube = async (youtubeId) => {
     const thumbNailArr = ['maxresdefault.jpg', 'sddefault.jpg', 'hqdefault.jpg', 'mqdefault.jpg', 'default.jpg'];
@@ -302,7 +306,43 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                             await client.create(questAnswer);
                         });
                     });
+
+                    // 블록체인에 Quest 등록
+                    const GovernanceContarct = () => {
+                        return new caver.klay.Contract(GovernanceContractABI, '0xbBCB0dcB3dBB48F4F39E38543eF776Bfc7b8Ff38');
+                    }
+
+                    const CreateGovernance = async () => {
+                        const accounts = await window.klaytn.enable()
+                        const account = accounts[0];
+                        console.log('account', account);
+                        if (account !== undefined) {
+                            const tx = {
+                                type: 'SMART_CONTRACT_EXECUTION',
+                                from: account,
+                                to: '0xbBCB0dcB3dBB48F4F39E38543eF776Bfc7b8Ff38',
+                                data: GovernanceContarct().methods.createGovernanceItem(
+                                    quest.questKey,
+                                    modalValues['titleKR'],
+                                    account
+                                ).encodeABI(),
+                                gas: 500000,
+                            };
+                            console.log(tx)
+                            const receipt = await caver.klay.sendTransaction(tx);
+                            console.log(receipt)
+                            return receipt;
+                        }
+                    }
+
+                    const GetGovernance = async () => {
+                        const tx = await GovernanceContarct().methods.getGovernanceItem(quest.questKey).call();
+                        console.log(tx);
+                    }
+                    await CreateGovernance();
+                    await GetGovernance();
                 }
+
 
                 toastNotify({
                     state: 'success',
