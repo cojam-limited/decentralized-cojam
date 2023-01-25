@@ -6,6 +6,7 @@ import Moment from 'moment';
 import toastNotify from '@utils/toast';
 import Caver from "caver-js";
 import GovernanceContractABI from "../../api/ABI/GovernanceContractABI.json"
+const governanceAddress = process.env.REACT_APP_GOVERNANCE_ADDRESS;
 
 const caver = new Caver(window.klaytn);
 
@@ -309,7 +310,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
 
                     // 블록체인에 Quest 등록
                     const GovernanceContarct = () => {
-                        return new caver.klay.Contract(GovernanceContractABI, '0xbBCB0dcB3dBB48F4F39E38543eF776Bfc7b8Ff38');
+                        return new caver.klay.Contract(GovernanceContractABI, governanceAddress);
                     }
 
                     const CreateGovernance = async () => {
@@ -320,7 +321,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                             const tx = {
                                 type: 'SMART_CONTRACT_EXECUTION',
                                 from: account,
-                                to: '0xbBCB0dcB3dBB48F4F39E38543eF776Bfc7b8Ff38',
+                                to: governanceAddress,
                                 data: GovernanceContarct().methods.createGovernanceItem(
                                     quest.questKey,
                                     modalValues['titleKR'],
@@ -338,11 +339,41 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                     const GetGovernance = async () => {
                         const tx = await GovernanceContarct().methods.getGovernanceItem(quest.questKey).call();
                         console.log(tx);
+
+                        const StartQuest = Number(tx.questStartTime) * 1000;
+                        const EndQuest = Number(tx.questEndTime) * 1000;
+
+                        const startTime = Moment(StartQuest).format('yyyy-MM-DD HH:mm:ss');
+                        const endTime = Moment(EndQuest).format('yyyy-MM-DD HH:mm:ss');
+
+                        console.log('StartTime', startTime)
+                        console.log('EndTime', endTime)
+
+                        const GovernanceItemCreate = {
+                            _type: 'governanceItem',
+                            questKey: {
+                                _type: 'reference',
+                                _ref: res._id,
+                            },
+                            level: 'draft',
+                            draftStartTime: startTime,
+                            successStartTime: '',
+                            answerStartTime: '',
+                            draftEndTime: endTime,
+                            successEndTime: '',
+                            answerEndTime: '',
+                            draftTotalVote: 0,
+                            successTotalVote: 0,
+                            answerTotalVote: 0,
+                        }
+
+                        console.log('GovernanceItemCreate', GovernanceItemCreate);
+
+                        await client.create(GovernanceItemCreate);
                     }
                     await CreateGovernance();
                     await GetGovernance();
                 }
-
 
                 toastNotify({
                     state: 'success',
