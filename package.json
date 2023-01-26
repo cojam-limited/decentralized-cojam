@@ -12,6 +12,7 @@
     "@nrwl/react": "^13.9.4",
     "@sanity/client": "^3.0.3",
     "@sanity/image-url": "^1.0.1",
+    "@web3-react/core": "^6.1.9",
     "axios": "^0.21.1",
     "buffer": "^6.0.3",
     "caver-js": "^1.6.7",
@@ -52,7 +53,8 @@
     "swiper": "^7.3.3",
     "swr": "^1.2.1",
     "url-loader": "^4.1.1",
-    "victory": "^36.3.1"
+    "victory": "^36.3.1",
+    "web3": "^1.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.13.8",
