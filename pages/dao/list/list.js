@@ -32,6 +32,8 @@ function Index() {
   //   setNowTime(new Date())
   // }, 1000)
 
+  console.log(listData);
+
   const categories = [
     {CategoryName: 'draft'},
     {CategoryName: 'success'},
