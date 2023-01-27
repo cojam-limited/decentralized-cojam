@@ -18,17 +18,17 @@ export default {
     {
       name: "draftStartTime",
       title: "Draft Start Time",
-      type: "dateTime"
+      type: "datetime"
     },
     {
       name: "successStartTime",
       title: "Success Start Time",
-      type: "dateTime"
+      type: "datetime"
     },
     {
       name: "answerStartTime",
       title: "Answer Start Time",
-      type: "dateTime"
+      type: "datetime"
     },
     {
       name: "draftEndTime",
@@ -46,13 +46,23 @@ export default {
       type: "datetime",
     },
     {
-      name: "draftTotalVote",
-      title: "Draft Total Vote",
+      name: "approveTotalVote",
+      title: "Draft Approve Total votes",
+      type: "number"
+    },
+    {
+      name: "rejectTotalVote",
+      title: "Draft Reject Total votes",
       type: "number"
     },
     {
       name: "successTotalVote",
       title: "Success Total Vote",
+      type: "number"
+    },
+    {
+      name: "adjournTotalVote",
+      title: "Adjourn Total Vote",
       type: "number"
     },
     {

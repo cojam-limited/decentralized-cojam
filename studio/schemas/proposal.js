@@ -34,6 +34,12 @@ export default {
         type: "string",
       },
       {
+        name: "votedNfts",
+        title: "Voted NFTs",
+        type: "array",
+        of: [{type: "string"}]
+      },
+      {
         name: "endTime",
         title: "End Time",
         type: "datetime",
