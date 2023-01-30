@@ -1,0 +1,100 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event",
+    "signature": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint64", "name": "proposalKey", "type": "uint64" },
+      { "indexed": false, "internalType": "string", "name": "title", "type": "string" },
+      { "indexed": false, "internalType": "string", "name": "result", "type": "string" },
+      { "indexed": false, "internalType": "uint16", "name": "totalVote", "type": "uint16" },
+      { "indexed": false, "internalType": "uint16", "name": "resultVote", "type": "uint16" },
+      { "indexed": false, "internalType": "uint64", "name": "endTime", "type": "uint64" }
+    ],
+    "name": "ProposalHistory",
+    "type": "event",
+    "signature": "0x148a06a712ae271c4caf3157a6568d17014120e03dc83566f6b4df73bd3c67e2"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0x8da5cb5b"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x715018a6"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "newOwner", "type": "address" }],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xf2fde38b"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint64", "name": "_proposalKey", "type": "uint64" },
+      { "internalType": "string", "name": "_title", "type": "string" },
+      { "internalType": "string", "name": "_result", "type": "string" },
+      { "internalType": "uint16", "name": "_totalVote", "type": "uint16" },
+      { "internalType": "uint16", "name": "_resultVote", "type": "uint16" },
+      { "internalType": "uint64", "name": "_endTime", "type": "uint64" }
+    ],
+    "name": "setResult",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xf804cdcb"
+  },
+  {
+    "inputs": [{ "internalType": "uint64", "name": "_proposalKey", "type": "uint64" }],
+    "name": "getProposalResult",
+    "outputs": [
+      { "internalType": "uint64", "name": "", "type": "uint64" },
+      { "internalType": "string", "name": "", "type": "string" },
+      { "internalType": "string", "name": "", "type": "string" },
+      { "internalType": "uint16", "name": "", "type": "uint16" },
+      { "internalType": "uint16", "name": "", "type": "uint16" },
+      { "internalType": "uint64", "name": "", "type": "uint64" }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0x4b64c3ed"
+  },
+  {
+    "inputs": [],
+    "name": "getTotal",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0x775a25e3"
+  },
+  {
+    "inputs": [],
+    "name": "getAllProposals",
+    "outputs": [{ "internalType": "uint64[]", "name": "", "type": "uint64[]" }],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true,
+    "signature": "0xcceb68f5"
+  }
+]
