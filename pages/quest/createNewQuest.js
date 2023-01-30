@@ -358,6 +358,8 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                             level: 'draft',
                             draftStartTime: startTime,
                             draftEndTime: endTime,
+                            approveTotalVote: 0,
+                            rejectTotalVote: 0,
                         }
 
                         console.log('GovernanceItemCreate', GovernanceItemCreate);

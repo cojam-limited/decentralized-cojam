@@ -57,6 +57,8 @@
 .dao-quest-list-columns > ul > li > .selectBtn > div:nth-child(2) {display:flex; justify-content:space-between; align-items:center; margin-top:24px;}
 .dao-quest-list-columns > ul > li > .selectBtn > div > button {width:48%; height:56px; border-radius:4px; background-color:#EFEFEF; font-size:16px; color:#000; font-weight:300;}
 .dao-quest-list-columns > ul > li > .selectBtn > div > button:hover {background-color:#000; color:#fff;}
+.dao-quest-list-columns > ul > li > .selectBtn > .adminConfirmBtn {width: 100%; height: 56px; border-radius:4px; background-color:#EFEFEF; font-size:16px; color:#000; font-weight:300; margin-top: 8px;}
+.dao-quest-list-columns > ul > li > .selectBtn > .adminConfirmBtn:hover {background-color:#000; color:#fff;}
 
 @media all and (max-width:479px) {
   .dao-quest-list-columns > h2 {padding-top:50px; font-family: 'Pretendard'; font-size:28px; line-height:28px;}
