@@ -56,7 +56,7 @@ export const getCountProposalResult = async () => {
 
 /**
  * get All proposal keys that has saved on the block
- * @returns {BN|Array}
+ * @returns {string|Array}
  */
 export const getAllProposalKeys = async () => {
     const proposalContract = getProposalContract();
