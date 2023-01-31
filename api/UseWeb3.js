@@ -24,7 +24,7 @@ const getProposalContract = () => {
 }
 const getDaoNftContract = () => {
     const web3 = createWeb3Instance();
-    return new web3.eth.Contract(NftABI, process.env.REACT_APP_NFT_ADDRESS);
+    return new web3.eth.Contract(NftABI, process.env.REACT_APP_NFTCONTRACT_ADDRESS);
 }
 // ===============Proposal methods====================
 /**
