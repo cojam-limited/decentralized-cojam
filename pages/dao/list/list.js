@@ -56,7 +56,7 @@ function Index() {
     setNewAccount(accounts[0]);
   });
 
-  useEffect(async () => {
+  useEffect(() => {
     setLoading(true);
     // GovernanceItem list 조회
     const governanceVoteQuery = `*[_type == 'governanceItem']
@@ -65,11 +65,7 @@ function Index() {
       'quest': *[_type == 'quests' && _id == ^.questKey._ref][0]
     }`;
     client.fetch(governanceVoteQuery).then((governanceItem) => {
-      governanceItem.map((value) => {
-        if(value.quest !== null || undefined){
-          listData.push(value)
-        }
-      })
+      setListData(governanceItem);
       setLoading(false);
     })    
   }, [activeCategory])
@@ -100,7 +96,7 @@ function Index() {
   }
 
   const MarketContract = () => {
-    return new web3.eth.Contract(MarketContractABI, '0x99d3a9ba2ae0320b6fab408fd4b3aa71a8e3d6b4')
+    return new web3.eth.Contract(MarketContractABI, '0x26b80c53b00ff12cee0ddd64c5ef96b0224aca58')
   }
 
   // 블록체인에 Quest 등록
@@ -181,25 +177,46 @@ function Index() {
       const questId = vote[0]._id;
       console.log(vote);
 
+      const marketKey = vote[0].questKey.questKey;
+      const creator = vote[0].questKey.creatorAddress;
+      const title = vote[0].questKey.titleKR;
+      const creatorFee = vote[0].questKey.creatorPay;
+      const creatorFeePercentage = vote[0].questKey.creatorFee;
+      const cojamFeePercentage = vote[0].questKey.cojamFee;
+      const charityFeePercentage = vote[0].questKey.charityFee;
+
       try {
         if(diff < 0) {
-          if(totalVote > 10) {
+          if(totalVote >= 10) {
             console.log('totalVote > 10')
-            const bettingKeyQuery = `*[_type == 'questAnswerList' && questKey == ${questKey}]`;
-            const bettingKeyList = [];
-            await client.fetch(bettingKeyQuery).then((bettings) => {
-              bettings.forEach((betting) => {
-                console.log(betting)
-                bettingKeyList.push(betting.questAnswerKey);
+            if(approveVote > rejectVote) {
+              const answerKeyQuery = `*[_type == 'questAnswerList' && questKey == ${questKey}]`;
+              const answerKeyList = [];
+              await client.fetch(answerKeyQuery).then((answers) => {
+                console.log(answers);
+                answers.forEach((answer) => {
+                  console.log(answer)
+                  answerKeyList.push(answer.questAnswerKey);
+                });
               });
-            });
-            const receipt = await GovernanceContract().methods.setQuestResult(questKey).send({from : account})
-            await client.patch(questId).set({level: 'success'}).commit();
-            console.log('test1')
-            const publish = await MarketContract().methods.publishMarket(questKey, bettingKeyList).send({from : account});
-            console.log('publish', publish)
+
+              console.log(MarketContract());
+
+              const draftMarket = await MarketContract().methods.draftMarket(
+                marketKey, creator, title, creatorFee, creatorFeePercentage, cojamFeePercentage, charityFeePercentage
+              ).send({from : account, gas: 500000});
+              console.log('draft', draftMarket);
+
+              const receipt = await GovernanceContract().methods.setQuestResult(questKey).send({from : account, gas: 500000})
+              console.log('setQuest', receipt);
+              await client.patch(questId).set({level: 'success'}).commit();
+              // if(receipt.events.QuestResult.returnValues.result === 'approve')
+              console.log('test')
+              const publish = await MarketContract().methods.publishMarket(questKey, answerKeyList).send({from : account, gas: 500000});
+              console.log('publish', publish)
+            }
           // eslint-disable-next-line no-dupe-else-if
-          } else if(totalVote > 10 && approveVote === rejectVote) {
+          } else if(totalVote >= 10 && approveVote === rejectVote) {
             console.log('approveVote = rejectVote')
             const receipt = await GovernanceContract().methods.makeQuestResult(questKey, 'approve').send({from : account})
             console.log(receipt);
@@ -214,6 +231,13 @@ function Index() {
         console.log(err)
       }
     })
+  }
+
+  const setQuestEndTime = async (questKey) => {
+    const accounts = await window.klaytn.enable();
+    const account = accounts[0];
+    const receipt = await GovernanceContract().methods.setQuestEndTime(questKey).send({from : account})
+    console.log(receipt)
   }
 
   return (
@@ -242,8 +266,8 @@ function Index() {
           <ul className="paginationContent">
           {
             listData && listData.map((list, index) => {
-              console.log(list)
-              console.log(list.level === activeCategory);
+              // console.log(list)
+              // console.log(list.level === activeCategory);
               const questTitle = list.quest.titleKR;
               const category = list.level === 'draft' ? 'Draft' : list.level === 'success' ? 'Success' : 'Answer';
 
@@ -382,6 +406,7 @@ function Index() {
                             >
                               Reject {adminAddressDB === newAccount ? (<span>({rejectVote})</span>) : (null)}
                             </button>
+                            <button onClick={() => setQuestEndTime(list.quest.questKey)}>End</button>
                           </div>
                           {
                             adminAddressDB === newAccount && diff < 0 ?
