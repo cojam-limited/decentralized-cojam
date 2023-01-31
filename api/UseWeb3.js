@@ -89,10 +89,19 @@ export const setProposal = async ({proposalKey, title, result, totalVote, result
 export const getAllMyNfts = async () => {
     const msgSender = await getSigner();
     const nftContract = getDaoNftContract();
-    
     try {
         return await nftContract.methods.walletOfOwner(msgSender).call();
     }catch (err) {
         console.error('getAllMyNfts', err);
+    }
+}
+
+export const getBalance = async () => {
+    const msgSender = await getSigner();
+    const nftContract = getDaoNftContract();
+    try {
+        return await nftContract.methods.balanceOf(msgSender).call();
+    }catch (err) {
+        console.error('getBalance', err);
     }
 }
