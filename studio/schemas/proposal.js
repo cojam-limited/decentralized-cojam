@@ -1,5 +1,3 @@
-import { setEndTime, keyMaker } from '../src/makerHero'
-
 export default {
     name: "proposal",
     title: "Proposal",
@@ -10,7 +8,6 @@ export default {
         title: "Proposal Key",
         type: "number",
         readOnly: true,
-        initialValue: keyMaker('proposal'),
       },
       {
         name: "title",
@@ -44,7 +41,6 @@ export default {
         title: "End Time",
         type: "datetime",
         readOnly: true,
-        initialValue: setEndTime(3),
       },
     ],
   };

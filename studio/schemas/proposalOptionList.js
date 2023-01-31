@@ -9,9 +9,9 @@ export default {
         type: "string",
       },
       {
-        name: "proposalKey",
-        title: "proposal Key",
-        type: "number",
+        name: "proposalId",
+        title: "proposal ID",
+        type: "string",
       },
       {
         name: "selected",
