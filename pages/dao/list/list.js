@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useHistory } from "react-router-dom";
 
-import Moment from 'moment';
-
 import "react-datepicker/dist/react-datepicker.css";
 
 import { urlFor, client } from "../../../sanity";
 import { useLoadingState } from "@assets/context/LoadingContext";
+
+import Moment from 'moment';
 
 import "react-responsive-modal/styles.css";
 import { useWalletData } from '@data/wallet';
@@ -17,6 +17,7 @@ import GovernanceContractABI from "../../../api/ABI/GovernanceContractABI.json"
 import NftContractABI from "../../../api/ABI/NftContractABI.json"
 import MarketContractABI from "../../../api/ABI/CojamMarketContractABI.json"
 import Web3 from "web3";
+import SuccessList from "./successList";
 
 function Index() {
   const { walletData } = useWalletData();
@@ -137,24 +138,36 @@ function Index() {
       // update draft total amount
       const newDraftTotalQuery = `*[_type == 'governanceItem' && references('${_id}')]`;
       await client.fetch(newDraftTotalQuery).then(async (vote) => {
+        console.log(vote);
         const questId = vote[0]._id;
         const draftApproveTotal = vote[0].approveTotalVote;
         const draftRejectTotal = vote[0].rejectTotalVote;
+        const balance = await NftContract().methods.balanceOf(account).call();
 
         if(answer === 'approve') {
           const newDraftApproveTotal = draftApproveTotal + returnValue.votedNfts.length;
-
           await client.patch(questId).set({approveTotalVote: newDraftApproveTotal}).commit();
+          toastNotify({
+            state: 'success',
+            message: `${balance} Votes to Approve this Quest.`,
+          });
         } else if(answer === 'reject') {
           const newDraftRejectTotal = draftRejectTotal + returnValue.votedNfts.length;
-
           await client.patch(questId).set({rejectTotalVote: newDraftRejectTotal}).commit();
+          toastNotify({
+            state: 'success',
+            message: `${balance} Votes to Reject this Quest.`,
+          });
         }
       });
       setLoading(false);
     } catch (error) {
       console.error('DraftVoteGovernance', error);
       setLoading(false);
+      toastNotify({
+        state: 'error',
+        message: 'Check Your Wallet Account',
+      });
     }
   };
 
@@ -180,7 +193,7 @@ function Index() {
       const marketKey = vote[0].questKey.questKey;
       const creator = vote[0].questKey.creatorAddress;
       const title = vote[0].questKey.titleKR;
-      const creatorFee = vote[0].questKey.creatorPay;
+      const creatorFee = Number(vote[0].questKey.creatorPay) / 10 ** 18;
       const creatorFeePercentage = vote[0].questKey.creatorFee;
       const cojamFeePercentage = vote[0].questKey.cojamFee;
       const charityFeePercentage = vote[0].questKey.charityFee;
@@ -205,15 +218,51 @@ function Index() {
               const draftMarket = await MarketContract().methods.draftMarket(
                 marketKey, creator, title, creatorFee, creatorFeePercentage, cojamFeePercentage, charityFeePercentage
               ).send({from : account, gas: 500000});
-              console.log('draft', draftMarket);
+              const draftListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}']`
+              client.fetch(draftListQuery).then(async (list) => {
+                console.log(list);
+                await client.patch(list[0]._id).set({
+                  statusType: 'DRAFT', 
+                  draftTx: draftMarket.transactionHash,
+                  draftDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                  updateMember: account,
+                }).commit();
+              })
 
               const receipt = await GovernanceContract().methods.setQuestResult(questKey).send({from : account, gas: 500000})
               console.log('setQuest', receipt);
-              await client.patch(questId).set({level: 'success'}).commit();
+              await client.patch(questId).set({level: 'draftEnd'}).commit();
               // if(receipt.events.QuestResult.returnValues.result === 'approve')
               console.log('test')
-              const publish = await MarketContract().methods.publishMarket(questKey, answerKeyList).send({from : account, gas: 500000});
-              console.log('publish', publish)
+
+              const answerMarket = await MarketContract().methods.addAnswerKeys(questKey, answerKeyList).send({from: account, gas: 500000});
+              console.log('answer', answerMarket);
+              const answerListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}']`
+              client.fetch(answerListQuery).then(async (list) => {
+                console.log(list);
+                await client.patch(list[0]._id).set({
+                  statusType: 'ANSWER', 
+                  answerTx: answerMarket.transactionHash,
+                  answerDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                  updateMember: account,
+                }).commit();
+              })
+
+              const approveMarket = await MarketContract().methods.approveMarket(questKey).send({from: account, gas: 500000});
+              console.log('approve', approveMarket)
+              const approveListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}']`
+              client.fetch(approveListQuery).then(async (list) => {
+                console.log(list);
+                await client.patch(list[0]._id).set({
+                  statusType: 'APPROVE',
+                  questStatus: 'APPROVE',
+                  approveTx: approveMarket.transactionHash,
+                  approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                  updateMember: account,
+                }).commit();
+              })
+              // const publish = await MarketContract().methods.publishMarket(questKey, answerKeyList).send({from : account, gas: 500000});
+              // console.log('publish', publish)
             }
           // eslint-disable-next-line no-dupe-else-if
           } else if(totalVote >= 10 && approveVote === rejectVote) {
@@ -224,7 +273,7 @@ function Index() {
             console.log('another')
             const receipt = await GovernanceContract().methods.cancelQuest(questKey).send({from : account})
             console.log(receipt);
-            await client.patch(questId).set({level: 'cancle'}).commit();
+            await client.patch(questId).set({level: 'cancel'}).commit();
           }
         }
       } catch(err) {
