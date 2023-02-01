@@ -28,10 +28,10 @@ export async function isAvailabeToVote(_proposalKey, _voter) {
         return result;
     }
 
-    //check voter has avaliable nfts to vote proposal
-    const groq = `*[_type == "proposal" && proposalKey == ${_proposalKey}]{votedNfts}[0]`
+    //check voter has avaliable nfts to vote proposal and check End Time
+    const groq = `*[_type == "proposal" && proposalKey == ${_proposalKey}]{votedNfts, 'endTime' : dateTime(endTime)}[0]`
     const proposal = await client.fetch(groq)
-    const votableNft = uniqueElementsBetweenArr(filterNft, proposal.votedNfts)
+    const votableNft = proposal.votedNfts === null ? filterNft : uniqueElementsBetweenArr(filterNft, proposal.votedNfts)
     if(votableNft.length === 0) {
         result.msg = 'voter does not have available dao nft';
         return result;
