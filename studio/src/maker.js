@@ -20,3 +20,20 @@ export const setEndTime = (day) => {
     currentDate.setUTCDate(currentDate.getUTCDate() + day);
     return currentDate.toISOString();
 }
+/**
+ * GROQ pagination arr should be contained data from sanity  ex) _id, _createdAt ...
+ * @param {string} arr
+ * @returns {null|string} lastId, lastValue
+ */
+export const lastElementsForPage = (arr , value) => {
+    let lastId = ''
+    let lastValue =''
+    if (arr.length > 0) {
+        lastId = arr[arr.length - 1]._id
+        lastValue = arr[arr.length -1][value]
+      } else {
+        lastId = null // Reached the end
+        lastValue = null
+      }
+      return {lastId, lastValue}
+}
