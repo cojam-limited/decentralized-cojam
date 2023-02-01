@@ -480,7 +480,7 @@
     "stateMutability": "nonpayable", 
     "type": "function", 
     "signature": "0xfe90ff7d"
-  }, 
+  },
   {
     "inputs":  [
       { "internalType": "uint256", "name": "_questKey", "type": "uint256" }

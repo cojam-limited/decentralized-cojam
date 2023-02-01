@@ -3,6 +3,7 @@ import { client } from "../../sanity";
 import { checkLogin, callDraftMarket, callAddAnswerKeys, callApproveMarket, callAdjournMarket, callRetrieveMarket, callSuccessMarket, callFinishMarket } from "@api/UseTransactions";
 import Moment from 'moment';
 import toastNotify from '@utils/toast';
+import { GovernanceContract } from "../dao/contractHelper";
 
 const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;  // KAS address
 
@@ -283,17 +284,33 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                     return;
                 }
 
+                // eslint-disable-next-line no-case-declarations
                 const finishRes = await callFinishMarket(selectedQuest.questKey, walletData, setQr, setQrModal, setMinutes, setSeconds);
                 if(finishRes.status === 200) {
                     await client.patch(selectedQuest._id)
+                    .set({
+                        statusType: 'FINISH', 
+                        finishTx: finishRes.transactionId, 
+                        finishDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                        completed: true,
+                        updateMember: walletData.account
+                    }).commit();
+                    const accounts = await window.klaytn.enable();
+                    const account = accounts[0];
+                    const receipt = await GovernanceContract().methods.startDecision(selectedQuest.questKey).send({from : account})
+                    console.log(receipt);
+                    // eslint-disable-next-line no-case-declarations
+                    const successStartQuery = `*[_type == 'governanceItem' && references('${selectedQuest._id}')]`
+                    client.fetch(successStartQuery).then(async (success) => {
+                        await client.patch(success[0]._id)
                             .set({
-                                statusType: 'FINISH', 
-                                finishTx: finishRes.transactionId, 
-                                finishDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                                completed: true,
-                                updateMember: walletData.account
-                            })
-                            .commit();
+                                level: 'success', 
+                                successStartTime: Moment().format("yyyy-MM-DD HH:mm:ss"), 
+                                successEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
+                                successTotalVote: 0,
+                                adjournTotalVote: 0
+                            }).commit();
+                    })
                     
                     toastNotify({
                         state: 'success',

@@ -28,7 +28,7 @@ function Index() {
 	const { walletData } = useWalletData();
 	const [ transactionDatas, setTransactionDatas ] = useState([]);
 	const [ admins, setAdmins ] = useState([]);
-	const [ activeAdmin, setActiveAdmin ] = useState();
+	const [ activeAdmin, setActiveAdmin ] = useState('0x58ce423f795ce7171f5eb99627320eb96bd10a83');
 	const [ selectedAdmin, setSelectedAdmin ] = useState({});
 	const [ popups, setPopups ] = useState([]);
 	

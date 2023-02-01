@@ -152,7 +152,7 @@ function Index() {
     const questQuery = `*[_type == 'quests' && isActive == true && pending == false && questStatus == 'APPROVE' && _id != '${Date.now()}' ${condition}] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey && ^.questKey != '${Date.now()}'] {title, _id, totalAmount}} | order(createdDateTime desc) | order(totalAmount desc)`;
 		client.fetch(questQuery).then((datas) => {
       datas.forEach((quest) => {
-        const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days') 
+        const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days')
         if(diff === 0) {
           quest.dDay = 'D-0';
         } else {
