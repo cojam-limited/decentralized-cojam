@@ -37,3 +37,9 @@ export const lastElementsForPage = (arr , value) => {
       }
       return {lastId, lastValue}
 }
+
+export const uniqueElementsBetweenArr = (arr1, arr2) => {
+  return arr1.filter(function(element) {
+    return arr2.indexOf(element) === -1;
+  });
+}

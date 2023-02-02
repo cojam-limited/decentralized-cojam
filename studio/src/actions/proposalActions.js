@@ -1,6 +1,5 @@
 import { client } from "../../../sanity";
 import { keyMaker, setEndTime } from "../maker";
-import { isAvailabeToVote } from "../Service/proposalService";
 
 export const Proposal = {
     create : async (title, description, options, creator) => {
@@ -23,25 +22,22 @@ export const Proposal = {
                 total : 0
             })
         }
-        return true
+        return true;
     },
-    vote : async (proposerId, proposalKey, proposalOPtionId, voter) => {
-        const {ok, nfts, msg} = await isAvailabeToVote(proposalKey, voter)
-        if(!ok) return {ok, msg}
-
+    vote : async (proposerId, proposalKey, proposalOPtionId, voter, votableNfts) => {
         const doc = {
             _type: 'proposalVote',
             proposalKey: proposalKey,
             proposalOptionId: proposalOPtionId,
             voter: voter,
-            count: nfts.length
+            count: votableNfts.length
         }
 
-        await client.patch(proposerId).setIfMissing({votedNfts: []}).append('votedNfts', nfts).commit({autoGenerateArrayKeys: true})
-        await client.patch(proposalOPtionId).inc({total : nfts.length}).commit()
+        await client.patch(proposerId).setIfMissing({votedNfts: []}).append('votedNfts', votableNfts).commit({autoGenerateArrayKeys: true})
+        await client.patch(proposalOPtionId).inc({total : votableNfts.length}).commit()
         await client.create(doc);
 
-        return {ok, nfts}
+        return true;
     },
     listClosed : async () => {
         const query = `*[_type == 'proposal' && dateTime(endTime) < dateTime(now()) ]| order(_createdAt desc)[0..1]{
