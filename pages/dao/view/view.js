@@ -9,12 +9,8 @@ import 'swiper/css';
 import 'react-responsive-modal/styles.css';
 
 import { urlFor, client } from "../../../sanity";
-import { useWalletData } from '@data/wallet';
-
-import { BalanceContext } from '../../../components/Context/BalanceContext';
 
 import toastNotify from '@utils/toast';
-import { QrContext } from '../../../components/Context/QrContext';
 
 function Index(props) {
 	const history = useHistory();
@@ -28,18 +24,12 @@ function Index(props) {
 	// 	history.push('/');
 	// }
 
-		const { setLoading } = useLoadingState();
+	const { setLoading } = useLoadingState();
 	const [ selectedAnswer, setSelectedAnswer ] = useState();
-	const { walletData, mutateWalletData } = useWalletData();
-
 	const [ questId ] = useState(props?.location?.state?.questId);
-	const [ quest, setQuest ] = useState();
-	const [ questTotalAmount, setQuestTotalAmount ] = useState();
-	const [ answerTotalAmounts, setAnswerTotalAmounts ] = useState({});
-	const [ answerPercents, setAnswerPercents ] = useState({});
-	const [ answerAllocations, setAnswerAllocations ] = useState({});
-
-	const [ answerHistory, setAnswerHistory ] = useState();
+	const [ item, setItem ] = useState();
+	const [ voteList, setVoteList ] = useState();
+	const [ answerHistory, setAnswerHistory ] = useState('All');
 
 	// useEffect(() => {
 	// 	let isLogin = false;
@@ -56,6 +46,15 @@ function Index(props) {
 	// 	});
 	// }, []);
 
+	const answerList = [
+    {title: 'Approve', level: 'draft'},
+    {title: 'Reject', level: 'draft'},
+    {title: 'Success', level: 'success'},
+    {title: 'Adjourn', level: 'success'},
+		{title: 'Done', level: 'done'},
+		{title: 'Done', level: 'done'},
+  ];
+
 	useEffect(() => {
 		setLoading(true);
 		/**
@@ -71,58 +70,43 @@ function Index(props) {
 			return;
 		}
 
-		const questQuery = `*[_type == 'quests' && isActive == true && _id == '${questId}' && pending == false && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey && ^._id != '${Date.now()}'] {title, _id, totalAmount}} [0]`;
-		client.fetch(questQuery).then((quest) => {
-			const diff = Moment(quest.now).diff(Moment(quest.endDateTime), 'days');
-			if(diff === 0) { 
-				quest.dDay = 'D-0';
-			} else if (diff > 0) {
-				toastNotify({
-					state: 'error',
-					message: 'quest has been completed.',
-				});
+		const governanceItemQuery = `*[_type == 'governanceItem' && references('${questId}') && _id != '${Date.now()}']
+    {
+      ...,
+      'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
+        ...,
+        'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey}
+      },
+    }`;
+		client.fetch(governanceItemQuery).then((item) => {
+			console.log('item', item[0])
+			setItem(item[0]);
+		})
 
-				history.push('/');
-			} else {
-				quest.dDay = `D${diff}`;
-			}
-
-			quest.startDateTime = Moment(quest.startDateTime).format('yyyy-MM-DD HH:mm:ss');
-			quest.endDateTime = Moment(quest.endDateTime).format('yyyy-MM-DD HH:mm:ss');
-
-			setQuest(quest);
-			setQuestTotalAmount(quest.totalAmount);
-			setSelectedAnswer(quest.answers[0]);
-
-			const questTotalAmount = quest.totalAmount;
-			const answers = quest.answerIds;
-			answers.forEach((answer) => {
-				const resultPercent = answer.totalAmount / questTotalAmount;
-				const allocation = isNaN(Number(resultPercent).toFixed(2)) ? '0%' : Number(resultPercent  * 100).toFixed(2) +'% ('+ addComma(answer.totalAmount) +' CT)';
-				
-				answerTotalAmounts[answer.title] = answer.totalAmount;
-				answerPercents[answer.title] = resultPercent * 100;
-				answerAllocations[answer.title] = allocation;
-
-				setAnswerTotalAmounts(answerTotalAmounts);
-				setAnswerPercents(answerPercents);
-				setAnswerAllocations(answerAllocations);
-			});
-
-			const creteriaDate = Moment().subtract(5, 'days').format('YYYY-MM-DD');
-			const answerHistoryQuery = `*[_type == 'betting' && questKey == ${quest.questKey} && createdDateTime > '${creteriaDate}' && _id != '${Date.now()}'] {..., 'answerColor': *[_type=='questAnswerList' && questKey == ^.questKey && _id == ^.questAnswerKey && ^._id != '${Date.now()}']{color}[0] } | order(_updatedAt desc)`;
-			client.fetch(answerHistoryQuery).then((answerHist) => {
-				setAnswerHistory(answerHist);
-			});
-
-			mutateWalletData({ ...walletData });
+		const answerListQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${questId}' && _id != '${Date.now()}']`
+		client.fetch(answerListQuery).then((answer) => {
+			setVoteList(answer);
 			setLoading(false);
-		});  
+		})
 		/**
 		 * Quest 리스트 & 데이터 조회
 		 */ 
 	}, []);
-  const category = quest?.categoryNm?.seasonCategoryName;
+
+	const level = item?.level === 'draft' ? 'Draft' : item?.level === 'success' ? 'Success' : item?.level === 'answer' ? 'Answer' : item?.level;
+	const endVoteTime = item?.level === 'draft' ? item?.draftEndTime : item?.level === 'success' ? item?.successEndTime : item?.level === 'answer' ? item?.answerEndTime : Moment().format("yyyy-MM-DD HH:mm:ss");
+	let agreeVote
+	let disagreeVote
+	if(level === 'Draft') {
+		agreeVote = !isFinite(Number(item?.approveTotalVote)) ? 0 : Number(item?.approveTotalVote);
+		disagreeVote = !isFinite(Number(item?.rejectTotalVote)) ? 0 : Number(item?.rejectTotalVote);
+	} else if(level === 'Success') {
+		agreeVote = !isFinite(Number(item?.successTotalVote)) ? 0 : Number(item?.successTotalVote);
+		disagreeVote = !isFinite(Number(item?.adjournTotalVote)) ? 0 : Number(item?.adjournTotalVote);
+	}
+	const totalAmount = level === 'Draft' || level === 'Success' ? agreeVote + disagreeVote : level === 'Answer' ? item?.answerTotalVote : 0;
+	const agreePer = !isFinite(agreeVote / totalAmount) ? '0' : ((agreeVote / totalAmount) * 100).toFixed(2);
+	const disagreePer = !isFinite(disagreeVote / totalAmount) ? '0' : ((disagreeVote / totalAmount) * 100).toFixed(2);
 
   return (
 		<div>
@@ -133,50 +117,78 @@ function Index(props) {
 						<dt>
 							<h2>
 								<div>
-									{category} <span>{quest?.totalAmount && addComma(quest?.totalAmount)}</span>
+									{level} <span>{totalAmount && addComma(totalAmount)}</span>
 								</div>
 								<div className='endtime'>
-									{
+									{/* {
 										quest?.dDay === 'expired' ? (<div className='closed'>Closed</div>) :
 										quest?.dDay === 'pending' ? (<div>PENDING</div>) :
 										(<div>24:00:00</div>)
-									}
+									} */}
 								</div>
 							</h2>
-							{/* <h2><span>{quest?.dDay}</span> {quest?.endDateTime}</h2> */}
 							<p 
 								onClick={() => {
-									if(quest?.imageLink && quest?.imageLink !== '') {
-										const toUrl = quest?.imageLink.indexOf('http') === -1 
-													? `https://${quest?.imageLink}` 
-													: `${quest?.imageLink}`;
+									if(item?.quest?.imageLink && item?.quest?.imageLink !== '') {
+										const toUrl = item?.quest?.imageLink.indexOf('http') === -1 
+													? `https://${item?.imageLink}` 
+													: `${item?.quest?.imageLink}`;
 
 										window.open(toUrl, '_blank').focus();
 									} 
 								}} 
 
 								style={{ 
-									cursor: quest?.imageLink ? 'pointer' : '', 
-									backgroundImage: `url('${quest && (quest.imageFile && quest.imageFile.asset ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
+									cursor: item?.quest?.imageLink ? 'pointer' : '', 
+									backgroundImage: `url('${item?.quest && (item?.quest.imageFile && item?.quest.imageFile.asset ? urlFor(item?.quest.imageFile) : item?.quest.imageUrl)}')`, 
 									backgroundPosition: `center`, 
 									backgroundSize: `cover` 
 								}}
 							/>
 							<div className='endtime'>
-								<p>End Vote<span>{quest?.endDateTime}</span></p>
+								<p>End Vote<span>{endVoteTime}</span></p>
 							</div>
-							<h3>{quest?.titleKR}</h3>
-							<h4>Total Vote<span>{quest?.totalAmount}</span></h4>
-							<ul>
-							{
-								quest?.answers && quest.answers.map((answer, index) => (
-									<li key={index}>
-										<div>{answer}</div>
-										<p>{answerAllocations[answer] && answerAllocations[answer] !== '0%' ? `${answerAllocations[answer]} X` : '0%'} </p>
-										<h2><div style={{width:`${answerPercents[answer] ?? 0}%`}}></div></h2>
-									</li>
-								))
-							}
+							<h3>{item?.quest?.titleKR}</h3>
+							<h4>Total Vote<span>{totalAmount}</span></h4>
+							<ul className={item?.level === 'answer' ? 'answer-list' : ''}>
+								{
+									item?.level === 'answer' ? 
+									(
+										item?.quest?.answerId.map((answer, index) => {
+											const totalVote = item.answerTotalVote;
+											const percent = !isFinite(answer.totalVotes / totalVote) ? '0' : ((answer.totalVotes / totalVote) * 100).toFixed(2);
+											return (
+												<li key={index} onClick={() => setSelectedAnswer(answer)} style={{cursor:'pointer'}} className={`${selectedAnswer == answer && 'active'}`}>
+													<div>{answer.title}</div>
+													<p>
+														{answer.totalVotes ?? 0}({percent}%)
+													</p>
+													<h2>
+														<div style={{ width: `${percent ?? 0}%`}}></div>
+													</h2>
+												</li>
+											)
+										})
+									)
+									:
+									(
+										answerList?.map((answer, index) => {
+											if(item?.level === answer?.level) {
+												return (
+													<li key={index}>
+														<div>{answer?.title}</div>
+														<p>
+															{answer?.title === 'Approve' || answer?.title === 'Success' ? agreeVote : disagreeVote}({answer?.title === 'Approve' || answer?.title === 'Success' ? agreePer : disagreePer}%)
+														</p>
+														<h2>
+															<div style={{ width: `${answer?.title === 'Approve' || answer?.title === 'Success' ? agreePer : disagreePer ?? 0}%` }}></div>
+														</h2>
+													</li>
+												)
+											}
+										})
+									)
+								}
 							</ul>
 							<select
 								style={{
@@ -186,22 +198,76 @@ function Index(props) {
 							>
 								<option value='All'>All</option>
 								{
-									quest?.answers && quest.answers.map((answer, index) => (
-										<option value={answer} key={index}>{answer}</option>
-									))
-								}								
+									item?.level === 'draft' || item?.level === 'success' ? (
+										answerList?.map((answer, index) => {
+											if(item?.level === answer.level) {
+												return (
+													<option value={answer.title} key={index}>{answer.title}</option>
+												)
+											}
+										})
+									) : (
+										item?.quest?.answerId.map((answer, index) => {
+											return (
+												<option value={answer.title} key={index}>{answer.title}</option>
+											)
+										})
+									)
+								}
 							</select>
 							<ul className="votelist">
 								{
-									quest?.answerIds?.map((value, index) => (
-										<li key={index}>
-											<div>
-												{value._id.slice(0,6) + '....' + value._id.slice(-4)}
-											</div>
-											<div>{value.title}</div>
-											<div>{value.totalAmount}</div>
-										</li>
-									))
+									voteList?.map((list, index) => {
+										console.log(list)
+										const DraftOption = list?.draftOption === 'approve' ? 'Approve' : list?.draftOption === 'reject' ? 'Reject' : '';
+										const SuccessOption = list?.successOption === 'success' ? 'Success' : list?.successOption === 'adjourn' ? 'Adjourn' : '';
+										const voteAnswer = item?.level === 'draft' ? DraftOption : item?.level === 'success' ? SuccessOption : item?.level === 'answer' ? list?.answerOption : '';
+										const voteCount = item?.level === 'draft' ? list?.draftCount : item?.level === 'success' ? list?.successCount : item?.level === 'answer' ? list?.answerCount : 0;
+										
+										if(answerHistory === 'All') {
+											if(item?.level === 'draft' && !list?.successOption && list?.draftOption) {
+												return (
+													<li key={index}>
+														<div>
+															{list.voter.toUpperCase().slice(0,6) + '....' + list.voter.toUpperCase().slice(-4)}
+														</div>
+														<div>{voteAnswer}</div>
+														<div>{voteCount}</div>
+													</li>
+												)
+											} else if(item?.level === 'success' && list?.successOption && !list?.answerOption) {
+												return (
+													<li key={index}>
+														<div>
+															{list.voter.toUpperCase().slice(0,6) + '....' + list.voter.toUpperCase().slice(-4)}
+														</div>
+														<div>{voteAnswer}</div>
+														<div>{voteCount}</div>
+													</li>
+												)
+											} else if(item?.level === 'answer' && list?.answerOption) {
+												return (
+													<li key={index}>
+														<div>
+															{list.voter.toUpperCase().slice(0,6) + '....' + list.voter.toUpperCase().slice(-4)}
+														</div>
+														<div>{voteAnswer}</div>
+														<div>{voteCount}</div>
+													</li>
+												)
+											}
+										} else if(answerHistory === voteAnswer){
+											return (
+												<li key={index}>
+													<div>
+														{list.voter.toUpperCase().slice(0,6) + '....' + list.voter.toUpperCase().slice(-4)}
+													</div>
+													<div>{voteAnswer}</div>
+													<div>{voteCount}</div>
+												</li>
+											)
+										}
+									})
 								}
 								</ul>
 						</dt>

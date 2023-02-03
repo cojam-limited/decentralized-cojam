@@ -71,6 +71,11 @@
   .dao-quest-list-columns > ul > li > h4 {margin-top:20px; font-family: 'Pretendard'; font-size:18px;}
   .dao-quest-list-columns > ul > li > ul {height:auto; margin: 20px 0; border: 1px solid #EFEFEF; border-radius: 4px;}
   .dao-quest-list-columns > ul > li > ul li {padding:10px 17px;}
+  .dao-quest-list-columns > ul > li > ul.answer-list {border: none; padding: 0;}
+  .dao-quest-list-columns > ul > li > ul.answer-list li {border: 1px solid #EFEFEF; border-radius: 4px; margin: 10px 0; padding:20px 17px;}
+  .dao-quest-list-columns > ul > li > ul.answer-list li.active {background-color: #FDD22C;}
+  .dao-quest-list-columns > ul > li > ul.answer-list li:hover {background-color: #FDD22C;}
+  .dao-quest-list-columns > ul > li > ul.answer-list li:first-child {margin: 0; margin-bottom: 10px;}
 }
 @media all and (min-width:480px) and (max-width:767px) {
   .dao-quest-list-columns > h2 {font-family: 'Pretendard'; font-size:28px; line-height:28px;}

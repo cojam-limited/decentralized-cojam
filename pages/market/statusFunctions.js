@@ -310,6 +310,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                                 successTotalVote: 0,
                                 adjournTotalVote: 0
                             }).commit();
+                            console.log('finishEnd')
                     })
                     
                     toastNotify({

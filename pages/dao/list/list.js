@@ -13,6 +13,7 @@ import { useWalletData } from '@data/wallet';
 import { checkLogin } from "@api/UseTransactions";
 
 import toastNotify from '@utils/toast';
+import Web3 from "web3";
 
 import { NftContract, MarketContract, GovernanceContract } from "../contractHelper";
 
@@ -27,11 +28,15 @@ function Index() {
   const [ nowTime, setNowTime ] = useState(new Date());
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
   const [ adminAddressDB, setAdminAddressDB ] = useState('');
+  const [ render, setRender ] = useState(false);
+  const [ selectedAnswer, setSelectedAnswer] = useState();
   // useMemo(() => {
   //   setInterval(() => {
-  //     setNowTime(new Date())
+  //     setNowTime(Moment().format("yyyy-MM-DD HH:mm:ss"))
   //   }, 1000)
   // })
+
+  const web3 = new Web3(window.klaytn);
 
   const categories = [
     {CategoryName: 'draft'},
@@ -53,22 +58,26 @@ function Index() {
     setNewAccount(accounts[0]);
   });
 
-  useEffect(() => {
+  useEffect(async () => {
     setLoading(true);
     // GovernanceItem list 조회
-    const governanceVoteQuery = `*[_type == 'governanceItem']
+    const governanceVoteQuery = `*[_type == 'governanceItem' && _id != '${Date.now()}']
     {
       ...,
-      'quest': *[_type == 'quests' && _id == ^.questKey._ref][0]
+      'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
+        ...,
+        'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey}
+      },
     }`;
     client.fetch(governanceVoteQuery).then((governanceItem) => {
       setListData(governanceItem);
       setLoading(false);
-    })    
-  }, [activeCategory, newAccount])
+      console.log('rendering!')
+    });
+  }, [activeCategory, newAccount, render])
 
   useEffect(() => {
-    const AdminAddressQuery = `*[_type == 'admin' && active == true]`
+    const AdminAddressQuery = `*[_type == 'admin' && active == true && _id != '${Date.now()}']`
     client.fetch(AdminAddressQuery).then((adminlist) => {
       adminlist.map((admin) => {
         if(admin.walletAddress.toLowerCase() === amdinContractAddress.toLowerCase()) {
@@ -76,9 +85,19 @@ function Index() {
         }
       })
     })
-  }, []);
+  }, [newAccount]);
   
   useEffect(async () => {
+    // const balance = await NftContract().methods.balanceOf(newAccount).call();
+    // if(balance <= 0) {
+    //   toastNotify({
+    //     state: 'error',
+    //     message: 'You Need Membership NFT',
+    //   })
+    //   history.push({pathname: `/`})
+    //   return;
+    // }
+
     if(newAccount !== undefined || null) {
       toastNotify({
         state: 'success',
@@ -87,7 +106,8 @@ function Index() {
     }
   }, [newAccount])
 
-  const DraftVoteGovernance = async (diff, level, questKey, answer, _id) => {
+  const VoteGovernance = async (diff, level, questKey, answer, _id) => {
+    console.log(answer);
     const accounts = await window.klaytn.enable()
     const account = accounts[0];
     const balance = await NftContract().methods.balanceOf(account).call();
@@ -114,6 +134,8 @@ function Index() {
       if(level === 'draft') {
         const receipt = await GovernanceContract().methods.voteQuest(questKey, answer).send({from : account})
         const returnValue = receipt?.events?.VoteQuestCast?.returnValues;
+        // console.log(receipt);
+        console.log(returnValue)
 
         const GovernanceItemVoteCreate = {
           _type: 'governanceItemVote',
@@ -127,69 +149,62 @@ function Index() {
         await client.create(GovernanceItemVoteCreate);
 
         // update draft total amount
-        const newDraftTotalQuery = `*[_type == 'governanceItem' && references('${_id}')]`;
+        const newDraftTotalQuery = `*[_type == 'governanceItem' && references('${_id}') && _id != '${Date.now()}']`;
         await client.fetch(newDraftTotalQuery).then(async (vote) => {
           const questId = vote[0]._id;
-          const draftApproveTotal = vote[0].approveTotalVote;
-          const draftRejectTotal = vote[0].rejectTotalVote;
-          const balance = await NftContract().methods.balanceOf(account).call();
-  
+
           if(answer === 'approve') {
-            const newDraftApproveTotal = draftApproveTotal + returnValue.votedNfts.length;
-            await client.patch(questId).set({approveTotalVote: newDraftApproveTotal}).commit();
+            await client.patch(questId).inc({approveTotalVote: returnValue.votedNfts.length}).commit();
             toastNotify({
               state: 'success',
-              message: `${balance} Votes to Approve this Quest.`,
+              message: `${returnValue.votedNfts.length} Votes to Approve this Quest.`,
             });
           } else if(answer === 'reject') {
-            const newDraftRejectTotal = draftRejectTotal + returnValue.votedNfts.length;
-            await client.patch(questId).set({rejectTotalVote: newDraftRejectTotal}).commit();
+            await client.patch(questId).inc({rejectTotalVote: returnValue.votedNfts.length}).commit();
             toastNotify({
               state: 'success',
-              message: `${balance} Votes to Reject this Quest.`,
+              message: `${returnValue.votedNfts.length} Votes to Reject this Quest.`,
             });
           }
         });
       } else if (level === 'success') {
         const receipt = await GovernanceContract().methods.voteDecision(questKey, answer).send({from : account})
         const returnValue = receipt?.events?.VoteDecisionCast?.returnValues;
-        const SuccessAnswerQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${_id}' && voter == '${account.toLowerCase()}']`;
+        console.log('receipt', receipt)
+        console.log('return', returnValue)
+        const SuccessAnswerQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${_id}' && voter == '${account.toLowerCase()}' && _id != '${Date.now()}']`;
         await client.fetch(SuccessAnswerQuery).then(async (list) => {
-          console.log(list)
           await client.patch(list[0]._id).set(
             {
               successOption: returnValue.answer,
               successCount: returnValue.votedNfts.length,
-              successTxHash: returnValue.transactionHash,
+              successTxHash: receipt.transactionHash,
             }
           ).commit();
         })
 
         // update draft total amount
-        const SuccessTotalQuery = `*[_type == 'governanceItem' && references('${_id}')]`;
+        const SuccessTotalQuery = `*[_type == 'governanceItem' && references('${_id}') && _id != '${Date.now()}']`;
         await client.fetch(SuccessTotalQuery).then(async (vote) => {
+          console.log('vote', vote);
           const questId = vote[0]._id;
-          const successTotal = vote[0].successTotalVote;
-          const adjournTotal = vote[0].adjournTotalVote;
-          const balance = await NftContract().methods.balanceOf(account).call();
-  
+
           if(answer === 'success') {
-            const newSuccessTotal = successTotal + 5;
-            await client.patch(questId).set({successTotalVote: newSuccessTotal}).commit();
+            await client.patch(questId).inc({successTotalVote: returnValue.votedNfts.length}).commit();
             toastNotify({
               state: 'success',
-              message: `${balance} Votes to Success this Quest.`,
+              message: `${returnValue.votedNfts.length} Votes to Success this Quest.`,
             });
           } else if(answer === 'adjourn') {
-            const newAdjournTotal = adjournTotal + 5;
-            await client.patch(questId).set({adjournTotalVote: newAdjournTotal}).commit();
+            await client.patch(questId).inc({adjournTotalVote: returnValue.votedNfts.length}).commit();
             toastNotify({
               state: 'success',
-              message: `${balance} Votes to Adjourn this Quest.`,
+              message: `${returnValue.votedNfts.length} Votes to Adjourn this Quest.`,
             });
           }
         });
       }
+      setRender(!render);
       setLoading(false);
     } catch (error) {
       console.error('DraftVoteGovernance', error);
@@ -201,13 +216,14 @@ function Index() {
     }
   };
 
-  const DraftResultHandler = (_id) => {
-    const newDraftTotalQuery = `*[_type == 'governanceItem' && references('${_id}')]
+  const ResultHandler = (level, _id, answerKey) => {
+    const newDraftTotalQuery = `*[_type == 'governanceItem' && references('${_id}') && _id != '${Date.now()}']
     {
       ...,
-      'questKey': *[_type == 'quests' && _id == ^.questKey._ref][0]
+      'questKey': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]
     }`;
-    client.fetch(newDraftTotalQuery).then( async (vote) => {
+    client.fetch(newDraftTotalQuery).then(async (vote) => {
+      console.log(vote);
       const approveVote = vote[0].approveTotalVote;
       const rejectVote = vote[0].rejectTotalVote;
       const totalVote = approveVote + rejectVote;
@@ -229,11 +245,13 @@ function Index() {
       const charityFeePercentage = vote[0].questKey.charityFee;
 
       try {
+        setLoading(true);
+
         if(diff < 0) {
           if(totalVote >= 10) {
             console.log('totalVote > 10')
             if(approveVote > rejectVote) {
-              const answerKeyQuery = `*[_type == 'questAnswerList' && questKey == ${questKey}]`;
+              const answerKeyQuery = `*[_type == 'questAnswerList' && questKey == ${questKey} && _id != '${Date.now()}']`;
               const answerKeyList = [];
               await client.fetch(answerKeyQuery).then((answers) => {
                 console.log(answers);
@@ -243,34 +261,59 @@ function Index() {
                 });
               });
 
-              const receipt = await GovernanceContract().methods.setQuestResult(questKey).send({from : account, gas: 500000})
-              console.log('setQuest', receipt);
-              await client.patch(questId).set({level: 'draftEnd'}).commit();
-              // // if(receipt.events.QuestResult.returnValues.result === 'approve')
-              console.log(receipt)
-
-              const publish = await MarketContract().methods.publishMarket(
-                marketKey,
-                creator,
-                title,
-                creatorFee,
-                creatorFeePercentage,
-                cojamFeePercentage,
-                charityFeePercentage,
-                answerKeyList
-              ).send({from : account, gas: 500000});
-              console.log('publish', publish)
-              const approveListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}']`
-              client.fetch(approveListQuery).then(async (list) => {
-                console.log(list);
-                await client.patch(list[0]._id).set({
-                  statusType: 'APPROVE',
-                  questStatus: 'APPROVE',
-                  approveTx: publish.transactionHash,
-                  approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                  updateMember: account,
+              if(level === 'draft') {
+                const receipt = await GovernanceContract().methods.setQuestResult(questKey).send({from : account, gas: 500000})
+                console.log('setQuest', receipt);
+                await client.patch(questId).set({level: 'draftEnd'}).commit();
+                // // if(receipt.events.QuestResult.returnValues.result === 'approve')
+  
+                const publish = await MarketContract().methods.publishMarket(
+                  marketKey,
+                  creator,
+                  title,
+                  creatorFee,
+                  creatorFeePercentage,
+                  cojamFeePercentage,
+                  charityFeePercentage,
+                  answerKeyList
+                ).send({from : account, gas: 500000});
+                console.log('publish', publish)
+                const approveListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}' && _id != '${Date.now()}']`
+                client.fetch(approveListQuery).then(async (list) => {
+                  console.log(list);
+                  await client.patch(list[0]._id).set({
+                    statusType: 'APPROVE',
+                    questStatus: 'APPROVE',
+                    approveTx: publish.transactionHash,
+                    approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                    updateMember: account,
+                  }).commit();
+                })
+              } else if(level === 'success') {
+                const receipt = await GovernanceContract().methods.setDecisionAndExecuteAnswer(questKey, answerKeyList).send({from : account, gas: 500000})
+                console.log('SDAEA', receipt);
+                await client.patch(questId).set({
+                  level: 'answer',
+                  answerStartTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                  answerEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
+                  answerTotalVote: 0
                 }).commit();
-              })
+              } else if(level === 'answer') {
+                console.log('answer');
+                const receipt = await GovernanceContract().methods.setAnswer(questKey, answerKeyList, answerKey).send({from : account, gas: 500000})
+                console.log('ANSWER', receipt);
+                await client.patch(questId).set({level: 'done',}).commit();
+                console.log(receipt.events.AnswerResult.returnValues)
+                const returnValue = receipt.events.AnswerResult.returnValues;
+                const successMarket = await MarketContract().methods.successMarket(Number(returnValue.questKey), Number(returnValue.answer)).send({from : account, gas: 500000})
+                console.log(successMarket)
+                const charityFee = successMarket.events.SuccessMarket.returnValues.charityFee;
+                const test = Number(web3.utils.fromWei('40000000000000000', 'ether')) * 100;
+                console.log(test);
+                console.log('total')
+                const setTotalReward = await GovernanceContract().methods.setTotalReward(questKey, test).send({from : account, gas: 500000})
+                console.log(setTotalReward)
+              }
             }
           // eslint-disable-next-line no-dupe-else-if
           } else if(totalVote >= 10 && approveVote === rejectVote) {
@@ -283,22 +326,84 @@ function Index() {
             console.log(receipt);
             await client.patch(questId).set({level: 'cancel'}).commit();
           }
+          console.log('render!');
+          setRender(!render);
+          setLoading(false);
         }
       } catch(err) {
         console.log(err)
+        setLoading(false);
       }
     })
   }
 
-  const setQuestEndTime = async (questKey, questId) => {
+  const setQuestEndTime = async (level, questKey, questId) => {
+    setLoading(true);
     const accounts = await window.klaytn.enable();
     const account = accounts[0];
-    const receipt = await GovernanceContract().methods.setQuestEndTime(questKey).send({from : account})
-    console.log(receipt)
-    const endQuestQuery = `*[_type == 'governanceItem' && references('${questId}')]`
-    client.fetch(endQuestQuery).then(async (list) => {
-      await client.patch(list[0]._id).set({draftEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
-    })
+    const endQuestQuery = `*[_type == 'governanceItem' && references('${questId}') && _id != '${Date.now()}']`
+    if(level === "draft") {
+      const receipt = await GovernanceContract().methods.setQuestEndTime(questKey).send({from : account})
+      console.log('draftEnd', receipt)
+      client.fetch(endQuestQuery).then(async (list) => {
+        await client.patch(list[0]._id).set({draftEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
+      })
+    } else if(level === "success") {
+      const receipt = await GovernanceContract().methods.setDecisionEndTime(questKey).send({from : account})
+      console.log('successEnd', receipt)
+      client.fetch(endQuestQuery).then(async (list) => {
+        await client.patch(list[0]._id).set({successEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
+      })
+    } else if(level === "answer") {
+      const receipt = await GovernanceContract().methods.setAnswerEndTime(questKey).send({from : account})
+      console.log('answerEnd', receipt)
+      client.fetch(endQuestQuery).then(async (list) => {
+        await client.patch(list[0]._id).set({answerEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
+      })
+    }
+    setNowTime(Moment().format("yyyy-MM-DD HH:mm:ss"));
+    setRender(!render);
+    setLoading(false);
+  }
+
+  const AnswerConfirmHandler = async (questKey, answerKey, answerId, answer, itemId, itemQuestId) => {
+    setLoading(true);
+    try {
+      const accounts = await window.klaytn.enable();
+      const account = accounts[0];
+      const receipt = await GovernanceContract().methods.voteAnswer(questKey, answerKey).send({from : account})
+      const returnValue = receipt?.events?.VoteAnswerCast?.returnValues;
+      console.log(returnValue);
+      const answerQuery = `*[_type == 'questAnswerList' && _id == '${answerId}' && _id != '${Date.now()}']`
+      client.fetch(answerQuery).then(async (answer) => {
+        if(!answer[0].totalVotes) {
+          await client.patch(answer[0]._id).set({totalVotes: 0}).commit();
+          await client.patch(answer[0]._id).inc({totalVotes: returnValue.votedNfts.length}).commit();
+          await client.patch(itemId).inc({answerTotalVote: returnValue.votedNfts.length}).commit()
+        } else {
+          await client.patch(answer[0]._id).inc({totalVotes: returnValue.votedNfts.length}).commit();
+          await client.patch(itemId).inc({answerTotalVote: returnValue.votedNfts.length}).commit()
+        }
+        const SuccessAnswerQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${itemQuestId}' && voter == '${account.toLowerCase()}' && _id != '${Date.now()}']`;
+        await client.fetch(SuccessAnswerQuery).then(async (list) => {
+          console.log(list);
+          await client.patch(list[0]._id).set(
+            {
+              answerOption: answer,
+              answerCount: returnValue.votedNfts.length,
+              answerTxHash: receipt.transactionHash,
+            }
+          ).commit();
+        })
+        setSelectedAnswer('');
+        setRender(!render);
+        setLoading(false);
+      })
+    } catch(err) {
+      console.log(err)
+      setSelectedAnswer('');
+      setLoading(false);
+    }
   }
 
   return (
@@ -327,8 +432,11 @@ function Index() {
           <ul className="paginationContent">
           {
             listData && listData.map((list, index) => {
+              if(list.level === 'draft') {
+                console.log(list);
+              }
               const questTitle = list.quest.titleKR;
-              const category = list.level === 'draft' ? 'Draft' : list.level === 'success' ? 'Success' : 'Answer';
+              const category = list.level === 'draft' ? 'Draft' : list.level === 'success' ? 'Success' : list.level === 'answer' ? 'Answer' : 'Cancel';
 
               const endTime = category === 'Draft' ? new Date(list.draftEndTime) : category === 'Success' ? new Date(list.successEndTime) : new Date(list.answerEndTime);
               const diff = endTime - nowTime
@@ -409,63 +517,93 @@ function Index() {
                           </div>
                         </h3>
                         <h4>{questTitle}</h4>
-                        <ul>
-                          {answerList && answerList.map((answer, index) => {
-                              if(list.level === answer.level) {
+                        <ul className={list.level === 'answer' ? 'answer-list' : ''}>
+                          {
+                            list.level === 'answer' ? 
+                            (
+                              list.quest.answerId.map((answer, index) => {
+                                const totalVote = list.answerTotalVote;
+                                const percent = !isFinite(answer.totalVotes / totalVote) ? '0' : ((answer.totalVotes / totalVote) * 100).toFixed(2);
                                 return (
-                                  <li key={index}>
+                                  <li key={index} onClick={() => setSelectedAnswer(answer)} style={{cursor:'pointer'}} className={`${selectedAnswer == answer && 'active'}`}>
                                     <div>{answer.title}</div>
                                     <p>
-                                      {answer.title === ('Approve' || 'Success') ? agreeVote : disagreeVote}({answer.title === ('Approve' || 'Success') ? agreePer : disagreePer}%)
+                                      {answer.totalVotes ?? 0}({percent}%)
                                     </p>
                                     <h2>
-                                      <div style={{ width: `${answer.title === ('Approve' || 'Success') ? agreePer : disagreePer ?? 0}%` }}></div>
+                                      <div style={{ width: `${percent ?? 0}%`}}></div>
                                     </h2>
                                   </li>
                                 )
-                              }
-                            })}
+                              })
+                            )
+                            :
+                            (
+                              answerList.map((answer, index) => {
+                                if(list.level === answer.level) {
+                                  return (
+                                    <li key={index}>
+                                      <div>{answer.title}</div>
+                                      <p>
+                                        {answer.title === 'Approve' || answer.title === 'Success' ? agreeVote : disagreeVote}({answer.title === 'Approve' || answer.title === 'Success' ? agreePer : disagreePer}%)
+                                      </p>
+                                      <h2>
+                                        <div style={{ width: `${answer.title === 'Approve' || answer.title === 'Success' ? agreePer : disagreePer ?? 0}%` }}></div>
+                                      </h2>
+                                    </li>
+                                  )
+                                }
+                              })
+                            )
+                          }
                         </ul>
                         <div className='selectBtn'>
                           <div>Would you like to vote for the Quest {category}?</div>
                           <div>
-                          {
-                            answerList && answerList.map((answer, index) => {
-                              if(answer.level === list.level) {
-                                return (
-                                  <button
-                                    key={index}
-                                    onClick={() => {DraftVoteGovernance(diff, list.level, list.quest.questKey, answer.title.toLowerCase(), list.quest._id)}}
-                                    // className={
-                                    //   diff < 0 && approveVote > rejectVote ? 'appwinBtn' :
-                                    //   diff < 0 && approveVote < rejectVote ? 'rejwinBtn' : ''
-                                    // }
-                                  >
-                                    {answer.title}
-                                    {
-                                      adminAddressDB === newAccount ? 
-                                      (
-                                        <span>({answer.title === ('Approve' || 'Success') ? agreeVote : disagreeVote})</span>
-                                      ) : (null)
-                                    }
-                                  </button>
-                                )
-                              }
-                            })
-                          }
-                            <button onClick={() => setQuestEndTime(list.quest.questKey, list.quest._id)}>End</button>
+                            {
+                              list.level === 'answer' ?
+                              (
+                                <button onClick={() => {AnswerConfirmHandler(list.quest.questKey, selectedAnswer.questAnswerKey, selectedAnswer._id, selectedAnswer.title, list._id, list.quest._id)}}>Confirm</button>
+                              ) :
+                              (
+                                answerList && answerList.map((answer, index) => {
+                                  if(answer.level === list.level) {
+                                    return (
+                                      <button
+                                        key={index}
+                                        onClick={() => {VoteGovernance(diff, list.level, list.quest.questKey, answer.title.toLowerCase(), list.quest._id)}}
+                                        // className={
+                                        //   diff < 0 && approveVote > rejectVote ? 'appwinBtn' :
+                                        //   diff < 0 && approveVote < rejectVote ? 'rejwinBtn' : ''
+                                        // }
+                                      >
+                                        {answer.title}
+                                        {
+                                          adminAddressDB === newAccount ? 
+                                          (
+                                            <span>({answer.title === 'Approve' || answer.title === 'Success' ? agreeVote : disagreeVote})</span>
+                                          ) : (null)
+                                        }
+                                      </button>
+                                    )
+                                  }
+                                })
+                              )
+                            }
+                            <button onClick={() => setQuestEndTime(list.level, list.quest.questKey, list.quest._id)}>End</button>
                           </div>
                           {
                             adminAddressDB === newAccount && diff < 0 ?
                             (
                               <button
-                                onClick={() => DraftResultHandler(list.quest._id)}
+                                onClick={() =>
+                                  {list.level === "answer" ?
+                                    (ResultHandler(list.level, list.quest._id, selectedAnswer.questAnswerKey)) :
+                                    (ResultHandler(list.level, list.quest._id))}}
                                 className="adminConfirmBtn">Confirm</button>
                             )
                             :
-                            (
-                              null
-                            )
+                            (null)
                           }
                         </div>
                       </li>
