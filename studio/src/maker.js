@@ -37,7 +37,12 @@ export const lastElementsForPage = (arr , value) => {
       }
       return {lastId, lastValue}
 }
-
+/**
+ * Compare given two arrays and return unduplicated elements as new array
+ * @param {*} arr1
+ * @param {*} arr2
+ * @returns {*} newArray
+ */
 export const uniqueElementsBetweenArr = (arr1, arr2) => {
   return arr1.filter(function(element) {
     return arr2.indexOf(element) === -1;
