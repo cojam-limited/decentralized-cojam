@@ -187,6 +187,11 @@ function Index(props) {
 		/**
 		 * Quest 리스트 & 데이터 조회
 		 */ 
+
+		/**
+		 * set scroll on top
+		 */
+		 window.scrollTo(0, 0);
 	}, []);
 
 	useEffect(() => {
