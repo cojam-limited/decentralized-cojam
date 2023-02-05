@@ -114,9 +114,8 @@ function Index(props) {
 	};
 
 	useEffect(() => {
-		let isLogin = false;
-		checkLogin(walletData).then((res) => {
-			isLogin = res;
+		/* checkLogin(walletData).then((res) => {
+			const isLogin = res;
 
 			if(!isLogin) {
 				toastNotify({
@@ -125,7 +124,7 @@ function Index(props) {
 				});
 				history.push('/');
 			}
-		});
+		}); */
 
 		/**
 		 * set scroll on top
