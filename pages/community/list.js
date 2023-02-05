@@ -29,7 +29,10 @@ function Index() {
 
 	// 첫 렌더링 시, 맨 위로 이동
 	useEffect(() => {
-		topRef.current.scrollIntoView({ block: 'start' });
+		const element = topRef.current;
+		const scrollableContainer = document.body;
+
+		scrollableContainer.scrollTop = element.offsetTop;
 	}, []);
 
 	useEffect(() => {

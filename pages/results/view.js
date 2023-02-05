@@ -19,7 +19,10 @@ function Index(props) {
 	const { setLoading } = useLoadingState();
 
 	useEffect(() => {
-		topRef.current.scrollIntoView({ block: 'start' });
+		const element = topRef.current;
+		const scrollableContainer = document.body;
+
+		scrollableContainer.scrollTop = element.offsetTop;
 	}, []);
 
 	useEffect(() => {

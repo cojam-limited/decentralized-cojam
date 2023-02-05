@@ -130,7 +130,10 @@ function Index(props) {
 		/**
 		 * set scroll on top
 		 */
-		topRef.current.scrollIntoView({ block: 'start' });
+		const element = topRef.current;
+		const scrollableContainer = document.body;
+
+		scrollableContainer.scrollTop = element.offsetTop;
 	}, []);
 
 	useEffect(() => {
