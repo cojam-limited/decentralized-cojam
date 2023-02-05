@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { urlFor, client } from "../../sanity";
@@ -13,9 +13,14 @@ const stringToHTML = function (htmlString) {
 };
 
 function Index(props) {
+	const topRef = useRef(null);
 	const [ post, setPost ] = useState(props.location.state.post);
 	const [ relatedPosts, setRelatedPosts ] = useState([]);
 	const { setLoading } = useLoadingState();
+
+	useEffect(() => {
+		topRef.current.scrollIntoView({ block: 'start' });
+	}, []);
 
 	useEffect(() => {
 		setLoading(true);
@@ -40,6 +45,8 @@ function Index(props) {
 
   	return (
 		<div className="bg-notice" style={{background: `url('${backgroundImage}') center -590px no-repeat, #fff`}}>
+			<div ref={topRef} />
+
 			{/* 타이틀영역 */}
 			<div className="title-area">
 				Results

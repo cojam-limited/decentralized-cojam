@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom'
 
 import { checkLogin } from "@api/UseTransactions";
@@ -51,6 +51,8 @@ function Index(props) {
 	const [ rate, setRate ] = useState(0);
 	const [ receiveToken, setReceiveToken ] = useState(0);
 	const [ answerHistory, setAnswerHistory ] = useState();
+
+	const topRef = useRef(null);
 
 	const setBetting = async () => {
 		setLoading(true);
@@ -107,6 +109,10 @@ function Index(props) {
 		setLoading(false);
 	}
 
+	const scrollToTop = (event) => {
+		document.getElementById("root").scrollTo(0, 0);
+	};
+
 	useEffect(() => {
 		let isLogin = false;
 		checkLogin(walletData).then((res) => {
@@ -120,6 +126,11 @@ function Index(props) {
 				history.push('/');
 			}
 		});
+
+		/**
+		 * set scroll on top
+		 */
+		topRef.current.scrollIntoView({ block: 'start' });
 	}, []);
 
 	useEffect(() => {
@@ -187,11 +198,6 @@ function Index(props) {
 		/**
 		 * Quest 리스트 & 데이터 조회
 		 */ 
-
-		/**
-		 * set scroll on top
-		 */
-		 window.scrollTo(0, 0);
 	}, []);
 
 	useEffect(() => {
@@ -213,6 +219,7 @@ function Index(props) {
 
   	return (
 		<div className="bg-quest" style={{background: `url('${backgroundImage}') center -150px no-repeat`}}>
+			<div ref={topRef} />
 
 			{/* 기본영역 (타이틀/네비/버튼) */}
 			<dl className="title-section">

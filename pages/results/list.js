@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom'
 
 import { urlFor, client } from "../../sanity";
@@ -12,6 +12,7 @@ function Index() {
 	const history = useHistory();
 	const { setLoading } = useLoadingState();
 	const [ bannerImage, setBannerImage ] = useState();
+	const topRef = useRef(null);
 	
 	{/* 페이지네이션 세팅 */}
 	let postsPerPage = 6;
@@ -23,6 +24,11 @@ function Index() {
 		setItems(items);
 	};
 	{/* 페이지네이션 세팅 끝 */}
+
+	// 첫 렌더링 시, 맨 위로 이동
+	useEffect(() => {
+		topRef.current.scrollIntoView({ block: 'start' });
+	}, []);
 
 	useEffect(() => {
 		// banner image 조회
@@ -52,6 +58,8 @@ function Index() {
 	
 	return (
 		<div className="bg-notice" style={{background: `${bannerImage && `url(${urlFor(bannerImage)})`} center -590px no-repeat, #fff`}}>
+			<div ref={topRef} />
+
 			{/* 타이틀영역 */}
 			<div className="title-area">
 				Results

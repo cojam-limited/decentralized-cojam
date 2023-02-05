@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
 import aboutContatIcn01 from '@assets/about_contat_icn01.png'
 import aboutContatIcn04 from '@assets/about_contat_icn04.png'
@@ -18,7 +18,13 @@ import gitBookImage from '@assets/git_book.jpg';
 import { urlFor, client } from "../../sanity";
 
 function Index() {
+	const topRef = useRef(null);
 	const [ bannerImage, setBannerImage ] = useState();
+	
+	// 첫 렌더링 시, 맨 위로 이동
+	useEffect(() => {
+		topRef.current.scrollIntoView({ block: 'start' });
+	}, []);
 
 	useEffect(() => {
 		// banner image 조회
@@ -30,8 +36,11 @@ function Index() {
 		});
 	}, []);
 
+
   return (
 	<div className="bg-about" style={{background: `${bannerImage && `url(${urlFor(bannerImage)})`} center -590px no-repeat, #fff`}}>
+		<div ref={topRef} />
+
 		{/* 타이틀영역 */}
 		<div className="title-area">
 			About the Company

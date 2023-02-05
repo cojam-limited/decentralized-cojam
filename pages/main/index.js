@@ -48,6 +48,7 @@ function Index() {
 	const { setLoading } = useLoadingState();
 	const [ quests, setQuests ] = useState([]);
 	const [ mainImages, setMainImages ] = useState([]);
+	const topRef = useRef(null);
 	
 	const [ answerTotalAmounts, setAnswerTotalAmounts] = useState({});
 	const [ answerPercents, setAnswerPercents] = useState({});
@@ -81,6 +82,11 @@ function Index() {
 			document.querySelector('.main-service-phone').style.background = `url('${phoneBackground}') -280px no-repeat`;
 		}
 	}
+
+	// 첫 렌더링 시, 맨 위로 이동
+	useEffect(() => {
+		topRef.current.scrollIntoView({ block: 'start' });
+	}, []);
 
 	useEffect(() => {
 		window.addEventListener('resize', resizeFunc);
@@ -161,6 +167,8 @@ function Index() {
 					<button style={{ float: 'right', color: 'white' }} onClick={closeModal}>close</button>
 				</div>
 			</Modal>
+
+			<div ref={topRef} />
 
 			{/* 비주얼영역 */}
 			<div className="main-vegas">
