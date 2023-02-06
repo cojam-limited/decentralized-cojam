@@ -144,6 +144,7 @@ function Index() {
           draftOption: returnValue.answer,
           draftCount: returnValue.votedNfts.length,
           draftTxHash: receipt?.transactionHash,
+          archive: true,
         }
 
         await client.create(GovernanceItemVoteCreate);
@@ -366,7 +367,7 @@ function Index() {
     setLoading(false);
   }
 
-  const AnswerConfirmHandler = async (questKey, answerKey, answerId, answer, itemId, itemQuestId) => {
+  const AnswerConfirmHandler = async (questKey, answerKey, answerId, answerTitle, itemId, itemQuestId) => {
     setLoading(true);
     try {
       const accounts = await window.klaytn.enable();
@@ -389,7 +390,7 @@ function Index() {
           console.log(list);
           await client.patch(list[0]._id).set(
             {
-              answerOption: answer,
+              answerOption: answerTitle,
               answerCount: returnValue.votedNfts.length,
               answerTxHash: receipt.transactionHash,
             }
@@ -458,7 +459,7 @@ function Index() {
                 agreeVote = !isFinite(Number(list?.successTotalVote)) ? 0 : Number(list?.successTotalVote);
                 disagreeVote = !isFinite(Number(list?.adjournTotalVote)) ? 0 : Number(list?.adjournTotalVote);
               }
-              const totalAmount = agreeVote + disagreeVote;
+              const totalAmount = category === 'Draft' || category === 'Success' ? agreeVote + disagreeVote : category === 'Answer' ? list.answerTotalVote : 0;
               const agreePer = !isFinite(agreeVote / totalAmount) ? '0' : ((agreeVote / totalAmount) * 100).toFixed(2);
               const disagreePer = !isFinite(disagreeVote / totalAmount) ? '0' : ((disagreeVote / totalAmount) * 100).toFixed(2);
 
@@ -467,7 +468,7 @@ function Index() {
                 <>
                   {
                     list.level === activeCategory ? (
-                      <li>
+                      <li key={index}>
                         <h2>
                           {/* 총 투표수 작성 */}
                           <div>
@@ -479,8 +480,7 @@ function Index() {
                             }
                           </div>
                         </h2>
-                        <p key={index} 
-                        onClick={async () => {
+                        <p onClick={async () => {
                             let isLogin = false;
 
                             await checkLogin(walletData).then((res) => {
