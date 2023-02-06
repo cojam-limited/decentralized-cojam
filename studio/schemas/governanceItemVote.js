@@ -58,5 +58,15 @@ export default {
         title: "Answer Transaction Hash",
         type: "string"
       },
+      {
+        name: "archive",
+        title: "Archive",
+        type : "boolean"
+      },
+      {
+        name: "rewardStatus",
+        title: "Reward Status",
+        type : "boolean"
+      },
     ],
   };
