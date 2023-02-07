@@ -42,5 +42,10 @@ export default {
         type: "datetime",
         readOnly: true,
       },
+      {
+        name: "proposalTxHash",
+        title: "Proposal Transaction Hash",
+        type: "string"
+      },
     ],
   };
