@@ -10,7 +10,7 @@ export const Proposal = {
             description: description,
             options: options,
             creator: creator,
-            endTime: setEndTime(3)
+            endTime: setEndTime(0)
         }
         const proposal = await client.create(doc);
         //create proposal options constraint key with proposal_id
@@ -42,7 +42,8 @@ export const Proposal = {
         const query = `
         *[
             _type == 'proposal' &&
-            dateTime(endTime) < dateTime(now())
+            dateTime(endTime) < dateTime(now()) &&
+            _id != '${Date.now()}'
         ]| order(_createdAt desc)[0..1]
         {
             _id,
@@ -82,8 +83,9 @@ export const Proposal = {
         const query = `
         *[
             _type == 'proposal' &&
-            dateTime(endTime) > dateTime(now())
-        ]| order(endTime)[0..1]
+            dateTime(endTime) > dateTime(now()) &&
+            _id != '${Date.now()}'
+        ]| order(endTime)[0..5]
         {
             _id,
             _createdAt,
@@ -118,7 +120,7 @@ export const Proposal = {
     },
     listAll : async () => {
         const query = `
-        *[ _type == 'proposal']| order(_createdAt desc)[0..2]
+        *[ _type == 'proposal' && _id != '${Date.now()}']| order(_createdAt desc)[0..5]
         {
             _id,
             _createdAt,
@@ -160,7 +162,8 @@ export const Proposal = {
         const query = `
         *[
             _type == 'proposal' &&
-            proposalKey == ${proposalKey}
+            proposalKey == ${proposalKey} &&
+            _id != '${Date.now()}'
         ]
         {
             _id,
@@ -177,8 +180,9 @@ export const Proposal = {
         const query = `
         *[
             _type == 'proposalVote' &&
-            proposalKey == ${proposalKey}
-        ]| order(_createdAt desc)[0..1]
+            proposalKey == ${proposalKey} &&
+            _id != '${Date.now()}'
+        ]| order(_createdAt desc)
         {
             _id,
             _createdAt,

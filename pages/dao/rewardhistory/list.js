@@ -56,7 +56,7 @@ function Index() {
       setDataList(rewardHistory)
       setLoading(false);
     })
-  }, [newAccount])
+  }, [newAccount, render])
 
   const totalCount = dataList.filter(reward => reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive).length;
   const rewardTotalCount = dataList.filter(reward => reward.level === 'done' && reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive).length;
@@ -68,6 +68,16 @@ function Index() {
 
   const getRewardHandler = async (list) => {
     setLoading(true)
+
+    if(list.quest.votingList[0].rewardStatus) {
+      toastNotify({
+        state: 'error',
+        message: `This quest has already been rewarded.`,
+      });
+      setLoading(false);
+      return;
+    }
+
     const questKey = list.quest.questKey;
     let answerKey
 
@@ -77,24 +87,32 @@ function Index() {
       }
     })
 
-    console.log(questKey, answerKey)
-
-    const receipt = await GovernanceContract().methods.distributeDaoReward(questKey, answerKey).send({from: newAccount, gas: 500000});
-    console.log(receipt);
-    // if(receipt) {
-    //   await client.patch(list._id).set({level: 'doneEnd'}).commit();
-    //   toastNotify({
-    //     state: 'success',
-    //     message: `The selected reward history has been deleted.`,
-    //   });
-    // } else {
-    //   toastNotify({
-    //     state: 'error',
-    //     message: `The selected reward history has been deleted.`,
-    //   });
-    // }
-    setRender(!render)
-    setLoading(false)
+    try {
+      const receipt = await GovernanceContract().methods.distributeDaoReward(questKey, answerKey).send({from: newAccount, gas: 500000});
+      console.log(receipt);
+      if(receipt.status === true) {
+        await client.patch(list.quest.votingList[0]._id).set({rewardStatus: true}).commit();
+        toastNotify({
+          state: 'success',
+          message: `Success to receive reward.`,
+        });
+      } else {
+        toastNotify({
+          state: 'error',
+          message: `Failed to receive reward.`,
+        });
+      }
+      setRender(!render)
+      setLoading(false)
+    } catch (err) {
+      console.error(err);
+      toastNotify({
+        state: 'error',
+        message: `Failed to receive reward.`,
+      });
+      setLoading(false)
+    }
+    
   }
 
   const RewardFooterHandler = (status) => {

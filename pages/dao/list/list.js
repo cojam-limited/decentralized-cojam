@@ -145,6 +145,7 @@ function Index() {
           draftCount: returnValue.votedNfts.length,
           draftTxHash: receipt?.transactionHash,
           archive: true,
+          rewardStatus: false,
         }
 
         await client.create(GovernanceItemVoteCreate);
@@ -309,7 +310,7 @@ function Index() {
                 const successMarket = await MarketContract().methods.successMarket(Number(returnValue.questKey), Number(returnValue.answer)).send({from : account, gas: 500000})
                 console.log(successMarket)
                 const charityFee = successMarket.events.SuccessMarket.returnValues.charityFee;
-                const test = Number(web3.utils.fromWei('40000000000000000', 'ether')) * 100;
+                const test = Number(web3.utils.fromWei(charityFee, 'ether')) * 100;
                 console.log(test);
                 console.log('total')
                 const setTotalReward = await GovernanceContract().methods.setTotalReward(questKey, test).send({from : account, gas: 500000})

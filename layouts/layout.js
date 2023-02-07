@@ -10,7 +10,7 @@ import LoadingOverlay from "../components/LoadingOverlay";
 
 import toastNotify from '@utils/toast';
 import { Icon } from '@iconify/react';
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeedNftModal }) => {
   const [loading, setLoading] = useState(false);
@@ -28,6 +28,7 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
   const CloseNeedNftModalHandler = () => {
     if (needNftModal) {
       setNeedNftModal(false);
+      history.push('/Dao/DaoProposals');
     }
   }
 
