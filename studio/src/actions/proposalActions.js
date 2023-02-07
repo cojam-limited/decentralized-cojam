@@ -53,6 +53,7 @@ export const Proposal = {
             description,
             creator,
             endTime,
+            proposalTxHash,
             "options": *[_type == 'proposalOptionList' && proposalId == ^._id]
         }`
         return await client.fetch(query);
@@ -93,7 +94,8 @@ export const Proposal = {
             title,
             description,
             creator,
-            endTime
+            endTime,
+            proposalTxHash
         }`
         return await client.fetch(query);
     },
@@ -129,6 +131,7 @@ export const Proposal = {
             description,
             creator,
             endTime,
+            proposalTxHash,
             dateTime(endTime) < dateTime(now()) => {
                 "options": *[_type == 'proposalOptionList' && proposalId == ^._id]
             }
@@ -172,6 +175,7 @@ export const Proposal = {
             description,
             creator,
             endTime,
+            proposalTxHash,
             "options" : *[_type == 'proposalOptionList' && proposalId == ^._id],
         }[0]`
         return await client.fetch(query);

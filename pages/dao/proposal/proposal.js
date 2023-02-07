@@ -5,7 +5,7 @@ import { useLoadingState } from "@assets/context/LoadingContext";
 import Pagination from "react-sanity-pagination";
 
 import { Proposal } from '../../../studio/src/actions/proposalActions'
-import Moment, { now } from 'moment';
+import { client } from "../../../sanity";
 import { setProposal } from '../../../api/UseWeb3';
 
 function Index() {
@@ -42,20 +42,26 @@ function Index() {
   }, [activeCategory])
 
   const clickHandler = async (list, diff) => {
-    if(diff < 0 && amdinContractAddress === newAccount) {
-      let endTime = Date.parse(list.endTime)
-      const data = {
-        proposalKey: list.proposalKey,
-        title: list.title,
-        result: '다섯번째',
-        totalVote: 0,
-        resultVote: 1,
-        endTime: endTime,
+    if(diff < 0 && amdinContractAddress.toLowerCase() === newAccount.toLowerCase() && list.proposalTxHash === null) {
+      try {
+        let endTime = Date.parse(list.endTime)
+        const data = {
+          proposalKey: list.proposalKey,
+          title: list.title,
+          result: '다섯번째',
+          totalVote: 0,
+          resultVote: 0,
+          endTime: endTime,
+        }
+        const result = await setProposal(data)
+        await client.patch(list._id).set({proposalTxHash: result.transactionHash}).commit();
+        return;
+      } catch (err) {
+        console.error(err)
+        return;
       }
-      const result = await setProposal(data)
-      console.log(result)
     }
-    
+
     history.push({
       pathname: `/Dao/DaoProposals/View`,
       state: {
@@ -108,6 +114,7 @@ function Index() {
             <ul className='dao-proposal-content'>
               {
                 data.map((list, idx) => {
+                  console.log(list)
                   const endTime = new Date(list.endTime);
                   const nowTime = new Date();
                   const diff = endTime - nowTime;
@@ -122,9 +129,18 @@ function Index() {
                         <h3>
                           {list?.creator?.slice(0, 6) + '...' + list?.creator?.slice(-4)}
                         </h3>
-                        <p className={`${diff > 0 ? 'active' : 'closed'}`}>
-                          {diff > 0 ? 'Active' : 'Closed'}
-                        </p>
+                        <div>
+                          {
+                            list.proposalTxHash ? (
+                              <p className='finish'>
+                                Finish
+                              </p>
+                            ) : (null)
+                          }
+                          <p className={`${diff > 0 ? 'active' : 'closed'}`}>
+                            {diff > 0 ? 'Active' : 'Closed'}
+                          </p>
+                        </div>
                       </div>
                       <h2>{list?.title}</h2>
                       <p>{list?.description}</p>

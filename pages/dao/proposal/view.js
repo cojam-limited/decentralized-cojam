@@ -85,9 +85,18 @@ const view = (props) => {
           <h2>{data?.title}</h2>
           <div>
             <p>{skipAddress}</p> 
-            <p className={`${diff > 0 ? 'active' : 'closed'}`}>
-              {diff > 0 ? 'Active' : 'Closed'}
-            </p>
+            <div>
+              {
+                data?.proposalTxHash ? (
+                  <p className='finish'>
+                    Finish
+                  </p>
+                ) : (null)
+              }
+              <p className={`${diff > 0 ? 'active' : 'closed'}`}>
+                {diff > 0 ? 'Active' : 'Closed'}
+              </p>
+            </div>
           </div>
         </div>
         <div className='proposal-view-desc'>
@@ -105,16 +114,18 @@ const view = (props) => {
           <h3>Cast your vote</h3>
           <ul>
             {
-              data?.options?.map((answer, idx) => (
-                <li
-                  key={idx}
-                  className={selectAnswer === answer ? 'answer-select' : ''}
-                  onClick={() => voteSelectHandler(answer)}
-                >
-                  <p>{answer.option}</p>
-                  <p>{answer.total}({(answer.total / totalAmount) * 100}%)</p>
-                </li>
-              ))
+              data?.options?.map((answer, idx) => {
+                const percent = !isFinite(answer.total / totalAmount) ? '0' : ((answer.total / totalAmount) * 100).toFixed(2);
+                return (
+                  <li
+                    key={idx}
+                    className={selectAnswer === answer ? 'answer-select' : ''}
+                    onClick={() => voteSelectHandler(answer)}
+                  >
+                    <p>{answer.option}</p>
+                    <p>{answer.total}({percent}%)</p>
+                  </li>
+              )})
             }
           </ul>
           <button onClick={() => {voteConfirmHandler()}}>Confirm</button>

@@ -211,9 +211,12 @@
 .dao-proposal-list .dao-proposal-content > li {padding: 24px 0; border-bottom:1px solid #EFEFEF; cursor: pointer;}
 .dao-proposal-list .dao-proposal-content > li > div {display: flex; justify-content: space-between; align-items: center; color:#000; margin-bottom:16px;}
 .dao-proposal-list .dao-proposal-content > li > div > h3 {font-family: 'Pretendard'; font-weight: 700; font-size: 14px; line-height: 22px;}
-.dao-proposal-list .dao-proposal-content > li > div > p {font-family: 'Pretendard'; font-style: normal; font-weight: 600; font-size: 12px; line-height: 14px; letter-spacing: -0.02em; color: #FFFFFF; padding: 4px 8px;}
-.dao-proposal-list .dao-proposal-content > li > div > p.active {background-color:#167EE6; border-radius: 12px;}
-.dao-proposal-list .dao-proposal-content > li > div > p.closed {background-color:#0AC35C; border-radius: 12px;}
+.dao-proposal-list .dao-proposal-content > li > div > div {display: flex; justify-content: center; align-items: center;}
+.dao-proposal-list .dao-proposal-content > li > div > div > p {font-family: 'Pretendard'; font-style: normal; font-weight: 600; font-size: 12px; line-height: 14px; letter-spacing: -0.02em; color: #FFFFFF; padding: 4px 8px;}
+.dao-proposal-list .dao-proposal-content > li > div > div > p.active {background-color:#167EE6; border-radius: 12px;}
+.dao-proposal-list .dao-proposal-content > li > div > div > p.closed {background-color:#0AC35C; border-radius: 12px;}
+.dao-proposal-list .dao-proposal-content > li > div > div > p.finish
+{background-color:#FF8C00; border-radius: 12px; margin-right: 4px;}
 .dao-proposal-list .dao-proposal-content > li > h2 {font-family: 'Pretendard'; font-style: normal; font-weight: 700; font-size: 16px; line-height: 22px; color:#000; margin-bottom:12px;}
 .dao-proposal-list .dao-proposal-content > li > h2 + p {font-family: 'Pretendard'; font-style: normal; font-weight: 300; font-size: 14px; line-height: 22px; letter-spacing: -0.02em; display:-webkit-box; color:#777; -webkit-line-clamp:3; -webkit-box-orient:vertical; text-overflow:ellipsis; overflow:hidden; margin-bottom: 12px;}
 .dao-proposal-list .dao-proposal-content > li > h2 + p + p {font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; letter-spacing: -0.02em; color:#000;}
@@ -231,9 +234,11 @@
 .proposal-view-header > h2 {font-family: 'Pretendard'; font-weight: 700; font-size: 24px; line-height: 34px; margin-bottom: 16px; color:#000;}
 .proposal-view-header > div {display: flex; justify-content: space-between; align-items: center;}
 .proposal-view-header > div > p {font-family: 'Pretendard'; font-weight: 700; font-size: 14px; line-height: 22px; color:#000;}
-.proposal-view-header > div > p:nth-child(2) {font-family: 'Pretendard'; font-style: normal; font-weight: 600; font-size: 12px; line-height: 14px; letter-spacing: -0.02em; color: #FFFFFF; padding: 4px 8px;background-color:#167EE6; border-radius: 12px;}
+.proposal-view-header > div > div {display: flex; justify-content: center; align-items: center;}
+.proposal-view-header > div > div > p {font-family: 'Pretendard'; font-style: normal; font-weight: 600; font-size: 12px; line-height: 14px; letter-spacing: -0.02em; color: #FFFFFF; padding: 4px 8px;background-color:#167EE6; border-radius: 12px;}
 .proposal-view-desc {margin-bottom: 40px;}
-.proposal-view-header > div > p:nth-child(2).closed {background-color:#0AC35C;}
+.proposal-view-header > div > div > p.closed {background-color:#0AC35C;}
+.proposal-view-header > div > div > p.finish {background-color:#FF8C00; margin-right: 4px;}
 .proposal-view-desc > p {font-family: 'Pretendard'; font-weight: 300; font-size: 16px; line-height: 24px; margin-bottom: 24px; color:#000;}
 .proposal-view-desc > p.closed {display:-webkit-box;  -webkit-line-clamp:16; -webkit-box-orient:vertical; text-overflow:ellipsis; overflow:hidden;}
 .proposal-view-desc > button {width: 100%; height:40px; border: 1px solid #EFEFEF; border-radius: 20px; font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color: #949494;}
