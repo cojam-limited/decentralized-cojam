@@ -255,7 +255,7 @@ function Index() {
                       cojamFeePercentage,
                       charityFeePercentage,
                       answerKeyList
-                    ).send({from : newAccount, gas: 500000});
+                    ).send({from : newAccount, gas: 750000});
                     const approveListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}' && _id != '${Date.now()}']`
                     client.fetch(approveListQuery).then(async (list) => {
                       console.log(list);
@@ -554,7 +554,7 @@ function Index() {
                 cojamFeePercentage,
                 charityFeePercentage,
                 answerKeyList
-              ).send({from : newAccount, gas: 500000});
+              ).send({from : newAccount, gas: 750000});
               const approveListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}' && _id != '${Date.now()}']`
               client.fetch(approveListQuery).then(async (list) => {
                 console.log(list);
