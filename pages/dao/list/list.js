@@ -32,10 +32,12 @@ function Index() {
   const [ selectedAnswer, setSelectedAnswer] = useState();
   const [ makeSelect, setMakeSelect ] = useState(false);
   const [ selectLevel, setSelectLevel ] = useState('');
-  useEffect(() => {
+  useEffect(async () => {
     setInterval(() => {
       setNowTime(new Date())
     }, 1000)
+    const result = await MarketContract()
+    console.log(result);
   }, [])
   const web3 = new Web3(window.klaytn);
 
@@ -208,7 +210,7 @@ function Index() {
     }`;
     client.fetch(newDraftTotalQuery).then(async (vote) => {
       console.log(vote);
-      const agreeVote = vote[0].level === 'draft' ? vote[0].approveTotalVote : vote[0].level === 'success' ? vote[0].successTotalVote : 0;
+      const agreeVote = vote[0].level === 'draft' ? vote[0].approveTotalVote : vote[0].level === 'success' ? vote[0].successTotalVote : 1;
       const disagreeVote = vote[0].level === 'draft' ? vote[0].rejectTotalVote : vote[0].level === 'success' ? vote[0].adjournTotalVote : 0;
       const totalVote = vote[0].level === 'draft' || vote[0].level === 'success' ? agreeVote + disagreeVote : vote[0].level === 'answer' ? vote[0].answerTotalVote : 0;
       const questKey = vote[0].questKey.questKey;
@@ -279,7 +281,7 @@ function Index() {
                 } else if(level === 'success') {
                   const receipt = await GovernanceContract().methods.setDecisionAndExecuteAnswer(questKey, answerKeyList).send({from : newAccount, gas: 500000})
                   console.log('SDAEA', receipt);
-                  if(receipt.events.SuccessResult.returnValues.result === 'success') {
+                  if(receipt.events.DecisionResult.returnValues.result === 'success') {
                     await client.patch(questId).set({
                       level: 'answer',
                       answerStartTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
@@ -296,10 +298,10 @@ function Index() {
                     client.fetch(adjournListQuery).then(async (list) => {
                       console.log(list);
                       await client.patch(list[0]._id).set({
-                        statusType: 'APPROVE',
-                        questStatus: 'APPROVE',
+                        statusType: 'ADJOURN',
+                        questStatus: 'ADJOURN',
                         approveTx: receipt.transactionHash,
-                        approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                        adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                         updateMember: newAccount,
                       }).commit();
                     })
@@ -449,6 +451,14 @@ function Index() {
   }
 
   const AnswerConfirmHandler = async (questKey, answerKey, answerId, answerTitle, itemId, itemQuestId) => {
+    if(!answerKey) {
+      toastNotify({
+        state: 'error',
+        message: `Please Check Answer.`,
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const accounts = await window.klaytn.enable();
