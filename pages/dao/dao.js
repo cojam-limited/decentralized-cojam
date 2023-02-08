@@ -12,7 +12,7 @@ function Index() {
 	const history = useHistory();
 	const { setLoading } = useLoadingState();
 	const [ bannerImage, setBannerImage ] = useState();
-	const amdinContractAddress = process.env.REACT_APP_ADMIN_ADDRESS;
+	const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
 	const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
 
 	window.klaytn.on('accountsChanged', (accounts) => {

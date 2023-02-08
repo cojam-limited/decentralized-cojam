@@ -20,11 +20,11 @@ const getSigner = () => {
 
 const getProposalContract = () => {
     const web3 = createWeb3Instance();
-    return new web3.eth.Contract(ProposalABI, process.env.REACT_APP_PROPOSAL_ADDRESS);
+    return new web3.eth.Contract(ProposalABI, '0x22153d9E5d7A2836098A80CA8f084E0f6b91A61b');
 }
 const getDaoNftContract = () => {
     const web3 = createWeb3Instance();
-    return new web3.eth.Contract(NftABI, process.env.REACT_APP_NFTCONTRACT_ADDRESS);
+    return new web3.eth.Contract(NftABI, '0x0B31464154907aa2B4366a02803AbEACcE979e5C');
 }
 // ===============Proposal methods====================
 /**

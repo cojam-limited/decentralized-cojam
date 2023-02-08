@@ -13,8 +13,8 @@ const caver = new Caver(window.klaytn);
 const xChainId = process.env.REACT_APP_CHAIN_ID;
 const authorization = process.env.REACT_APP_KLIP_AUTH;
 
-const cojamTokenAddress = process.env.REACT_APP_TOKEN_ADDRESS;
-const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;
+const cojamTokenAddress = '0x8a35c0b3300b4312dccefe73563e927d41368ddd';
+const cojamMarketAddress = '0x6b24afa82775414a8c3778aa8d480587021ba6c8';
 
 const klipTimeLimitMs = 60000;
 

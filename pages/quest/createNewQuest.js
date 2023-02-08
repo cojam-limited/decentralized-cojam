@@ -6,7 +6,7 @@ import Moment from 'moment';
 import toastNotify from '@utils/toast';
 import Caver from "caver-js";
 import GovernanceContractABI from "../../api/ABI/GovernanceContractABI.json"
-const governanceAddress = process.env.REACT_APP_GOVERNANCE_ADDRESS;
+const governanceAddress = '0xFa7dfdC06c641Efc2F9d1E38E8010D0D521297B6';
 
 const caver = new Caver(window.klaytn);
 

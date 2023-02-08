@@ -9,7 +9,7 @@ const header = ({toggleMyPage, setToggleMyPage, account}) => {
   const titleArray = path.split('/')[2];
   const title = titleArray.includes('Proposals') ? 'Proposals' : titleArray.includes('VotingHistory') ? 'Voting History' : 'Reward History';
   const history = useHistory();
-  const amdinContractAddress = process.env.REACT_APP_ADMIN_ADDRESS;
+  const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
 
   const OpenMyPageHandler = () => {
     if (toggleMyPage === false) {

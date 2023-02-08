@@ -5,7 +5,7 @@ import Moment from 'moment';
 import toastNotify from '@utils/toast';
 import { GovernanceContract } from "../dao/contractHelper";
 
-const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;  // KAS address
+const cojamMarketAddress = '0x6b24afa82775414a8c3778aa8d480587021ba6c8';  // KAS address
 
 export const changeStateFunction = async ({state, walletData, selectedQuest, selectedAnswer, description, setQr, setQrModal, setMinutes, setSeconds}) => {
     if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {

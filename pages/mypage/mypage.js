@@ -15,7 +15,7 @@ import { QrContext } from '../../components/Context/QrContext';
 
 import LogoBlack from '@assets/coin.png'
 
-const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;
+const cojamMarketAddress = '0x6b24afa82775414a8c3778aa8d480587021ba6c8';
 
 function Index() {
 	const { setLoading } = useLoadingState();
