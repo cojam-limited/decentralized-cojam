@@ -379,6 +379,8 @@ function Index() {
               if(level === 'success') {
                 const receipt = await GovernanceContract().methods.cancelDecision(questKey).send({from : newAccount})
                 if(receipt) {
+                  const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : newAccount, gas: 500000})
+                  console.log(adjourn)
                   await client.patch(questId).set({level: 'cancel'}).commit();
                   const approveListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}' && _id != '${Date.now()}']`
                   client.fetch(approveListQuery).then(async (list) => {
@@ -593,15 +595,17 @@ function Index() {
                   message: `Success Success End Quest`,
                 });
               } else {
+                const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : newAccount, gas: 500000})
+                console.log(adjourn)
                 await client.patch(questId).set({level: 'adjourn'}).commit();
                 const adjournListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}' && _id != '${Date.now()}']`
                 client.fetch(adjournListQuery).then(async (list) => {
                   console.log(list);
                   await client.patch(list[0]._id).set({
-                    statusType: 'APPROVE',
-                    questStatus: 'APPROVE',
+                    statusType: 'ADJOURN',
+                    questStatus: 'ADJOURN',
                     approveTx: receipt.transactionHash,
-                    approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                    adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                     updateMember: newAccount,
                   }).commit();
                 })
@@ -644,6 +648,8 @@ function Index() {
         const receipt = await GovernanceContract().methods.cancelAnswer(questKey, '').send({from: newAccount, gas: 500000})
         console.log(receipt)
         if(receipt) {
+          const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : newAccount, gas: 500000})
+          console.log(adjourn)
           const approveListQuery = `*[_type == 'quests' && _id == '${list.quest._id}' && _id != '${Date.now()}']`
           client.fetch(approveListQuery).then(async (list) => {
             console.log('list', list)
