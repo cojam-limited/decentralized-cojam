@@ -32,11 +32,11 @@ function Index() {
   const [ selectedAnswer, setSelectedAnswer] = useState();
   const [ makeSelect, setMakeSelect ] = useState(false);
   const [ selectLevel, setSelectLevel ] = useState('');
-  useMemo(() => {
+  useEffect(() => {
     setInterval(() => {
       setNowTime(new Date())
     }, 1000)
-  })
+  }, [])
   const web3 = new Web3(window.klaytn);
 
   const categories = [
