@@ -37,7 +37,6 @@ function Index() {
       setNowTime(Moment().format("yyyy-MM-DD HH:mm:ss"))
     }, 1000)
   })
-
   const web3 = new Web3(window.klaytn);
 
   const categories = [
@@ -320,7 +319,7 @@ function Index() {
 
                   const receipt = await GovernanceContract().methods.setAnswer(questKey, answerKeyList, answerKey).send({from : newAccount, gas: 500000})
                   console.log('ANSWER', receipt);
-                  await client.patch(questId).set({level: 'done',}).commit();
+                  await client.patch(questId).set({level: 'done'}).commit();
                   console.log(receipt.events.AnswerResult.returnValues)
                   const returnValue = receipt.events.AnswerResult.returnValues;
                   const successMarket = await MarketContract().methods.successMarket(Number(returnValue.questKey), Number(returnValue.answer)).send({from : newAccount, gas: 500000})
