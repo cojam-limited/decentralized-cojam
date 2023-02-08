@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Header from "./header";
 import Footer from "./footer";
@@ -11,11 +11,17 @@ import LoadingOverlay from "../components/LoadingOverlay";
 import toastNotify from '@utils/toast';
 import { Icon } from '@iconify/react';
 import { useHistory } from "react-router-dom";
+import { NftContract } from "../pages/dao/contractHelper";
 
 const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeedNftModal }) => {
-  const [loading, setLoading] = useState(false);
-  const getSession = sessionStorage?.getItem('data/wallet')?.replace(/[{}]/g, '');
-  const account = getSession?.split(',')[0]?.split(':')[1]?.replace(/["]/g, '');
+  const [ loading, setLoading ] = useState(false);
+  const [ account, setAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
+  const [ totalNft, setTotalNft ] = useState(0);
+
+  window.klaytn.on('accountsChanged', (accounts) => {
+    setAccount(accounts[0]);
+  });
+
   const skipAccount = account?.slice(0, 6) + '...' + account?.slice(-4);
   const path = window.location.pathname;
   const DAOPathCheck = path.includes('Proposals') || path.includes('VotingHistory') || path.includes('RewardHistory')
@@ -32,19 +38,44 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
     }
   }
 
+  useEffect(async () => {
+    if(account !== undefined || null) {
+      try {
+        const balance = await NftContract().methods.balanceOf(account).call();
+        setTotalNft(balance)
+      } catch(err) {
+        console.error(err)
+      }
+    }
+  }, [account])
+
   const copyText = () => {
-    try {
-      window.navigator.clipboard.writeText(account)
-      toastNotify({
-        state: 'success',
-        message: 'Success Wallet Address Copy!',
-      });
-    } catch(e) {
-      console.log(e)
+    if(account !== undefined || null) {
+      try {
+        window.navigator.clipboard.writeText(account)
+        toastNotify({
+          state: 'success',
+          message: 'Success Wallet Address Copy!',
+        });
+      } catch(e) {
+        console.log(e)
+        toastNotify({
+          state: 'error',
+          message: 'Failed Wallet Address Copy!',
+        });
+      }
     }
   }
 
   const PageMoveHandler = (url) => {
+    if(totalNft === 0) {
+      toastNotify({
+        state: 'error',
+        message: 'You Need Membership NFT',
+      })
+      return;
+    }
+    
     history.push('/Dao/' + url);
     setToggleMyPage(false);
   }
@@ -60,7 +91,10 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
           <div className='mypage'>
             <h2>My Page</h2>
             <h3>{skipAccount}</h3>
-            <p onClick={copyText}>
+            <p
+              style={{cursor: 'pointer'}}
+              onClick={copyText}
+            >
               <div>{skipAccount}</div>
               <i>
                 <Icon icon="ph:copy-simple-thin" />
@@ -68,7 +102,7 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
             </p>
             <div>
               <p>NFT</p>
-              <p>1/5</p>
+              <p>{totalNft}/5</p>
             </div>
             <ul>
               <li onClick={() => PageMoveHandler('DaoProposals')}>Proposal</li>
@@ -87,7 +121,12 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
         DAOPathCheck ?
         (
           <>
-            <ProposalHeader />
+            <ProposalHeader
+              toggleMyPage={toggleMyPage}
+              setToggleMyPage={setToggleMyPage}
+              account={account}
+              totalNft={totalNft}
+            />
               {children}
             <Footer />
             {
@@ -111,6 +150,8 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
             <DaoHeader
               toggleMyPage={toggleMyPage}
               setToggleMyPage={setToggleMyPage}
+              account={account}
+              totalNft={totalNft}
             />
               {children}
             <Footer />

@@ -1,16 +1,54 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useHistory } from "react-router-dom";
 import LogoBlack from '@assets/logo_black.png'
+import toastNotify from '@utils/toast';
+import { NftContract } from "../pages/dao/contractHelper";
 
-const daoHeader = ({toggleMyPage, setToggleMyPage}) => {
+const daoHeader = ({toggleMyPage, setToggleMyPage, account}) => {
   const path = window.location.pathname;
   const history = useHistory();
   const [currentPage, setCurrentPage] = useState('Dao');
+  const amdinContractAddress = process.env.REACT_APP_ADMIN_ADDRESS;
+
   const OpenMyPageHandler = () => {
     if (toggleMyPage === false) {
       setToggleMyPage(true);
     }
   }
+
+  useEffect(async () => {
+    if(account !== undefined || null){
+      try {
+        if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
+          toastNotify({
+            state: 'success',
+            message: `Success Login Admin Account\n"${account}"`,
+          });
+          return;
+        }
+  
+        const balance = await NftContract().methods.balanceOf(account).call();
+        if(balance <= 0) {
+          toastNotify({
+            state: 'error',
+            message: 'You Need Membership NFT',
+          })
+          history.push({pathname: `/`})
+          return;
+        }
+    
+        if(account !== undefined || null) {
+          toastNotify({
+            state: 'success',
+            message: `Success Login Account\n"${account}"`,
+          });
+        }
+      } catch(err) {
+        console.error(err)
+      }
+    }
+  }, [account])
+
   return (
     <div className={`dao-header ${path.includes('DaoView') ? 'detail' : ''}`}>
       <div>
@@ -20,9 +58,9 @@ const daoHeader = ({toggleMyPage, setToggleMyPage}) => {
           </Link>
         </h1>
       </div>
-      <div>
+      <div className='account'>
         <p onClick={OpenMyPageHandler}>
-          Wallet Address
+          {account}
         </p>
       </div>
       {/* 모바일 - 하단앱바 */}

@@ -1,23 +1,58 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Icon } from '@iconify/react';
 import { useHistory } from 'react-router-dom'
+import toastNotify from '@utils/toast';
+import { NftContract } from "../contractHelper";
 
-const header = () => {
+const header = ({toggleMyPage, setToggleMyPage, account}) => {
   const path = window.location.pathname;
   const titleArray = path.split('/')[2];
   const title = titleArray.includes('Proposals') ? 'Proposals' : titleArray.includes('VotingHistory') ? 'Voting History' : 'Reward History';
-  const getSession = sessionStorage?.getItem('data/wallet')?.replace(/[{}]/g, '');
-  const account = getSession?.split(',')[0]?.split(':')[1]?.replace(/["]/g, '');
   const history = useHistory();
+  const amdinContractAddress = process.env.REACT_APP_ADMIN_ADDRESS;
 
-  const goToHomeHandler = () => {
-    // eslint-disable-next-line no-constant-condition
-    if(path === '/Dao/DaoProposals' || '/Dao/VotingHistory') {
-      history.push('/Dao/DaoList');
-    } else if(path.includes('DaoProposals/View')) {
-      history.push('/Dao/DaoProposals')
+  const OpenMyPageHandler = () => {
+    if (toggleMyPage === false) {
+      setToggleMyPage(true);
     }
   }
+
+  const goBackHandler = () => {
+    history.goBack();
+  }
+
+  useEffect(async () => {
+    if(account !== undefined || null){
+      try {
+        if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
+          toastNotify({
+            state: 'success',
+            message: `Success Login Admin Account\n"${account}"`,
+          });
+          return;
+        }
+  
+        const balance = await NftContract().methods.balanceOf(account).call();
+        if(balance <= 0) {
+          toastNotify({
+            state: 'error',
+            message: 'You Need Membership NFT',
+          })
+          history.push({pathname: `/`})
+          return;
+        }
+    
+        if(account !== undefined || null) {
+          toastNotify({
+            state: 'success',
+            message: `Success Login Account\n"${account}"`,
+          });
+        }
+      } catch(err) {
+        console.error(err)
+      }
+    }
+  }, [account])
 
   return (
     <div className='proposal-header'>
@@ -25,10 +60,12 @@ const header = () => {
         <Icon
           icon="material-symbols:keyboard-arrow-left"
           className='arrow'
-          onClick={goToHomeHandler}
+          onClick={goBackHandler}
         />
         <div className='account'>
-          <p>{account}</p>
+          <p onClick={OpenMyPageHandler}>
+            {account}
+          </p>
         </div>
         <h2>{title}</h2>
       </div>

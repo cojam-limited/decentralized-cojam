@@ -22,12 +22,11 @@ export const getLibrary = provider => {
 const App = () => {
   const [needNftModal, setNeedNftModal] = useState(false);
   const [toggleMyPage, setToggleMyPage] = useState(false);
-  const path = window.location.pathname;
-  const pathCheck = path.split('/').length;
+
   return (
     <div
       style={{
-        paddingBottom: pathCheck < 4 ? '53px' : '0',
+        paddingBottom: '53px',
         height: 'auto' }}
     >
       <Router
