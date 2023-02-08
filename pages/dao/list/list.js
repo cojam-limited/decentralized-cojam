@@ -34,7 +34,7 @@ function Index() {
   const [ selectLevel, setSelectLevel ] = useState('');
   useMemo(() => {
     setInterval(() => {
-      setNowTime(Moment().format("yyyy-MM-DD HH:mm:ss"))
+      setNowTime(new Date())
     }, 1000)
   })
   const web3 = new Web3(window.klaytn);
@@ -425,22 +425,26 @@ function Index() {
       console.log('draftEnd', receipt)
       client.fetch(endQuestQuery).then(async (list) => {
         await client.patch(list[0]._id).set({draftEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
+        setNowTime(new Date());
+        setRender(!render);
       })
     } else if(level === "success") {
       const receipt = await GovernanceContract().methods.setDecisionEndTime(questKey).send({from : account})
       console.log('successEnd', receipt)
       client.fetch(endQuestQuery).then(async (list) => {
         await client.patch(list[0]._id).set({successEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
+        setNowTime(new Date());
+        setRender(!render);
       })
     } else if(level === "answer") {
       const receipt = await GovernanceContract().methods.setAnswerEndTime(questKey).send({from : account})
       console.log('answerEnd', receipt)
       client.fetch(endQuestQuery).then(async (list) => {
         await client.patch(list[0]._id).set({answerEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
+        setNowTime(new Date());
+        setRender(!render);
       })
     }
-    setNowTime(Moment().format("yyyy-MM-DD HH:mm:ss"));
-    setRender(!render);
     setLoading(false);
   }
 
