@@ -11,7 +11,6 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
   const walletData = sessionStorage.getItem('data/wallet');
 
-  console.log(path);
   const OpenMyPageHandler = () => {
     if (toggleMyPage === false) {
       setToggleMyPage(true);
@@ -23,7 +22,7 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   });
 
   useEffect(async () => {
-    if(account !== undefined || null){
+    if(account !== undefined || account !== null){
       try {
         if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
           toastNotify({

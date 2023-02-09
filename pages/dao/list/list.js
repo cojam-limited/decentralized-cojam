@@ -117,8 +117,6 @@ function Index() {
       if(level === 'draft') {
         const receipt = await GovernanceContract().methods.voteQuest(questKey, answer).send({from : account})
         const returnValue = receipt?.events?.VoteQuestCast?.returnValues;
-        // console.log(receipt);
-        console.log(returnValue)
 
         const GovernanceItemVoteCreate = {
           _type: 'governanceItemVote',

@@ -29,7 +29,7 @@ function Index() {
 	const goToDaoList = async () => {
 		const accounts = await window.klaytn.enable();
 		const account = accounts[0];
-		console.log(account);
+		
 		if(account.toLowerCase() === amdinContractAddress.toLowerCase()) {
 			history.push('/Dao/DaoList')
 			return;
