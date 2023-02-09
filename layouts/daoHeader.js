@@ -21,17 +21,11 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
     setAccount(accounts[0]);
   });
 
-  useEffect(async () => {
-    if(account !== undefined || account !== null){
-      try {
-        if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
-          toastNotify({
-            state: 'success',
-            message: `Success Login Admin Account\n"${account}"`,
-          });
-          return;
-        }
+  console.log(walletData)
 
+  useEffect(async () => {
+    try {
+      if(account !== undefined || account !== null) {
         if(!walletData || walletData === '{"account":"","type":""}') {
           toastNotify({
             state: 'error',
@@ -40,7 +34,7 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
           history.push('/');
           return;
         }
-
+        
         if(await window.klaytn._kaikas.isUnlocked() === false) {
           toastNotify({
             state: 'error',
@@ -49,7 +43,7 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
           history.push('/');
           return;
         }
-  
+
         const balance = await NftContract().methods.balanceOf(account).call();
         if(balance <= 0) {
           toastNotify({
@@ -59,6 +53,14 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
           history.push('/');
           return;
         }
+
+        if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
+          toastNotify({
+            state: 'success',
+            message: `Success Login Admin Account\n"${account}"`,
+          });
+          return;
+        }
     
         if(account !== undefined || account !== null) {
           toastNotify({
@@ -66,9 +68,9 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
             message: `Success Login Account\n"${account}"`,
           });
         }
-      } catch(err) {
-        console.error(err)
       }
+    } catch(err) {
+      console.error(err)
     }
   }, [account])
 
