@@ -70,5 +70,10 @@ export default {
       title: "Answer Total Vote",
       type: "number"
     },
+    {
+      name: "reward",
+      title: "Reward",
+      type: "number"
+    }
   ],
 };
