@@ -18,7 +18,20 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
   const [ account, setAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
   const [ totalNft, setTotalNft ] = useState(0);
 
+  console.log('========ACCOUNT==========')
+  console.log('account', account);
+  console.log('========ACCOUNT==========')
+
+  console.log('isEnabled', window.klaytn._kaikas.isEnabled());
+  const test = async () => {
+    console.log('isUnlocked', await window.klaytn._kaikas.isUnlocked());
+  }
+  test();
+
   window.klaytn.on('accountsChanged', (accounts) => {
+  console.log('========CHANGE ACCOUNT==========')
+  console.log('changeAccount', accounts)
+  console.log('========CHANGE ACCOUNT==========')
     setAccount(accounts[0]);
   });
 
@@ -37,6 +50,9 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
       history.push('/Dao/DaoProposals');
     }
   }
+
+  0x2b51a766F3bFC98C47253e8756EDC90BECDD88cB
+  0xbB12b62dB8Ef3Be3AfCbf7B3f8806280d165626d
 
   useEffect(async () => {
     if(account !== undefined || null) {

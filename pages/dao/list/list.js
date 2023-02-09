@@ -36,8 +36,6 @@ function Index() {
     setInterval(() => {
       setNowTime(new Date())
     }, 1000)
-    const result = await MarketContract()
-    console.log(result);
   }, [])
   const web3 = new Web3(window.klaytn);
 
@@ -469,8 +467,9 @@ function Index() {
       const returnValue = receipt?.events?.VoteAnswerCast?.returnValues;
       console.log(returnValue);
       const answerQuery = `*[_type == 'questAnswerList' && _id == '${answerId}' && _id != '${Date.now()}']`
+      console.log('query after')
       client.fetch(answerQuery).then(async (answer) => {
-        if(!answer[0].totalVotes) {
+        if(answer[0].totalVotes === null || answer[0].totalVotes === undefined) {
           await client.patch(answer[0]._id).set({totalVotes: 0}).commit();
           await client.patch(answer[0]._id).inc({totalVotes: returnValue.votedNfts.length}).commit();
           await client.patch(itemId).inc({answerTotalVote: returnValue.votedNfts.length}).commit()
