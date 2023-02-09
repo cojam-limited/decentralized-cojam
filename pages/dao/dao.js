@@ -13,13 +13,6 @@ function Index() {
 	const { setLoading } = useLoadingState();
 	const [ bannerImage, setBannerImage ] = useState();
 	const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
-	const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
-
-	console.log(newAccount);
-
-	window.klaytn.on('accountsChanged', (accounts) => {
-    setNewAccount(accounts[0]);
-  });
 	
 	useEffect(() => {
 		setLoading(true);
@@ -34,24 +27,26 @@ function Index() {
 	}, []);
 
 	const goToDaoList = async () => {
-		if(newAccount.toLowerCase() === amdinContractAddress.toLowerCase()) {
+		const accounts = await window.klaytn.enable();
+		const account = accounts[0];
+		console.log(account);
+		if(account.toLowerCase() === amdinContractAddress.toLowerCase()) {
 			history.push('/Dao/DaoList')
 			return;
 		}
 
-		const balance = await NftContract().methods.balanceOf(newAccount).call();
-    if(balance <= 0) {
+		const balance = await NftContract().methods.balanceOf(account).call();
+    if(Number(balance) <= 0) {
       toastNotify({
         state: 'error',
         message: 'You Need Membership NFT',
       })
-      history.push({pathname: `/`})
+      history.push('/');
       return;
     }
 
 		history.push('/Dao/DaoList')
 	}
-
 
   return (
 		<div

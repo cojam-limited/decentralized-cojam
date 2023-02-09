@@ -4,17 +4,23 @@ import LogoBlack from '@assets/logo_black.png'
 import toastNotify from '@utils/toast';
 import { NftContract } from "../pages/dao/contractHelper";
 
-const daoHeader = ({toggleMyPage, setToggleMyPage, account}) => {
+const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   const path = window.location.pathname;
   const history = useHistory();
   const [currentPage, setCurrentPage] = useState('Dao');
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
+  const walletData = sessionStorage.getItem('data/wallet');
 
+  console.log(path);
   const OpenMyPageHandler = () => {
     if (toggleMyPage === false) {
       setToggleMyPage(true);
     }
   }
+
+  window.klaytn.on('accountsChanged', (accounts) => {
+    setAccount(accounts[0]);
+  });
 
   useEffect(async () => {
     if(account !== undefined || null){
@@ -26,6 +32,24 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account}) => {
           });
           return;
         }
+
+        if(!walletData || walletData === '{"account":"","type":""}') {
+          toastNotify({
+            state: 'error',
+            message: 'Please Login First from the Main page.',
+          })
+          history.push('/');
+          return;
+        }
+
+        if(await window.klaytn._kaikas.isUnlocked() === false) {
+          toastNotify({
+            state: 'error',
+            message: 'Please Unlock Your Wallet Account.',
+          })
+          history.push('/');
+          return;
+        }
   
         const balance = await NftContract().methods.balanceOf(account).call();
         if(balance <= 0) {
@@ -33,11 +57,11 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account}) => {
             state: 'error',
             message: 'You Need Membership NFT',
           })
-          history.push({pathname: `/`})
+          history.push('/');
           return;
         }
     
-        if(account !== undefined || null) {
+        if(account !== undefined || account !== null) {
           toastNotify({
             state: 'success',
             message: `Success Login Account\n"${account}"`,
@@ -60,7 +84,7 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account}) => {
       </div>
       <div className='account'>
         <p onClick={OpenMyPageHandler}>
-          {account}
+          {account?.toUpperCase()}
         </p>
       </div>
       {/* 모바일 - 하단앱바 */}

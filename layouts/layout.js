@@ -18,25 +18,10 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
   const [ account, setAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
   const [ totalNft, setTotalNft ] = useState(0);
 
-  console.log('========ACCOUNT==========')
-  console.log('account', account);
-  console.log('========ACCOUNT==========')
+  console.log('account : ', account);
 
-  console.log('isEnabled', window.klaytn._kaikas.isEnabled());
-  const test = async () => {
-    console.log('isUnlocked', await window.klaytn._kaikas.isUnlocked());
-  }
-  test();
-
-  window.klaytn.on('accountsChanged', (accounts) => {
-  console.log('========CHANGE ACCOUNT==========')
-  console.log('changeAccount', accounts)
-  console.log('========CHANGE ACCOUNT==========')
-    setAccount(accounts[0]);
-  });
-
-  const skipAccount = account?.slice(0, 6) + '...' + account?.slice(-4);
   const path = window.location.pathname;
+  const skipAccount = account?.slice(0, 6).toUpperCase() + '...' + account?.slice(-4).toUpperCase();
   const DAOPathCheck = path.includes('Proposals') || path.includes('VotingHistory') || path.includes('RewardHistory')
   const history = useHistory();
   const CloseMyPageHandler = () => {
@@ -44,15 +29,13 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
       setToggleMyPage(false);
     }
   }
+  
   const CloseNeedNftModalHandler = () => {
     if (needNftModal) {
       setNeedNftModal(false);
       history.push('/Dao/DaoProposals');
     }
   }
-
-  0x2b51a766F3bFC98C47253e8756EDC90BECDD88cB
-  0xbB12b62dB8Ef3Be3AfCbf7B3f8806280d165626d
 
   useEffect(async () => {
     if(account !== undefined || null) {
@@ -141,6 +124,7 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
               toggleMyPage={toggleMyPage}
               setToggleMyPage={setToggleMyPage}
               account={account}
+              setAccount={setAccount}
               totalNft={totalNft}
             />
               {children}
@@ -167,7 +151,7 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
               toggleMyPage={toggleMyPage}
               setToggleMyPage={setToggleMyPage}
               account={account}
-              totalNft={totalNft}
+              setAccount={setAccount}
             />
               {children}
             <Footer />
