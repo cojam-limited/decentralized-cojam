@@ -15,6 +15,8 @@ function Index() {
 	const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
 	const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
 
+	console.log(newAccount);
+
 	window.klaytn.on('accountsChanged', (accounts) => {
     setNewAccount(accounts[0]);
   });
