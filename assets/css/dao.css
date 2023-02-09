@@ -33,8 +33,6 @@
 
 /* DAO 리스트 - 컬럼형태 */
 .dao-quest-list-columns {width:100%; overflow:hidden;}
-.dao-quest-list-columns.modalOpen {position: relative;}
-.dao-quest-list-columns.modalOpen::after {content:''; position:absolute; top:0; bottom:0; left:0; right:0; background-color: rgba(0, 0, 0, 0.8);}
 .dao-quest-list-columns > h2 {padding-top:80px; text-align:center; font-weight:700; font-family: "Pretendard"; font-size:40px; line-height:40px; color:#222;}
 .dao-quest-list-columns > h3 {margin:20px 0 50px 0; text-align:center; font-family: "Pretendard"; font-size:20px; line-height:28px; color:#0045f4;}
 .dao-quest-list-columns > ul {display:flex; align-items:center; flex-wrap:wrap;}
@@ -54,6 +52,17 @@
 .dao-quest-list-columns > ul > li > h4 {display:-webkit-box; height:80px; margin-top:20px; font-family: "Pretendard"; font-size:18px; font-weight:700; line-height:26px; color:#000; -webkit-line-clamp:3; -webkit-box-orient:vertical; text-overflow:ellipsis; overflow:hidden;}
 .dao-quest-list-columns > ul > li > ul {width:100%; height:230px; margin-top:20px; overflow:auto; padding: 10px;}
 .dao-quest-list-columns > ul > li > ul > li {display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; padding:12px 20px; font-weight:600; color:#777; background:#fff; transition:all 0.3s;}
+
+.dao-quest-list-columns > ul > li.modalOpen {position: relative;}
+.dao-quest-list-columns > ul > li.modalOpen::after {content:''; position:absolute; top:0; bottom:0; left:0; right:0; background-color: rgba(0, 0, 0, 0.7);}
+.dao-quest-list-columns > ul > li.modalOpen > .makeselect {position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80%; height: 220px; border-radius: 4px; background-color: #fff; z-index: 9999; padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center;}
+.dao-quest-list-columns > ul > li.modalOpen > .makeselect > p {font-size: 18px; margin-bottom: 20px; line-height: 24px; font-family: "Pretendard"; color:#222; font-weight: 600; text-align: center;}
+.dao-quest-list-columns > ul > li.modalOpen > .makeselect > div {display: flex; justify-content: space-between; align-items: center; width: 100%;}
+.dao-quest-list-columns > ul > li.modalOpen > .makeselect > div > button {font-size: 16px; border: none; background-color: #EFEFEF; width: 48%; height: 50px; border-radius: 6px; color: #000; transition:all 0.3s;}
+.dao-quest-list-columns > ul > li.modalOpen > .makeselect > div > button:hover {background-color: #000; color: #fff;}
+.dao-quest-list-columns > ul > li.modalOpen > .makeselect > .closeBtn {position: absolute; top: 6px; right: 6px; font-size: 24px; display: block; width: 24px; cursor: pointer; color: rgba(0, 0, 0, 0.5); transition:all 0.3s;}
+.dao-quest-list-columns > ul > li.modalOpen > .makeselect > .closeBtn:hover {color: rgba(0, 0, 0, 1);}
+
 .dao-quest-list-columns > ul > li > ul > li > div {margin-right:10px; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; font-size:14px; font-weight:300;}
 .dao-quest-list-columns > ul > li > ul > li > p {font-size:14px; font-weight:300;}
 .dao-quest-list-columns > ul > li > ul > li > h2 {width:100%; font-family: "Pretendard"; margin-top:10px; border-radius:6px; background:#fff; overflow:hidden; background-color: #e9e9e9;}
@@ -64,11 +73,6 @@
 .dao-quest-list-columns > ul > li > .selectBtn > div > button:hover {background-color:#000; color:#fff;}
 .dao-quest-list-columns > ul > li > .selectBtn > .adminConfirmBtn {width: 100%; height: 56px; border-radius:4px; background-color:#EFEFEF; font-size:16px; color:#000; font-weight:300; margin-top: 8px;}
 .dao-quest-list-columns > ul > li > .selectBtn > .adminConfirmBtn:hover {background-color:#000; color:#fff;}
-.dao-quest-list-columns.modalOpen > .makeselect {position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80%; height: 220px; border-radius: 4px; background-color: #fff; z-index: 9999; padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center;}
-.dao-quest-list-columns.modalOpen > .makeselect > p {font-size: 20px; margin-bottom: 20px; line-height: 24px; font-family: "Pretendard"; color:#222; font-weight: 600;}
-.dao-quest-list-columns.modalOpen > .makeselect > div {display: flex; justify-content: space-between; align-items: center; width: 100%;}
-.dao-quest-list-columns.modalOpen > .makeselect > div > button {font-size: 16px; border: none; background-color: #EFEFEF; width: 48%; height: 50px; border-radius: 6px; color: #000; transition:all 0.3s;}
-.dao-quest-list-columns.modalOpen > .makeselect > div > button:hover {background-color: #000; color: #fff;}
 
 @media all and (max-width:479px) {
   .dao-quest-list-columns > h2 {padding-top:50px; font-family: 'Pretendard'; font-size:28px; line-height:28px;}

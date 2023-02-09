@@ -13,6 +13,7 @@ import { useWalletData } from '@data/wallet';
 import { checkLogin } from "@api/UseTransactions";
 
 import toastNotify from '@utils/toast';
+import { Icon } from '@iconify/react';
 import Web3 from "web3";
 
 import { NftContract, MarketContract, GovernanceContract } from "../contractHelper";
@@ -208,7 +209,7 @@ function Index() {
     }`;
     client.fetch(newDraftTotalQuery).then(async (vote) => {
       console.log(vote);
-      const agreeVote = vote[0].level === 'draft' ? vote[0].approveTotalVote : vote[0].level === 'success' ? vote[0].successTotalVote : 1;
+      const agreeVote = vote[0].level === 'draft' ? vote[0].approveTotalVote : vote[0].level === 'success' ? vote[0].successTotalVote : 0;
       const disagreeVote = vote[0].level === 'draft' ? vote[0].rejectTotalVote : vote[0].level === 'success' ? vote[0].adjournTotalVote : 0;
       const totalVote = vote[0].level === 'draft' || vote[0].level === 'success' ? agreeVote + disagreeVote : vote[0].level === 'answer' ? vote[0].answerTotalVote : 0;
       const questKey = vote[0].questKey.questKey;
@@ -226,6 +227,71 @@ function Index() {
         setLoading(true);
 
         if(diff < 0) {
+          if(totalVote < 10) {
+            try {
+              if(level === 'draft') {
+                const receipt = await GovernanceContract().methods.cancelQuest(questKey).send({from : newAccount})
+                if(receipt) {
+                  await client.patch(questId).set({level: 'cancel'}).commit();
+                }
+                toastNotify({
+                  state: 'success',
+                  message: `Success Cancel Quest.`,
+                });
+              }
+
+              if(level === 'success') {
+                const receipt = await GovernanceContract().methods.cancelDecision(questKey).send({from : newAccount})
+                if(receipt) {
+                  const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : newAccount, gas: 500000})
+                  console.log(adjourn)
+                  await client.patch(questId).set({level: 'cancel'}).commit();
+                  const approveListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}' && _id != '${Date.now()}']`
+                  client.fetch(approveListQuery).then(async (list) => {
+                    console.log('list', list)
+                    await client.patch(list[0]._id).set({
+                      statusType: 'ADJOURN',
+                      questStatus: 'ADJOURN',
+                      adjournTx: receipt.transactionHash,
+                      adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                      updateMember: newAccount,
+                    }).commit();
+                  })
+                  toastNotify({
+                    state: 'success',
+                    message: `Success Cancel Quest.`,
+                  });
+                }
+              }
+            } catch (err) {
+              console.log(err)
+              toastNotify({
+                state: 'error',
+                message: `Failed Set Quest.`,
+              });
+            }
+            return;
+          }
+
+          if(totalVote >= 10 && agreeVote === disagreeVote) {
+            try {
+              if(level === 'draft' || level === 'success') {
+                setLoading(false);
+                setSelectLevel({level: level, _id: _id})
+                setMakeSelect(true);
+              }
+            } catch (err) {
+              console.log(err);
+              setMakeSelect(false);
+              toastNotify({
+                state: 'error',
+                message: `Failed Set Quest.`,
+              });
+              setLoading(false);
+            }
+            return;
+          }
+          
           if(totalVote >= 10) {
             const answerKeyQuery = `*[_type == 'questAnswerList' && questKey == ${questKey} && _id != '${Date.now()}']`;
             const answerKeyList = [];
@@ -342,68 +408,7 @@ function Index() {
               });
             }
           }
-
-          if(totalVote >= 10 && agreeVote === disagreeVote) {
-            try {
-              if(level === 'draft' || level === 'success') {
-                setSelectLevel({level: level, _id: _id})
-                setMakeSelect(true);
-              }
-            } catch (err) {
-              console.log(err);
-              toastNotify({
-                state: 'error',
-                message: `Failed Set Quest.`,
-              });
-            }
-          }
-
-          if(totalVote < 10) {
-            console.log('another')
-            try {
-              if(level === 'draft') {
-                const receipt = await GovernanceContract().methods.cancelQuest(questKey).send({from : newAccount})
-                if(receipt) {
-                  await client.patch(questId).set({level: 'cancel'}).commit();
-                }
-                toastNotify({
-                  state: 'success',
-                  message: `Success Cancel Quest.`,
-                });
-              }
-
-              if(level === 'success') {
-                const receipt = await GovernanceContract().methods.cancelDecision(questKey).send({from : newAccount})
-                if(receipt) {
-                  const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : newAccount, gas: 500000})
-                  console.log(adjourn)
-                  await client.patch(questId).set({level: 'cancel'}).commit();
-                  const approveListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}' && _id != '${Date.now()}']`
-                  client.fetch(approveListQuery).then(async (list) => {
-                    console.log('list', list)
-                    await client.patch(list[0]._id).set({
-                      statusType: 'ADJOURN',
-                      questStatus: 'ADJOURN',
-                      adjournTx: receipt.transactionHash,
-                      adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                      updateMember: newAccount,
-                    }).commit();
-                  })
-                  toastNotify({
-                    state: 'success',
-                    message: `Success Cancel Quest.`,
-                  });
-                }
-              }
-            } catch (err) {
-              console.log(err)
-              toastNotify({
-                state: 'error',
-                message: `Failed Set Quest.`,
-              });
-            }
-              
-          }
+          
           console.log('render!');
           setRender(!render);
           setLoading(false);
@@ -696,7 +701,7 @@ function Index() {
         {/* 카테고리 영역 끝 */}
 
         {/* 리스트 시작 */}
-        <div className={`dao-quest-list-columns ${makeSelect ? 'modalOpen' : ''}`}>
+        <div className='dao-quest-list-columns'>
           {/* Quest 리스트 루프 Start*/}
           <ul className='paginationContent'>
           {
@@ -733,7 +738,7 @@ function Index() {
                 <>
                   {
                     list.level === activeCategory ? (
-                      <li key={index}>
+                      <li key={index} className={`${makeSelect && selectLevel._id === list.quest._id ? 'modalOpen' : ''}`}>
                         <h2>
                           {/* 총 투표수 작성 */}
                           <div>
@@ -887,6 +892,27 @@ function Index() {
                             (null)
                           }
                         </div>
+                        {
+                          makeSelect && selectLevel._id === list.quest._id ? (
+                            <div className="makeselect">
+                              <p>The number of votes is the same. Admin please select the correct answer.</p>
+                              <div>
+                                <button onClick={(e) => {setMakeHandler(e)}}>
+                                  {selectLevel?.level === 'draft' ? 'Approve' : 'Success'}
+                                </button>
+                                <button onClick={(e) => {setMakeHandler(e)}}>
+                                  {selectLevel?.level === 'draft' ? 'Reject' : 'Adjourn'}
+                                </button>
+                              </div>
+                              <div
+                                className="closeBtn"
+                                onClick={() => {setMakeSelect(false)}}
+                              >
+                                <Icon icon="material-symbols:close-rounded" />
+                              </div>
+                            </div>
+                          ) : (null)
+                        }
                       </li>
                     ) : (null)
                   }
@@ -896,21 +922,6 @@ function Index() {
           }
           {/* Quest 리스트 루프 End */}
           </ul>
-          {
-            makeSelect ? (
-              <div className="makeselect">
-                <p>The number of votes is the same. Admin please select the correct answer.</p>
-                <div>
-                  <button onClick={(e) => {setMakeHandler(e)}}>
-                    {selectLevel?.level === 'draft' ? 'Approve' : 'Success'}
-                  </button>
-                  <button onClick={(e) => {setMakeHandler(e)}}>
-                    {selectLevel?.level === 'draft' ? 'Reject' : 'Adjourn'}
-                  </button>
-                </div>
-              </div>
-            ) : (null)
-          }
         </div>
         {/* 리스트 끝 */}
       </div>
