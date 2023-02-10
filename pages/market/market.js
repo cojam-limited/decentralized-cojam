@@ -407,7 +407,7 @@ function Index() {
 										<li key='4' onClick={() => { loadDetailData(transactionData.questKey, true); }} style={{ cursor: 'pointer' }}>
 											<span>Title : </span>  { transactionData.titleKR } 
 										</li>
-										<li key='5'><span>End Date : </span> {Moment(transactionData.endDateTime).format('YYYY-MM-DD HH:mm:ss')} </li>
+										<li key='5'><span>End Date : </span> {Moment(transactionData.endDateTime).format('YYYY-MM-DD')} </li>
 										<li key='6'><span>Total(minimum) : </span> {transactionData.totalAmount} ({transactionData.minimumPay})</li>
 										<li key='7'><span>Pend : </span> { transactionData.pending ? 'T' : 'F' } </li>
 										<li key='8'><span>Hot : </span> { transactionData.hot ? 'T' : 'F' } </li>

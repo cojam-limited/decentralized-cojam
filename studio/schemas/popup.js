@@ -14,6 +14,14 @@ export default {
       type: "string",
     },
     {
+      name: "imageFile",
+      title: "Image File",
+      type: "image",
+      options: {
+        hotspot: true,
+      },
+    },
+    {
       name: "isActive",
       title: "isActive",
       type: "boolean"

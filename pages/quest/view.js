@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom'
 
 import { checkLogin } from "@api/UseTransactions";
@@ -51,6 +51,8 @@ function Index(props) {
 	const [ rate, setRate ] = useState(0);
 	const [ receiveToken, setReceiveToken ] = useState(0);
 	const [ answerHistory, setAnswerHistory ] = useState();
+
+	const topRef = useRef(null);
 
 	const setBetting = async () => {
 		setLoading(true);
@@ -107,10 +109,13 @@ function Index(props) {
 		setLoading(false);
 	}
 
+	const scrollToTop = (event) => {
+		document.getElementById("root").scrollTo(0, 0);
+	};
+
 	useEffect(() => {
-		let isLogin = false;
-		checkLogin(walletData).then((res) => {
-			isLogin = res;
+		/* checkLogin(walletData).then((res) => {
+			const isLogin = res;
 
 			if(!isLogin) {
 				toastNotify({
@@ -119,7 +124,15 @@ function Index(props) {
 				});
 				history.push('/');
 			}
-		});
+		}); */
+
+		/**
+		 * set scroll on top
+		 */
+		const element = topRef.current;
+		const scrollableContainer = document.body;
+
+		scrollableContainer.scrollTop = element.offsetTop;
 	}, []);
 
 	useEffect(() => {
@@ -206,10 +219,9 @@ function Index(props) {
 		setReceiveToken(tokenString);
 	}, [selectedAnswer, bettingCoin]);
 
-	console.log('backgroundImage', backgroundImage);
-
   	return (
 		<div className="bg-quest" style={{background: `url('${backgroundImage}') center -150px no-repeat`}}>
+			<div ref={topRef} />
 
 			{/* 기본영역 (타이틀/네비/버튼) */}
 			<dl className="title-section">
@@ -259,7 +271,7 @@ function Index(props) {
 										width: '100%',
 										height: '100%',
 										cursor: quest?.imageLink ? 'pointer' : '', 
-										backgroundImage: `url('${quest && (quest.imageFile ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
+										backgroundImage: `url('${quest && (quest.imageFile && quest.imageFile.asset ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
 										backgroundPosition: `center`, 
 										backgroundSize: `cover` 
 									}}
@@ -285,7 +297,7 @@ function Index(props) {
 
 								style={{ 
 									cursor: quest?.imageLink ? 'pointer' : '', 
-									backgroundImage: `url('${quest && (quest.imageFile ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
+									backgroundImage: `url('${quest && (quest.imageFile && quest.imageFile.asset ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
 									backgroundPosition: `center`, 
 									backgroundSize: `cover` 
 								}}

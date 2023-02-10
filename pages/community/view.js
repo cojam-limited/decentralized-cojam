@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { urlFor, client } from "../../sanity";
@@ -10,6 +10,15 @@ function Index(props) {
 	const { setLoading } = useLoadingState();
 	const [ post, setPost ] = useState(props.location.state.post);
 	const [ relatedPosts, setRelatedPosts ] = useState([]);
+	const topRef = useRef(null);
+	
+	// 첫 렌더링 시, 맨 위로 이동
+	useEffect(() => {
+		const element = topRef.current;
+		const scrollableContainer = document.body;
+
+		scrollableContainer.scrollTop = element.offsetTop;
+	}, []);
 
 	useEffect(async () => {
 		setLoading(true);
@@ -32,6 +41,7 @@ function Index(props) {
 
   return (
 	<div className="bg-service" style={{background: `url('${backgroundImage}') center -590px no-repeat, #fff`}}>
+		<div ref={topRef} />
 
 		{/* 타이틀영역 */}
 		<div className="title-area">

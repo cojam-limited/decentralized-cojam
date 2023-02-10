@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect, useRef } from 'react'; 
 import { useHistory } from 'react-router-dom'
+import toastNotify from '@utils/toast';
 
 import mainVisualScroll from '@assets/main_visual_scroll02.png'
 import mainServiceIcon01 from '@assets/main_service_icon01.svg'
@@ -20,16 +21,58 @@ import { useWalletData } from '@data/wallet';
 import { checkLogin } from "@api/UseTransactions";
 import BackgroundSlider from 'react-background-slider'
 
+import Modal from 'react-modal';
+import { useCookies } from 'react-cookie';
+
+const modalStyles = {
+  content : {
+    width : '500px',
+    height: '500px',
+	maxWidth: '100%',
+	padding: '5px',
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+	opacity: 0,
+	transition: 'opacity 0.5s',
+	backgroundColor: '#000000'
+  }
+};
+
 function Index() {
 	const { walletData } = useWalletData();
 	const history = useHistory();
 	const { setLoading } = useLoadingState();
 	const [ quests, setQuests ] = useState([]);
 	const [ mainImages, setMainImages ] = useState([]);
+	const topRef = useRef(null);
 	
 	const [ answerTotalAmounts, setAnswerTotalAmounts] = useState({});
 	const [ answerPercents, setAnswerPercents] = useState({});
 	const [ answerAllocations, setAnswerAllocations ] = useState({});
+
+	/* POPUP MODAL */
+	const modalRef = useRef(null);
+	const [notOpenToday, setCookie, removeCookie] = useCookies(['notOpenToday']);
+	const [modalIsOpen, setModalIsOpen] = useState(false);
+	const [popupImage, setPopupImage] = useState();
+	const openModal = () => {
+		modalRef.current.props.style.content.opacity = 1;
+		setModalIsOpen(true);
+	}
+
+	const afterOpenModal = () => {
+		// references are now sync'd and can be accessed.
+		/* this.subtitle.style.color = '#f00'; */
+	}
+
+	const closeModal = () => {
+		setModalIsOpen(false);
+	}
+	/* //POPUP MODAL */
 
 	const resizeFunc = () => {
 		//창크기 변화 감지
@@ -39,6 +82,14 @@ function Index() {
 			document.querySelector('.main-service-phone').style.background = `url('${phoneBackground}') -280px no-repeat`;
 		}
 	}
+
+	// 첫 렌더링 시, 맨 위로 이동
+	useEffect(() => {
+		const element = topRef.current;
+		const scrollableContainer = document.body;
+
+		scrollableContainer.scrollTop = element.offsetTop;
+	}, []);
 
 	useEffect(() => {
 		window.addEventListener('resize', resizeFunc);
@@ -71,13 +122,6 @@ function Index() {
 				});
 			});
 
-			const popupQuery = `*[_type == 'popup' && isActive == true] | order(createdDateTime desc) [0]`;
-			await client.fetch(popupQuery).then((popup) => {				
-				if(popup) {
-
-				}
-			});
-
 			const mainImageQuery = `*[_type == 'pageImages' && pageTitle == 'main' && pageTitle != '${Date.now()}']`;
 			await client.fetch(mainImageQuery).then((mainImages) => {
 				const mainImageArr = [];
@@ -86,8 +130,19 @@ function Index() {
 				});
 				setMainImages(mainImageArr);
 			});
-			
+
 			setLoading(false);
+
+			// POP UP
+			if(!notOpenToday?.notOpenToday) {
+				const popupQuery = `*[_type == 'popup' && isActive == true] | order(createdDateTime desc) [0]`;
+				await client.fetch(popupQuery).then((popup) => {
+					if(popup) {
+						setPopupImage(popup.imageFile);
+						openModal();
+					}
+				});
+			}
 		}
 
 		setLoading(true);
@@ -98,8 +153,27 @@ function Index() {
 
 	return (
     	<div>
+			<Modal
+				isOpen={modalIsOpen}
+				onAfterOpen={afterOpenModal}
+				onRequestClose={closeModal}
+				style={modalStyles}
+				contentLabel="COJAM Popup Modal"
+				ref={modalRef}
+			>
+				<div>
+					<img src={urlFor(popupImage)} alt="COJAM POPUP" title="" style={{ width: '100%', height: '95%', objectFit: 'cover' }} />
+				</div>
+
+				<div style={{ marginTop: '5px' }}>
+					<button style={{ float: 'left', color: 'white' }} onClick={() => { setCookie('notOpenToday', true, { path: '/', maxAge: 86400 }); closeModal();}}>Don't open any more today</button>
+					<button style={{ float: 'right', color: 'white' }} onClick={closeModal}>close</button>
+				</div>
+			</Modal>
+
+			<div ref={topRef} />
+
 			{/* 비주얼영역 */}
-		
 			<div className="main-vegas">
 				<BackgroundSlider
 					images={mainImages}
@@ -114,7 +188,7 @@ function Index() {
 			</div>
 			{/* 비주얼영역 끝 */}
 
-			{/* 리스트 끝 */}
+			{/* 리스트 시작 */}
 			<div className="container container-main">
 				<div className="quest-list-columns">
 					<h2>Popular Vote</h2>
@@ -124,19 +198,19 @@ function Index() {
 						{
 						quests.map((quest, index) => {
 							return (
-								<li key={index} onClick={async () => {
+								<li key={index} onClick={() => {
 									if(quest.dDay === 'expired') {
 										return;
 									}
 
 									let isLogin = false;
-									await checkLogin(walletData).then((res) => {
+									checkLogin(walletData).then((res) => {
 										isLogin = res;
 
 										if(!isLogin) {
 											toastNotify({
 												state: 'error',
-												message: 're login or check lock. please',
+												message: 'login please',
 											});
 
 											return;
@@ -152,7 +226,7 @@ function Index() {
 									<p>
 										<span
 											style={{
-												backgroundImage: `url('${quest && (quest.imageFile ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
+												backgroundImage: `url('${quest && (quest.imageFile && quest.imageFile.asset ? urlFor(quest.imageFile) : quest.imageUrl)}')`, 
 												backgroundPosition: `center`,
 												backgroundSize: `cover`,
 											}}
@@ -163,15 +237,15 @@ function Index() {
 									</h3>
 									<h4>{quest[`titleKR`]}</h4>
 									<ul>
-										{
-											quest.answers && quest.answers.map((answer, index) => (              
-												<li key={index}>
-													<div>{answer}</div>
-													<p>{answerAllocations[answer] && answerAllocations[answer] !== '0%' ? `${answerAllocations[answer]} X` : '0%'} </p>
-													<h2><div style={{width:`${answerPercents[answer] ?? 0}%`}}></div></h2>
-												</li>
-											))
-										}
+									{
+										quest.answers && quest.answers.map((answer, index) => (              
+											<li key={index}>
+												<div>{answer}</div>
+												<p>{answerAllocations[answer] && answerAllocations[answer] !== '0%' ? `${answerAllocations[answer]} X` : '0%'} </p>
+												<h2><div style={{width:`${answerPercents[answer] ?? 0}%`}}></div></h2>
+											</li>
+										))
+									}
 									</ul>
 								</li>
 							);

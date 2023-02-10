@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { urlFor, client } from "../../sanity";
@@ -6,10 +6,24 @@ import { urlFor, client } from "../../sanity";
 import { useLoadingState } from "@assets/context/LoadingContext";
 import backgroundImage from '@assets/body_notice.jpg';
 
+import ReactHtmlParser from 'react-html-parser';
+
+const stringToHTML = function (htmlString) {
+	return <div>{ReactHtmlParser( htmlString?.replaceAll(/\n/g, '<br>') )}</div>;
+};
+
 function Index(props) {
+	const topRef = useRef(null);
 	const [ post, setPost ] = useState(props.location.state.post);
 	const [ relatedPosts, setRelatedPosts ] = useState([]);
 	const { setLoading } = useLoadingState();
+
+	useEffect(() => {
+		const element = topRef.current;
+		const scrollableContainer = document.body;
+
+		scrollableContainer.scrollTop = element.offsetTop;
+	}, []);
 
 	useEffect(() => {
 		setLoading(true);
@@ -34,6 +48,8 @@ function Index(props) {
 
   	return (
 		<div className="bg-notice" style={{background: `url('${backgroundImage}') center -590px no-repeat, #fff`}}>
+			<div ref={topRef} />
+
 			{/* 타이틀영역 */}
 			<div className="title-area">
 				Results
@@ -49,32 +65,34 @@ function Index(props) {
 							<h3><i className="uil uil-calendar-alt"></i> {post?.postDate}</h3>
 							<div>
 								<p>{post?.mainImage && <img src={urlFor(post?.mainImage)} width="100%" alt="" title="" />}</p>
-								<br /><br />
+								<br/><br/>
 								<div>
-									{post?.description}
+								{
+									post?.description && stringToHTML(post?.description)
+								}
 								</div>
 							</div>
 						</dt>
 						<dd>
 							<h2>Related</h2>
 							<ul>
-								{
-									relatedPosts.map((relatedPost, index) => (
-										<li key={index} onClick={() => setPost(relatedPost)}>
-											<p>
-												<span 
-												style={{ 
-													backgroundImage: relatedPost?.mainImage && `url('${urlFor(relatedPost.mainImage)}')`,
-													backgroundPosition: `center`, 
-													backgroundSize: `cover`,
-													backgroundRepeat: 'no-repeat !important'
-												}}>
-												</span>
-											</p>
-											<h2>{relatedPost?.title}</h2>
-										</li>
-									))
-								}
+							{
+								relatedPosts.map((relatedPost, index) => (
+									<li key={index} onClick={() => setPost(relatedPost)}>
+										<p>
+											<span 
+											style={{ 
+												backgroundImage: relatedPost?.mainImage && `url('${urlFor(relatedPost.mainImage)}')`,
+												backgroundPosition: `center`, 
+												backgroundSize: `cover`,
+												backgroundRepeat: 'no-repeat !important'
+											}}>
+											</span>
+										</p>
+										<h2>{relatedPost?.title}</h2>
+									</li>
+								))
+							}
 							</ul>
 						</dd>
 					</dl>

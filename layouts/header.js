@@ -14,7 +14,7 @@ import { ConnectKaikasButton } from './styles';
 import { WALLET_MODAL_DATA_KEY, useModalData } from '@data/modal';
 import isMobile from '@utils/isMobile';
 import { kaikasLogin, getRewardCojamURI } from '@api/UseKaikas';
-import { callGetCojamBalance } from '@api/UseTransactions';
+import { checkLogin, callGetCojamBalance } from '@api/UseTransactions';
 
 import { prepare, request, getResult } from 'klip-sdk';
 import QRCode from 'qrcode';
@@ -91,6 +91,7 @@ function Header() {
         // go kaikas mobile app
         const URL = 'decentralized-cojam.vercel.app/';
         location.href = `https://app.kaikas.io/u/${URL}`;
+        return;
       }
 
       await axios.post("https://api.kaikas.io/api/v1/k/prepare",
@@ -396,29 +397,48 @@ function Header() {
             </h2>
             <div>
               <Link to="/">Home</Link>
-              <Link to="/QuestList">Quest</Link>
+              <Link to="/QuestList" onClick={(e) => { 
+                // prevent Link actual feature
+                e.preventDefault();
+
+                let isLogin = false;
+                checkLogin(walletData).then((res) => {
+                  isLogin = res;
+
+                  if(!isLogin) {
+                    toastNotify({
+                      state: 'error',
+                      message: 'login please',
+                    });
+
+                    return;
+                  }
+
+                  history.push({ pathname: `/QuestList` }) 
+                });
+              }}>Quest</Link>
               <Link to="/ResultsList">Results</Link>
               <Link to="/About">About</Link>
               <Link to="/CommunityList">Community</Link>
             </div>
           </dt>
           <dd>
-              {
-              typeof walletData.account !== 'undefined' && walletData.account !== ''
-              ? /* 로그인 했을때 */
-                <>
-                  <h2><span><i className="uil uil-coins"></i>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(2)) : 0} CT)</span></h2>
-                  <div>
-                    <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
-                    {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-md"></i> ADMIN</Link>}
-                    <Link to="#" onClick={() => { logout() }}><i className="uil uil-sign-out-alt"></i> LOGOUT</Link>
-                  </div>
-                </>
-              : /* 로그인 안했을때 */
-                <>
-                  <Link to="#" onClick={() => modalKlipAdd(true)} style={{ color: '#ffffff' }}><i className="uil uil-sign-in-alt"></i> LOGIN</Link>
-                </> 
-              }
+          {
+            typeof walletData.account !== 'undefined' && walletData.account !== ''
+            ? /* 로그인 했을때 */
+              <>
+                <h2><span><i className="uil uil-coins"></i>({balance ? (Number.isInteger(balance) ? balance : balance.toFixed(2)) : 0} CT)</span></h2>
+                <div>
+                  <Link to="/Mypage"><i className="uil uil-user-circle"></i> MYPAGE</Link>
+                  {memberRole?.toLowerCase() === 'admin' && <Link to="/Market"><i className="uil uil-user-md"></i> ADMIN</Link>}
+                  <Link to="#" onClick={() => { logout() }}><i className="uil uil-sign-out-alt"></i> LOGOUT</Link>
+                </div>
+              </>
+            : /* 로그인 안했을때 */
+              <>
+                <Link to="#" onClick={() => modalKlipAdd(true)} style={{ color: '#ffffff' }}><i className="uil uil-sign-in-alt"></i> LOGIN</Link>
+              </> 
+          }
           </dd>
         </dl>
       </div>
