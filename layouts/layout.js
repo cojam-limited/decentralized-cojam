@@ -18,8 +18,6 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
   const [ account, setAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
   const [ totalNft, setTotalNft ] = useState(0);
 
-  console.log('account : ', account);
-
   const path = window.location.pathname;
   const skipAccount = account?.slice(0, 6).toUpperCase() + '...' + account?.slice(-4).toUpperCase();
   const DAOPathCheck = path.includes('Proposals') || path.includes('VotingHistory') || path.includes('RewardHistory')
@@ -29,7 +27,7 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
       setToggleMyPage(false);
     }
   }
-  
+
   const CloseNeedNftModalHandler = () => {
     if (needNftModal) {
       setNeedNftModal(false);

@@ -1,9 +1,6 @@
 import { client } from "../../../sanity";
 import { NftContract, GovernanceContract } from "../contractHelper";
 import toastNotify from '@utils/toast';
-import { useLoadingState } from "@assets/context/LoadingContext";
-
-const { setLoading } = useLoadingState();
 
 export const voteGovernance = async (diff, level, questKey, answer, _id) => {
   const accounts = await window.klaytn.enable()
@@ -26,14 +23,11 @@ export const voteGovernance = async (diff, level, questKey, answer, _id) => {
     return;
   }
 
-  setLoading(true);
-
   try {
     if(level === 'draft') {
       const receipt = await GovernanceContract().methods.voteQuest(questKey, answer).send({from : account})
       const returnValue = receipt?.events?.VoteQuestCast?.returnValues;
-      console.log(returnValue)
-
+  
       const GovernanceItemVoteCreate = {
         _type: 'governanceItemVote',
         governanceItemId: _id,
@@ -44,14 +38,14 @@ export const voteGovernance = async (diff, level, questKey, answer, _id) => {
         archive: true,
         rewardStatus: false,
       }
-
+  
       await client.create(GovernanceItemVoteCreate);
-
+  
       // update draft total amount
       const newDraftTotalQuery = `*[_type == 'governanceItem' && references('${_id}') && _id != '${Date.now()}']`;
       await client.fetch(newDraftTotalQuery).then(async (vote) => {
         const questId = vote[0]._id;
-
+  
         if(answer === 'approve') {
           await client.patch(questId).inc({approveTotalVote: returnValue.votedNfts.length}).commit();
           toastNotify({
@@ -81,13 +75,13 @@ export const voteGovernance = async (diff, level, questKey, answer, _id) => {
           }
         ).commit();
       })
-
+  
       // update draft total amount
       const SuccessTotalQuery = `*[_type == 'governanceItem' && references('${_id}') && _id != '${Date.now()}']`;
       await client.fetch(SuccessTotalQuery).then(async (vote) => {
         console.log('vote', vote);
         const questId = vote[0]._id;
-
+  
         if(answer === 'success') {
           await client.patch(questId).inc({successTotalVote: returnValue.votedNfts.length}).commit();
           toastNotify({
@@ -103,11 +97,7 @@ export const voteGovernance = async (diff, level, questKey, answer, _id) => {
         }
       });
     }
-    // setRender(!render);
-    setLoading(false);
-  } catch (error) {
-    console.error('DraftVoteGovernance', error);
-    setLoading(false);
+  } catch(err) {
     toastNotify({
       state: 'error',
       message: 'Check Your Wallet Account',

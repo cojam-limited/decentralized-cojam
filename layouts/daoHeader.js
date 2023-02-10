@@ -21,8 +21,6 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
     setAccount(accounts[0]);
   });
 
-  console.log(walletData)
-
   useEffect(async () => {
     try {
       if(account !== undefined || account !== null) {
@@ -44,6 +42,14 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
           return;
         }
 
+        if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
+          toastNotify({
+            state: 'success',
+            message: `Success Login Admin Account\n"${account}"`,
+          });
+          return;
+        }
+
         const balance = await NftContract().methods.balanceOf(account).call();
         if(balance <= 0) {
           toastNotify({
@@ -51,14 +57,6 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
             message: 'You Need Membership NFT',
           })
           history.push('/');
-          return;
-        }
-
-        if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
-          toastNotify({
-            state: 'success',
-            message: `Success Login Admin Account\n"${account}"`,
-          });
           return;
         }
     

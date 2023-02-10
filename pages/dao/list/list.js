@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -16,7 +16,9 @@ import toastNotify from '@utils/toast';
 import { Icon } from '@iconify/react';
 import Web3 from "web3";
 
-import { NftContract, MarketContract, GovernanceContract } from "../contractHelper";
+import { MarketContract, GovernanceContract } from "../contractHelper";
+import { voteGovernance } from "../list/useVoteGovernance"
+import { resultGovernance } from "../list/useResultGovernance"
 
 function Index() {
   const { walletData } = useWalletData();
@@ -68,7 +70,8 @@ function Index() {
       ...,
       'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
         ...,
-        'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey}
+        'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey},
+        'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${newAccount}' && _id != '${Date.now()}']
       },
     }`;
     client.fetch(governanceVoteQuery).then((governanceItem) => {
@@ -89,333 +92,42 @@ function Index() {
     })
   }, [newAccount]);
 
-  const VoteGovernance = async (diff, level, questKey, answer, _id) => {
-    console.log(answer);
-    const accounts = await window.klaytn.enable()
-    const account = accounts[0];
-    const balance = await NftContract().methods.balanceOf(account).call();
+  const GovernanceVoteHandler = async (diff, level, questKey, answer, _id, list) => {
+    setLoading(true);
+    await voteGovernance(diff, level, questKey, answer, _id)
+    setRender(!render);
+    setLoading(false);
+  };
 
-    if(diff < 0) {
-      toastNotify({
-        state: 'error',
-        message: `The ${level} Quest Is Closed.`,
-      });
-      return;
-    }
-
-    if(Number(balance) <= 0) {
-      toastNotify({
-        state: 'error',
-        message: 'You Need Membership NFT',
-      })
-      return;
-    }
+  const ResultHandler = async (level, _id, diff, answerKey, list) => {
+    const agreeVote = list.level === 'draft' ? list.approveTotalVote : list.level === 'success' ? list.successTotalVote : 0;
+    const disagreeVote = list.level === 'draft' ? list.rejectTotalVote : list.level === 'success' ? list.adjournTotalVote : 0;
+    const totalVote = list.level === 'draft' || list.level === 'success' ? agreeVote + disagreeVote : list.level === 'answer' ? list.answerTotalVote : 0;
 
     setLoading(true);
 
-    try {
-      if(level === 'draft') {
-        const receipt = await GovernanceContract().methods.voteQuest(questKey, answer).send({from : account})
-        const returnValue = receipt?.events?.VoteQuestCast?.returnValues;
-
-        const GovernanceItemVoteCreate = {
-          _type: 'governanceItemVote',
-          governanceItemId: _id,
-          voter: returnValue.voter.toLowerCase(),
-          draftOption: returnValue.answer,
-          draftCount: returnValue.votedNfts.length,
-          draftTxHash: receipt?.transactionHash,
-          archive: true,
-          rewardStatus: false,
-        }
-
-        await client.create(GovernanceItemVoteCreate);
-
-        // update draft total amount
-        const newDraftTotalQuery = `*[_type == 'governanceItem' && references('${_id}') && _id != '${Date.now()}']`;
-        await client.fetch(newDraftTotalQuery).then(async (vote) => {
-          const questId = vote[0]._id;
-
-          if(answer === 'approve') {
-            await client.patch(questId).inc({approveTotalVote: returnValue.votedNfts.length}).commit();
-            toastNotify({
-              state: 'success',
-              message: `${returnValue.votedNfts.length} Votes to Approve this Quest.`,
-            });
-          } else if(answer === 'reject') {
-            await client.patch(questId).inc({rejectTotalVote: returnValue.votedNfts.length}).commit();
-            toastNotify({
-              state: 'success',
-              message: `${returnValue.votedNfts.length} Votes to Reject this Quest.`,
-            });
-          }
-        });
-      } else if (level === 'success') {
-        const receipt = await GovernanceContract().methods.voteDecision(questKey, answer).send({from : account})
-        const returnValue = receipt?.events?.VoteDecisionCast?.returnValues;
-        console.log('receipt', receipt)
-        console.log('return', returnValue)
-        const SuccessAnswerQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${_id}' && voter == '${account.toLowerCase()}' && _id != '${Date.now()}']`;
-        await client.fetch(SuccessAnswerQuery).then(async (list) => {
-          await client.patch(list[0]._id).set(
-            {
-              successOption: returnValue.answer,
-              successCount: returnValue.votedNfts.length,
-              successTxHash: receipt.transactionHash,
-            }
-          ).commit();
-        })
-
-        // update draft total amount
-        const SuccessTotalQuery = `*[_type == 'governanceItem' && references('${_id}') && _id != '${Date.now()}']`;
-        await client.fetch(SuccessTotalQuery).then(async (vote) => {
-          console.log('vote', vote);
-          const questId = vote[0]._id;
-
-          if(answer === 'success') {
-            await client.patch(questId).inc({successTotalVote: returnValue.votedNfts.length}).commit();
-            toastNotify({
-              state: 'success',
-              message: `${returnValue.votedNfts.length} Votes to Success this Quest.`,
-            });
-          } else if(answer === 'adjourn') {
-            await client.patch(questId).inc({adjournTotalVote: returnValue.votedNfts.length}).commit();
-            toastNotify({
-              state: 'success',
-              message: `${returnValue.votedNfts.length} Votes to Adjourn this Quest.`,
-            });
-          }
-        });
-      }
-      setRender(!render);
-      setLoading(false);
-    } catch (error) {
-      console.error('DraftVoteGovernance', error);
-      setLoading(false);
-      toastNotify({
-        state: 'error',
-        message: 'Check Your Wallet Account',
-      });
-    }
-  };
-
-  const ResultHandler = (level, _id, diff, answerKey) => {
-    const newDraftTotalQuery = `*[_type == 'governanceItem' && references('${_id}') && _id != '${Date.now()}']
-    {
-      ...,
-      'questKey': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]
-    }`;
-    client.fetch(newDraftTotalQuery).then(async (vote) => {
-      console.log(vote);
-      const agreeVote = vote[0].level === 'draft' ? vote[0].approveTotalVote : vote[0].level === 'success' ? vote[0].successTotalVote : 0;
-      const disagreeVote = vote[0].level === 'draft' ? vote[0].rejectTotalVote : vote[0].level === 'success' ? vote[0].adjournTotalVote : 0;
-      const totalVote = vote[0].level === 'draft' || vote[0].level === 'success' ? agreeVote + disagreeVote : vote[0].level === 'answer' ? vote[0].answerTotalVote : 0;
-      const questKey = vote[0].questKey.questKey;
-      const questId = vote[0]._id;
-
-      const marketKey = vote[0].questKey.questKey;
-      const creator = vote[0].questKey.creatorAddress;
-      const title = vote[0].questKey.titleKR;
-      const creatorFee = Number(vote[0].questKey.creatorPay) / 10 ** 18;
-      const creatorFeePercentage = vote[0].questKey.creatorFee;
-      const cojamFeePercentage = vote[0].questKey.cojamFee;
-      const charityFeePercentage = vote[0].questKey.charityFee;
-
+    if(totalVote >= 10 && agreeVote === disagreeVote) {
       try {
-        setLoading(true);
-
-        if(diff < 0) {
-          if(totalVote < 10) {
-            try {
-              if(level === 'draft') {
-                const receipt = await GovernanceContract().methods.cancelQuest(questKey).send({from : newAccount})
-                if(receipt) {
-                  await client.patch(questId).set({level: 'cancel'}).commit();
-                }
-                toastNotify({
-                  state: 'success',
-                  message: `Success Cancel Quest.`,
-                });
-              }
-
-              if(level === 'success') {
-                const receipt = await GovernanceContract().methods.cancelDecision(questKey).send({from : newAccount})
-                if(receipt) {
-                  const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : newAccount, gas: 500000})
-                  console.log(adjourn)
-                  await client.patch(questId).set({level: 'cancel'}).commit();
-                  const approveListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}' && _id != '${Date.now()}']`
-                  client.fetch(approveListQuery).then(async (list) => {
-                    console.log('list', list)
-                    await client.patch(list[0]._id).set({
-                      statusType: 'ADJOURN',
-                      questStatus: 'ADJOURN',
-                      adjournTx: receipt.transactionHash,
-                      adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                      updateMember: newAccount,
-                    }).commit();
-                  })
-                  toastNotify({
-                    state: 'success',
-                    message: `Success Cancel Quest.`,
-                  });
-                }
-              }
-            } catch (err) {
-              console.log(err)
-              toastNotify({
-                state: 'error',
-                message: `Failed Set Quest.`,
-              });
-            }
-            return;
-          }
-
-          if(totalVote >= 10 && agreeVote === disagreeVote) {
-            try {
-              if(level === 'draft' || level === 'success') {
-                setLoading(false);
-                setSelectLevel({level: level, _id: _id})
-                setMakeSelect(true);
-              }
-            } catch (err) {
-              console.log(err);
-              setMakeSelect(false);
-              toastNotify({
-                state: 'error',
-                message: `Failed Set Quest.`,
-              });
-              setLoading(false);
-            }
-            return;
-          }
-          
-          if(totalVote >= 10) {
-            const answerKeyQuery = `*[_type == 'questAnswerList' && questKey == ${questKey} && _id != '${Date.now()}']`;
-            const answerKeyList = [];
-            await client.fetch(answerKeyQuery).then((answers) => {
-              console.log(answers);
-              answers.forEach((answer) => {
-                console.log(answer)
-                answerKeyList.push(answer.questAnswerKey);
-              });
-            });
-
-            try {
-              if(level === 'draft') {
-                const receipt = await GovernanceContract().methods.setQuestResult(questKey).send({from : newAccount, gas: 500000})
-                console.log('setQuest', receipt);
-                if(receipt.events.QuestResult.returnValues.result === 'approve') {
-                  await client.patch(questId).set({level: 'draftEnd'}).commit();
-                  const publish = await MarketContract().methods.publishMarket(
-                    marketKey,
-                    creator,
-                    title,
-                    creatorFee,
-                    creatorFeePercentage,
-                    cojamFeePercentage,
-                    charityFeePercentage,
-                    answerKeyList
-                  ).send({from : newAccount, gas: 750000});
-                  const approveListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}' && _id != '${Date.now()}']`
-                  client.fetch(approveListQuery).then(async (list) => {
-                    console.log(list);
-                    await client.patch(list[0]._id).set({
-                      statusType: 'APPROVE',
-                      questStatus: 'APPROVE',
-                      approveTx: publish.transactionHash,
-                      approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                      updateMember: newAccount,
-                    }).commit();
-                  })
-                  toastNotify({
-                    state: 'success',
-                    message: `Approve Draft End Quest`,
-                  });
-                } else {
-                  await client.patch(questId).set({level: 'reject'}).commit();
-                  toastNotify({
-                    state: 'success',
-                    message: `Reject Draft End Quest`,
-                  });
-                }
-              } else if(level === 'success') {
-                const receipt = await GovernanceContract().methods.setDecisionAndExecuteAnswer(questKey, answerKeyList).send({from : newAccount, gas: 500000})
-                console.log('SDAEA', receipt);
-                if(receipt.events.DecisionResult.returnValues.result === 'success') {
-                  await client.patch(questId).set({
-                    level: 'answer',
-                    answerStartTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                    answerEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
-                    answerTotalVote: 0
-                  }).commit();
-                  toastNotify({
-                    state: 'success',
-                    message: `Success Success End Quest`,
-                  });
-                } else {
-                  await client.patch(questId).set({level: 'adjourn'}).commit();
-                  const adjournListQuery = `*[_type == 'quests' && _id == '${vote[0].questKey._id}' && _id != '${Date.now()}']`
-                  client.fetch(adjournListQuery).then(async (list) => {
-                    console.log(list);
-                    await client.patch(list[0]._id).set({
-                      statusType: 'ADJOURN',
-                      questStatus: 'ADJOURN',
-                      approveTx: receipt.transactionHash,
-                      adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                      updateMember: newAccount,
-                    }).commit();
-                  })
-                  toastNotify({
-                    state: 'success',
-                    message: `Success Adjourn End Quest`,
-                  });
-                }
-              } else if(level === 'answer') {
-                if(!answerKey) {
-                  toastNotify({
-                    state: 'error',
-                    message: `Please Check Answer.`,
-                  });
-                  return;
-                }
-
-                const receipt = await GovernanceContract().methods.setAnswer(questKey, answerKeyList, answerKey).send({from : newAccount, gas: 500000})
-                console.log('ANSWER', receipt);
-                await client.patch(questId).set({level: 'done'}).commit();
-                console.log(receipt.events.AnswerResult.returnValues)
-                const returnValue = receipt.events.AnswerResult.returnValues;
-                const successMarket = await MarketContract().methods.successMarket(Number(returnValue.questKey), Number(returnValue.answer)).send({from : newAccount, gas: 500000})
-                console.log(successMarket)
-                const charityFee = successMarket.events.SuccessMarket.returnValues.charityFee;
-                const test = Number(web3.utils.fromWei(charityFee, 'ether')) * 100;
-                console.log(test);
-                console.log('total')
-                const setTotalReward = await GovernanceContract().methods.setTotalReward(questKey, test).send({from : newAccount, gas: 500000})
-                console.log(setTotalReward)
-                toastNotify({
-                  state: 'success',
-                  message: `Success Answer End Quest`,
-                });
-              }
-            } catch (err) {
-              console.log(err);
-              toastNotify({
-                state: 'error',
-                message: `Failed Set Quest.`,
-              });
-            }
-          }
-          
-          console.log('render!');
-          setRender(!render);
+        if(level === 'draft' || level === 'success') {
           setLoading(false);
+          setSelectLevel({level: level, _id: _id})
+          setMakeSelect(true);
         }
-      } catch(err) {
-        console.log(err)
+      } catch (err) {
+        console.log(err);
+        setMakeSelect(false);
+        toastNotify({
+          state: 'error',
+          message: `Failed Set Quest.`,
+        });
         setLoading(false);
       }
-    })
+      return;
+    }
+    
+    await resultGovernance(level, _id, diff, answerKey, list)
+    setRender(!render);
+    setLoading(false);
   }
 
   const setQuestEndTime = async (level, questKey, questId) => {
@@ -423,32 +135,39 @@ function Index() {
     const accounts = await window.klaytn.enable();
     const account = accounts[0];
     const endQuestQuery = `*[_type == 'governanceItem' && references('${questId}') && _id != '${Date.now()}']`
+
     if(level === "draft") {
       const receipt = await GovernanceContract().methods.setQuestEndTime(questKey).send({from : account})
       console.log('draftEnd', receipt)
       client.fetch(endQuestQuery).then(async (list) => {
         await client.patch(list[0]._id).set({draftEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
         setNowTime(new Date());
+        setLoading(false);
         setRender(!render);
       })
-    } else if(level === "success") {
+    }
+
+    if(level === "success") {
       const receipt = await GovernanceContract().methods.setDecisionEndTime(questKey).send({from : account})
       console.log('successEnd', receipt)
       client.fetch(endQuestQuery).then(async (list) => {
         await client.patch(list[0]._id).set({successEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
         setNowTime(new Date());
+        setLoading(false);
         setRender(!render);
       })
-    } else if(level === "answer") {
+    }
+    
+    if(level === "answer") {
       const receipt = await GovernanceContract().methods.setAnswerEndTime(questKey).send({from : account})
       console.log('answerEnd', receipt)
       client.fetch(endQuestQuery).then(async (list) => {
         await client.patch(list[0]._id).set({answerEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
         setNowTime(new Date());
+        setLoading(false);
         setRender(!render);
       })
     }
-    setLoading(false);
   }
 
   const AnswerConfirmHandler = async (questKey, answerKey, answerId, answerTitle, itemId, itemQuestId) => {
@@ -730,7 +449,7 @@ function Index() {
               const totalAmount = category === 'Draft' || category === 'Success' ? agreeVote + disagreeVote : category === 'Answer' ? list.answerTotalVote : 0;
               const agreePer = !isFinite(agreeVote / totalAmount) ? '0' : ((agreeVote / totalAmount) * 100).toFixed(2);
               const disagreePer = !isFinite(disagreeVote / totalAmount) ? '0' : ((disagreeVote / totalAmount) * 100).toFixed(2);
-
+              
               return (
                 // eslint-disable-next-line react/jsx-key
                 <>
@@ -744,7 +463,7 @@ function Index() {
                           </div>
                           <div className='endtime'>
                             {
-                              diff >= 0 ? (<div>{diffHour > 9 ? diffHour : '0' + diffHour}:{diffMin > 9 ? diffMin : '0' + diffMin}:{diffSec > 9 ? diffSec : '0' + diffSec}</div>) : (<div className='closed'>Closed</div>)
+                              (totalAmount < 5000 && diff > 0) ? (<div>{diffHour > 9 ? diffHour : '0' + diffHour}:{diffMin > 9 ? diffMin : '0' + diffMin}:{diffSec > 9 ? diffSec : '0' + diffSec}</div>) : (<div className='closed'>Closed</div>)
                             }
                           </div>
                         </h2>
@@ -825,13 +544,34 @@ function Index() {
                             )
                           }
                         </ul>
-                        <div className='selectBtn'>
+                        <div className={
+                          `selectBtn
+                          ${
+                            adminAddressDB !== newAccount && (
+                            (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
+                            (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
+                            (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
+                            diff < 0 || totalAmount >= 5000) ? 'vote-finish' : ''}`
+                        }>
                           <div>Would you like to vote for the Quest {category}?</div>
                           <div>
                             {
                               list.level === 'answer' ?
                               (
-                                <button onClick={() => {AnswerConfirmHandler(list.quest.questKey, selectedAnswer.questAnswerKey, selectedAnswer._id, selectedAnswer.title, list._id, list.quest._id)}}>Confirm</button>
+                                <button
+                                  className="answerBtn"
+                                  onClick={
+                                    () => {
+                                      AnswerConfirmHandler(
+                                        list.quest.questKey,
+                                        selectedAnswer.questAnswerKey,
+                                        selectedAnswer._id,
+                                        selectedAnswer.title,
+                                        list._id,
+                                        list.quest._id
+                                      )
+                                    }
+                                  }>Confirm</button>
                               ) :
                               (
                                 answerList && answerList.map((answer, index) => {
@@ -839,13 +579,29 @@ function Index() {
                                     return (
                                       <button
                                         key={index}
-                                        onClick={() => {VoteGovernance(diff, list.level, list.quest.questKey, answer.title.toLowerCase(), list.quest._id)}}
-                                        // className={
-                                        //   diff < 0 && approveVote > rejectVote ? 'appwinBtn' :
-                                        //   diff < 0 && approveVote < rejectVote ? 'rejwinBtn' : ''
-                                        // }
+                                        onClick={
+                                          () => {
+                                            GovernanceVoteHandler(
+                                              diff,
+                                              list.level,
+                                              list.quest.questKey,
+                                              answer.title.toLowerCase(),
+                                              list.quest._id,
+                                              list
+                                            )
+                                          }
+                                        }
+                                        disabled={
+                                          (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
+                                          (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
+                                          (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ? true : false
+                                        }
                                       >
-                                        {answer.title}
+                                        {
+                                          (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
+                                          (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
+                                          (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ? 'VOTED' : answer.title
+                                        }
                                         {
                                           adminAddressDB === newAccount ? 
                                           (
@@ -858,10 +614,18 @@ function Index() {
                                 })
                               )
                             }
-                            <button onClick={() => setQuestEndTime(list.level, list.quest.questKey, list.quest._id)}>End</button>
                           </div>
                           {
-                            adminAddressDB === newAccount && diff < 0 ?
+                            adminAddressDB === newAccount ? (
+                              <button
+                                onClick={() => setQuestEndTime(list.level, list.quest.questKey, list.quest._id)}
+                                className="adminConfirmBtn">
+                                End
+                              </button>
+                            ) : (null)
+                          }
+                          {
+                            adminAddressDB === newAccount && (diff < 0 || totalAmount >= 5000) ?
                             (
                               list.level === "answer" ? (
                                 <>
@@ -879,7 +643,7 @@ function Index() {
                                 </>
                               ) : (
                                 <button
-                                  onClick={() => ResultHandler(list.level, list.quest._id, diff)}
+                                  onClick={() => ResultHandler(list.level, list.quest._id, diff, 'not', list)}
                                   className="adminConfirmBtn"
                                 >
                                   Confirm
@@ -888,6 +652,21 @@ function Index() {
                             )
                             :
                             (null)
+                          }
+                          {
+                            adminAddressDB !== newAccount && (diff < 0 || totalAmount >= 5000) ? (
+                              <div className='vote-alarm'>
+                                <p>QUEST CLOSED</p>
+                              </div>
+                            ) :
+                            adminAddressDB !== newAccount && (
+                            (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
+                            (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
+                            (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash)) ? (
+                              <div className='vote-alarm'>
+                                <p>ALREADY VOTED</p>
+                              </div>
+                            ) : (null)
                           }
                         </div>
                         {
