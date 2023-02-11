@@ -114,10 +114,10 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                     }
 
                     let newBettingKey;
-                    await client.fetch(`count(*[_type == "betting" && _createdAt > '${Moment().format("yyyy-MM-DD")}' && _id != '${Date.now()}'])`).then(async (numOfBettingKeyByDay) => {
+                    await client.fetch(`count(*[_type == "betting" && createdDateTime >= '${Moment().format("yyyy-MM-DD")}' && _id != '${Date.now()}'])`).then(async (numOfBettingKeyByDay) => {
                         newBettingKey = Number( Moment().format("yyyyMMDD") + String(numOfBettingKeyByDay + 1).padStart(8, '0') );
                     });
-                
+
                     // do approve
                     await callApproveCojamURI(Number(betting.bettingCoin), walletData, setQr, setQrModal, setMinutes, setSeconds).then(async (res) => {
                         if(res.status === 200) {
@@ -220,16 +220,16 @@ const doBetting = async (betting, walletData, setQr, setQrModal, setMinutes, set
                                 }
 
                                 setLoading(false);
-                            });
+                            })
+                            .catch((err) => { console.error('voting', err) });
                         } else {
                             result =  {
                                 result: false,
                                 message: 'Voting approve failed'
                             };
                         }
-                    });
-                    
-                    
+                    })
+                    .catch((err) => { console.error('aprrove', err) });                
                 });
             });
         });
