@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom'
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -11,18 +11,19 @@ import 'react-responsive-modal/styles.css';
 import { urlFor, client } from "../../../sanity";
 
 import toastNotify from '@utils/toast';
+import { Icon } from '@iconify/react';
 
 function Index(props) {
 	const history = useHistory();
 
-	// if(!props?.location?.state?.questId) {
-	// 	toastNotify({
-	// 		state: 'error',
-	// 		message: 'wrong access.',
-	// 	});
+	if(!props?.location?.state?.questId) {
+		toastNotify({
+			state: 'error',
+			message: 'wrong access.',
+		});
 
-	// 	history.push('/');
-	// }
+		history.push('/Dao');
+	}
 
 	const { setLoading } = useLoadingState();
 	const [ selectedAnswer, setSelectedAnswer ] = useState();
@@ -30,21 +31,12 @@ function Index(props) {
 	const [ item, setItem ] = useState();
 	const [ voteList, setVoteList ] = useState();
 	const [ answerHistory, setAnswerHistory ] = useState('All');
-
-	// useEffect(() => {
-	// 	let isLogin = false;
-	// 	checkLogin(walletData).then((res) => {
-	// 		isLogin = res;
-
-	// 		if(!isLogin) {
-	// 			toastNotify({
-	// 				state: 'error',
-	// 				message: 're login or check lock. please',
-	// 			});
-	// 			history.push('/');
-	// 		}
-	// 	});
-	// }, []);
+	const [ nowTime, setNowTime ] = useState(new Date());
+	useEffect(async () => {
+    setInterval(() => {
+      setNowTime(new Date())
+    }, 1000)
+  }, [])
 
 	const answerList = [
     {title: 'Approve', level: 'draft'},
@@ -79,7 +71,6 @@ function Index(props) {
       },
     }`;
 		client.fetch(governanceItemQuery).then((item) => {
-			console.log('item', item[0])
 			setItem(item[0]);
 		})
 
@@ -88,13 +79,19 @@ function Index(props) {
 			setVoteList(answer);
 			setLoading(false);
 		})
-		/**
-		 * Quest 리스트 & 데이터 조회
-		 */ 
 	}, []);
 
 	const level = item?.level === 'draft' ? 'Draft' : item?.level === 'success' ? 'Success' : item?.level === 'answer' ? 'Answer' : item?.level;
 	const endVoteTime = item?.level === 'draft' ? item?.draftEndTime : item?.level === 'success' ? item?.successEndTime : item?.level === 'answer' ? item?.answerEndTime : Moment().format("yyyy-MM-DD HH:mm:ss");
+
+	const endTime = item?.level === 'draft' ? new Date(item?.draftEndTime) : item?.level === 'success' ? new Date(item?.successEndTime) : new Date(item?.answerEndTime);
+
+	const diff = endTime - nowTime
+
+	const diffHour = Math.floor((diff / (1000*60*60)) % 24);
+	const diffMin = Math.floor((diff / (1000*60)) % 60);
+	const diffSec = Math.floor(diff / 1000 % 60);
+
 	let agreeVote
 	let disagreeVote
 	if(level === 'Draft') {
@@ -108,23 +105,31 @@ function Index(props) {
 	const agreePer = !isFinite(agreeVote / totalAmount) ? '0' : ((agreeVote / totalAmount) * 100).toFixed(2);
 	const disagreePer = !isFinite(disagreeVote / totalAmount) ? '0' : ((disagreeVote / totalAmount) * 100).toFixed(2);
 
+	const goBackHandler = () => {
+    history.goBack();
+  }
+
   return (
 		<div>
-			<div className="dao-container">
+			<div className="dao-container" style={{paddingBottom: '0'}}>
 				{/* 상세 */}
 				<div className="dao-quest-view">
 					<dl>
 						<dt>
 							<h2>
 								<div>
+									<Icon
+										icon="material-symbols:keyboard-arrow-left"
+										className='arrow'
+										style={{cursor: 'pointer', fontSize: '30px'}}
+										onClick={goBackHandler}
+									/>
 									{level} <span>{totalAmount && addComma(totalAmount)}</span>
 								</div>
 								<div className='endtime'>
-									{/* {
-										quest?.dDay === 'expired' ? (<div className='closed'>Closed</div>) :
-										quest?.dDay === 'pending' ? (<div>PENDING</div>) :
-										(<div>24:00:00</div>)
-									} */}
+									{
+										(totalAmount < 5000 && diff > 0) ? (<div>{diffHour > 9 ? diffHour : '0' + diffHour}:{diffMin > 9 ? diffMin : '0' + diffMin}:{diffSec > 9 ? diffSec : '0' + diffSec}</div>) : (<div className='closed'>Closed</div>)
+									}
 								</div>
 							</h2>
 							<p 
@@ -218,7 +223,6 @@ function Index(props) {
 							<ul className="votelist">
 								{
 									voteList?.map((list, index) => {
-										console.log(list)
 										const DraftOption = list?.draftOption === 'approve' ? 'Approve' : list?.draftOption === 'reject' ? 'Reject' : '';
 										const SuccessOption = list?.successOption === 'success' ? 'Success' : list?.successOption === 'adjourn' ? 'Adjourn' : '';
 										const voteAnswer = item?.level === 'draft' ? DraftOption : item?.level === 'success' ? SuccessOption : item?.level === 'answer' ? list?.answerOption : '';

@@ -23,7 +23,7 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
 
   useEffect(async () => {
     try {
-      if(account !== undefined || account !== null) {
+      if(account) {
         if(!walletData || walletData === '{"account":"","type":""}') {
           toastNotify({
             state: 'error',

@@ -147,9 +147,9 @@ function Index() {
         <div className="dao-category-section">
           <ul>
             {
-              categories.map((category, index) => {
+              categories.map((category, idx) => {
                 return (
-                <li key={index} className={"swiper-slide " + (category.CategoryName === activeCategory ? 'active' : '')} onClick={() => setActiveCategory(category.CategoryName)} style={{cursor:'pointer'}}>
+                <li key={`category ${idx}`} className={"swiper-slide " + (category.CategoryName === activeCategory ? 'active' : '')} onClick={() => setActiveCategory(category.CategoryName)} style={{cursor:'pointer'}}>
                   {
                     category.CategoryName === 'draft' ? 'Draft' : category.CategoryName === 'success' ? 'Success' : 'Answer'
                   }
@@ -165,7 +165,7 @@ function Index() {
           {/* Quest 리스트 루프 Start*/}
           <ul className='paginationContent'>
           {
-            listData && listData.map((list, index) => {
+            listData && listData.map((list, idx) => {
               const questTitle = list.quest.titleKR;
               const category = list.level === 'draft' ? 'Draft' : list.level === 'success' ? 'Success' : list.level === 'answer' ? 'Answer' : 'Cancel';
 
@@ -195,10 +195,10 @@ function Index() {
               
               return (
                 // eslint-disable-next-line react/jsx-key
-                <>
+                <div key={`list ${idx}`}>
                   {
                     list.level === activeCategory ? (
-                      <li key={index} className={`${makeSelect && selectLevel._id === list.quest._id ? 'modalOpen' : ''}`}>
+                      <li className={`${makeSelect && selectLevel._id === list.quest._id ? 'modalOpen' : ''}`}>
                         <h2>
                           {/* 총 투표수 작성 */}
                           <div>
@@ -251,11 +251,11 @@ function Index() {
                           {
                             list.level === 'answer' ? 
                             (
-                              list.quest.answerId.map((answer, index) => {
+                              list.quest.answerId.map((answer, idx) => {
                                 const totalVote = list.answerTotalVote;
                                 const percent = !isFinite(answer.totalVotes / totalVote) ? '0' : ((answer.totalVotes / totalVote) * 100).toFixed(2);
                                 return (
-                                  <li key={index} onClick={() => SelectAnswerHandler(answer)} style={{cursor:'pointer'}} className={`${selectedAnswer == answer && 'active'}`}>
+                                  <li key={`answer ${idx}`} onClick={() => SelectAnswerHandler(answer)} style={{cursor:'pointer'}} className={`${selectedAnswer == answer && 'active'}`}>
                                     <div>{answer.title}</div>
                                     <p>
                                       {answer.totalVotes ?? 0}({percent}%)
@@ -269,10 +269,10 @@ function Index() {
                             )
                             :
                             (
-                              answerList.map((answer, index) => {
+                              answerList.map((answer, idx) => {
                                 if(list.level === answer.level) {
                                   return (
-                                    <li key={index}>
+                                    <li key={`answerlist ${idx}`}>
                                       <div>{answer.title}</div>
                                       <p>
                                         {answer.title === 'Approve' || answer.title === 'Success' ? agreeVote : disagreeVote}({answer.title === 'Approve' || answer.title === 'Success' ? agreePer : disagreePer}%)
@@ -320,11 +320,11 @@ function Index() {
                                   }>Confirm</button>
                               ) :
                               (
-                                answerList && answerList.map((answer, index) => {
+                                answerList && answerList.map((answer, idx) => {
                                   if(answer.level === list.level) {
                                     return (
                                       <button
-                                        key={index}
+                                        key={`button ${idx}`}
                                         onClick={
                                           () => {
                                             GovernanceVoteHandler(
@@ -415,9 +415,10 @@ function Index() {
                                 <p>ALREADY VOTED</p>
                               </div>
                             ) :
+                            adminAddressDB !== newAccount && (
                             (list?.level === 'success' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
                             (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                            (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ?
+                            (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash))) ?
                             (
                               <div className='vote-alarm'>
                                 <p>NO PREVIOUS VOTE</p>
@@ -449,7 +450,7 @@ function Index() {
                       </li>
                     ) : (null)
                   }
-                </>
+                </div>
               );
             })
           }

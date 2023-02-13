@@ -42,7 +42,8 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
   }, []);
 
   useEffect(async () => {
-    if(account !== undefined || null) {
+    if(account) {
+      console.log('account', account)
       try {
         const balance = await NftContract().methods.balanceOf(account).call();
         setTotalNft(balance)
