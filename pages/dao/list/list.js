@@ -35,11 +35,11 @@ function Index() {
   const [ selectedAnswer, setSelectedAnswer] = useState();
   const [ makeSelect, setMakeSelect ] = useState(false);
   const [ selectLevel, setSelectLevel ] = useState('');
-  useEffect(async () => {
-    setInterval(() => {
-      setNowTime(new Date())
-    }, 1000)
-  }, [])
+  // useEffect(async () => {
+  //   setInterval(() => {
+  //     setNowTime(new Date())
+  //   }, 1000)
+  // }, [])
 
   const categories = [
     {CategoryName: 'draft'},
@@ -64,7 +64,7 @@ function Index() {
   useEffect(async () => {
     setLoading(true);
     // GovernanceItem list 조회
-    const governanceVoteQuery = `*[_type == 'governanceItem' && _id != '${Date.now()}']
+    const governanceVoteQuery = `*[_type == 'governanceItem' && _id != '${Date.now()}'] | order(draftEndTime)
     {
       ...,
       'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
@@ -195,262 +195,258 @@ function Index() {
               
               return (
                 // eslint-disable-next-line react/jsx-key
-                <div key={`list ${idx}`}>
-                  {
-                    list.level === activeCategory ? (
-                      <li className={`${makeSelect && selectLevel._id === list.quest._id ? 'modalOpen' : ''}`}>
-                        <h2>
-                          {/* 총 투표수 작성 */}
-                          <div>
-                            {category} <span>{addComma(totalAmount)}</span>
-                          </div>
-                          <div className='endtime'>
-                            {
-                              (totalAmount < 5000 && diff > 0) ? (<div>{diffHour > 9 ? diffHour : '0' + diffHour}:{diffMin > 9 ? diffMin : '0' + diffMin}:{diffSec > 9 ? diffSec : '0' + diffSec}</div>) : (<div className='closed'>Closed</div>)
-                            }
-                          </div>
-                        </h2>
-                        <p onClick={async () => {
-                            let isLogin = false;
+                list.level === activeCategory ? (
+                  <li key={`list ${idx}`} className={`${makeSelect && selectLevel._id === list.quest._id ? 'modalOpen' : ''}`}>
+                    <h2>
+                      {/* 총 투표수 작성 */}
+                      <div>
+                        {category} <span>{addComma(totalAmount)}</span>
+                      </div>
+                      <div className='endtime'>
+                        {
+                          (totalAmount < 5000 && diff > 0) ? (<div>{diffHour > 9 ? diffHour : '0' + diffHour}:{diffMin > 9 ? diffMin : '0' + diffMin}:{diffSec > 9 ? diffSec : '0' + diffSec}</div>) : (<div className='closed'>Closed</div>)
+                        }
+                      </div>
+                    </h2>
+                    <p onClick={async () => {
+                        let isLogin = false;
 
-                            await checkLogin(walletData).then((res) => {
-                              console.log('checkLogin', res);
+                        await checkLogin(walletData).then((res) => {
+                          console.log('checkLogin', res);
 
-                              isLogin = res;
+                          isLogin = res;
 
-                              if(!isLogin) {
-                                toastNotify({
-                                  state: 'error',
-                                  message: 're login or check lock. please',
-                                });
-
-                                return;
-                              }
-
-                              history.push({pathname: `/Dao/DaoView`, state: {questId: list.quest._id}}) 
+                          if(!isLogin) {
+                            toastNotify({
+                              state: 'error',
+                              message: 're login or check lock. please',
                             });
-                          }}>
-                          <span
-                            style={{
-                              backgroundImage: `url('${list.quest && (list.quest.imageFile && list.quest.imageFile.asset ? urlFor(list.quest.imageFile) : list.quest.imageUrl)}')`, 
-                              backgroundPosition: `center`,
-                              backgroundSize: `cover`,
-                            }}
-                          ></span>
-                        </p>
-                        <h3>
-                          <div>
-                            <div>Begins</div> <span>{beginsTime}</span>
-                          </div>
-                          <div>
-                            <div>Ends</div> <span>{endsTime}</span>
-                          </div>
-                        </h3>
-                        <h4>{questTitle}</h4>
-                        <ul className={list.level === 'answer' ? 'answer-list' : ''}>
-                          {
-                            list.level === 'answer' ? 
-                            (
-                              list.quest.answerId.map((answer, idx) => {
-                                const totalVote = list.answerTotalVote;
-                                const percent = !isFinite(answer.totalVotes / totalVote) ? '0' : ((answer.totalVotes / totalVote) * 100).toFixed(2);
-                                return (
-                                  <li key={`answer ${idx}`} onClick={() => SelectAnswerHandler(answer)} style={{cursor:'pointer'}} className={`${selectedAnswer == answer && 'active'}`}>
-                                    <div>{answer.title}</div>
-                                    <p>
-                                      {answer.totalVotes ?? 0}({percent}%)
-                                    </p>
-                                    <h2>
-                                      <div style={{ width: `${percent ?? 0}%`}}></div>
-                                    </h2>
-                                  </li>
-                                )
-                              })
+
+                            return;
+                          }
+
+                          history.push({pathname: `/Dao/DaoView`, state: {questId: list.quest._id}}) 
+                        });
+                      }}>
+                      <span
+                        style={{
+                          backgroundImage: `url('${list.quest && (list.quest.imageFile && list.quest.imageFile.asset ? urlFor(list.quest.imageFile) : list.quest.imageUrl)}')`, 
+                          backgroundPosition: `center`,
+                          backgroundSize: `cover`,
+                        }}
+                      ></span>
+                    </p>
+                    <h3>
+                      <div>
+                        <div>Begins</div> <span>{beginsTime}</span>
+                      </div>
+                      <div>
+                        <div>Ends</div> <span>{endsTime}</span>
+                      </div>
+                    </h3>
+                    <h4>{questTitle}</h4>
+                    <ul className={list.level === 'answer' ? 'answer-list' : ''}>
+                      {
+                        list.level === 'answer' ? 
+                        (
+                          list.quest.answerId.map((answer, idx) => {
+                            const totalVote = list.answerTotalVote;
+                            const percent = !isFinite(answer.totalVotes / totalVote) ? '0' : ((answer.totalVotes / totalVote) * 100).toFixed(2);
+                            return (
+                              <li key={`answer ${idx}`} onClick={() => SelectAnswerHandler(answer)} style={{cursor:'pointer'}} className={`${selectedAnswer == answer && 'active'}`}>
+                                <div>{answer.title}</div>
+                                <p>
+                                  {answer.totalVotes ?? 0}({percent}%)
+                                </p>
+                                <h2>
+                                  <div style={{ width: `${percent ?? 0}%`}}></div>
+                                </h2>
+                              </li>
                             )
-                            :
-                            (
-                              answerList.map((answer, idx) => {
-                                if(list.level === answer.level) {
-                                  return (
-                                    <li key={`answerlist ${idx}`}>
-                                      <div>{answer.title}</div>
-                                      <p>
-                                        {answer.title === 'Approve' || answer.title === 'Success' ? agreeVote : disagreeVote}({answer.title === 'Approve' || answer.title === 'Success' ? agreePer : disagreePer}%)
-                                      </p>
-                                      <h2>
-                                        <div style={{ width: `${answer.title === 'Approve' || answer.title === 'Success' ? agreePer : disagreePer ?? 0}%` }}></div>
-                                      </h2>
-                                    </li>
+                          })
+                        )
+                        :
+                        (
+                          answerList.map((answer, idx) => {
+                            if(list.level === answer.level) {
+                              return (
+                                <li key={`answerlist ${idx}`}>
+                                  <div>{answer.title}</div>
+                                  <p>
+                                    {answer.title === 'Approve' || answer.title === 'Success' ? agreeVote : disagreeVote}({answer.title === 'Approve' || answer.title === 'Success' ? agreePer : disagreePer}%)
+                                  </p>
+                                  <h2>
+                                    <div style={{ width: `${answer.title === 'Approve' || answer.title === 'Success' ? agreePer : disagreePer ?? 0}%` }}></div>
+                                  </h2>
+                                </li>
+                              )
+                            }
+                          })
+                        )
+                      }
+                    </ul>
+                    <div className={
+                      `selectBtn
+                      ${
+                        adminAddressDB !== newAccount && (
+                        (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
+                        (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
+                        (list?.level === 'success' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
+                        (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
+                        (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
+                        (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ||
+                        diff < 0 || totalAmount >= 5000) ? 'vote-finish' : ''}`
+                    }>
+                      <div>Would you like to vote for the Quest {category}?</div>
+                      <div>
+                        {
+                          list.level === 'answer' ?
+                          (
+                            <button
+                              className="answerBtn"
+                              onClick={
+                                () => {
+                                  AnswerConfirmHandler(
+                                    list?.quest?.questKey,
+                                    selectedAnswer?.questAnswerKey,
+                                    selectedAnswer?._id,
+                                    selectedAnswer?.title,
+                                    list?._id,
+                                    list?.quest._id
                                   )
                                 }
-                              })
-                            )
-                          }
-                        </ul>
-                        <div className={
-                          `selectBtn
-                          ${
-                            adminAddressDB !== newAccount && (
-                            (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
-                            (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
-                            (list?.level === 'success' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                            (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
-                            (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                            (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ||
-                            diff < 0 || totalAmount >= 5000) ? 'vote-finish' : ''}`
-                        }>
-                          <div>Would you like to vote for the Quest {category}?</div>
-                          <div>
-                            {
-                              list.level === 'answer' ?
-                              (
-                                <button
-                                  className="answerBtn"
-                                  onClick={
-                                    () => {
-                                      AnswerConfirmHandler(
-                                        list?.quest?.questKey,
-                                        selectedAnswer?.questAnswerKey,
-                                        selectedAnswer?._id,
-                                        selectedAnswer?.title,
-                                        list?._id,
-                                        list?.quest._id
-                                      )
+                              }>Confirm</button>
+                          ) :
+                          (
+                            answerList && answerList.map((answer, idx) => {
+                              if(answer.level === list.level) {
+                                return (
+                                  <button
+                                    key={`button ${idx}`}
+                                    onClick={
+                                      () => {
+                                        GovernanceVoteHandler(
+                                          diff,
+                                          list?.level,
+                                          list?.quest.questKey,
+                                          answer?.title.toLowerCase(),
+                                          list?.quest._id,
+                                          list
+                                        )
+                                      }
                                     }
-                                  }>Confirm</button>
-                              ) :
-                              (
-                                answerList && answerList.map((answer, idx) => {
-                                  if(answer.level === list.level) {
-                                    return (
-                                      <button
-                                        key={`button ${idx}`}
-                                        onClick={
-                                          () => {
-                                            GovernanceVoteHandler(
-                                              diff,
-                                              list?.level,
-                                              list?.quest.questKey,
-                                              answer?.title.toLowerCase(),
-                                              list?.quest._id,
-                                              list
-                                            )
-                                          }
-                                        }
-                                        disabled={
-                                          (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
-                                          (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
-                                          (list?.level === 'success' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                                          (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
-                                          (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                                          (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ||
-                                          diff < 0 || totalAmount >= 5000 ? true : false
-                                        }
-                                      >
-                                        {answer.title}
-                                        {
-                                          adminAddressDB === newAccount ? 
-                                          (
-                                            <span>({answer.title === 'Approve' || answer.title === 'Success' ? agreeVote : disagreeVote})</span>
-                                          ) : (null)
-                                        }
-                                      </button>
-                                    )
-                                  }
-                                })
-                              )
-                            }
-                          </div>
-                          {
-                            adminAddressDB === newAccount ? (
-                              <button
-                                onClick={() => setQuestEndTime(list.level, list.quest.questKey, list._id)}
-                                className="adminConfirmBtn">
-                                End
-                              </button>
-                            ) : (null)
-                          }
-                          {
-                            adminAddressDB === newAccount && (diff < 0 || totalAmount >= 5000) ?
-                            (
-                              list.level === "answer" ? (
-                                <>
-                                  <button
-                                    onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, selectedAnswer?.questAnswerKey, list)}
-                                    className="adminConfirmBtn">
-                                    Result Confirm
-                                  </button>
-                                  <button
-                                    onClick={() => CancelHandler(list, diff)}
-                                    className="adminConfirmBtn"
+                                    disabled={
+                                      (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
+                                      (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
+                                      (list?.level === 'success' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
+                                      (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
+                                      (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
+                                      (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ||
+                                      diff < 0 || totalAmount >= 5000 ? true : false
+                                    }
                                   >
-                                    Cancel
+                                    {answer.title}
+                                    {
+                                      adminAddressDB === newAccount ? 
+                                      (
+                                        <span>({answer.title === 'Approve' || answer.title === 'Success' ? agreeVote : disagreeVote})</span>
+                                      ) : (null)
+                                    }
                                   </button>
-                                </>
-                              ) : (
-                                <button
-                                  onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, 'not', list)}
-                                  className="adminConfirmBtn"
-                                >
-                                  Result Confirm
-                                </button>
-                              )
-                            )
-                            :
-                            (null)
-                          }
-                          {
-                            adminAddressDB !== newAccount && (diff < 0 || totalAmount >= 5000) ?
-                            (
-                              <div className='vote-alarm'>
-                                <p>QUEST CLOSED</p>
-                              </div>
-                            ) :
-                            adminAddressDB !== newAccount && (
-                            (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
-                            (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
-                            (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash)) ? 
-                            (
-                              <div className='vote-alarm'>
-                                <p>ALREADY VOTED</p>
-                              </div>
-                            ) :
-                            adminAddressDB !== newAccount && (
-                            (list?.level === 'success' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                            (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                            (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash))) ?
-                            (
-                              <div className='vote-alarm'>
-                                <p>NO PREVIOUS VOTE</p>
-                              </div>
-                            ) : (null)
-                          }
-                        </div>
-                        {
-                          makeSelect && selectLevel._id === list.quest._id ? (
-                            <div className="makeselect">
-                              <p>The number of votes is the same. Admin please select the correct answer.</p>
-                              <div>
-                                <button onClick={(e) => {setMakeHandler(e)}}>
-                                  {selectLevel?.level === 'draft' ? 'Approve' : 'Success'}
-                                </button>
-                                <button onClick={(e) => {setMakeHandler(e)}}>
-                                  {selectLevel?.level === 'draft' ? 'Reject' : 'Adjourn'}
-                                </button>
-                              </div>
-                              <div
-                                className="closeBtn"
-                                onClick={() => {setMakeSelect(false)}}
-                              >
-                                <Icon icon="material-symbols:close-rounded" />
-                              </div>
-                            </div>
-                          ) : (null)
+                                )
+                              }
+                            })
+                          )
                         }
-                      </li>
-                    ) : (null)
-                  }
-                </div>
+                      </div>
+                      {
+                        adminAddressDB === newAccount ? (
+                          <button
+                            onClick={() => setQuestEndTime(list.level, list.quest.questKey, list._id)}
+                            className="adminConfirmBtn">
+                            End
+                          </button>
+                        ) : (null)
+                      }
+                      {
+                        adminAddressDB === newAccount && (diff < 0 || totalAmount >= 5000) ?
+                        (
+                          list.level === "answer" ? (
+                            <>
+                              <button
+                                onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, selectedAnswer?.questAnswerKey, list)}
+                                className="adminConfirmBtn">
+                                Result Confirm
+                              </button>
+                              <button
+                                onClick={() => CancelHandler(list, diff)}
+                                className="adminConfirmBtn"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, 'not', list)}
+                              className="adminConfirmBtn"
+                            >
+                              Result Confirm
+                            </button>
+                          )
+                        )
+                        :
+                        (null)
+                      }
+                      {
+                        adminAddressDB !== newAccount && (diff < 0 || totalAmount >= 5000) ?
+                        (
+                          <div className='vote-alarm'>
+                            <p>QUEST CLOSED</p>
+                          </div>
+                        ) :
+                        adminAddressDB !== newAccount && (
+                        (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
+                        (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
+                        (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash)) ? 
+                        (
+                          <div className='vote-alarm'>
+                            <p>ALREADY VOTED</p>
+                          </div>
+                        ) :
+                        adminAddressDB !== newAccount && (
+                        (list?.level === 'success' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
+                        (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
+                        (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash))) ?
+                        (
+                          <div className='vote-alarm'>
+                            <p>NO PREVIOUS VOTE</p>
+                          </div>
+                        ) : (null)
+                      }
+                    </div>
+                    {
+                      makeSelect && selectLevel._id === list.quest._id ? (
+                        <div className="makeselect">
+                          <p>The number of votes is the same. Admin please select the correct answer.</p>
+                          <div>
+                            <button onClick={(e) => {setMakeHandler(e)}}>
+                              {selectLevel?.level === 'draft' ? 'Approve' : 'Success'}
+                            </button>
+                            <button onClick={(e) => {setMakeHandler(e)}}>
+                              {selectLevel?.level === 'draft' ? 'Reject' : 'Adjourn'}
+                            </button>
+                          </div>
+                          <div
+                            className="closeBtn"
+                            onClick={() => {setMakeSelect(false)}}
+                          >
+                            <Icon icon="material-symbols:close-rounded" />
+                          </div>
+                        </div>
+                      ) : (null)
+                    }
+                  </li>
+                ) : (null)
               );
             })
           }
