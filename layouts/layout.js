@@ -15,7 +15,7 @@ import { NftContract } from "../pages/dao/contractHelper";
 
 const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeedNftModal }) => {
   const [ loading, setLoading ] = useState(false);
-  const [ account, setAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
+  const [ account, setAccount ] = useState('');
   const [ totalNft, setTotalNft ] = useState(0);
 
   const path = window.location.pathname;
@@ -34,6 +34,12 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
       history.push('/Dao/DaoProposals');
     }
   }
+
+  useEffect(async () => {
+    const accounts = await window.klaytn.enable();
+    const nowAccount = accounts[0];
+    setAccount(nowAccount)
+  }, []);
 
   useEffect(async () => {
     if(account !== undefined || null) {
