@@ -36,11 +36,11 @@ function Index() {
   const [ selectedAnswer, setSelectedAnswer] = useState();
   const [ makeSelect, setMakeSelect ] = useState(false);
   const [ selectLevel, setSelectLevel ] = useState('');
-  // useEffect(async () => {
-  //   setInterval(() => {
-  //     setNowTime(new Date())
-  //   }, 1000)
-  // }, [])
+  useEffect(async () => {
+    setInterval(() => {
+      setNowTime(new Date())
+    }, 1000)
+  }, [])
 
   const categories = [
     {CategoryName: 'draft'},

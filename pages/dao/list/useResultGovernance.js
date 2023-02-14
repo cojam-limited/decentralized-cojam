@@ -182,10 +182,10 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
               }).commit();
             }
             const charityFee = successMarket.events.SuccessMarket.returnValues.charityFee;
-            const changeCharityFee = Number(web3.utils.fromWei(charityFee, 'ether')) * 100;
-            const setTotalReward = await GovernanceContract().methods.setTotalReward(questKey, changeCharityFee).send({from : account, gas: 500000})
+            const changeCharityFee = Number(web3.utils.fromWei(charityFee, 'ether'));
+            const setTotalReward = await GovernanceContract().methods.setTotalReward(questKey, (changeCharityFee * 100)).send({from : account, gas: 500000})
             console.log(setTotalReward)
-            await client.patch(governanceId).set({level: 'done'}).commit();
+            await client.patch(governanceId).set({level: 'done', reward: changeCharityFee}).commit();
             toastNotify({
               state: 'success',
               message: `Success Answer End Quest`,

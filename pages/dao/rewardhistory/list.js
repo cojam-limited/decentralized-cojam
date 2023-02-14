@@ -40,7 +40,7 @@ function Index() {
   useEffect(async () => {
     setLoading(true);
 
-    const rewardHistoryQuery = `*[_type == 'governanceItem' && level == 'done' && _id != '${Date.now()}']
+    const rewardHistoryQuery = `*[_type == 'governanceItem' && level == 'done' && reward != null && _id != '${Date.now()}']
     {
       ...,
       'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]
@@ -55,8 +55,6 @@ function Index() {
       setLoading(false);
     })
   }, [newAccount, render])
-
-  console.log(dataList)
 
   const totalCount = dataList.filter(reward => reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive).length;
   const rewardTotalCount = dataList.filter(reward => reward.level === 'done' && reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive && !reward.quest.votingList[0].rewardStatus).length;
@@ -188,6 +186,8 @@ function Index() {
                     const endTime = list.answerEndTime.split(' ');
                     const rewardNFT = votingList[0].answerCount ?? 0;
                     const rewardStatus = votingList[0].rewardStatus;
+                    const getCT = (list.reward * rewardNFT) / list.answerTotalVote
+                    console.log(getCT)
                     return (
                       <li key={idx} >
                         {
@@ -222,7 +222,15 @@ function Index() {
                           <div>
                             <h3>
                               Reward {rewardNFT} NFT
-                              <span className={rewardStatus ? 'rewardFinish': 'rewardGet'}>{rewardStatus ? 'FINISH' : 'GET'}</span>
+                              <span className={rewardStatus ? 'rewardFinish': 'rewardGet'}>
+                                {
+                                  rewardStatus ? (
+                                    <span>FINISH</span>
+                                  ) : (
+                                    <span>GET <span className='checkCT'>{getCT}</span> CT</span>
+                                  )
+                                }
+                              </span>
                             </h3>
                             <div>
                               <span
