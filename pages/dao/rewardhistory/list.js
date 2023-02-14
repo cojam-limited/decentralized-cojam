@@ -40,8 +40,6 @@ function Index() {
   useEffect(async () => {
     setLoading(true);
 
-    `*[_type == 'quests' && isActive == true  && (statusType == 'SUCCESS' || statusType == 'ADJOURN') && _id != '${Date.now()}'] {..., 'now': now(), 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0], 'answerIds': *[_type=='questAnswerList' && questKey == ^.questKey] {title, _id, totalAmount}} | order(createdDateTime desc)`;
-
     const rewardHistoryQuery = `*[_type == 'governanceItem' && level == 'done' && _id != '${Date.now()}']
     {
       ...,
@@ -49,7 +47,7 @@ function Index() {
       {
         ...,
         'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey},
-        'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${newAccount}' && _id != '${Date.now()}']
+        'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && archive == true && voter == '${newAccount}' && _id != '${Date.now()}']
       },
     }`;
     await client.fetch(rewardHistoryQuery).then((rewardHistory) => {
@@ -58,8 +56,10 @@ function Index() {
     })
   }, [newAccount, render])
 
+  console.log(dataList)
+
   const totalCount = dataList.filter(reward => reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive).length;
-  const rewardTotalCount = dataList.filter(reward => reward.level === 'done' && reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive).length;
+  const rewardTotalCount = dataList.filter(reward => reward.level === 'done' && reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive && !reward.quest.votingList[0].rewardStatus).length;
   const [activateDelete, setActivateDelete] = useState(false);
 
   const activateDeleteHandler = () => {
@@ -121,7 +121,7 @@ function Index() {
       if(!checkedAll) {
         console.log(dataList)
         const idArray = [];
-        dataList.forEach((data) => idArray.push(data.quest.votingList[0]._id))
+        dataList.forEach((data) => idArray.push(data?.quest?.votingList[0]?._id))
         setCheckedAll(true);
         setCheckList(idArray);
       } else {
@@ -135,12 +135,14 @@ function Index() {
     } else if(status === 'delete') {
       checkList.map(async (itemId) => {
         await client.patch(itemId).set({archive: false}).commit();
+        setRender(!render);
+        setCheckedAll(false);
+        setCheckList([]);
+        toastNotify({
+          state: 'success',
+          message: `The selected reward history has been deleted.`,
+        });
       })
-      setRender(!render);
-      toastNotify({
-        state: 'success',
-        message: `The selected reward history has been deleted.`,
-      });
     }
     setLoading(false);
   }
@@ -183,9 +185,9 @@ function Index() {
                 dataList.map((list, idx) => {
                   const votingList = list.quest.votingList
                   if(votingList.length > 0 && votingList[0].answerCount && votingList[0].archive) {
-                    console.log(list);
                     const endTime = list.answerEndTime.split(' ');
                     const rewardNFT = votingList[0].answerCount ?? 0;
+                    const rewardStatus = votingList[0].rewardStatus;
                     return (
                       <li key={idx} >
                         {
@@ -220,6 +222,7 @@ function Index() {
                           <div>
                             <h3>
                               Reward {rewardNFT} NFT
+                              <span className={rewardStatus ? 'rewardFinish': 'rewardGet'}>{rewardStatus ? 'FINISH' : 'GET'}</span>
                             </h3>
                             <div>
                               <span

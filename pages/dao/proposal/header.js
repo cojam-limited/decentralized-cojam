@@ -4,12 +4,22 @@ import { useHistory } from 'react-router-dom'
 import toastNotify from '@utils/toast';
 import { NftContract } from "../contractHelper";
 
-const header = ({toggleMyPage, setToggleMyPage, account}) => {
+const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   const path = window.location.pathname;
   const titleArray = path.split('/')[2];
   const title = titleArray.includes('Proposals') ? 'Proposals' : titleArray.includes('VotingHistory') ? 'Voting History' : 'Reward History';
   const history = useHistory();
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
+
+  useEffect(async () => {
+    const accounts = await window.klaytn.enable();
+    const nowAccount = accounts[0];
+    setAccount(nowAccount)
+  }, []);
+
+  window.klaytn.on('accountsChanged', (accounts) => {
+    setAccount(accounts[0]);
+  });
 
   const OpenMyPageHandler = () => {
     if (toggleMyPage === false) {

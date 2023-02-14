@@ -159,7 +159,9 @@ function Index(props) {
 								{
 									item?.level === 'answer' ? 
 									(
-										item?.quest?.answerId.map((answer, index) => {
+										item?.quest?.answerId.sort(function(a, b) {
+											return a.questAnswerKey - b.questAnswerKey
+										}).map((answer, index) => {
 											const totalVote = item.answerTotalVote;
 											const percent = !isFinite(answer.totalVotes / totalVote) ? '0' : ((answer.totalVotes / totalVote) * 100).toFixed(2);
 											return (

@@ -11,15 +11,21 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
   const walletData = sessionStorage.getItem('data/wallet');
 
+  useEffect(async () => {
+    const accounts = await window.klaytn.enable();
+    const nowAccount = accounts[0];
+    setAccount(nowAccount)
+  }, []);
+
+  window.klaytn.on('accountsChanged', (accounts) => {
+    setAccount(accounts[0]);
+  });
+
   const OpenMyPageHandler = () => {
     if (toggleMyPage === false) {
       setToggleMyPage(true);
     }
   }
-
-  window.klaytn.on('accountsChanged', (accounts) => {
-    setAccount(accounts[0]);
-  });
 
   useEffect(async () => {
     try {

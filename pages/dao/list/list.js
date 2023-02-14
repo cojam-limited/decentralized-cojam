@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 
 import "react-datepicker/dist/react-datepicker.css";
 
-import { urlFor, client } from "../../../sanity";
+import { urlFor } from "../../../sanity";
 import { useLoadingState } from "@assets/context/LoadingContext";
 
 import "react-responsive-modal/styles.css";
@@ -19,6 +19,7 @@ import { questEndTime } from "../list/useQuestEndTime"
 import { answerConfirm } from "../list/useAnswerConfirm"
 import { makeConfirm } from "../list/useMakeConfirm"
 import { cancelConfirm } from "../list/useCancelConfirm"
+import { callQuestQuery, callAdminQuery } from "../list/sanityQuery/useQuery"
 
 function Index() {
   const { walletData } = useWalletData();
@@ -54,41 +55,18 @@ function Index() {
     {title: 'Adjourn', level: 'success'},
   ];
 
-  const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
-
   // klaytn Account Change 감지
   window.klaytn.on('accountsChanged', (accounts) => {
     setNewAccount(accounts[0]);
   });
 
   useEffect(async () => {
-    setLoading(true);
     // GovernanceItem list 조회
-    const governanceVoteQuery = `*[_type == 'governanceItem' && _id != '${Date.now()}'] | order(draftEndTime)
-    {
-      ...,
-      'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
-        ...,
-        'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey},
-        'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${newAccount}' && _id != '${Date.now()}']
-      },
-    }`;
-    client.fetch(governanceVoteQuery).then((governanceItem) => {
-      setListData(governanceItem);
-      setLoading(false);
-      console.log('rendering!')
-    });
+    callQuestQuery(setListData, setLoading, activeCategory)
   }, [activeCategory, newAccount, render])
 
   useEffect(() => {
-    const AdminAddressQuery = `*[_type == 'admin' && active == true && _id != '${Date.now()}']`
-    client.fetch(AdminAddressQuery).then((adminlist) => {
-      adminlist.map((admin) => {
-        if(admin.walletAddress.toLowerCase() === amdinContractAddress.toLowerCase()) {
-          setAdminAddressDB(admin.walletAddress);
-        }
-      })
-    })
+    callAdminQuery(setAdminAddressDB)
   }, [newAccount]);
 
   const GovernanceVoteHandler = async (diff, level, questKey, answer, _id) => {
@@ -249,7 +227,9 @@ function Index() {
                       {
                         list.level === 'answer' ? 
                         (
-                          list.quest.answerId.map((answer, idx) => {
+                          list.quest.answerId.sort(function(a, b) {
+                            return a.questAnswerKey - b.questAnswerKey
+                          }).map((answer, idx) => {
                             const totalVote = list.answerTotalVote;
                             const percent = !isFinite(answer.totalVotes / totalVote) ? '0' : ((answer.totalVotes / totalVote) * 100).toFixed(2);
                             return (

@@ -5,7 +5,7 @@ import MarketContractABI from "../../api/ABI/CojamMarketContractABI.json"
 
 const web3 = new Web3(window.klaytn);
 
-const governanceContractAddress = '0xFa7dfdC06c641Efc2F9d1E38E8010D0D521297B6';
+const governanceContractAddress = '0x15B685acd30e0c63311b11d0061967b7Bc7205ad';
 const nftContractAddress = '0x0B31464154907aa2B4366a02803AbEACcE979e5C';
 const marketContractAddress = '0x6b24afa82775414a8c3778aa8d480587021ba6c8';
 

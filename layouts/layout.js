@@ -36,12 +36,6 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
   }
 
   useEffect(async () => {
-    const accounts = await window.klaytn.enable();
-    const nowAccount = accounts[0];
-    setAccount(nowAccount)
-  }, []);
-
-  useEffect(async () => {
     if(account) {
       console.log('account', account)
       try {
@@ -99,7 +93,7 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
               style={{cursor: 'pointer'}}
               onClick={copyText}
             >
-              <div>{skipAccount}</div>
+              <span>{skipAccount}</span>
               <i>
                 <Icon icon="ph:copy-simple-thin" />
               </i>
