@@ -32,7 +32,7 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   }
 
   useEffect(async () => {
-    if(account !== undefined || null){
+    if(account){
       try {
         if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
           toastNotify({
@@ -52,7 +52,7 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
           return;
         }
     
-        if(account !== undefined || null) {
+        if(account) {
           toastNotify({
             state: 'success',
             message: `Success Login Account\n"${account}"`,
