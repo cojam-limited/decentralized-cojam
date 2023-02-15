@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useHistory } from "react-router-dom";
 
 import { useLoadingState } from "@assets/context/LoadingContext";
@@ -7,6 +7,7 @@ import Pagination from "react-sanity-pagination";
 import { Proposal } from '../../../studio/src/actions/proposalActions'
 import { client } from "../../../sanity";
 import { setProposal } from '../../../api/UseWeb3';
+import { lastElementsForPage } from "../../../studio/src/maker"
 
 function Index() {
   const { setLoading } = useLoadingState();
@@ -15,7 +16,13 @@ function Index() {
   const [ activeCategory, setActiveCategory ] = useState('All');
   const [ data, setData ] = useState([]);
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
+  const [ nowTime, setNowTime ] = useState(new Date());
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
+  // useEffect(async () => {
+  //   setInterval(() => {
+  //     setNowTime(new Date())
+  //   }, 1000)
+  // }, [])
   window.klaytn.on('accountsChanged', (accounts) => {
     setNewAccount(accounts[0]);
   });
@@ -41,18 +48,34 @@ function Index() {
     setLoading(false);
   }, [activeCategory])
 
-  const clickHandler = async (list, diff) => {
+  const clickHandler = async (list, diff, totalAmount, resultVote) => {
     if(diff < 0 && amdinContractAddress.toLowerCase() === newAccount.toLowerCase() && list.proposalTxHash === null) {
+      console.log(resultVote)
+      const finalTitle = resultVote[0].option
+      const finalVote = resultVote[0].total
       try {
         let endTime = Date.parse(list.endTime)
-        const data = {
-          proposalKey: list.proposalKey,
-          title: list.title,
-          result: '다섯번째',
-          totalVote: 0,
-          resultVote: 0,
-          endTime: endTime,
+        let data;
+        if(resultVote.length === 1) {
+          data = {
+            proposalKey: list.proposalKey,
+            title: list.title,
+            result: finalTitle,
+            totalVote: totalAmount,
+            resultVote: finalVote,
+            endTime: endTime,
+          }
+        } else {
+          data = {
+            proposalKey: list.proposalKey,
+            title: list.title,
+            result: 'draw',
+            totalVote: totalAmount,
+            resultVote: finalVote,
+            endTime: endTime,
+          }
         }
+        console.log(data);
         const result = await setProposal(data)
         await client.patch(list._id).set({proposalTxHash: result.transactionHash}).commit();
         return;
@@ -75,14 +98,55 @@ function Index() {
     history.push('/Dao/DaoProposals/Create')
   }
 
-	// pagenation settings
-	let postsPerPage = 6;
-	const [ items, setItems ] = useState([]);
-	const [ itemsToSend, setItemsToSend ] = useState([]);
+  const obsRef = useRef(null) // observer Element
+  const [page, setPage] = useState(0);
 
-  const action = (page, range, items) => {
-		setItems(items);
-	};
+  useEffect(() => {
+    const observer = new IntersectionObserver(obsHandler, { threshold: 0.6 });
+    if (obsRef.current) observer.observe(obsRef.current);
+    return () => {
+      observer.disconnect();
+    }
+  }, []);
+
+  const obsHandler = async (entries) => {
+    const target = entries[0];
+    if (target.isIntersecting) {
+      setPage(prev => prev + 1);
+    }
+  }
+
+  const getQuestList = async () => {
+    setLoading(true)
+    if(activeCategory === 'All') {
+      const {lastValue, lastId} = lastElementsForPage(data, '_createdAt')
+      const loadingList = await Proposal.listAllPaged(lastValue, lastId)
+      setData(prev => {
+        return [...prev, ...loadingList]
+      })
+    }
+
+    if(activeCategory === 'Active') {
+      const {lastValue, lastId} = lastElementsForPage(data, 'endTime')
+      const loadingList = await Proposal.listOpenPaged(lastValue, lastId)
+      setData(prev => {
+        return [...prev, ...loadingList]
+      })
+    }
+
+    if(activeCategory === 'Closed') {
+      const {lastValue, lastId} = lastElementsForPage(data, '_createdAt')
+      const loadingList = await Proposal.listClosedPaged(lastValue, lastId)
+      setData(prev => {
+        return [...prev, ...loadingList]
+      })
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => {
+      getQuestList()
+  }, [page])
 
   const totalCount = data.length;
 
@@ -114,17 +178,24 @@ function Index() {
             <ul className='dao-proposal-content'>
               {
                 data.map((list, idx) => {
-                  console.log(list)
                   const endTime = new Date(list.endTime);
-                  const nowTime = new Date();
                   const diff = endTime - nowTime;
 
                   const diffDay = Math.floor(diff / (1000*60*60*24));
                   const diffHour = Math.floor((diff / (1000*60*60)) % 24);
                   const diffMin = Math.floor((diff / (1000*60)) % 60);
                   const diffSec = Math.floor(diff / 1000 % 60);
+
+                  const totalAmount = list?.options?.reduce((acc, cur) => {
+                    return acc + cur.total;
+                  }, 0)
+                  const resultVote = list?.options?.filter((votes, idx, target) => {
+                    const maxOfVote = Math.max(...target.map(vote => vote.total));
+                    return votes.total === maxOfVote;
+                  })
+
                   return (
-                    <li key={idx} onClick={() => clickHandler(list, diff)}>
+                    <li key={idx} onClick={() => clickHandler(list, diff, totalAmount, resultVote)}>
                       <div>
                         <h3>
                           {list?.creator?.slice(0, 6) + '...' + list?.creator?.slice(-4)}
@@ -165,12 +236,17 @@ function Index() {
                               {
                                 list.options.map(
                                   (val, idx) => {
+                                    const percent = !isFinite(val.total / totalAmount) ? '0' : ((val.total / totalAmount) * 100).toFixed(2);
                                     return (
                                       <li
                                         key={idx}
+                                        className={
+                                          resultVote.length === 1 && resultVote[0] === val ? 'winnerAnswer' :
+                                          resultVote.length > 1 ? 'drawAnswer' : ''
+                                        }
                                       >
                                         <p>{val.option}</p>
-                                        <p>{val.total}</p>
+                                        <p>{addComma(val.total)}({percent}%)</p>
                                       </li>
                                     )
                                   }
@@ -180,29 +256,15 @@ function Index() {
                           )
                         }
                       </li>
-                    )})
+                    )
                   }
+                  )
+                }
             </ul>
           {/* Proposal 리스트 루프 End */}
           </ul>
         </div>
         {/* 리스트 끝 */}
-
-        {/* 페이지네이션 */}
-				{
-          itemsToSend.length > 0 && 
-          <Pagination
-						nextButton={true}
-						prevButton={true}
-						nextButtonLabel={">"}
-						prevButtonLabel={"<"}
-						items={itemsToSend}
-						action={action}
-						postsPerPage={postsPerPage}
-				  />
-        }
-				{/* 페이지네이션 끝 */}
-
         {/* Proposal-footer Start */}
         <div
           className='proposal-footer'
@@ -212,6 +274,7 @@ function Index() {
         </div>
         {/* Proposal-footer End */}
       </div>
+      <div ref={obsRef}></div>
     </div>
   )
 }

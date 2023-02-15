@@ -10,7 +10,7 @@ export const Proposal = {
             description: description,
             options: options,
             creator: creator,
-            endTime: setEndTime(0)
+            endTime: setEndTime(1)
         }
         const proposal = await client.create(doc);
         //create proposal options constraint key with proposal_id
@@ -44,7 +44,7 @@ export const Proposal = {
             _type == 'proposal' &&
             dateTime(endTime) < dateTime(now()) &&
             _id != '${Date.now()}'
-        ]| order(_createdAt desc)[0..1]
+        ]| order(_createdAt desc)[0..4]
         {
             _id,
             _createdAt,
@@ -54,7 +54,7 @@ export const Proposal = {
             creator,
             endTime,
             proposalTxHash,
-            "options": *[_type == 'proposalOptionList' && proposalId == ^._id]
+            "options": *[_type == 'proposalOptionList' && proposalId == ^._id]| order(_createdAt)
         }`
         return await client.fetch(query);
     },
@@ -65,9 +65,9 @@ export const Proposal = {
             dateTime(endTime) < dateTime(now()) &&
             (
                 dateTime(_createdAt) < dateTime('${lastCreatedAt}') ||
-                (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > ${lastId})
+                (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > '${lastId}')
             )
-        ]| order(_createdAt desc)[0..1]
+        ]| order(_createdAt desc)[0..4]
         {
             _id,
             _createdAt,
@@ -76,7 +76,7 @@ export const Proposal = {
             description,
             creator,
             endTime,
-            "options": *[_type == 'proposalOptionList' && proposalId == ^._id]
+            "options": *[_type == 'proposalOptionList' && proposalId == ^._id]| order(_createdAt)
         }`
         return await client.fetch(query);
     },
@@ -86,7 +86,7 @@ export const Proposal = {
             _type == 'proposal' &&
             dateTime(endTime) > dateTime(now()) &&
             _id != '${Date.now()}'
-        ]| order(endTime)[0..5]
+        ]| order(endTime)[0..4]
         {
             _id,
             _createdAt,
@@ -106,9 +106,9 @@ export const Proposal = {
             dateTime(endTime) > dateTime(now()) &&
             (
                 dateTime(endTime) > dateTime('${lastEndTime}') ||
-                (dateTime(endTime) == dateTime('${lastEndTime}') && _id > ${lastId})
+                (dateTime(endTime) == dateTime('${lastEndTime}') && _id > '${lastId}')
             )
-        ]| order(endTime)[0..1]
+        ]| order(endTime)[0..4]
         {
             _id,
             _createdAt,
@@ -122,7 +122,7 @@ export const Proposal = {
     },
     listAll : async () => {
         const query = `
-        *[ _type == 'proposal' && _id != '${Date.now()}']| order(_createdAt desc)[0..5]
+        *[ _type == 'proposal' && _id != '${Date.now()}']| order(_createdAt desc)[0..4]
         {
             _id,
             _createdAt,
@@ -133,7 +133,7 @@ export const Proposal = {
             endTime,
             proposalTxHash,
             dateTime(endTime) < dateTime(now()) => {
-                "options": *[_type == 'proposalOptionList' && proposalId == ^._id]
+                "options": *[_type == 'proposalOptionList' && proposalId == ^._id]| order(_createdAt)
             }
         }`
         return await client.fetch(query);
@@ -144,9 +144,9 @@ export const Proposal = {
             _type == 'proposal' &&
             (
                 dateTime(_createdAt) < dateTime('${lastCreatedAt}') ||
-                (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > ${lastId})
+                (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > '${lastId}')
             )
-        ]| order(_createdAt desc)[0..2]
+        ]| order(_createdAt desc)[0..4]
         {
             _id,
             _createdAt,
@@ -156,7 +156,7 @@ export const Proposal = {
             creator,
             endTime,
             dateTime(endTime) < dateTime(now()) => {
-                "options": *[_type == 'proposalOptionList' && proposalId == ^._id]
+                "options": *[_type == 'proposalOptionList' && proposalId == ^._id]| order(_createdAt)
             }
         }`
         return await client.fetch(query);
@@ -176,7 +176,7 @@ export const Proposal = {
             creator,
             endTime,
             proposalTxHash,
-            "options" : *[_type == 'proposalOptionList' && proposalId == ^._id],
+            "options" : *[_type == 'proposalOptionList' && proposalId == ^._id]| order(_createdAt)
         }[0]`
         return await client.fetch(query);
     },
@@ -204,7 +204,7 @@ export const Proposal = {
             proposalKey == ${proposalKey} &&
             (
                 dateTime(_createdAt) < dateTime('${lastCreatedAt}') ||
-                (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > ${lastId})
+                (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > '${lastId}')
             )
         ]| order(_id)[0..1]
         {

@@ -77,7 +77,10 @@ const view = (props) => {
 
   const address = data?.creator;
   const skipAddress = address?.slice(0, 6) + '...' + address?.slice(-4);
-  console.log('total', totalAmount)
+  const resultVote = data?.options?.filter((votes, idx, target) => {
+    const maxOfVote = Math.max(...target.map(vote => vote.total));
+    return votes.total === maxOfVote;
+  })
   return (
     <div>
       <div className='proposal-view-content'>
@@ -112,23 +115,41 @@ const view = (props) => {
         </div>
         <div className='proposal-answer'>
           <h3>Cast your vote</h3>
-          <ul>
+          <ul className={diff < 0 ? 'closeQuest' : ''}>
             {
               data?.options?.map((answer, idx) => {
                 const percent = !isFinite(answer.total / totalAmount) ? '0' : ((answer.total / totalAmount) * 100).toFixed(2);
                 return (
-                  <li
-                    key={idx}
-                    className={selectAnswer === answer ? 'answer-select' : ''}
-                    onClick={() => voteSelectHandler(answer)}
-                  >
-                    <p>{answer.option}</p>
-                    <p>{answer.total}({percent}%)</p>
-                  </li>
+                  diff > 0 ? (
+                    <li
+                      key={idx}
+                      className={selectAnswer === answer ? 'answer-select' : ''}
+                      onClick={() => voteSelectHandler(answer)}
+                    >
+                      <p>{answer.option}</p>
+                      <p>{answer.total}({percent}%)</p>
+                    </li>
+                  ) : (
+                    <li
+                      key={idx}
+                      className={
+                        resultVote.length === 1 && resultVote[0] === answer ? 'winnerAnswer' :
+                        resultVote.length > 1 ? 'drawAnswer' : ''
+                      }
+                      onClick={() => voteSelectHandler(answer)}
+                    >
+                      <p>{answer.option}</p>
+                      <p>{answer.total}({percent}%)</p>
+                    </li>
+                  )
               )})
             }
           </ul>
-          <button onClick={() => {voteConfirmHandler()}}>Confirm</button>
+          {
+            diff > 0 ? (
+              <button onClick={() => {voteConfirmHandler()}}>Confirm</button>
+            ) : (null)
+          }
         </div>
         <div className='proposal-votelist'>
           <h3>Vote</h3>

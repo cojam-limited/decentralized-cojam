@@ -240,7 +240,9 @@
 .dao-proposal-list .dao-proposal-content > li > h2 + p {font-family: 'Pretendard'; font-style: normal; font-weight: 300; font-size: 14px; line-height: 22px; letter-spacing: -0.02em; display:-webkit-box; color:#777; -webkit-line-clamp:3; -webkit-box-orient:vertical; text-overflow:ellipsis; overflow:hidden; margin-bottom: 12px;}
 .dao-proposal-list .dao-proposal-content > li > h2 + p + p {font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; letter-spacing: -0.02em; color:#000;}
 .dao-proposal-list .dao-proposal-content > li > h2 + p + ul {border: 1px solid #EFEFEF; border-radius: 4px;}
-.dao-proposal-list .dao-proposal-content > li > h2 + p + ul > li {display: flex; justify-content: space-between; align-items: center; width: 100%; height: 50px; padding: 16px 24px; box-sizing: border-box; border-bottom: 1px solid #EFEFEF; font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px;}
+.dao-proposal-list .dao-proposal-content > li > h2 + p + ul > li {display: flex; justify-content: space-between; align-items: center; width: 100%; height: 50px; padding: 16px 24px; box-sizing: border-box; border-bottom: 1px solid #EFEFEF; font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color:#666;}
+.dao-proposal-list .dao-proposal-content > li > h2 + p + ul > li.winnerAnswer {background-color: #FDD22C; color:#000;}
+.dao-proposal-list .dao-proposal-content > li > h2 + p + ul > li.drawAnswer {background-color: #F5FFF6; color:#000;}
 .dao-proposal-list .dao-proposal-content > li > h2 + p + ul > li:last-child {border-bottom: none;}
 
 /* Proposal-Footer */
@@ -261,13 +263,17 @@
 .proposal-view-desc > p {font-family: 'Pretendard'; font-weight: 300; font-size: 16px; line-height: 24px; margin-bottom: 24px; color:#000;}
 .proposal-view-desc > p.closed {display:-webkit-box;  -webkit-line-clamp:16; -webkit-box-orient:vertical; text-overflow:ellipsis; overflow:hidden;}
 .proposal-view-desc > button {width: 100%; height:40px; border: 1px solid #EFEFEF; border-radius: 20px; font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color: #949494;}
+.proposal-answer {margin-bottom: 40px;}
 .proposal-answer > h3 {font-family: 'Pretendard'; font-weight: 700; font-size: 14px; line-height: 22px; color:#000; margin-bottom:16px;}
 .proposal-answer > ul {border: 1px solid #EFEFEF; border-radius: 4px; margin-bottom: 16px;}
 .proposal-answer > ul > li {width: 100%; height: 50px; display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #EFEFEF; cursor: pointer;}
 .proposal-answer > ul > li:last-child {border-bottom: none;}
 .proposal-answer > ul > li:hover {background-color: #FDD22C;}
+.proposal-answer > ul.closeQuest > li:hover {background-color: #FFF; cursor: default;}
+.proposal-answer > ul.closeQuest > li.winnerAnswer {background-color: #FDD22C; color:#000;}
+.proposal-answer > ul.closeQuest > li.drawAnswer {background-color: #F5FFF6; color:#000;}
 .proposal-answer > ul > li > p {font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color: #000;}
-.proposal-answer > button {width: 100%; height: 56px; border-radius: 4px; background-color: #000; color: #fff; font-family: 'Pretendard'; font-weight: 300; font-size: 16px; line-height: 24px; margin-bottom: 40px; cursor: pointer;}
+.proposal-answer > button {width: 100%; height: 56px; border-radius: 4px; background-color: #000; color: #fff; font-family: 'Pretendard'; font-weight: 300; font-size: 16px; line-height: 24px; cursor: pointer;}
 .proposal-votelist > h3 {font-family: 'Pretendard'; font-weight: 700; font-size: 14px; line-height: 22px; color:#000; margin-bottom:16px;}
 .proposal-votelist > ul > li {display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EFEFEF; padding: 12px 0;}
 .proposal-votelist > ul > li > p {font-family: 'Pretendard'; font-weight: 300; font-size: 14px; line-height: 22px; color: #000; display: flex; justify-content: center; align-items: center; width: 30%;}
