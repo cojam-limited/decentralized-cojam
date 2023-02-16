@@ -11,12 +11,6 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
   const walletData = sessionStorage.getItem('data/wallet');
 
-  useEffect(async () => {
-    const accounts = await window.klaytn.enable();
-    const nowAccount = accounts[0];
-    setAccount(nowAccount)
-  }, []);
-
   window.klaytn.on('accountsChanged', (accounts) => {
     setAccount(accounts[0]);
   });
@@ -28,8 +22,12 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   }
 
   useEffect(async () => {
+    console.log(await window.klaytn._kaikas.isUnlocked())
+  }, [])
+
+  useEffect(async () => {
     try {
-      if(account) {
+      if(!account) {
         if(!walletData || walletData === '{"account":"","type":""}') {
           toastNotify({
             state: 'error',
@@ -38,22 +36,19 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
           history.push('/');
           return;
         }
-        
-        if(await window.klaytn._kaikas.isUnlocked() === false) {
-          toastNotify({
-            state: 'error',
-            message: 'Please Unlock Your Wallet Account.',
-          })
-          history.push('/');
-          return;
-        }
+      }
 
+      if(account) {
         if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
           toastNotify({
             state: 'success',
             message: `Success Login Admin Account\n"${account}"`,
           });
           return;
+        }
+
+        if(await window.klaytn._kaikas.isUnlocked() === false) {
+          await window.klaytn.enable();
         }
 
         const balance = await NftContract().methods.balanceOf(account).call();

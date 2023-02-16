@@ -10,12 +10,7 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   const title = titleArray.includes('Proposals') ? 'Proposals' : titleArray.includes('VotingHistory') ? 'Voting History' : 'Reward History';
   const history = useHistory();
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
-
-  useEffect(async () => {
-    const accounts = await window.klaytn.enable();
-    const nowAccount = accounts[0];
-    setAccount(nowAccount)
-  }, []);
+  const walletData = sessionStorage.getItem('data/wallet');
 
   window.klaytn.on('accountsChanged', (accounts) => {
     setAccount(accounts[0]);
@@ -32,6 +27,17 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   }
 
   useEffect(async () => {
+    if(!account) {
+      if(!walletData || walletData === '{"account":"","type":""}') {
+        toastNotify({
+          state: 'error',
+          message: 'Please Login First from the Main page.',
+        })
+        history.push('/');
+        return;
+      }
+    }
+
     if(account){
       try {
         if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
@@ -40,6 +46,10 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
             message: `Success Login Admin Account\n"${account}"`,
           });
           return;
+        }
+
+        if(await window.klaytn._kaikas.isUnlocked() === false) {
+          await window.klaytn.enable();
         }
   
         const balance = await NftContract().methods.balanceOf(account).call();
@@ -52,7 +62,7 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
           return;
         }
     
-        if(account) {
+        if(account !== undefined || account !== null) {
           toastNotify({
             state: 'success',
             message: `Success Login Account\n"${account}"`,

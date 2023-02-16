@@ -105,7 +105,6 @@ const view = (props) => {
         setNotData(true);
         setLoading(false)
       }
-      console.log(votelist)
       setVoteList(prev => {
         return [...prev, ...votelist]
       })

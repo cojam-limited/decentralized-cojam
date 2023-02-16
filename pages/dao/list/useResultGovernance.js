@@ -4,8 +4,8 @@ import Moment from 'moment';
 import toastNotify from '@utils/toast';
 import Web3 from "web3";
 
-export const resultGovernance = async (level, _id, diff, answerKey, list, setSelectLevel, setMakeSelect) => {
-  console.log(list);
+export const resultGovernance = async (level, _id, diff, answerKey, list, setSelectLevel, setMakeSelect, voteMinOrMax) => {
+  console.log(voteMinOrMax);
   const web3 = new Web3(window.klaytn);
 
   const accounts = await window.klaytn.enable()
@@ -24,10 +24,12 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
   const creatorFeePercentage = list.quest.creatorFee;
   const cojamFeePercentage = list.quest.cojamFee;
   const charityFeePercentage = list.quest.charityFee;
+  const MaxVote = voteMinOrMax !== {} ? Number(voteMinOrMax.maxVote) : 0;
+  const MinVote = voteMinOrMax !== {} ? Number(voteMinOrMax.minVote) : 0;
 
   try {
-    if(diff < 0) {
-      if(totalVote < 10) {
+    if(diff < 0 || totalVote <= MaxVote) {
+      if(totalVote < MinVote) {
         try {
           if(level === 'draft') {
             const receipt = await GovernanceContract().methods.cancelQuest(questKey).send({from : account})
@@ -71,7 +73,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
       }
 
       if(level === 'draft' || level === 'success') {
-        if(totalVote >= 10 && agreeVote === disagreeVote) {
+        if(totalVote >= MinVote && agreeVote === disagreeVote) {
           try {
             setSelectLevel({level: level, _id: _id})
             setMakeSelect(true);
@@ -88,7 +90,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
         }
       }
       
-      if(totalVote >= 10) {
+      if(totalVote >= MinVote) {
         const answerKeyQuery = `*[_type == 'questAnswerList' && questKey == ${questKey} && _id != '${Date.now()}']`;
         const answerKeyList = [];
         await client.fetch(answerKeyQuery).then((answers) => {
@@ -99,6 +101,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
 
         try {
           if(level === 'draft') {
+            console.log('draft')
             const receipt = await GovernanceContract().methods.setQuestResult(questKey).send({from : account, gas: 500000})
             console.log('setQuest', receipt);
             if(receipt.events.QuestResult.returnValues.result === 'approve') {

@@ -10,7 +10,7 @@ export const Proposal = {
             description: description,
             options: options,
             creator: creator,
-            endTime: setEndTime(1)
+            endTime: setEndTime(0)
         }
         const proposal = await client.create(doc);
         //create proposal options constraint key with proposal_id
@@ -206,7 +206,7 @@ export const Proposal = {
                 dateTime(_createdAt) < dateTime('${lastCreatedAt}') ||
                 (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > '${lastId}')
             )
-        ]| order(_id)[0..4]
+        ]| order(_createdAt desc)
         {
             _id,
             _createdAt,

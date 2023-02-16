@@ -35,11 +35,11 @@ function Index(props) {
 	const [ answerHistory, setAnswerHistory ] = useState('All');
 	const [ notData, setNotData ] = useState(false);
 	const [ nowTime, setNowTime ] = useState(new Date());
-	// useEffect(async () => {
-  //   setInterval(() => {
-  //     setNowTime(new Date())
-  //   }, 1000)
-  // }, [])
+	useEffect(async () => {
+    setInterval(() => {
+      setNowTime(new Date())
+    }, 1000)
+  }, [])
 
 	const answerList = [
     {title: 'Approve', level: 'draft'},
@@ -95,16 +95,13 @@ function Index(props) {
 
   const obsHandler = async (entries) => {
     const target = entries[0];
-		console.log(target)
 		if (target.isIntersecting) {
 			setPage(prev => prev + 1);
 		}
   }
-	console.log(page)
 
   const getQuestList = async () => {
 		const {lastValue, lastId} = lastElementsForPage(voteList, `_createdAt`)
-		console.log(lastValue, lastId)
 		await callDetailListQuery(questId, setVoteList, setLoading, lastValue, lastId, setNotData)
   }
 

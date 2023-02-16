@@ -7,6 +7,7 @@ import { Proposal } from '../../../studio/src/actions/proposalActions'
 import { client } from "../../../sanity";
 import { setProposal } from '../../../api/UseWeb3';
 import { lastElementsForPage } from "../../../studio/src/maker"
+import toastNotify from '@utils/toast';
 
 function Index() {
   const { setLoading } = useLoadingState();
@@ -17,6 +18,7 @@ function Index() {
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
   const [ nowTime, setNowTime ] = useState(new Date());
   const [ notData, setNotData ] = useState(false);
+  const [ render, setRender ] = useState(false);
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
   // useEffect(async () => {
   //   setInterval(() => {
@@ -49,11 +51,11 @@ function Index() {
       setData(data);
     }
     setLoading(false);
-  }, [activeCategory])
+  }, [activeCategory, render])
 
   const clickHandler = async (list, diff, totalAmount, resultVote) => {
     if(diff < 0 && amdinContractAddress.toLowerCase() === newAccount.toLowerCase() && list.proposalTxHash === null) {
-      console.log(resultVote)
+      setLoading(true)
       const finalTitle = resultVote[0].option
       const finalVote = resultVote[0].total
       try {
@@ -81,6 +83,12 @@ function Index() {
         console.log(data);
         const result = await setProposal(data)
         await client.patch(list._id).set({proposalTxHash: result.transactionHash}).commit();
+        setRender(!render)
+        setLoading(false)
+        toastNotify({
+          state: 'success',
+          message: 'Success Finish Result.',
+        });
         return;
       } catch (err) {
         console.error(err)

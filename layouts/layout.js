@@ -15,7 +15,7 @@ import { NftContract } from "../pages/dao/contractHelper";
 
 const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeedNftModal }) => {
   const [ loading, setLoading ] = useState(false);
-  const [ account, setAccount ] = useState('');
+  const [ account, setAccount ] = useState(window?.klaytn?.selectedAddress);
   const [ totalNft, setTotalNft ] = useState(0);
 
   const path = window.location.pathname;
@@ -37,7 +37,6 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
 
   useEffect(async () => {
     if(account) {
-      console.log('account', account)
       try {
         const balance = await NftContract().methods.balanceOf(account).call();
         setTotalNft(balance)

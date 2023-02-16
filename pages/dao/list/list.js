@@ -19,6 +19,7 @@ import { questEndTime } from "../list/useQuestEndTime"
 import { answerConfirm } from "../list/useAnswerConfirm"
 import { makeConfirm } from "../list/useMakeConfirm"
 import { cancelConfirm } from "../list/useCancelConfirm"
+import { voteCount } from "./useVoteCount";
 import { callQuestQuery, callQuestListQuery, callAdminQuery } from "../list/sanityQuery/useQuery"
 import { lastElementsForPage } from "../../../studio/src/maker"
 
@@ -37,12 +38,13 @@ function Index() {
   const [ selectedAnswer, setSelectedAnswer] = useState();
   const [ makeSelect, setMakeSelect ] = useState(false);
   const [ selectLevel, setSelectLevel ] = useState('');
-  const [notData, setNotData] = useState(false);
-  // useEffect(async () => {
-  //   setInterval(() => {
-  //     setNowTime(new Date())
-  //   }, 1000)
-  // }, [])
+  const [ notData, setNotData ] = useState(false);
+  const [ voteMinOrMax, setVoteMinOrMax ] = useState({});
+  useEffect(async () => {
+    setInterval(() => {
+      setNowTime(new Date())
+    }, 1000)
+  }, [])
 
   const categories = [
     {CategoryName: 'draft'},
@@ -65,6 +67,8 @@ function Index() {
   useEffect(async () => {
     // GovernanceItem list 조회
     callQuestQuery(setListData, setLoading, activeCategory, setNotData)
+    const vote = await voteCount();
+    setVoteMinOrMax(vote);
   }, [activeCategory, newAccount, render])
 
   useEffect(() => {
@@ -80,7 +84,7 @@ function Index() {
 
   const ResultHandler = async (level, _id, diff, answerKey, list) => {
     setLoading(true);
-    await resultGovernance(level, _id, diff, answerKey, list, setSelectLevel, setMakeSelect)
+    await resultGovernance(level, _id, diff, answerKey, list, setSelectLevel, setMakeSelect, voteMinOrMax)
     setRender(!render);
     setLoading(false);
   }
@@ -149,6 +153,8 @@ function Index() {
     }
   }, [page])
 
+  const MaxVote = voteMinOrMax !== {} ? Number(voteMinOrMax.maxVote) : 0;
+
   return (
     <div className="bg-quest">
       <div className="dao-container" style={{paddingBottom: '0'}}>
@@ -213,7 +219,7 @@ function Index() {
                       </div>
                       <div className='endtime'>
                         {
-                          (totalAmount < 5000 && diff > 0) ? (<div>{diffHour > 9 ? diffHour : '0' + diffHour}:{diffMin > 9 ? diffMin : '0' + diffMin}:{diffSec > 9 ? diffSec : '0' + diffSec}</div>) : (<div className='closed'>Closed</div>)
+                          (totalAmount < MaxVote && diff > 0) ? (<div>{diffHour > 9 ? diffHour : '0' + diffHour}:{diffMin > 9 ? diffMin : '0' + diffMin}:{diffSec > 9 ? diffSec : '0' + diffSec}</div>) : (<div className='closed'>Closed</div>)
                         }
                       </div>
                     </h2>
@@ -221,8 +227,6 @@ function Index() {
                         let isLogin = false;
 
                         await checkLogin(walletData).then((res) => {
-                          console.log('checkLogin', res);
-
                           isLogin = res;
 
                           if(!isLogin) {
@@ -306,7 +310,7 @@ function Index() {
                         (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
                         (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
                         (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ||
-                        diff < 0 || totalAmount >= 5000) ? 'vote-finish' : ''}`
+                        diff < 0 || totalAmount >= MaxVote) ? 'vote-finish' : ''}`
                     }>
                       <div>Would you like to vote for the Quest {category}?</div>
                       <div>
@@ -353,7 +357,7 @@ function Index() {
                                       (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
                                       (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
                                       (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ||
-                                      diff < 0 || totalAmount >= 5000 ? true : false
+                                      diff < 0 || totalAmount >= MaxVote ? true : false
                                     }
                                   >
                                     {answer.title}
@@ -380,7 +384,7 @@ function Index() {
                         ) : (null)
                       }
                       {
-                        adminAddressDB === newAccount && (diff < 0 || totalAmount >= 5000) ?
+                        adminAddressDB === newAccount && (diff < 0 || totalAmount >= MaxVote) ?
                         (
                           list.level === "answer" ? (
                             <>
@@ -409,7 +413,7 @@ function Index() {
                         (null)
                       }
                       {
-                        adminAddressDB !== newAccount && (diff < 0 || totalAmount >= 5000) ?
+                        adminAddressDB !== newAccount && (diff < 0 || totalAmount >= MaxVote) ?
                         (
                           <div className='vote-alarm'>
                             <p>QUEST CLOSED</p>
