@@ -2,7 +2,7 @@ import { client } from "../../../../sanity";
 
 const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
 
-export const callQuestQuery = async (setListData, setLoading, activeCategory) => {
+export const callQuestQuery = async (setListData, setLoading, activeCategory, setNotData) => {
   setLoading(true);
   const accounts = await window.klaytn.enable()
   const account = accounts[0];
@@ -17,29 +17,26 @@ export const callQuestQuery = async (setListData, setLoading, activeCategory) =>
     },
   }`;
   client.fetch(governanceDraftQuery).then((governanceItem) => {
-    console.log('governance', governanceItem)
+    setNotData(false);
     setListData(governanceItem);
     setLoading(false);
-    console.log('rendering!')
   });
 }
 
-export const callQuestListQuery = async (setListData, setLoading, activeCategory, lastEndAt, lastId) => {
-  console.log('End', lastEndAt)
-  console.log('Id', lastId)
-  console.log(activeCategory)
-  setLoading(true);
+export const callQuestListQuery = async (setListData, setLoading, activeCategory, lastEndAt, lastId, setNotData) => {
   const accounts = await window.klaytn.enable()
   const account = accounts[0];
+
+  setLoading(true);
 
   if(lastEndAt !== null && lastId !== null) {
     const governanceQuery = `*[
       _type == 'governanceItem' &&
       level == '${activeCategory}' &&
       (
-        dateTime(${activeCategory}EndTime) > dateTime('${lastEndAt}') ||
-        (dateTime(${activeCategory}EndTime) == dateTime('${lastEndAt}') && _id > '${lastId}')
-      )] | order(${activeCategory}EndTime)[0..2]
+        ${activeCategory}EndTime > '${lastEndAt}' ||
+        ${activeCategory}EndTime == '${lastEndAt}' && _id > '${lastId}'
+      )] | order(${activeCategory}EndTime)[0..1]
     {
       ...,
       'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
@@ -48,14 +45,16 @@ export const callQuestListQuery = async (setListData, setLoading, activeCategory
         'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${account}' && _id != '${Date.now()}']
       },
     }`;
-    console.log(governanceQuery);
     client.fetch(governanceQuery).then((governanceItem) => {
-      console.log('new governance', governanceItem)
+      if(governanceItem.length === 0) {
+        setNotData(true);
+        setLoading(false);
+        return;
+      }
       setListData(prev => {
         return [...prev, ...governanceItem]
       });
       setLoading(false);
-      console.log('rendering!')
     });
   }
 }

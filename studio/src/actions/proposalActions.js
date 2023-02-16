@@ -159,7 +159,6 @@ export const Proposal = {
                 "options": *[_type == 'proposalOptionList' && proposalId == ^._id]| order(_createdAt)
             }
         }`
-        console.log(query);
         return await client.fetch(query);
     },
     view : async (proposalKey) => {
@@ -187,7 +186,7 @@ export const Proposal = {
             _type == 'proposalVote' &&
             proposalKey == ${proposalKey} &&
             _id != '${Date.now()}'
-        ]| order(_createdAt desc)
+        ]| order(_createdAt desc)[0..4]
         {
             _id,
             _createdAt,
@@ -207,7 +206,7 @@ export const Proposal = {
                 dateTime(_createdAt) < dateTime('${lastCreatedAt}') ||
                 (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > '${lastId}')
             )
-        ]| order(_id)[0..1]
+        ]| order(_id)[0..4]
         {
             _id,
             _createdAt,

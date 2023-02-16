@@ -37,6 +37,7 @@ function Index() {
   const [ selectedAnswer, setSelectedAnswer] = useState();
   const [ makeSelect, setMakeSelect ] = useState(false);
   const [ selectLevel, setSelectLevel ] = useState('');
+  const [notData, setNotData] = useState(false);
   // useEffect(async () => {
   //   setInterval(() => {
   //     setNowTime(new Date())
@@ -63,7 +64,7 @@ function Index() {
 
   useEffect(async () => {
     // GovernanceItem list 조회
-    callQuestQuery(setListData, setLoading, activeCategory)
+    callQuestQuery(setListData, setLoading, activeCategory, setNotData)
   }, [activeCategory, newAccount, render])
 
   useEffect(() => {
@@ -131,22 +132,21 @@ function Index() {
   }, []);
 
   const obsHandler = async (entries) => {
-    console.log('observer!')
     const target = entries[0];
-    if (target.isIntersecting) {
-      setPage(prev => prev + 1);
-    }
+      if (target.isIntersecting) {
+        setPage(prev => prev + 1);
+      }
   }
 
   const getQuestList = async () => {
-      const {lastValue, lastId} = lastElementsForPage(listData, `${activeCategory}EndTime`)
-      console.log(lastValue, lastId)
-      await callQuestListQuery(setListData, setLoading, activeCategory, lastValue, lastId)
-    // setLoading(false)
+    const {lastValue, lastId} = lastElementsForPage(listData, `${activeCategory}EndTime`)
+    await callQuestListQuery(setListData, setLoading, activeCategory, lastValue, lastId, setNotData)
   }
 
   useEffect(() => {
+    if(!notData) {
       getQuestList()
+    }
   }, [page])
 
   return (
@@ -461,7 +461,7 @@ function Index() {
               );
             })
           }
-          <div ref={obsRef} style={{width: '100%', height: '30px', background: 'red'}}></div>
+          <div ref={obsRef} style={{width: '100%'}}></div>
           {/* Quest 리스트 루프 End */}
           </ul>
         </div>

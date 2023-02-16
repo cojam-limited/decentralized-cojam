@@ -37,6 +37,7 @@
 .dao-quest-list-columns > h3 {margin:20px 0 50px 0; text-align:center; font-family: "Pretendard"; font-size:20px; line-height:28px; color:#0045f4;}
 .dao-quest-list-columns > ul {display:flex; align-items:center; flex-wrap:wrap;}
 .dao-quest-list-columns > ul > li {position:relative; width:30%; margin:0 5% 20px 0; padding:40px 24px; border:#e5e5e5 0.5px solid; background:#fff; box-shadow:0 0 10px 0 rgba(0,0,0,0.1);}
+.dao-quest-list-columns > ul > li:last-child {margin-bottom: 0;}
 .dao-quest-list-columns > ul > li > h2 {padding:5px 0; font-family: 'Pretendard'; font-size:24px; line-height:18px; color:#000; font-weight:700; display: flex; justify-content: space-between; align-items: center;}
 .dao-quest-list-columns > ul > li > h2 span {font-size:16px; font-weight:700; color:#C8C8C8; font-family: 'Pretendard';}
 .dao-quest-list-columns > ul > li > h2 div {font-family: 'Pretendard'; font-size: 24px; font-weight: 700;}
@@ -83,6 +84,7 @@
   .dao-quest-list-columns > h2 {padding-top:50px; font-family: 'Pretendard'; font-size:28px; line-height:28px;}
   .dao-quest-list-columns > h3 {margin-top:15px; font-family: 'Pretendard'; font-size:14px; line-height:20px;}
   .dao-quest-list-columns > ul > li {width:100%; margin:0 0 12px 0; padding:40px 24px;}
+  .dao-quest-list-columns > ul > li:last-child {margin-bottom: 0; background-color: black;}
   /* .dao-quest-list-columns > uldiv >  > li > div {width:102%; height:101%; margin:-20px 0 0 -20px;} */
   .dao-quest-list-columns > ul > li > h2 {padding:2px 0; font-family: 'Pretendard'; font-size:17px; line-height:17px;}
   .dao-quest-list-columns > ul > li > h2 > div {font-family: 'Pretendard';}

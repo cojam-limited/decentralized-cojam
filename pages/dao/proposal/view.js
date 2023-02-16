@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Proposal } from '../../../studio/src/actions/proposalActions'
 import { isAvailableToVote } from '../../../studio/src/service/proposalService';
 import toastNotify from '@utils/toast';
 import { useLoadingState } from "@assets/context/LoadingContext";
+import { lastElementsForPage } from '../../../studio/src/maker';
 
 const view = (props) => {
 
   const [ data, setData ] = useState();
-  const [ voteList, setVoteList ] = useState();
+  const [ voteList, setVoteList ] = useState([]);
   const [ selectAnswer, setSelectAnswer ] = useState();
   const [ showToggle, setShowToggle ] = useState(false);
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
   const [ render, setRender ] = useState(false);
   const [ totalAmount, setTotalAmount] = useState();
+  const [ notData, setNotData ] = useState(false);
   const { setLoading } = useLoadingState();
 
   window.klaytn.on('accountsChanged', (accounts) => {
@@ -26,6 +28,7 @@ const view = (props) => {
     const data = await Proposal.view(proposalKey);
     setData(data)
     const votelist = await Proposal.voteList(proposalKey);
+    setNotData(false)
     setVoteList(votelist)
     setLoading(false);
   }, [render])
@@ -74,6 +77,47 @@ const view = (props) => {
       })
     }
   }, [data])
+
+  const obsRef = useRef(null) // observer Element
+  const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(obsHandler, { threshold: 0.1 });
+    if (obsRef.current) observer.observe(obsRef.current);
+    return () => {
+      observer.disconnect();
+    }
+  }, []);
+
+  const obsHandler = async (entries) => {
+    const target = entries[0];
+		if (target.isIntersecting) {
+			setPage(prev => prev + 1);
+		}
+  }
+
+  const getVoteList = async () => {
+    setLoading(true)
+		const {lastValue, lastId} = lastElementsForPage(voteList, `_createdAt`)
+    if(lastValue !== null && lastId !== null) {
+      const votelist = await Proposal.voteListPaged(proposalKey, lastValue, lastId);
+      if(votelist.length === 0) {
+        setNotData(true);
+        setLoading(false)
+      }
+      console.log(votelist)
+      setVoteList(prev => {
+        return [...prev, ...votelist]
+      })
+      setLoading(false)
+    }
+  }
+
+	useEffect(() => {
+    if(!notData) {
+      getVoteList()
+    }
+  }, [page])
 
   const address = data?.creator;
   const skipAddress = address?.slice(0, 6) + '...' + address?.slice(-4);
@@ -169,6 +213,13 @@ const view = (props) => {
           </ul>
         </div>
       </div>
+      <div
+      ref={obsRef}
+      style={{
+        width: '100%',
+        height:'5px',
+        display: notData ? 'none' : 'block'
+      }}></div>
     </div>
   )
 }

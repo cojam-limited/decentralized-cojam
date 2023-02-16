@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom'
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -8,10 +8,12 @@ import { useLoadingState } from "@assets/context/LoadingContext";
 import 'swiper/css';
 import 'react-responsive-modal/styles.css';
 
-import { urlFor, client } from "../../../sanity";
+import { urlFor } from "../../../sanity";
 
 import toastNotify from '@utils/toast';
 import { Icon } from '@iconify/react';
+import { callDetailQuery, callDetailListQuery } from './sanityQuery/useQuery'
+import { lastElementsForPage } from '../../../studio/src/maker';
 
 function Index(props) {
 	const history = useHistory();
@@ -29,14 +31,15 @@ function Index(props) {
 	const [ selectedAnswer, setSelectedAnswer ] = useState();
 	const [ questId ] = useState(props?.location?.state?.questId);
 	const [ item, setItem ] = useState();
-	const [ voteList, setVoteList ] = useState();
+	const [ voteList, setVoteList ] = useState([]);
 	const [ answerHistory, setAnswerHistory ] = useState('All');
+	const [ notData, setNotData ] = useState(false);
 	const [ nowTime, setNowTime ] = useState(new Date());
-	useEffect(async () => {
-    setInterval(() => {
-      setNowTime(new Date())
-    }, 1000)
-  }, [])
+	// useEffect(async () => {
+  //   setInterval(() => {
+  //     setNowTime(new Date())
+  //   }, 1000)
+  // }, [])
 
 	const answerList = [
     {title: 'Approve', level: 'draft'},
@@ -47,38 +50,8 @@ function Index(props) {
 		{title: 'Done', level: 'done'},
   ];
 
-	useEffect(() => {
-		setLoading(true);
-		/**
-		 * Quest 리스트 & 데이터 조회
-		 */
-		if(!questId) {
-			toastNotify({
-				state: 'error',
-				message: 'error. pick the quest again. please',
-			});
-
-			setLoading(false);
-			return;
-		}
-
-		const governanceItemQuery = `*[_type == 'governanceItem' && references('${questId}') && _id != '${Date.now()}']
-    {
-      ...,
-      'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
-        ...,
-        'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey}
-      },
-    }`;
-		client.fetch(governanceItemQuery).then((item) => {
-			setItem(item[0]);
-		})
-
-		const answerListQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${questId}' && _id != '${Date.now()}']`
-		client.fetch(answerListQuery).then((answer) => {
-			setVoteList(answer);
-			setLoading(false);
-		})
+	useEffect(async () => {
+		await callDetailQuery(questId, setItem, setVoteList, setLoading, setNotData)
 	}, []);
 
 	const level = item?.level === 'draft' ? 'Draft' : item?.level === 'success' ? 'Success' : item?.level === 'answer' ? 'Answer' : item?.level;
@@ -108,6 +81,38 @@ function Index(props) {
 	const goBackHandler = () => {
     history.goBack();
   }
+
+	const obsRef = useRef(null) // observer Element
+  const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(obsHandler, { threshold: 0.6 });
+    if (obsRef.current) observer.observe(obsRef.current);
+    return () => {
+      observer.disconnect();
+    }
+  }, []);
+
+  const obsHandler = async (entries) => {
+    const target = entries[0];
+		console.log(target)
+		if (target.isIntersecting) {
+			setPage(prev => prev + 1);
+		}
+  }
+	console.log(page)
+
+  const getQuestList = async () => {
+		const {lastValue, lastId} = lastElementsForPage(voteList, `_createdAt`)
+		console.log(lastValue, lastId)
+		await callDetailListQuery(questId, setVoteList, setLoading, lastValue, lastId, setNotData)
+  }
+
+	useEffect(() => {
+    if(!notData) {
+      getQuestList()
+    }
+  }, [page])
 
   return (
 		<div>
@@ -281,6 +286,13 @@ function Index(props) {
 				</div>
 				{/* 상세 끝 */}
 			</div>
+			<div
+				ref={obsRef}
+				style={{
+					width: '100%',
+					height:'5px',
+					display: notData ? 'none' : 'block',
+				}}></div>
     </div>
   );
 }

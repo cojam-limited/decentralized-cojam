@@ -16,6 +16,7 @@ function Index() {
   const [ data, setData ] = useState([]);
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
   const [ nowTime, setNowTime ] = useState(new Date());
+  const [ notData, setNotData ] = useState(false);
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
   // useEffect(async () => {
   //   setInterval(() => {
@@ -36,12 +37,15 @@ function Index() {
     setLoading(true);
     if(activeCategory === 'All') {
       const data = await Proposal.listAll()
+      setNotData(false);
       setData(data);
     } else if(activeCategory === 'Active') {
       const data = await Proposal.listOpen()
+      setNotData(false);
       setData(data);
     } else if(activeCategory === 'Closed') {
       const data = await Proposal.listClosed()
+      setNotData(false);
       setData(data);
     }
     setLoading(false);
@@ -119,32 +123,55 @@ function Index() {
     setLoading(true)
     if(activeCategory === 'All') {
       const {lastValue, lastId} = lastElementsForPage(data, '_createdAt')
-      const loadingList = await Proposal.listAllPaged(lastValue, lastId)
-      setData(prev => {
-        return [...prev, ...loadingList]
-      })
+      if(lastValue !== null && lastId !== null) {
+        const loadingList = await Proposal.listAllPaged(lastValue, lastId)
+        if(loadingList.length === 0) {
+          setNotData(true);
+          setLoading(false);
+          return;
+        }
+        setData(prev => {
+          return [...prev, ...loadingList]
+        })
+      }
     }
 
     if(activeCategory === 'Active') {
       const {lastValue, lastId} = lastElementsForPage(data, 'endTime')
-      const loadingList = await Proposal.listOpenPaged(lastValue, lastId)
-      setData(prev => {
-        return [...prev, ...loadingList]
-      })
+      if(lastValue !== null && lastId !== null) {
+        const loadingList = await Proposal.listOpenPaged(lastValue, lastId)
+        if(loadingList.length === 0) {
+          setNotData(true);
+          setLoading(false);
+          return;
+        }
+        setData(prev => {
+          return [...prev, ...loadingList]
+        })
+      }
     }
 
     if(activeCategory === 'Closed') {
       const {lastValue, lastId} = lastElementsForPage(data, '_createdAt')
-      const loadingList = await Proposal.listClosedPaged(lastValue, lastId)
-      setData(prev => {
-        return [...prev, ...loadingList]
-      })
+      if(lastValue !== null && lastId !== null) {
+        const loadingList = await Proposal.listClosedPaged(lastValue, lastId)
+        if(loadingList.length === 0) {
+          setNotData(true);
+          setLoading(false);
+          return;
+        }
+        setData(prev => {
+          return [...prev, ...loadingList]
+        })
+      }
     }
     setLoading(false)
   }
 
   useEffect(() => {
+    if(!notData) {
       getQuestList()
+    }
   }, [page])
 
   const totalCount = data.length;
