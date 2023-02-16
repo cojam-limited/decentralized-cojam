@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
-
-import Moment from 'moment';
 
 import "react-datepicker/dist/react-datepicker.css";
 
 import { urlFor, client } from "../../../sanity";
 import { useLoadingState } from "@assets/context/LoadingContext";
-import Pagination from "react-sanity-pagination";
 import { GovernanceContract } from "../contractHelper";
 
 import toastNotify from '@utils/toast';
@@ -15,22 +11,12 @@ import toastNotify from '@utils/toast';
 function Index() {
 
   const { setLoading } = useLoadingState();
-  const history = useHistory();
 
   const [ dataList, setDataList ] = useState([]);
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
   const [ checkList, setCheckList ] = useState([]);
   const [ checkedAll, setCheckedAll ] = useState(false);
   const [ render, setRender ] = useState(false);
-
-	// pagenation settings
-	let postsPerPage = 6;
-	const [ items, setItems ] = useState([]);
-	const [ itemsToSend, setItemsToSend ] = useState([]);
-
-  const action = (page, range, items) => {
-		setItems(items);
-	};
 
   // klaytn Account Change 감지
   window.klaytn.on('accountsChanged', (accounts) => {
@@ -257,21 +243,6 @@ function Index() {
         </div>
         {/* 리스트 끝 */}
 
-        {/* 페이지네이션 */}
-				{
-          itemsToSend.length > 0 && 
-          <Pagination
-						nextButton={true}
-						prevButton={true}
-						nextButtonLabel={">"}
-						prevButtonLabel={"<"}
-						items={itemsToSend}
-						action={action}
-						postsPerPage={postsPerPage}
-				  />
-        }
-				{/* 페이지네이션 끝 */}
-
         {/* Proposal-footer Start */}
         {
           activateDelete ? (
@@ -288,12 +259,6 @@ function Index() {
       </div>
     </div>
   )
-}
-
-function addComma(data) {
-  if(!data) return 0;
-
-	return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 export default Index;

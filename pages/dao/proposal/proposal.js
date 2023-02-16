@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 
 import { useLoadingState } from "@assets/context/LoadingContext";
-import Pagination from "react-sanity-pagination";
 
 import { Proposal } from '../../../studio/src/actions/proposalActions'
 import { client } from "../../../sanity";

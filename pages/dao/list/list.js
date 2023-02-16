@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -19,7 +19,8 @@ import { questEndTime } from "../list/useQuestEndTime"
 import { answerConfirm } from "../list/useAnswerConfirm"
 import { makeConfirm } from "../list/useMakeConfirm"
 import { cancelConfirm } from "../list/useCancelConfirm"
-import { callQuestQuery, callAdminQuery } from "../list/sanityQuery/useQuery"
+import { callQuestQuery, callQuestListQuery, callAdminQuery } from "../list/sanityQuery/useQuery"
+import { lastElementsForPage } from "../../../studio/src/maker"
 
 function Index() {
   const { walletData } = useWalletData();
@@ -36,11 +37,11 @@ function Index() {
   const [ selectedAnswer, setSelectedAnswer] = useState();
   const [ makeSelect, setMakeSelect ] = useState(false);
   const [ selectLevel, setSelectLevel ] = useState('');
-  useEffect(async () => {
-    setInterval(() => {
-      setNowTime(new Date())
-    }, 1000)
-  }, [])
+  // useEffect(async () => {
+  //   setInterval(() => {
+  //     setNowTime(new Date())
+  //   }, 1000)
+  // }, [])
 
   const categories = [
     {CategoryName: 'draft'},
@@ -117,6 +118,36 @@ function Index() {
     const governanceId = list._id
     await cancelConfirm(diff, governanceId, questKey, questId, setLoading, render, setRender);
   }
+
+  const obsRef = useRef(null) // observer Element
+  const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(obsHandler, { threshold: 0.6 });
+    if (obsRef.current) observer.observe(obsRef.current);
+    return () => {
+      observer.disconnect();
+    }
+  }, []);
+
+  const obsHandler = async (entries) => {
+    console.log('observer!')
+    const target = entries[0];
+    if (target.isIntersecting) {
+      setPage(prev => prev + 1);
+    }
+  }
+
+  const getQuestList = async () => {
+      const {lastValue, lastId} = lastElementsForPage(listData, `${activeCategory}EndTime`)
+      console.log(lastValue, lastId)
+      await callQuestListQuery(setListData, setLoading, activeCategory, lastValue, lastId)
+    // setLoading(false)
+  }
+
+  useEffect(() => {
+      getQuestList()
+  }, [page])
 
   return (
     <div className="bg-quest">
@@ -430,6 +461,7 @@ function Index() {
               );
             })
           }
+          <div ref={obsRef} style={{width: '100%', height: '30px', background: 'red'}}></div>
           {/* Quest 리스트 루프 End */}
           </ul>
         </div>

@@ -159,6 +159,7 @@ export const Proposal = {
                 "options": *[_type == 'proposalOptionList' && proposalId == ^._id]| order(_createdAt)
             }
         }`
+        console.log(query);
         return await client.fetch(query);
     },
     view : async (proposalKey) => {

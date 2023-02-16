@@ -7,7 +7,7 @@ export const callQuestQuery = async (setListData, setLoading, activeCategory) =>
   const accounts = await window.klaytn.enable()
   const account = accounts[0];
 
-  const governanceDraftQuery = `*[_type == 'governanceItem' && level == '${activeCategory}' && _id != '${Date.now()}'] | order(${activeCategory}EndTime)
+  const governanceDraftQuery = `*[_type == 'governanceItem' && level == '${activeCategory}' && _id != '${Date.now()}'] | order(${activeCategory}EndTime)[0..1]
   {
     ...,
     'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
@@ -17,11 +17,47 @@ export const callQuestQuery = async (setListData, setLoading, activeCategory) =>
     },
   }`;
   client.fetch(governanceDraftQuery).then((governanceItem) => {
-    console.log(governanceItem)
+    console.log('governance', governanceItem)
     setListData(governanceItem);
     setLoading(false);
     console.log('rendering!')
   });
+}
+
+export const callQuestListQuery = async (setListData, setLoading, activeCategory, lastEndAt, lastId) => {
+  console.log('End', lastEndAt)
+  console.log('Id', lastId)
+  console.log(activeCategory)
+  setLoading(true);
+  const accounts = await window.klaytn.enable()
+  const account = accounts[0];
+
+  if(lastEndAt !== null && lastId !== null) {
+    const governanceQuery = `*[
+      _type == 'governanceItem' &&
+      level == '${activeCategory}' &&
+      (
+        dateTime(${activeCategory}EndTime) > dateTime('${lastEndAt}') ||
+        (dateTime(${activeCategory}EndTime) == dateTime('${lastEndAt}') && _id > '${lastId}')
+      )] | order(${activeCategory}EndTime)[0..2]
+    {
+      ...,
+      'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
+        ...,
+        'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey},
+        'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${account}' && _id != '${Date.now()}']
+      },
+    }`;
+    console.log(governanceQuery);
+    client.fetch(governanceQuery).then((governanceItem) => {
+      console.log('new governance', governanceItem)
+      setListData(prev => {
+        return [...prev, ...governanceItem]
+      });
+      setLoading(false);
+      console.log('rendering!')
+    });
+  }
 }
 
 export const callAdminQuery = async (setAdminAddressDB) => {
