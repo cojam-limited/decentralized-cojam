@@ -27,15 +27,18 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   }
 
   useEffect(async () => {
-    if(!account) {
-      if(!walletData || walletData === '{"account":"","type":""}') {
-        toastNotify({
-          state: 'error',
-          message: 'Please Login First from the Main page.',
-        })
-        history.push('/');
-        return;
-      }
+    if(!walletData || walletData === '{"account":"","type":""}') {
+      toastNotify({
+        state: 'error',
+        message: 'Please Login First from the Main page.',
+      })
+      history.push('/');
+      return;
+    }
+
+    if(await window.klaytn._kaikas.isUnlocked() === false) {
+      const accounts = await window.klaytn.enable();
+      setAccount(accounts[0]);
     }
 
     if(account){
@@ -46,10 +49,6 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
             message: `Success Login Admin Account\n"${account}"`,
           });
           return;
-        }
-
-        if(await window.klaytn._kaikas.isUnlocked() === false) {
-          await window.klaytn.enable();
         }
   
         const balance = await NftContract().methods.balanceOf(account).call();
