@@ -16,6 +16,8 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
     setAccount(accounts[0]);
   });
 
+  console.log(account)
+
   const OpenMyPageHandler = () => {
     if (toggleMyPage === false) {
       setToggleMyPage(true);
@@ -35,6 +37,11 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
         })
         history.push('/');
         return;
+      }
+
+      if(window.klaytn.selectedAddress === undefined) {
+        const accounts = await window.klaytn.enable();
+        setAccount(accounts[0]);
       }
 
       if(await window.klaytn._kaikas.isUnlocked() === false) {
