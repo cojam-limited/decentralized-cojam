@@ -22,10 +22,6 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   }
 
   useEffect(async () => {
-    console.log(await window.klaytn._kaikas.isUnlocked())
-  }, [])
-
-  useEffect(async () => {
     try {
       if(!walletData || walletData === '{"account":"","type":""}') {
         toastNotify({

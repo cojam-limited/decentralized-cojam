@@ -27,22 +27,22 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
   }
 
   useEffect(async () => {
-    if(!walletData || walletData === '{"account":"","type":""}') {
-      toastNotify({
-        state: 'error',
-        message: 'Please Login First from the Main page.',
-      })
-      history.push('/');
-      return;
-    }
+    try {
+      if(!walletData || walletData === '{"account":"","type":""}') {
+        toastNotify({
+          state: 'error',
+          message: 'Please Login First from the Main page.',
+        })
+        history.push('/');
+        return;
+      }
 
-    if(await window.klaytn._kaikas.isUnlocked() === false) {
-      const accounts = await window.klaytn.enable();
-      setAccount(accounts[0]);
-    }
+      if(await window.klaytn._kaikas.isUnlocked() === false) {
+        const accounts = await window.klaytn.enable();
+        setAccount(accounts[0]);
+      }
 
-    if(account){
-      try {
+      if(account){
         if(account?.toLowerCase() === amdinContractAddress?.toLowerCase()) {
           toastNotify({
             state: 'success',
@@ -67,9 +67,9 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
             message: `Success Login Account\n"${account}"`,
           });
         }
-      } catch(err) {
-        console.error(err)
       }
+    } catch(err) {
+      console.error(err)
     }
   }, [account])
 
