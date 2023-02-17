@@ -54,13 +54,11 @@ function Index() {
   }, [activeCategory, render])
 
   const clickHandler = async (list, diff, totalAmount, resultVote) => {
-    console.log('click', newAccount)
-    if(window.klaytn.selectedAddress === undefined) {
-      const accounts = await window.klaytn.enable();
-      setNewAccount(accounts[0]);
-    }
+    const accounts = await window.klaytn.enable();
+    const account = accounts[0]
+    setNewAccount(account);
 
-    if(diff < 0 && amdinContractAddress.toLowerCase() === newAccount.toLowerCase() && list.proposalTxHash === null) {
+    if(diff < 0 && amdinContractAddress.toLowerCase() === account.toLowerCase() && list.proposalTxHash === null) {
       setLoading(true)
       const finalTitle = resultVote[0].option
       const finalVote = resultVote[0].total
