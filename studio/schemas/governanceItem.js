@@ -71,6 +71,21 @@ export default {
       type: "number"
     },
     {
+      name: "draftResult",
+      title: "Draft Result",
+      type: "string"
+    },
+    {
+      name: "successResult",
+      title: "Success Result",
+      type: "string"
+    },
+    {
+      name: "answerResult",
+      title: "Answer Result",
+      type: "string"
+    },
+    {
       name: "reward",
       title: "Reward",
       type: "number"
