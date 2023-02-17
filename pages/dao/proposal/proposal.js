@@ -54,6 +54,7 @@ function Index() {
   }, [activeCategory, render])
 
   const clickHandler = async (list, diff, totalAmount, resultVote) => {
+    console.log('click', newAccount)
     if(window.klaytn.selectedAddress === undefined) {
       const accounts = await window.klaytn.enable();
       setNewAccount(accounts[0]);

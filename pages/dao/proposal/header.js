@@ -16,7 +16,7 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
     setAccount(accounts[0]);
   });
 
-  console.log(account)
+  console.log('header', account)
 
   const OpenMyPageHandler = () => {
     if (toggleMyPage === false) {
