@@ -233,28 +233,18 @@ html {
 }
 
 /* DAO 본문영역 */
-.dao-container {width:1300px; margin:0px auto; overflow:hidden; background-color: #F5F5F5; padding-bottom:40px;}
+.dao-container {max-width:400px; margin:0px auto; overflow:hidden; background-color: #F5F5F5; padding-bottom:48px;}
 .dao-container.proposal {background-color:#fff;}
+.dao-container.reward {background-color:#fff; padding-bottom: 0;}
 
-.dao-container-top-round {width:1300px; margin:0 auto; padding:50px 40px 70px 40px; border-top-left-radius:20px; border-top-right-radius:20px; background:#fff; overflow:hidden;}
-
-@media all and (max-width:479px) {
-  .dao-container {width:100%;}
-  .dao-container-top-round {width:100%; padding:35px 20px 30px 20px;}
-  .dao-container-main {width:100%; padding:0 20px 50px 20px;}
+@media all and (max-width:400px) {
+  /* .dao-container {width:100%;} */
 }
 @media all and (min-width:480px) and (max-width:767px) {
-  .dao-container {width:470px;}
-  .dao-container-top-round {width:470px; padding:35px 20px 30px 20px;}
-  .dao-container-main {width:100%; padding:0 20px 50px 20px;}
 }
 @media all and (min-width:768px) and (max-width:991px) {
-  .dao-container {width:750px;}
-  .dao-container-top-round {width:750px; padding:35px 20px 30px 20px;}
 }
 @media all and (min-width:992px) and (max-width:1299px) {
-  .dao-container {width:1024px;}
-  .dao-container-top-round {width:1024px;}
 }
 @media all and (min-width:1300px) {
 

@@ -49,37 +49,17 @@ function Index() {
 	}
 
   return (
-		<div
-			className="bg-service"
-			style={{
-				background: `${bannerImage && `url(${urlFor(bannerImage)})`} center -170px no-repeat, #fff`,
-				width: '100vw',
-				height: '85%',
-				display: 'flex',
-				flexDirection: 'column',
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}>			
+		<div>
 			<div
-				className="title-area"
+				className="dao-bg-service"
 				style={{
-					paddingTop: '0',
-				}}
-			>
-				COJAM GOVERNANCE DAO
+					background: `${bannerImage && `url(${urlFor(bannerImage)})`} center -170px no-repeat, #fff`
+				}}>			
+				<div className="dao-title-area">
+					COJAM GOVERNANCE DAO
+				</div>
+				<button onClick={goToDaoList}>GET START</button>
 			</div>
-			<button
-				style={{
-					backgroundColor: '#fff',
-					color: '#000',
-					border: 'none',
-					borderRadius: '4px',
-					width: '140px',
-					height: '52px',
-					fontSize: '20px'
-				}}
-				onClick={goToDaoList}
-			>GET START</button>
 		</div>
   );
 }

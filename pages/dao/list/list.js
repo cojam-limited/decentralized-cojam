@@ -26,7 +26,7 @@ import { lastElementsForPage } from "../../../studio/src/maker"
 function Index() {
   const { walletData } = useWalletData();
 
-  const { setLoading } = useLoadingState();
+  const { loading, setLoading } = useLoadingState();
   const history = useHistory();
 
   const [ listData, setListData ] = useState([]);
@@ -75,6 +75,11 @@ function Index() {
     callAdminQuery(setAdminAddressDB)
   }, [newAccount]);
 
+  const selectCategoryHandler = (category) => {
+    setListData([]);
+    setActiveCategory(category);
+  }
+
   const GovernanceVoteHandler = async (diff, level, questKey, answer, _id) => {
     setLoading(true);
     await voteGovernance(diff, level, questKey, answer, _id)
@@ -106,11 +111,18 @@ function Index() {
   }
 
   const SelectAnswerHandler = (answer) => {
+    if(selectedAnswer !== answer) {
+      setSelectedAnswer(answer)
+      return;
+    }
+    if(selectedAnswer === answer) {
+      setSelectedAnswer('')
+      return;
+    }
     if(!selectedAnswer) {
       setSelectedAnswer(answer)
-    } else {
-      setSelectedAnswer('')
-    }
+      return;
+    } 
   }
 
   const setMakeHandler = async (e) => {
@@ -148,7 +160,7 @@ function Index() {
   }
 
   useEffect(() => {
-    if(!notData) {
+    if(!notData && listData.length !== 0) {
       getQuestList()
     }
   }, [page])
@@ -164,7 +176,7 @@ function Index() {
             {
               categories.map((category, idx) => {
                 return (
-                <li key={`category ${idx}`} className={"swiper-slide " + (category.CategoryName === activeCategory ? 'active' : '')} onClick={() => setActiveCategory(category.CategoryName)} style={{cursor:'pointer'}}>
+                <li key={`category ${idx}`} className={"swiper-slide " + (category.CategoryName === activeCategory ? 'active' : '')} onClick={() => selectCategoryHandler(category.CategoryName)} style={{cursor:'pointer'}}>
                   {
                     category.CategoryName === 'draft' ? 'Draft' : category.CategoryName === 'success' ? 'Success' : 'Answer'
                   }
@@ -179,6 +191,22 @@ function Index() {
         <div className='dao-quest-list-columns'>
           {/* Quest 리스트 루프 Start*/}
           <ul className='paginationContent'>
+          {
+            loading && listData.length === 0 ? (
+              <div className='wait-list'>
+                <h2>Wait Loading List...</h2>
+              </div>
+            ) : null
+          }
+          {
+            !loading && listData.length === 0 ? (
+              <div className='not-list-data'>
+                <h2>
+                  No Quests {activeCategory} Exist.
+                </h2>
+              </div>
+            ) : (null)
+          }
           {
             listData && listData.map((list, idx) => {
               const questTitle = list.quest.titleKR;
@@ -207,11 +235,20 @@ function Index() {
               const totalAmount = category === 'Draft' || category === 'Success' ? agreeVote + disagreeVote : category === 'Answer' ? list.answerTotalVote : 0;
               const agreePer = !isFinite(agreeVote / totalAmount) ? '0' : ((agreeVote / totalAmount) * 100).toFixed(2);
               const disagreePer = !isFinite(disagreeVote / totalAmount) ? '0' : ((disagreeVote / totalAmount) * 100).toFixed(2);
+
+              const draftTotal = !isFinite(Number(list?.approveTotalVote) + Number(list?.rejectTotalVote)) ? 0 : Number(list?.approveTotalVote) + Number(list?.rejectTotalVote);
+              const successTotal = !isFinite(Number(list?.successTotalVote) + Number(list?.adjournTotalVote)) ? 0 : Number(list?.successTotalVote) + Number(list?.adjournTotalVote);
+
+              const closedVote = category === 'Draft' ? MaxVote : category === 'Success' ? draftTotal : category === 'Answer' ? successTotal : 0;
               
               return (
                 // eslint-disable-next-line react/jsx-key
                 list.level === activeCategory ? (
-                  <li key={`list ${idx}`} className={`${makeSelect && selectLevel._id === list.quest._id ? 'modalOpen' : ''}`}>
+                  <li
+                    key={`list ${idx}`}
+                    className={
+                      `${makeSelect && selectLevel._id === list.quest._id ? 'modalOpen' : ''} ${listData.length !== 0 && listData.length - 1 === idx ? 'lastList' : ''}`
+                    }>
                     <h2>
                       {/* 총 투표수 작성 */}
                       <div>
@@ -219,7 +256,7 @@ function Index() {
                       </div>
                       <div className='endtime'>
                         {
-                          (totalAmount < MaxVote && diff > 0) ? (<div>{diffHour > 9 ? diffHour : '0' + diffHour}:{diffMin > 9 ? diffMin : '0' + diffMin}:{diffSec > 9 ? diffSec : '0' + diffSec}</div>) : (<div className='closed'>Closed</div>)
+                          (totalAmount < closedVote && diff > 0) ? (<div>{diffHour > 9 ? diffHour : '0' + diffHour}:{diffMin > 9 ? diffMin : '0' + diffMin}:{diffSec > 9 ? diffSec : '0' + diffSec}</div>) : (<div className='closed'>Closed</div>)
                         }
                       </div>
                     </h2>
@@ -310,7 +347,7 @@ function Index() {
                         (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
                         (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
                         (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ||
-                        diff < 0 || totalAmount >= MaxVote) ? 'vote-finish' : ''}`
+                        diff < 0 || totalAmount >= closedVote) ? 'vote-finish' : ''}`
                     }>
                       <div>Would you like to vote for the Quest {category}?</div>
                       <div>
@@ -357,7 +394,7 @@ function Index() {
                                       (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
                                       (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
                                       (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ||
-                                      diff < 0 || totalAmount >= MaxVote ? true : false
+                                      diff < 0 || totalAmount >= closedVote ? true : false
                                     }
                                   >
                                     {answer.title}
@@ -384,7 +421,7 @@ function Index() {
                         ) : (null)
                       }
                       {
-                        adminAddressDB === newAccount && (diff < 0 || totalAmount >= MaxVote) ?
+                        adminAddressDB === newAccount && (diff < 0 || totalAmount >= closedVote) ?
                         (
                           list.level === "answer" ? (
                             <>
@@ -413,7 +450,7 @@ function Index() {
                         (null)
                       }
                       {
-                        adminAddressDB !== newAccount && (diff < 0 || totalAmount >= MaxVote) ?
+                        adminAddressDB !== newAccount && (diff < 0 || totalAmount >= closedVote) ?
                         (
                           <div className='vote-alarm'>
                             <p>QUEST CLOSED</p>

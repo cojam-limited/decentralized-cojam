@@ -106,7 +106,7 @@ function Index(props) {
   }
 
 	useEffect(() => {
-    if(!notData) {
+    if(!notData && voteList.length !== 0) {
       getQuestList()
     }
   }, [page])
@@ -277,19 +277,16 @@ function Index(props) {
 										}
 									})
 								}
-								</ul>
+							</ul>
+							<div
+								ref={obsRef}
+								style={{width: '100%', height:'5px', display: notData ? 'none' : 'block'}}>
+							</div>
 						</dt>
 					</dl>
 				</div>
 				{/* 상세 끝 */}
 			</div>
-			<div
-				ref={obsRef}
-				style={{
-					width: '100%',
-					height:'5px',
-					display: notData ? 'none' : 'block',
-				}}></div>
     </div>
   );
 }

@@ -10,7 +10,7 @@ import { lastElementsForPage } from "../../../studio/src/maker"
 import toastNotify from '@utils/toast';
 
 function Index() {
-  const { setLoading } = useLoadingState();
+  const { loading, setLoading } = useLoadingState();
   const history = useHistory();
   
   const [ activeCategory, setActiveCategory ] = useState('All');
@@ -20,11 +20,11 @@ function Index() {
   const [ notData, setNotData ] = useState(false);
   const [ render, setRender ] = useState(false);
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
-  // useEffect(async () => {
-  //   setInterval(() => {
-  //     setNowTime(new Date())
-  //   }, 1000)
-  // }, [])
+  useEffect(async () => {
+    setInterval(() => {
+      setNowTime(new Date())
+    }, 1000)
+  }, [])
   window.klaytn.on('accountsChanged', (accounts) => {
     setNewAccount(accounts[0]);
   });
@@ -177,7 +177,7 @@ function Index() {
   }
 
   useEffect(() => {
-    if(!notData) {
+    if(!notData && data.length !== 0) {
       getQuestList()
     }
   }, [page])
@@ -209,6 +209,22 @@ function Index() {
         <div className="dao-proposal-list">
           {/* Proposal 리스트 루프 Start */}
           <ul className="paginationContent">
+            {
+              loading && data.length === 0 ? (
+                <div className='wait-list'>
+                  <h2>Wait Loading List...</h2>
+                </div>
+              ) : null
+            }
+            {
+              !loading && data.length === 0 ? (
+                <div className='not-list-data'>
+                  <h2>
+                    No {activeCategory} Proposals Exist.
+                  </h2>
+                </div>
+              ) : (null)
+            }
             <ul className='dao-proposal-content'>
               {
                 data.map((list, idx) => {

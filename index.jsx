@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import Router from './router';
 
-import { useWalletData } from '@data/wallet';
 import { BalanceProvider } from './components/Context/BalanceContext';
 import { QrProvider } from './components/Context/QrContext';
 import { CookiesProvider } from 'react-cookie';
@@ -22,12 +21,14 @@ export const getLibrary = provider => {
 const App = () => {
   const [needNftModal, setNeedNftModal] = useState(false);
   const [toggleMyPage, setToggleMyPage] = useState(false);
+  const path = window.location.pathname;
 
   return (
     <div
       style={{
-        paddingBottom: '53px',
-        height: 'auto' }}
+        paddingBottom: `${path.includes('/Dao') ? '0' : '53px'}`,
+        height: 'auto'
+      }}
     >
       <Router
         toggleMyPage={toggleMyPage}

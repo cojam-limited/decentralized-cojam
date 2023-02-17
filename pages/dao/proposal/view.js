@@ -113,7 +113,7 @@ const view = (props) => {
   }
 
 	useEffect(() => {
-    if(!notData) {
+    if(!notData && voteList.length !== 0) {
       getVoteList()
     }
   }, [page])
@@ -125,7 +125,7 @@ const view = (props) => {
     return votes.total === maxOfVote;
   })
   return (
-    <div>
+    <div style={{height: '100%', backgroundColor: '#FFF'}}>
       <div className='proposal-view-content'>
         <div className='proposal-view-header'>
           <h2>{data?.title}</h2>
@@ -217,6 +217,7 @@ const view = (props) => {
       style={{
         width: '100%',
         height:'5px',
+        backgroundColor: '#fff',
         display: notData ? 'none' : 'block'
       }}></div>
     </div>

@@ -10,7 +10,7 @@ import toastNotify from '@utils/toast';
 
 function Index() {
 
-  const { setLoading } = useLoadingState();
+  const { loading, setLoading } = useLoadingState();
 
   const [ dataList, setDataList ] = useState([]);
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
@@ -144,7 +144,7 @@ function Index() {
   
   return (
     <div className="bg-quest">
-      <div className="dao-container proposal">
+      <div className="dao-container reward">
         {/* 카테고리 영역 */}
         <div className="reward-history-section">
           <div>
@@ -164,6 +164,22 @@ function Index() {
         <div className="reward-history-list">
           {/* Proposal 리스트 루프 Start */}
           <ul className="paginationContent">
+            {
+              loading && dataList.length === 0 ? (
+                <div className='wait-list'>
+                  <h2>Wait Loading List...</h2>
+                </div>
+              ) : null
+            }
+            {
+              !loading && dataList.length === 0 ? (
+                <div className='not-list-data'>
+                  <h2>
+                    No Rwards Exist.
+                  </h2>
+                </div>
+              ) : (null)
+            }
             <ul className='reward-history-content'>
               {
                 dataList.map((list, idx) => {
@@ -172,7 +188,7 @@ function Index() {
                     const endTime = list.answerEndTime.split(' ');
                     const rewardNFT = votingList[0].answerCount ?? 0;
                     const rewardStatus = votingList[0].rewardStatus;
-                    const getCT = (list.reward * rewardNFT) / list.answerTotalVote
+                    const getCT = ((list.reward * rewardNFT) / list.answerTotalVote).toFixed(2)
                     console.log(getCT)
                     return (
                       <li key={idx} >

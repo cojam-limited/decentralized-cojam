@@ -26,7 +26,7 @@ export const callDetailQuery = (questId, setItem, setVoteList, setLoading, setNo
     setItem(item[0]);
   })
   
-  const answerListQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${questId}' && _id != '${Date.now()}'][0..4]`
+  const answerListQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${questId}' && _id != '${Date.now()}']| order(_createdAt desc)[0..4]`
   client.fetch(answerListQuery).then((answer) => {
     console.log(answer)
     setVoteList(answer);
@@ -47,7 +47,7 @@ export const callDetailListQuery = (questId, setVoteList, setLoading, lastCreate
             (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > '${lastId}')
           ) &&
           _id != '${Date.now()}'
-        ][0..4]`
+        ]| order(_createdAt desc)[0..4]`
     client.fetch(answerListQuery).then((answer) => {
       console.log(answer)
       if(answer.length < 5) {
