@@ -54,6 +54,11 @@ function Index() {
   }, [activeCategory, render])
 
   const clickHandler = async (list, diff, totalAmount, resultVote) => {
+    if(window.klaytn.selectedAddress === undefined) {
+      const accounts = await window.klaytn.enable();
+      setNewAccount(accounts[0]);
+    }
+
     if(diff < 0 && amdinContractAddress.toLowerCase() === newAccount.toLowerCase() && list.proposalTxHash === null) {
       setLoading(true)
       const finalTitle = resultVote[0].option
