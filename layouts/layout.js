@@ -15,7 +15,7 @@ import { NftContract } from "../pages/dao/contractHelper";
 
 import { urlFor, client } from "../sanity";
 
-const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeedNftModal }) => {
+const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeedNftModal, setCheckDao }) => {
   const [ loading, setLoading ] = useState(false);
   const [ account, setAccount ] = useState(window?.klaytn?.selectedAddress);
   const [ totalNft, setTotalNft ] = useState(0);
@@ -31,13 +31,20 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
 		// banner image 조회
 		const imageQuery = `*[_type == 'pageImages' && imageTitle == 'main01' && pageTitle == 'main'][0]`;
 		client.fetch(imageQuery).then((image) => {
-      console.log(image)
 			if(image) {
 				setBannerImage(image.pageImage);
 			}
 			setLoading(false);
 		});
 	}, []);
+
+  useEffect(() => {
+    if(path.includes('Dao') || path.includes('dao')) {
+      setCheckDao(true)
+    } else {
+      setCheckDao(false)
+    }
+  }, [path])
 
   const CloseMyPageHandler = () => {
     if (toggleMyPage === true) {
@@ -172,7 +179,7 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
             </>
           )
           :
-          path.includes('Dao') ?
+          path.includes('Dao') || path.includes('dao') ?
           (
             <>
               <DaoHeader

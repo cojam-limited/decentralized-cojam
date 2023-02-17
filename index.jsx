@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Router from './router';
 
@@ -21,12 +21,12 @@ export const getLibrary = provider => {
 const App = () => {
   const [needNftModal, setNeedNftModal] = useState(false);
   const [toggleMyPage, setToggleMyPage] = useState(false);
-  const path = window.location.pathname;
+  const [checkDao, setCheckDao] = useState(false);
 
   return (
     <div
       style={{
-        paddingBottom: `${path.includes('/Dao') ? '0' : '53px'}`,
+        paddingBottom: `${checkDao ? '0' : '53px'}`,
         height: 'auto'
       }}
     >
@@ -34,7 +34,8 @@ const App = () => {
         toggleMyPage={toggleMyPage}
         setToggleMyPage={setToggleMyPage}
         needNftModal={needNftModal}
-        setNeedNftModal={setNeedNftModal} />
+        setNeedNftModal={setNeedNftModal}
+        setCheckDao={setCheckDao} />
     </div>
   );
 };

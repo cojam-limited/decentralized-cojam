@@ -26,7 +26,7 @@ import DaoProposalCreate from '../pages/dao/proposal/create'
 import DaoVotingHistory from '../pages/dao/votinghistory/list'
 import DaoRewardHistory from '../pages/dao/rewardhistory/list'
 
-const Routers = ({ needNftModal, setNeedNftModal, toggleMyPage, setToggleMyPage }) => {
+const Routers = ({ needNftModal, setNeedNftModal, toggleMyPage, setToggleMyPage, setCheckDao }) => {
   return (
     <Router>
       <Switch>
@@ -35,7 +35,8 @@ const Routers = ({ needNftModal, setNeedNftModal, toggleMyPage, setToggleMyPage 
             toggleMyPage={toggleMyPage}
             setToggleMyPage={setToggleMyPage}
             needNftModal={needNftModal}
-            setNeedNftModal={setNeedNftModal}>
+            setNeedNftModal={setNeedNftModal}
+            setCheckDao={setCheckDao}>
             <Switch>
               <Route path='/' exact component={Home} />
               <Route path='/QuestList' exact component={QuestList} />
