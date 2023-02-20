@@ -3,7 +3,7 @@ import { MarketContract, GovernanceContract } from "../contractHelper";
 import toastNotify from '@utils/toast';
 import Moment from 'moment';
 
-export const makeConfirm = async (e, selectLevel, setLoading, render, setRender, setMakeSelect) => {
+export const makeConfirm = async (e, level, _id, list, selectLevel, setSelectLevel, setLoading, render, setRender, setMakeSelect, setDraftModal) => {
 
   setMakeSelect(false);
   setLoading(true);
@@ -41,11 +41,24 @@ export const makeConfirm = async (e, selectLevel, setLoading, render, setRender,
         });
       });
 
-      if(selectLevel.level === 'draft') {
-        const receipt = await GovernanceContract().methods.makeQuestResult(questKey, answer).send({from : account, gas: 500000})
-        console.log('makeQuest', receipt);
-        if(receipt.events.QuestResult.returnValues.result === 'approve') {
-          await client.patch(governanceId).set({level: 'draftEnd'}).commit();
+      if(level === 'draft') {
+        setDraftModal(false);
+        console.log('=== list ===', list)
+        if(!list.draftResult) {
+          console.log("=== why this start ===")
+          const receipt = await GovernanceContract().methods.makeQuestResult(questKey, answer).send({from : account, gas: 500000})
+          const result = receipt.events.QuestResult.returnValues.result;
+          setSelectLevel({level: level, _id: _id, result: result})
+          await client.patch(governanceId).set({draftResult: result}).commit();
+          setDraftModal(true);
+          setRender(!render);
+          setLoading(false);
+          return;
+        }
+        
+        if(list.draftResult === 'approve') {
+          console.log("=== start ===")
+          setDraftModal(false);
           const publish = await MarketContract().methods.publishMarket(
             marketKey,
             creator,
@@ -63,25 +76,30 @@ export const makeConfirm = async (e, selectLevel, setLoading, render, setRender,
             approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
             updateMember: account,
           }).commit();
+          await client.patch(governanceId).set({level: 'draftEnd'}).commit();
           toastNotify({
             state: 'success',
             message: `Approve Draft End Quest`,
           });
           setRender(!render);
-          setLoading(false);
+          setSelectLevel(null);
         } else {
           await client.patch(governanceId).set({level: 'reject'}).commit();
           toastNotify({
             state: 'success',
             message: `Reject Draft End Quest`,
           });
+          setDraftModal(false);
+          setSelectLevel(null);
           setRender(!render);
           setLoading(false);
         }
       }
 
-      if(selectLevel.level === 'success') {
+      if(level === 'success') {
+        setDraftModal(false);
         const receipt = await GovernanceContract().methods.makeDecisionAndExecuteAnswer(questKey, answer, answerKeyList).send({from : account, gas: 500000})
+        console.log('SDAEA', receipt);
         if(receipt.events.DecisionResult.returnValues.result === 'success') {
           await client.patch(governanceId).set({
             level: 'answer',
@@ -89,6 +107,8 @@ export const makeConfirm = async (e, selectLevel, setLoading, render, setRender,
             answerEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
             answerTotalVote: 0
           }).commit();
+          const result = receipt.events.DecisionResult.returnValues.result;
+          await client.patch(governanceId).set({successResult: result}).commit();
           toastNotify({
             state: 'success',
             message: `Success Success End Quest`,
@@ -96,23 +116,22 @@ export const makeConfirm = async (e, selectLevel, setLoading, render, setRender,
           setRender(!render);
           setLoading(false);
         } else {
-          const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : account, gas: 500000})
-          if(adjourn) {
-            await client.patch(governanceId).set({level: 'adjourn'}).commit();
-            await client.patch(questId).set({
-              statusType: 'ADJOURN',
-              questStatus: 'ADJOURN',
-              approveTx: receipt.transactionHash,
-              adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-              updateMember: account,
-            }).commit();
-            toastNotify({
-              state: 'success',
-              message: `Success Adjourn End Quest`,
-            });
-            setRender(!render);
-            setLoading(false);
-          }
+          await client.patch(governanceId).set({level: 'adjourn'}).commit();
+          await client.patch(questId).set({
+            statusType: 'ADJOURN',
+            questStatus: 'ADJOURN',
+            approveTx: receipt.transactionHash,
+            adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+            updateMember: account,
+          }).commit();
+          const result = receipt.events.DecisionResult.returnValues.result;
+          await client.patch(governanceId).set({successResult: result}).commit();
+          toastNotify({
+            state: 'success',
+            message: `Success Adjourn End Quest`,
+          });
+          setRender(!render);
+          setLoading(false);
         }
       }
     })
@@ -122,6 +141,7 @@ export const makeConfirm = async (e, selectLevel, setLoading, render, setRender,
       state: 'error',
       message: `Failed Make Quest`,
     });
+    setDraftModal(false);
     setRender(!render);
     setLoading(false);
   }

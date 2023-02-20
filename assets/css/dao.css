@@ -72,9 +72,17 @@
 .dao-quest-list-columns > ul > li.modalOpen > .makeselect > p {font-size: 18px; margin-bottom: 20px; line-height: 24px; font-family: "Pretendard"; color:#222; font-weight: 600; text-align: center;}
 .dao-quest-list-columns > ul > li.modalOpen > .makeselect > div {display: flex; justify-content: space-between; align-items: center; width: 100%;}
 .dao-quest-list-columns > ul > li.modalOpen > .makeselect > div > button {font-size: 16px; border: none; background-color: #EFEFEF; width: 48%; height: 50px; border-radius: 6px; color: #000; transition:all 0.3s;}
+.dao-quest-list-columns > ul > li.modalOpen > .makeselect > div > button.continueBtn {width: 100%;}
 .dao-quest-list-columns > ul > li.modalOpen > .makeselect > div > button:hover {background-color: #000; color: #fff;}
 .dao-quest-list-columns > ul > li.modalOpen > .makeselect > .closeBtn {position: absolute; top: 6px; right: 6px; font-size: 24px; display: block; width: 24px; cursor: pointer; color: rgba(0, 0, 0, 0.5); transition:all 0.3s;}
 .dao-quest-list-columns > ul > li.modalOpen > .makeselect > .closeBtn:hover {color: rgba(0, 0, 0, 1);}
+
+/* Open ResultModal */
+.dao-quest-list-columns > ul > li.modalOpen > .waitModal {position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80%; height: 220px; border-radius: 4px; background-color: #fff; z-index: 9999; padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center;}
+.dao-quest-list-columns > ul > li.modalOpen > .waitModal > p {font-size: 18px; margin-bottom: 20px; line-height: 24px; font-family: "Pretendard"; color:#222; font-weight: 600; text-align: center;}
+.dao-quest-list-columns > ul > li.modalOpen > .waitModal > div {display: flex; justify-content: space-between; align-items: center; width: 100%;}
+.dao-quest-list-columns > ul > li.modalOpen > .waitModal > div > button {font-size: 16px; border: none; background-color: #EFEFEF; width: 48%; height: 50px; border-radius: 6px; color: #000; transition:all 0.3s;}
+.dao-quest-list-columns > ul > li.modalOpen > .waitModal > div > button:hover {background-color: #000; color: #fff;}
 
 /* already Voted || closed Quest */
 .dao-quest-list-columns > ul > li > .selectBtn {margin: 24px 0; font-size:14px; font-weight:300; font-family:'Pretendard'; color:#000;}

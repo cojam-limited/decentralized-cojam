@@ -3,7 +3,7 @@ import { GovernanceContract } from "../contractHelper";
 import Moment from 'moment';
 import toastNotify from '@utils/toast';
 
-export const questEndTime = async (level, questKey, governanceId) => {
+export const questEndTime = async (level, questKey, governanceId, setNowTime) => {
   const accounts = await window.klaytn.enable();
   const account = accounts[0];
 
@@ -28,6 +28,11 @@ export const questEndTime = async (level, questKey, governanceId) => {
         await client.patch(governanceId).set({answerEndTime: Moment().format("yyyy-MM-DD HH:mm:ss")}).commit();
       }
     }
+    setNowTime(new Date());
+    toastNotify({
+      state: 'success',
+      message: `Success ${level} Quest Time End.`,
+    });
   } catch (err) {
     toastNotify({
       state: 'error',

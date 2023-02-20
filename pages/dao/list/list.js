@@ -14,7 +14,7 @@ import toastNotify from '@utils/toast';
 import { Icon } from '@iconify/react';
 
 import { voteGovernance } from "../list/useVoteGovernance"
-import { resultGovernance } from "../list/useResultGovernance"
+import { resultGovernance, resultModalHandler } from "../list/useResultGovernance"
 import { questEndTime } from "../list/useQuestEndTime"
 import { answerConfirm } from "../list/useAnswerConfirm"
 import { makeConfirm } from "../list/useMakeConfirm"
@@ -40,11 +40,12 @@ function Index() {
   const [ selectLevel, setSelectLevel ] = useState('');
   const [ notData, setNotData ] = useState(false);
   const [ voteMinOrMax, setVoteMinOrMax ] = useState({});
-  useEffect(async () => {
-    setInterval(() => {
-      setNowTime(new Date())
-    }, 1000)
-  }, [])
+  const [ draftModal, setDraftModal ] = useState(false);
+  // useEffect(async () => {
+  //   setInterval(() => {
+  //     setNowTime(new Date())
+  //   }, 1000)
+  // }, [])
 
   const categories = [
     {CategoryName: 'draft'},
@@ -89,19 +90,14 @@ function Index() {
 
   const ResultHandler = async (level, _id, diff, answerKey, list) => {
     setLoading(true);
-    await resultGovernance(level, _id, diff, answerKey, list, setSelectLevel, setMakeSelect, voteMinOrMax)
+    await resultGovernance(level, _id, diff, answerKey, list, selectLevel, setSelectLevel, setMakeSelect, voteMinOrMax, setDraftModal, setLoading)
     setRender(!render);
     setLoading(false);
   }
 
   const setQuestEndTime = async (level, questKey, governanceId) => {
     setLoading(true);
-    await questEndTime(level, questKey, governanceId);
-    setNowTime(new Date());
-    toastNotify({
-      state: 'success',
-      message: `Success ${level} Quest Time End.`,
-    });
+    await questEndTime(level, questKey, governanceId, setNowTime);
     setRender(!render);
     setLoading(false);
   }
@@ -125,8 +121,8 @@ function Index() {
     } 
   }
 
-  const setMakeHandler = async (e) => {
-    await makeConfirm(e, selectLevel, setLoading, render, setRender, setMakeSelect);
+  const setMakeHandler = async (e, level, _id, list) => {
+    await makeConfirm(e, level, _id, list, selectLevel, setSelectLevel, setLoading, render, setRender, setMakeSelect, setDraftModal);
   }
 
   const CancelHandler = async (list, diff) => {
@@ -166,6 +162,7 @@ function Index() {
   }, [page])
 
   const MaxVote = voteMinOrMax !== {} ? Number(voteMinOrMax.maxVote) : 0;
+  console.log('select', selectLevel)
 
   return (
     <div className="bg-quest">
@@ -247,7 +244,7 @@ function Index() {
                   <li
                     key={`list ${idx}`}
                     className={
-                      `${makeSelect && selectLevel._id === list.quest._id ? 'modalOpen' : ''} ${listData.length !== 0 && listData.length - 1 === idx ? 'lastList' : ''}`
+                      `${(makeSelect && selectLevel._id === list.quest._id) || (draftModal === true && selectLevel._id === list.quest._id) ? 'modalOpen' : ''} ${listData.length !== 0 && listData.length - 1 === idx ? 'lastList' : ''}`
                     }>
                     <h2>
                       {/* 총 투표수 작성 */}
@@ -426,7 +423,7 @@ function Index() {
                           list.level === "answer" ? (
                             <>
                               <button
-                                onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, selectedAnswer?.questAnswerKey, list)}
+                                onClick={() => resultModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list)}
                                 className="adminConfirmBtn">
                                 Result Confirm
                               </button>
@@ -439,7 +436,7 @@ function Index() {
                             </>
                           ) : (
                             <button
-                              onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, 'not', list)}
+                              onClick={() => resultModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list)}
                               className="adminConfirmBtn"
                             >
                               Result Confirm
@@ -478,23 +475,79 @@ function Index() {
                     </div>
                     {
                       makeSelect && selectLevel._id === list.quest._id ? (
-                        <div className="makeselect">
-                          <p>The number of votes is the same. Admin please select the correct answer.</p>
-                          <div>
-                            <button onClick={(e) => {setMakeHandler(e)}}>
-                              {selectLevel?.level === 'draft' ? 'Approve' : 'Success'}
-                            </button>
-                            <button onClick={(e) => {setMakeHandler(e)}}>
-                              {selectLevel?.level === 'draft' ? 'Reject' : 'Adjourn'}
-                            </button>
-                          </div>
-                          <div
-                            className="closeBtn"
-                            onClick={() => {setMakeSelect(false)}}
-                          >
-                            <Icon icon="material-symbols:close-rounded" />
-                          </div>
-                        </div>
+                          selectLevel.result ? (
+                            <div className="makeselect">
+                              <p>The number of votes is the same. Admin please select the correct answer. Continue 2nd Step</p>
+                              <div>
+                                <button className="continueBtn" onClick={(e) => {setMakeHandler(e, list?.level, list?.quest?._id, list)}}>
+                                  Continue
+                                </button>
+                              </div>
+                              <div
+                                className="closeBtn"
+                                onClick={() => {setMakeSelect(false)}}
+                              >
+                                <Icon icon="material-symbols:close-rounded" />
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="makeselect">
+                              <p>The number of votes is the same. Admin please select the correct answer.</p>
+                              <div>
+                                <button onClick={(e) => {setMakeHandler(e, list?.level, list?.quest?._id, list)}}>
+                                  {selectLevel?.level === 'draft' ? 'Approve' : 'Success'}
+                                </button>
+                                <button onClick={(e) => {setMakeHandler(e, list?.level, list?.quest?._id, list)}}>
+                                  {selectLevel?.level === 'draft' ? 'Reject' : 'Adjourn'}
+                                </button>
+                              </div>
+                              <div
+                                className="closeBtn"
+                                onClick={() => {setMakeSelect(false)}}
+                              >
+                                <Icon icon="material-symbols:close-rounded" />
+                              </div>
+                            </div>
+                          )
+                      ) : (null)
+                    }
+                    {
+                      draftModal && selectLevel._id === list.quest._id ? (
+                        (
+                          list.level === selectLevel.level ?
+                          (
+                            <div className="waitModal">
+                              <p>
+                                {
+                                  list.level === 'answer' ? (
+                                    !selectLevel.answer ? `Get ${list.level} Quest Results 1st Step` :
+                                    selectLevel.answer && selectLevel.status !== 'SUCCESS' ? `Get ${list.level} Quest Results 2nd Step` :
+                                    selectLevel.answer && selectLevel.status === 'SUCCESS' && selectLevel.level === 'answer' ? `Get ${list.level} Quest Results 3rd Step` : null
+                                  ) : (
+                                    !selectLevel.result ? `Get ${list.level} Quest Results 1st Step` : `Get ${list.level} Quest Results 2nd Step`
+                                  )
+                                }
+                              </p>
+                              <div>
+                                <button onClick={() => {setDraftModal(false)}}>
+                                  Cancel
+                                </button>
+                                {
+                                  list.level === 'answer' ? (
+                                    <button onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, selectedAnswer?.questAnswerKey, list)}>
+                                      Start
+                                    </button>
+                                  ) : 
+                                  (
+                                    <button onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, 'not', list)}>
+                                      Start
+                                    </button>
+                                  )
+                                }
+                              </div>
+                            </div>
+                          ) : (null)
+                        )
                       ) : (null)
                     }
                   </li>

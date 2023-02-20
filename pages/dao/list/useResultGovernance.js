@@ -4,8 +4,7 @@ import Moment from 'moment';
 import toastNotify from '@utils/toast';
 import Web3 from "web3";
 
-export const resultGovernance = async (level, _id, diff, answerKey, list, setSelectLevel, setMakeSelect, voteMinOrMax) => {
-  console.log(voteMinOrMax);
+export const resultGovernance = async (level, _id, diff, answerKey, list, selectLevel, setSelectLevel, setMakeSelect, voteMinOrMax, setDraftModal, setLoading) => {
   const web3 = new Web3(window.klaytn);
 
   const accounts = await window.klaytn.enable()
@@ -32,6 +31,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
       if(totalVote < MinVote) {
         try {
           if(level === 'draft') {
+            setDraftModal(false);
             const receipt = await GovernanceContract().methods.cancelQuest(questKey).send({from : account})
             if(receipt) {
               await client.patch(governanceId).set({level: 'cancel'}).commit();
@@ -43,6 +43,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
           }
 
           if(level === 'success') {
+            setDraftModal(false);
             const receipt = await GovernanceContract().methods.cancelDecision(questKey).send({from : account})
             if(receipt) {
               const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : account, gas: 500000})
@@ -64,6 +65,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
           }
         } catch (err) {
           console.log(err)
+          setDraftModal(false);
           toastNotify({
             state: 'error',
             message: `Failed Set Quest.`,
@@ -75,11 +77,13 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
       if(level === 'draft' || level === 'success') {
         if(totalVote >= MinVote && agreeVote === disagreeVote) {
           try {
-            setSelectLevel({level: level, _id: _id})
+            setDraftModal(false);
             setMakeSelect(true);
             return;
           } catch (err) {
             console.log(err);
+            setSelectLevel(null);
+            setDraftModal(false);
             setMakeSelect(false);
             toastNotify({
               state: 'error',
@@ -101,11 +105,19 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
 
         try {
           if(level === 'draft') {
-            console.log('draft')
-            const receipt = await GovernanceContract().methods.setQuestResult(questKey).send({from : account, gas: 500000})
-            console.log('setQuest', receipt);
-            if(receipt.events.QuestResult.returnValues.result === 'approve') {
-              await client.patch(governanceId).set({level: 'draftEnd'}).commit();
+            setDraftModal(false);
+            if(!list.draftResult) {
+              const receipt = await GovernanceContract().methods.setQuestResult(questKey).send({from : account, gas: 500000})
+              const result = receipt.events.QuestResult.returnValues.result;
+              setSelectLevel({level: level, _id: _id, result: result})
+              await client.patch(governanceId).set({draftResult: result}).commit();
+              setDraftModal(true);
+              setLoading(false);
+              return;
+            }
+
+            if(list.draftResult === 'approve') {
+              setDraftModal(false);
               const publish = await MarketContract().methods.publishMarket(
                 marketKey,
                 creator,
@@ -123,18 +135,24 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
                 approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                 updateMember: account,
               }).commit();
+              await client.patch(governanceId).set({level: 'draftEnd'}).commit();
               toastNotify({
                 state: 'success',
                 message: `Approve Draft End Quest`,
               });
+              setSelectLevel(null);
             } else {
               await client.patch(governanceId).set({level: 'reject'}).commit();
               toastNotify({
                 state: 'success',
                 message: `Reject Draft End Quest`,
               });
+              setDraftModal(false);
+              setSelectLevel(null);
+              setLoading(false);
             }
           } else if(level === 'success') {
+            setDraftModal(false);
             const receipt = await GovernanceContract().methods.setDecisionAndExecuteAnswer(questKey, answerKeyList).send({from : account, gas: 500000})
             console.log('SDAEA', receipt);
             if(receipt.events.DecisionResult.returnValues.result === 'success') {
@@ -144,10 +162,13 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
                 answerEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
                 answerTotalVote: 0
               }).commit();
+              const result = receipt.events.DecisionResult.returnValues.result;
+              await client.patch(governanceId).set({successResult: result}).commit();
               toastNotify({
                 state: 'success',
                 message: `Success Success End Quest`,
               });
+              setLoading(false);
             } else {
               await client.patch(governanceId).set({level: 'adjourn'}).commit();
               await client.patch(questId).set({
@@ -157,13 +178,18 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
                 adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                 updateMember: account,
               }).commit();
+              const result = receipt.events.DecisionResult.returnValues.result;
+              await client.patch(governanceId).set({successResult: result}).commit();
               toastNotify({
                 state: 'success',
                 message: `Success Adjourn End Quest`,
               });
+              setLoading(false);
             }
           } else if(level === 'answer') {
+            console.log(list)
             if(!answerKey) {
+              setDraftModal(false);
               toastNotify({
                 state: 'error',
                 message: `Please Check Answer.`,
@@ -171,28 +197,51 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
               return;
             }
 
-            const receipt = await GovernanceContract().methods.setAnswer(questKey, answerKeyList, answerKey).send({from : account, gas: 500000})
-            const returnValue = receipt.events.AnswerResult.returnValues;
-            const successMarket = await MarketContract().methods.successMarket(Number(returnValue.questKey), Number(returnValue.answer)).send({from : account, gas: 500000})
-            console.log(successMarket)
-            if(successMarket) {
-              await client.patch(questId).set({
-                statusType: 'SUCCESS',
-                questStatus: 'SUCCESS',
-                successTx: successMarket.transactionHash,
-                successDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                updateMember: account,
-              }).commit();
+            setDraftModal(false);
+            if(!list.answerResult) {
+              const receipt = await GovernanceContract().methods.setAnswer(questKey, answerKeyList, answerKey).send({from : account, gas: 500000})
+              const result = receipt.events.AnswerResult.returnValues;
+              setSelectLevel({level: level, _id: _id, answer: result.answer, questKey: result.questKey})
+              await client.patch(governanceId).set({answerResult: result.answer}).commit();
+              setDraftModal(true);
+              setLoading(false);
+              return;
             }
-            const charityFee = successMarket.events.SuccessMarket.returnValues.charityFee;
-            const changeCharityFee = Number(web3.utils.fromWei(charityFee, 'ether'));
-            const setTotalReward = await GovernanceContract().methods.setTotalReward(questKey, (changeCharityFee * 100)).send({from : account, gas: 500000})
-            console.log(setTotalReward)
-            await client.patch(governanceId).set({level: 'done', reward: changeCharityFee}).commit();
+
+            if(list.answerResult && list.quest.statusType !== 'SUCCESS') {
+              setDraftModal(false);
+              setLoading(true);
+              const successMarket = await MarketContract().methods.successMarket(Number(selectLevel.questKey), Number(selectLevel.answer)).send({from : account, gas: 500000})
+              console.log(successMarket)
+              if(successMarket) {
+                await client.patch(questId).set({
+                  statusType: 'SUCCESS',
+                  questStatus: 'SUCCESS',
+                  successTx: successMarket.transactionHash,
+                  successDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                  updateMember: account,
+                }).commit();
+              }
+              const charityFee = successMarket.events.SuccessMarket.returnValues.charityFee;
+              const changeCharityFee = Number(web3.utils.fromWei(charityFee, 'ether'));
+              await client.patch(governanceId).set({reward: changeCharityFee}).commit();
+              setSelectLevel({...selectLevel, status: 'SUCCESS', charity: changeCharityFee});
+              setDraftModal(true);
+              setLoading(false);
+            }
+
+            if(list.answerResult && list.quest.statusType === 'SUCCESS' && list.level === 'answer') {
+              setDraftModal(false);
+              setLoading(true);
+              const setTotalReward = await GovernanceContract().methods.setTotalReward(questKey, (selectLevel.charity * 100)).send({from : account, gas: 500000})
+              console.log(setTotalReward)
+              await client.patch(governanceId).set({level: 'done'}).commit();
+            }
             toastNotify({
               state: 'success',
               message: `Success Answer End Quest`,
             });
+            setLoading(false);
           }
         } catch (err) {
           console.log(err);
@@ -200,10 +249,22 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, setSel
             state: 'error',
             message: `Failed Set Quest.`,
           });
+          setDraftModal(false)
         }
       }
     }
   } catch(err) {
     console.log(err)
+  }
+}
+
+export const resultModalHandler = (setDraftModal, setSelectLevel, level, _id, list) => {
+  console.log(list)
+  setDraftModal(true)
+  const result = list.level === 'draft' ? list.draftResult : list.level === 'success' ? list.successResult : list.level === 'answer' ? list.answerResult : null
+  if(list.level === 'answer') {
+    setSelectLevel({level: level, _id: _id, answer: result, status: list.quest.statusType, charity: list.reward})
+  } else {
+    setSelectLevel({level: level, _id: _id, result: result})
   }
 }
