@@ -14,7 +14,7 @@ import toastNotify from '@utils/toast';
 import { Icon } from '@iconify/react';
 
 import { voteGovernance } from "../list/useVoteGovernance"
-import { resultGovernance, resultModalHandler } from "../list/useResultGovernance"
+import { resultGovernance, resultModalHandler, cancelModalHandler } from "../list/useResultGovernance"
 import { questEndTime } from "../list/useQuestEndTime"
 import { answerConfirm } from "../list/useAnswerConfirm"
 import { makeConfirm } from "../list/useMakeConfirm"
@@ -33,6 +33,7 @@ function Index() {
   const [ activeCategory, setActiveCategory ] = useState('draft');
   const [ nowTime, setNowTime ] = useState(new Date());
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
+  const [ network, setNetwork ] = useState(window?.klaytn?.networkVersion)
   const [ adminAddressDB, setAdminAddressDB ] = useState('');
   const [ render, setRender ] = useState(false);
   const [ selectedAnswer, setSelectedAnswer] = useState();
@@ -65,16 +66,20 @@ function Index() {
     setNewAccount(accounts[0]);
   });
 
+  window?.klaytn.on('networkChanged', (networkVer) => {
+    setNetwork(networkVer)
+  });
+
   useEffect(async () => {
     // GovernanceItem list 조회
     callQuestQuery(setListData, setLoading, activeCategory, setNotData)
     const vote = await voteCount();
     setVoteMinOrMax(vote);
-  }, [activeCategory, newAccount, render])
+  }, [activeCategory, newAccount, network, render])
 
   useEffect(() => {
     callAdminQuery(setAdminAddressDB)
-  }, [newAccount]);
+  }, [newAccount, network]);
 
   const selectCategoryHandler = (category) => {
     setListData([]);
@@ -129,7 +134,7 @@ function Index() {
     const questKey = list.quest.questKey
     const questId = list.quest._id
     const governanceId = list._id
-    await cancelConfirm(diff, governanceId, questKey, questId, setLoading, render, setRender);
+    await cancelConfirm(diff, governanceId, questKey, questId, setLoading, render, setRender, setDraftModal, list, setSelectLevel);
   }
 
   const obsRef = useRef(null) // observer Element
@@ -427,7 +432,7 @@ function Index() {
                                 Result Confirm
                               </button>
                               <button
-                                onClick={() => CancelHandler(list, diff)}
+                                onClick={(e) => cancelModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list, e)}
                                 className="adminConfirmBtn"
                               >
                                 Cancel
@@ -518,11 +523,15 @@ function Index() {
                             <div className="waitModal">
                               <p>
                                 {
-                                  list.level === 'answer' ? (
+                                  list.level === 'answer' && selectLevel.cancel ? (
+                                    !selectLevel.result ? `Get ${list.level} Quest Cancel 1st Step` :
+                                    selectLevel.result ? `Get ${list.level} Quest Cancel 2nd Step` : null
+                                  ) : list.level === 'answer' && !selectLevel.cancel ? (
                                     !selectLevel.answer ? `Get ${list.level} Quest Results 1st Step` :
                                     selectLevel.answer && selectLevel.status !== 'SUCCESS' ? `Get ${list.level} Quest Results 2nd Step` :
                                     selectLevel.answer && selectLevel.status === 'SUCCESS' && selectLevel.level === 'answer' ? `Get ${list.level} Quest Results 3rd Step` : null
-                                  ) : (
+                                  ) :
+                                  (
                                     !selectLevel.result ? `Get ${list.level} Quest Results 1st Step` : `Get ${list.level} Quest Results 2nd Step`
                                   )
                                 }
@@ -532,11 +541,15 @@ function Index() {
                                   Cancel
                                 </button>
                                 {
-                                  list.level === 'answer' ? (
+                                  list.level === 'answer' && selectLevel.cancel ? (
+                                    <button onClick={() => CancelHandler(list, diff)}>
+                                      Start
+                                    </button>
+                                  ) : list.level === 'answer' && !selectLevel.cancel ? (
                                     <button onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, selectedAnswer?.questAnswerKey, list)}>
                                       Start
                                     </button>
-                                  ) : 
+                                  ) :
                                   (
                                     <button onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, 'not', list)}>
                                       Start

@@ -14,6 +14,7 @@ function Index() {
 
   const [ dataList, setDataList ] = useState([]);
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
+  const [ network, setNetwork ] = useState(window?.klaytn?.networkVersion);
   const [ checkList, setCheckList ] = useState([]);
   const [ checkedAll, setCheckedAll ] = useState(false);
   const [ render, setRender ] = useState(false);
@@ -21,6 +22,10 @@ function Index() {
   // klaytn Account Change 감지
   window.klaytn.on('accountsChanged', (accounts) => {
     setNewAccount(accounts[0]);
+  });
+
+  window?.klaytn.on('networkChanged', (networkVer) => {
+    setNetwork(networkVer)
   });
   
   useEffect(async () => {
@@ -40,7 +45,7 @@ function Index() {
       setDataList(rewardHistory)
       setLoading(false);
     })
-  }, [newAccount, render])
+  }, [newAccount, network, render])
 
   const totalCount = dataList.filter(reward => reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive).length;
   const rewardTotalCount = dataList.filter(reward => reward.level === 'done' && reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive && !reward.quest.votingList[0].rewardStatus).length;

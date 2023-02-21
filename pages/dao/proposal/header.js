@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom'
 import toastNotify from '@utils/toast';
 import { NftContract } from "../contractHelper";
 
-const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
+const header = ({toggleMyPage, setToggleMyPage, account, setAccount, network, setNetwork}) => {
   const path = window.location.pathname;
   const titleArray = path.split('/')[2];
   const title = titleArray.includes('Proposals') ? 'Proposals' : titleArray.includes('VotingHistory') ? 'Voting History' : 'Reward History';
@@ -14,6 +14,10 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
 
   window.klaytn.on('accountsChanged', (accounts) => {
     setAccount(accounts[0]);
+  });
+
+  window?.klaytn.on('networkChanged', (networkVer) => {
+    setNetwork(networkVer)
   });
 
   const OpenMyPageHandler = () => {
@@ -32,6 +36,19 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
         toastNotify({
           state: 'error',
           message: 'Please Login First from the Main page.',
+        })
+        history.push('/');
+        return;
+      }
+
+      if(network === undefined) {
+        return;
+      }
+
+      if(network !== 1001) {
+        toastNotify({
+          state: 'error',
+          message: 'Please Check Network.',
         })
         history.push('/');
         return;
@@ -76,7 +93,7 @@ const header = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
     } catch(err) {
       console.error(err)
     }
-  }, [account])
+  }, [account, network])
 
   return (
     <div className='proposal-header'>

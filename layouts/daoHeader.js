@@ -4,7 +4,7 @@ import LogoBlack from '@assets/logo_black.png'
 import toastNotify from '@utils/toast';
 import { NftContract } from "../pages/dao/contractHelper";
 
-const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
+const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount, network, setNetwork}) => {
   const path = window.location.pathname;
   const history = useHistory();
   const [currentPage, setCurrentPage] = useState('Dao');
@@ -13,6 +13,10 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
 
   window.klaytn.on('accountsChanged', (accounts) => {
     setAccount(accounts[0]);
+  });
+
+  window?.klaytn.on('networkChanged', (networkVer) => {
+    setNetwork(networkVer)
   });
 
   const OpenMyPageHandler = () => {
@@ -30,6 +34,24 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
         })
         history.push('/');
         return;
+      }
+
+      if(network === undefined) {
+        return;
+      }
+
+      if(network !== 1001) {
+        toastNotify({
+          state: 'error',
+          message: 'Please Check Network.',
+        })
+        history.push('/');
+        return;
+      }
+
+      if(window.klaytn.selectedAddress === undefined) {
+        const accounts = await window.klaytn.enable();
+        setAccount(accounts[0]);
       }
 
       if(await window.klaytn._kaikas.isUnlocked() === false) {
@@ -66,7 +88,7 @@ const daoHeader = ({toggleMyPage, setToggleMyPage, account, setAccount}) => {
     } catch(err) {
       console.error(err)
     }
-  }, [account])
+  }, [account, network])
 
   return (
     <div>

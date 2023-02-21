@@ -18,6 +18,7 @@ import { urlFor, client } from "../sanity";
 const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeedNftModal, setCheckDao }) => {
   const [ loading, setLoading ] = useState(false);
   const [ account, setAccount ] = useState(window?.klaytn?.selectedAddress);
+  const [ network, setNetwork ] = useState(window?.klaytn?.networkVersion);
   const [ totalNft, setTotalNft ] = useState(0);
   const [ bannerImage, setBannerImage ] = useState();
 
@@ -68,7 +69,7 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
         console.error(err)
       }
     }
-  }, [account])
+  }, [account, network])
 
   const copyText = () => {
     if(account !== undefined || null) {
@@ -161,6 +162,8 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
                 setToggleMyPage={setToggleMyPage}
                 account={account}
                 setAccount={setAccount}
+                network={network}
+                setNetwork={setNetwork}
                 totalNft={totalNft}
               />
                 {children}
@@ -187,6 +190,8 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
                 setToggleMyPage={setToggleMyPage}
                 account={account}
                 setAccount={setAccount}
+                network={network}
+                setNetwork={setNetwork}
               />
                 {children}
             </>

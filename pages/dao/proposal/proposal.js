@@ -16,6 +16,7 @@ function Index() {
   const [ activeCategory, setActiveCategory ] = useState('All');
   const [ data, setData ] = useState([]);
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
+  const [ network, setNetwork ] = useState(window?.klaytn?.networkVersion);
   const [ nowTime, setNowTime ] = useState(new Date());
   const [ notData, setNotData ] = useState(false);
   const [ render, setRender ] = useState(false);
@@ -27,6 +28,10 @@ function Index() {
   }, [])
   window.klaytn.on('accountsChanged', (accounts) => {
     setNewAccount(accounts[0]);
+  });
+
+  window?.klaytn.on('networkChanged', (networkVer) => {
+    setNetwork(networkVer)
   });
 
   const categories = [

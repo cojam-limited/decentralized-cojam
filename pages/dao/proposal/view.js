@@ -12,6 +12,7 @@ const view = (props) => {
   const [ selectAnswer, setSelectAnswer ] = useState();
   const [ showToggle, setShowToggle ] = useState(false);
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
+  const [ network, setNetwork ] = useState(window?.klaytn?.networkVersion);
   const [ render, setRender ] = useState(false);
   const [ totalAmount, setTotalAmount] = useState();
   const [ notData, setNotData ] = useState(false);
@@ -20,6 +21,11 @@ const view = (props) => {
   window.klaytn.on('accountsChanged', (accounts) => {
     setNewAccount(accounts[0]);
   });
+
+  window?.klaytn.on('networkChanged', (networkVer) => {
+    setNetwork(networkVer)
+  });
+
   const proposalKey = props?.location?.state?.proposalId;
   const diff = props?.location?.state?.diff;
 

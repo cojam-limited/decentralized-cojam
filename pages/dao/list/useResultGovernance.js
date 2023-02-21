@@ -43,25 +43,42 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
           }
 
           if(level === 'success') {
-            setDraftModal(false);
-            const receipt = await GovernanceContract().methods.cancelDecision(questKey).send({from : account})
-            if(receipt) {
+            setDraftModal(false)
+            if(!list.successResult) {
+              const receipt = await GovernanceContract().methods.cancelDecision(questKey).send({from : account})
+              const result = receipt.events.DecisionCancel.returnValues.questKey;
+              setSelectLevel({level: level, _id: _id, result: result})
+              await client.patch(governanceId).set({successResult: result}).commit();
+              setDraftModal(true);
+              setLoading(false);
+              return;
+            }
+
+            if(list.successResult && list.quest.statusType !== 'ADJOURN') {
               const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : account, gas: 500000})
               if(adjourn) {
-                await client.patch(governanceId).set({level: 'cancel'}).commit();
                 await client.patch(questId).set({
                   statusType: 'ADJOURN',
                   questStatus: 'ADJOURN',
-                  adjournTx: receipt.transactionHash,
+                  adjournTx: adjourn.transactionHash,
                   adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                   updateMember: account,
                 }).commit();
+                await client.patch(governanceId).set({level: 'cancel'}).commit();
                 toastNotify({
                   state: 'success',
                   message: `Success Cancel Quest.`,
                 });
               }
             }
+          }
+
+          if(level === 'answer') {
+            setDraftModal(false);
+            toastNotify({
+              state: 'error',
+              message: `Please Click Cancel Quest Button.`,
+            });
           }
         } catch (err) {
           console.log(err)
@@ -154,7 +171,6 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
           } else if(level === 'success') {
             setDraftModal(false);
             const receipt = await GovernanceContract().methods.setDecisionAndExecuteAnswer(questKey, answerKeyList).send({from : account, gas: 500000})
-            console.log('SDAEA', receipt);
             if(receipt.events.DecisionResult.returnValues.result === 'success') {
               await client.patch(governanceId).set({
                 level: 'answer',
@@ -187,7 +203,6 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
               setLoading(false);
             }
           } else if(level === 'answer') {
-            console.log(list)
             if(!answerKey) {
               setDraftModal(false);
               toastNotify({
@@ -212,7 +227,6 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
               setDraftModal(false);
               setLoading(true);
               const successMarket = await MarketContract().methods.successMarket(Number(selectLevel.questKey), Number(selectLevel.answer)).send({from : account, gas: 500000})
-              console.log(successMarket)
               if(successMarket) {
                 await client.patch(questId).set({
                   statusType: 'SUCCESS',
@@ -234,8 +248,9 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
               setDraftModal(false);
               setLoading(true);
               const setTotalReward = await GovernanceContract().methods.setTotalReward(questKey, (selectLevel.charity * 100)).send({from : account, gas: 500000})
-              console.log(setTotalReward)
-              await client.patch(governanceId).set({level: 'done'}).commit();
+              if(setTotalReward) {
+                await client.patch(governanceId).set({level: 'done'}).commit();
+              }
             }
             toastNotify({
               state: 'success',
@@ -259,12 +274,22 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
 }
 
 export const resultModalHandler = (setDraftModal, setSelectLevel, level, _id, list) => {
-  console.log(list)
   setDraftModal(true)
   const result = list.level === 'draft' ? list.draftResult : list.level === 'success' ? list.successResult : list.level === 'answer' ? list.answerResult : null
+
   if(list.level === 'answer') {
     setSelectLevel({level: level, _id: _id, answer: result, status: list.quest.statusType, charity: list.reward})
   } else {
     setSelectLevel({level: level, _id: _id, result: result})
+  }
+}
+
+export const cancelModalHandler = (setDraftModal, setSelectLevel, level, _id, list, e) => {
+  setDraftModal(true)
+  const result = list.level === 'draft' ? list.draftResult : list.level === 'success' ? list.successResult : list.level === 'answer' ? list.answerResult : null
+
+  if(e.target.innerText === 'Cancel') {
+    setSelectLevel({level: level, _id: _id, result: result, cancel: true})
+    return;
   }
 }

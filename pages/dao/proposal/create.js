@@ -14,12 +14,17 @@ const create = ({ setNeedNftModal }) => {
   const [ answerCountList, setAnswerCountList ] = useState([1])
   const [ answer, setAnswer ] = useState();
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
+  const [ network, setNetwork ] = useState(window?.klaytn?.networkVersion)
 
   const { setLoading } = useLoadingState();
   const history = useHistory();
 
   window.klaytn.on('accountsChanged', (accounts) => {
     setNewAccount(accounts[0]);
+  });
+
+  window?.klaytn.on('networkChanged', (networkVer) => {
+    setNetwork(networkVer)
   });
 
   const titleHandler = (e) => {
