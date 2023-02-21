@@ -42,11 +42,11 @@ function Index() {
   const [ notData, setNotData ] = useState(false);
   const [ voteMinOrMax, setVoteMinOrMax ] = useState({});
   const [ draftModal, setDraftModal ] = useState(false);
-  // useEffect(async () => {
-  //   setInterval(() => {
-  //     setNowTime(new Date())
-  //   }, 1000)
-  // }, [])
+  useEffect(async () => {
+    setInterval(() => {
+      setNowTime(new Date())
+    }, 1000)
+  }, [])
 
   const categories = [
     {CategoryName: 'draft'},
