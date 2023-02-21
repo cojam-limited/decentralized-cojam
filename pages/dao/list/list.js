@@ -162,7 +162,6 @@ function Index() {
   }, [page])
 
   const MaxVote = voteMinOrMax !== {} ? Number(voteMinOrMax.maxVote) : 0;
-  console.log('select', selectLevel)
 
   return (
     <div className="bg-quest">

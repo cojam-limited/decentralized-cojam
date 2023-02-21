@@ -49,6 +49,9 @@ function Index() {
 
 	const [ reloadData, setReloadData ] = useState(false);
 
+	const [ finishModal, setFinishModal ] = useState(false);
+	const [ finishSelect, setFinishSelect ] = useState({});
+
 	const stateButtons = {
 		ONGOING: ['pend', 'unpend', 'invalid', 'draft', 'answer', 'approve'],
 		INVALID: [],
@@ -90,7 +93,7 @@ function Index() {
 		}
 
 		setLoading(true);
-		await changeStateFunction({state, walletData, selectedQuest, setQr, setQrModal, setMinutes, setSeconds});
+		await changeStateFunction({state, walletData, selectedQuest, setQr, setQrModal, setMinutes, setSeconds, setFinishModal, finishModal, setReloadData, reloadData, finishSelect, setFinishSelect});
 		setReloadData(!reloadData);
 		setLoading(false);
 	}
@@ -286,11 +289,16 @@ function Index() {
 		
 		if(walletAddress) {
 			const condition = `${activeCategory === '' ? '' : `&& questStatus == '${activeCategory.toUpperCase()}'`}`;
-			const questQuery = `*[_type == 'quests' && _id != '${Date.now()}' ${condition}] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0]} | order(questKey desc)`;
+			const questQuery = `*[_type == 'quests' && _id != '${Date.now()}' ${condition}]
+			{
+				...,
+				'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0],
+				'governanceItem': *[_type == 'governanceItem' && references(^._id)]
+			} | order(questKey desc)`;
 			client.fetch(questQuery).then((quest) => {
 				setTransactionDatas(quest ?? []);
 				setLoading(false);
-			});	
+			});
 
 			// get admin list & check current account is admin
 			const adminQuery = `*[_type == 'admin' && _id != '${Date.now()}']`;
@@ -401,7 +409,7 @@ function Index() {
 							{
 								transactionDatas?.map((transactionData, index) => (
 									<ul key={index} style={{ background: transactionData._id === selectedQuest._id ? '#2132' : '' }} >
-										<li key='1'><input type="checkbox" onChange={() => { setSelectedQuest(transactionData) }} checked={transactionData._id === selectedQuest._id}/></li>
+										<li key='1'><input type="checkbox" onChange={() => {setSelectedQuest(transactionData), setFinishSelect({finishTx: transactionData.finishTx, successStartTime: transactionData.governanceItem[0].successStartTime})}} checked={transactionData._id === selectedQuest._id}/></li>
 										<li key='2'><span>No. : </span> {index + 1} </li>
 										<li key='3'><span>Category : </span> {transactionData.categoryNm?.seasonCategoryName} </li>
 										<li key='4' onClick={() => { loadDetailData(transactionData.questKey, true); }} style={{ cursor: 'pointer' }}>
