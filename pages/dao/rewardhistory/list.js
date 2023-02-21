@@ -194,7 +194,6 @@ function Index() {
                     const rewardNFT = votingList[0].answerCount ?? 0;
                     const rewardStatus = votingList[0].rewardStatus;
                     const getCT = ((list.reward * rewardNFT) / list.answerTotalVote).toFixed(2)
-                    console.log(getCT)
                     return (
                       <li key={idx} >
                         {

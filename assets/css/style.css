@@ -235,7 +235,7 @@ html {
 /* DAO 본문영역 */
 .dao-container {max-width:400px; margin:0px auto; overflow:hidden; background-color: #F5F5F5; padding-bottom:48px;}
 .dao-container.proposal {background-color:#fff;}
-.dao-container.reward {background-color:#fff; padding-bottom: 0;}
+.dao-container.reward {background-color:#fff; padding-bottom: 0; overflow:auto;}
 
 @media all and (max-width:400px) {
   /* .dao-container {width:100%;} */
