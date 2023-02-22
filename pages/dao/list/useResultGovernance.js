@@ -431,7 +431,7 @@ export const cancelModalHandler = (setDraftModal, setSelectLevel, level, _id, li
   setDraftModal(true)
   const result = list.level === 'draft' ? list.draftResult : list.level === 'success' ? list.successResult : list.level === 'answer' ? list.answerResult : null
 
-  if(e.target.innerText === 'Cancel') {
+  if(e.target.innerText.includes('Cancel')) {
     setSelectLevel({level: level, _id: _id, result: result, cancel: true})
     return;
   }

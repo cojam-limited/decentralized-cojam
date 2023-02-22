@@ -12,9 +12,10 @@ export const cancelConfirm = async (diff, governanceId, questKey, questId, setLo
     try {
       if(!list.answerResult) {
         const receipt = await GovernanceContract().methods.cancelAnswer(questKey, '').send({from: account, gas: 500000})
-        const result = receipt.events.AnswerCancel.returnValues.questKey;
-        setSelectLevel({...selectLevel, result: result, questKey: result})
-        await client.patch(governanceId).set({answerResult: result}).commit();
+        console.log(receipt)
+        const result = receipt.events.AnswerCancel;
+        setSelectLevel({...selectLevel, result: result, questKey: result.returnValues.questKey})
+        await client.patch(governanceId).set({answerResult: result.event}).commit();
         setRender(!render);
         setDraftModal(true);
         setLoading(false);

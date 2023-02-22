@@ -42,11 +42,11 @@ function Index() {
   const [ notData, setNotData ] = useState(false);
   const [ voteMinOrMax, setVoteMinOrMax ] = useState({});
   const [ draftModal, setDraftModal ] = useState(false);
-  useEffect(async () => {
-    setInterval(() => {
-      setNowTime(new Date())
-    }, 1000)
-  }, [])
+  // useEffect(async () => {
+  //   setInterval(() => {
+  //     setNowTime(new Date())
+  //   }, 1000)
+  // }, [])
 
   const categories = [
     {CategoryName: 'draft'},
@@ -137,6 +137,8 @@ function Index() {
     await cancelConfirm(diff, governanceId, questKey, questId, setLoading, render, setRender, setDraftModal, list, setSelectLevel, selectLevel);
   }
 
+  console.log(selectLevel);
+
   const obsRef = useRef(null) // observer Element
   const [page, setPage] = useState(0);
 
@@ -167,6 +169,7 @@ function Index() {
   }, [page])
 
   const MaxVote = voteMinOrMax !== {} ? Number(voteMinOrMax.maxVote) : 0;
+  const MinVote = voteMinOrMax !== {} ? Number(voteMinOrMax.minVote) : 0;
 
   return (
     <div className="bg-quest">
@@ -428,14 +431,41 @@ function Index() {
                             <>
                               <button
                                 onClick={() => resultModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list)}
-                                className="adminConfirmBtn">
-                                Result Confirm
+                                className="adminConfirmBtn"
+                                disabled={list.answerResult && list.answerResult === 'AnswerCancel' ? true : false}
+                              >
+                                  {
+                                    !list.answerResult ? (
+                                      'Result Confirm(1st STEP)'
+                                    ) :
+                                    list.answerResult && list.answerResult === 'AnswerCancel' ? (
+                                      'Result Confirm'
+                                    ) :
+                                    list.answerResult && list.quest.statusType !== 'SUCCESS' ? (
+                                      'Result Confirm(2nd STEP)'
+                                    ) :
+                                    list.answerResult && list.quest.statusType === 'SUCCESS' && list.level === 'answer' ? (
+                                      'Result Confirm(3rd STEP)'
+                                    ) : (null)
+                                  }
                               </button>
                               <button
                                 onClick={(e) => cancelModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list, e)}
                                 className="adminConfirmBtn"
+                                disabled={list.answerResult && list.answerResult !== 'AnswerCancel' ? true : false}
                               >
-                                Cancel
+                                {
+                                  !list.answerResult ? (
+                                    'Cancel(1st STEP)'
+                                  ) :
+                                  list.answerResult && list.answerResult !== 'AnswerCancel' ? (
+                                    'Cancel'
+                                  ) :
+                                  list.answerResult === 'AnswerCancel' && list.quest.statusType !== 'ADJOURN' ? (
+                                    'Cancel(2nd STEP)'
+                                  ) :
+                                  (null)
+                                }
                               </button>
                             </>
                           ) : (
@@ -443,7 +473,22 @@ function Index() {
                               onClick={() => resultModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list)}
                               className="adminConfirmBtn"
                             >
-                              Result Confirm
+                              {
+                                list.level === 'draft' ? (
+                                  !list.draftResult ? (
+                                    'Result Confirm(1st STEP)'
+                                  ) : (
+                                    'Result Confirm(2nd STEP)'
+                                  )
+                                ) :
+                                list.level === 'success' ? (
+                                  !list.successResult ? (
+                                    'Result Confirm(1st STEP)'
+                                  ) : (
+                                    'Result Confirm(2nd STEP)'
+                                  )
+                                ) : (null)
+                              }
                             </button>
                           )
                         )
