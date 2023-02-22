@@ -7,7 +7,7 @@ class ProposalCreateError extends Error {
 
 export function validateOption(options) {
     if (!Array.isArray(options)) throw new ProposalCreateError('options type is not array..');
-    if(!options.length >= 2) throw new ProposalCreateError('number of options should be over 2..');
+    if (options.length < 2) throw new ProposalCreateError('number of options should be over 2..');
 
     options.forEach((value, index) => {
         if(typeof value !== 'string') throw new ProposalCreateError(`option${index+1} is not string..`);
