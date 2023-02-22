@@ -80,6 +80,28 @@ export const Proposal = {
         }`
         return await client.fetch(query);
     },
+    recallListClosed : async (lastCreatedAt, lastId) => {
+        const query = `
+        *[
+            _type == 'proposal' &&
+            dateTime(endTime) < dateTime(now()) &&
+            (
+                dateTime(_createdAt) >= dateTime('${lastCreatedAt}') ||
+                (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id < '${lastId}')
+            )
+        ]| order(_createdAt desc)
+        {
+            _id,
+            _createdAt,
+            proposalKey,
+            title,
+            description,
+            creator,
+            endTime,
+            "options": *[_type == 'proposalOptionList' && proposalId == ^._id]| order(_createdAt)
+        }`
+        return await client.fetch(query);
+    },
     listOpen : async () => {
         const query = `
         *[
@@ -120,6 +142,27 @@ export const Proposal = {
         }`
         return await client.fetch(query);
     },
+    recallListOpen : async (lastEndTime, lastId) => {
+        const query = `
+        *[
+            _type == 'proposal' &&
+            dateTime(endTime) > dateTime(now()) &&
+            (
+                dateTime(endTime) <= dateTime('${lastEndTime}') ||
+                (dateTime(endTime) == dateTime('${lastEndTime}') && _id < '${lastId}')
+            )
+        ]| order(endTime)
+        {
+            _id,
+            _createdAt,
+            proposalKey,
+            title,
+            description,
+            creator,
+            endTime
+        }`
+        return await client.fetch(query);
+    },
     listAll : async () => {
         const query = `
         *[ _type == 'proposal' && _id != '${Date.now()}']| order(_createdAt desc)[0..4]
@@ -147,6 +190,30 @@ export const Proposal = {
                 (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > '${lastId}')
             )
         ]| order(_createdAt desc)[0..4]
+        {
+            _id,
+            _createdAt,
+            proposalKey,
+            title,
+            description,
+            creator,
+            endTime,
+            proposalTxHash,
+            dateTime(endTime) < dateTime(now()) => {
+                "options": *[_type == 'proposalOptionList' && proposalId == ^._id]| order(_createdAt)
+            }
+        }`
+        return await client.fetch(query);
+    },
+    recallListAll : async (lastCreatedAt, lastId) => {
+        const query = `
+        *[
+            _type == 'proposal' &&
+            (
+                dateTime(_createdAt) >= dateTime('${lastCreatedAt}') ||
+                (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id < '${lastId}')
+            )
+        ]| order(_createdAt desc)
         {
             _id,
             _createdAt,

@@ -14,18 +14,18 @@ function Index() {
   const history = useHistory();
   
   const [ activeCategory, setActiveCategory ] = useState('All');
-  const [ data, setData ] = useState([]);
+  const [ proposalData, setProposalData ] = useState([]);
   const [ newAccount, setNewAccount ] = useState(window?.klaytn?.selectedAddress?.toLowerCase());
   const [ network, setNetwork ] = useState(window?.klaytn?.networkVersion);
   const [ nowTime, setNowTime ] = useState(new Date());
   const [ notData, setNotData ] = useState(false);
   const [ render, setRender ] = useState(false);
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
-  // useEffect(async () => {
-  //   setInterval(() => {
-  //     setNowTime(new Date())
-  //   }, 1000)
-  // }, [])
+  useEffect(async () => {
+    setInterval(() => {
+      setNowTime(new Date())
+    }, 1000)
+  }, [])
   window.klaytn.on('accountsChanged', (accounts) => {
     setNewAccount(accounts[0]);
   });
@@ -45,18 +45,42 @@ function Index() {
     if(activeCategory === 'All') {
       const data = await Proposal.listAll()
       setNotData(false);
-      setData(data);
+      setProposalData(data);
     } else if(activeCategory === 'Active') {
       const data = await Proposal.listOpen()
       setNotData(false);
-      setData(data);
+      setProposalData(data);
     } else if(activeCategory === 'Closed') {
       const data = await Proposal.listClosed()
       setNotData(false);
-      setData(data);
+      setProposalData(data);
     }
     setLoading(false);
-  }, [activeCategory, render])
+  }, [activeCategory])
+
+  useEffect(async () => {
+    if(proposalData.length !== 0) {
+      setLoading(true);
+      try {
+        if(activeCategory === 'All') {
+          const {lastValue, lastId} = lastElementsForPage(proposalData, '_createdAt')
+          const data = await Proposal.recallListAll(lastValue, lastId)
+          setProposalData(data);
+        } else if(activeCategory === 'Active') {
+          const {lastValue, lastId} = lastElementsForPage(proposalData, 'endTime')
+          const data = await Proposal.recallListOpen(lastValue, lastId)
+          setProposalData(data);
+        } else if(activeCategory === 'Closed') {
+          const {lastValue, lastId} = lastElementsForPage(proposalData, '_createdAt')
+          const data = await Proposal.recallListClosed(lastValue, lastId)
+          setProposalData(data);
+        }
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+      }
+    }
+  }, [render, newAccount, network])
 
   const clickHandler = async (list, diff, totalAmount, resultVote) => {
     const accounts = await window.klaytn.enable();
@@ -153,7 +177,7 @@ function Index() {
   const getQuestList = async () => {
     setLoading(true)
     if(activeCategory === 'All') {
-      const {lastValue, lastId} = lastElementsForPage(data, '_createdAt')
+      const {lastValue, lastId} = lastElementsForPage(proposalData, '_createdAt')
       if(lastValue !== null && lastId !== null) {
         const loadingList = await Proposal.listAllPaged(lastValue, lastId)
         if(loadingList.length === 0) {
@@ -161,14 +185,14 @@ function Index() {
           setLoading(false);
           return;
         }
-        setData(prev => {
+        setProposalData(prev => {
           return [...prev, ...loadingList]
         })
       }
     }
 
     if(activeCategory === 'Active') {
-      const {lastValue, lastId} = lastElementsForPage(data, 'endTime')
+      const {lastValue, lastId} = lastElementsForPage(proposalData, 'endTime')
       if(lastValue !== null && lastId !== null) {
         const loadingList = await Proposal.listOpenPaged(lastValue, lastId)
         if(loadingList.length === 0) {
@@ -176,14 +200,14 @@ function Index() {
           setLoading(false);
           return;
         }
-        setData(prev => {
+        setProposalData(prev => {
           return [...prev, ...loadingList]
         })
       }
     }
 
     if(activeCategory === 'Closed') {
-      const {lastValue, lastId} = lastElementsForPage(data, '_createdAt')
+      const {lastValue, lastId} = lastElementsForPage(proposalData, '_createdAt')
       if(lastValue !== null && lastId !== null) {
         const loadingList = await Proposal.listClosedPaged(lastValue, lastId)
         if(loadingList.length === 0) {
@@ -191,7 +215,7 @@ function Index() {
           setLoading(false);
           return;
         }
-        setData(prev => {
+        setProposalData(prev => {
           return [...prev, ...loadingList]
         })
       }
@@ -200,15 +224,15 @@ function Index() {
   }
 
   useEffect(() => {
-    if(!notData && data.length !== 0) {
+    if(!notData && proposalData.length !== 0) {
       getQuestList()
     }
   }, [page])
 
-  const totalCount = data.length;
+  const totalCount = proposalData.length;
 
   return (
-  <div className="bg-quest">
+  <div className="dao-bg-quest">
       <div className="dao-container proposal">
         {/* 카테고리 영역 */}
         <div className="dao-proposal-section">
@@ -233,14 +257,14 @@ function Index() {
           {/* Proposal 리스트 루프 Start */}
           <ul className="paginationContent">
             {
-              loading && data.length === 0 ? (
+              loading && proposalData.length === 0 ? (
                 <div className='wait-list'>
                   <h2>Wait Loading List...</h2>
                 </div>
               ) : null
             }
             {
-              !loading && data.length === 0 ? (
+              !loading && proposalData.length === 0 ? (
                 <div className='not-list-data'>
                   <h2>
                     No {activeCategory} Proposals Exist.
@@ -250,7 +274,7 @@ function Index() {
             }
             <ul className='dao-proposal-content'>
               {
-                data.map((list, idx) => {
+                proposalData.map((list, idx) => {
                   const endTime = new Date(list.endTime);
                   const diff = endTime - nowTime;
 

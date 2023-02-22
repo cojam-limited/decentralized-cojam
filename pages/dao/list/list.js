@@ -20,7 +20,7 @@ import { answerConfirm } from "../list/useAnswerConfirm"
 import { makeConfirm } from "../list/useMakeConfirm"
 import { cancelConfirm } from "../list/useCancelConfirm"
 import { voteCount } from "./useVoteCount";
-import { callQuestQuery, callQuestListQuery, callAdminQuery } from "../list/sanityQuery/useQuery"
+import { callQuestQuery, callQuestListQuery, recallQuestQuery, callAdminQuery } from "../list/sanityQuery/useQuery"
 import { lastElementsForPage } from "../../../studio/src/maker"
 
 function Index() {
@@ -42,11 +42,11 @@ function Index() {
   const [ notData, setNotData ] = useState(false);
   const [ voteMinOrMax, setVoteMinOrMax ] = useState({});
   const [ draftModal, setDraftModal ] = useState(false);
-  // useEffect(async () => {
-  //   setInterval(() => {
-  //     setNowTime(new Date())
-  //   }, 1000)
-  // }, [])
+  useEffect(async () => {
+    setInterval(() => {
+      setNowTime(new Date())
+    }, 1000)
+  }, [])
 
   const categories = [
     {CategoryName: 'draft'},
@@ -75,7 +75,16 @@ function Index() {
     callQuestQuery(setListData, setLoading, activeCategory, setNotData)
     const vote = await voteCount();
     setVoteMinOrMax(vote);
-  }, [activeCategory, newAccount, network, render])
+  }, [activeCategory])
+
+  useEffect(async () => {
+    if(listData.length !== 0) {
+      const {lastValue, lastId} = lastElementsForPage(listData, `${activeCategory}EndTime`)
+      await recallQuestQuery(setListData, setLoading, activeCategory, lastValue, lastId);
+      const vote = await voteCount();
+      setVoteMinOrMax(vote);
+    }
+  }, [newAccount, network, render, render])
 
   useEffect(() => {
     callAdminQuery(setAdminAddressDB)
@@ -137,8 +146,6 @@ function Index() {
     await cancelConfirm(diff, governanceId, questKey, questId, setLoading, render, setRender, setDraftModal, list, setSelectLevel, selectLevel);
   }
 
-  console.log(selectLevel);
-
   const obsRef = useRef(null) // observer Element
   const [page, setPage] = useState(0);
 
@@ -169,7 +176,6 @@ function Index() {
   }, [page])
 
   const MaxVote = voteMinOrMax !== {} ? Number(voteMinOrMax.maxVote) : 0;
-  const MinVote = voteMinOrMax !== {} ? Number(voteMinOrMax.minVote) : 0;
 
   return (
     <div className="bg-quest">
