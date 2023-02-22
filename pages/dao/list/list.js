@@ -134,7 +134,7 @@ function Index() {
     const questKey = list.quest.questKey
     const questId = list.quest._id
     const governanceId = list._id
-    await cancelConfirm(diff, governanceId, questKey, questId, setLoading, render, setRender, setDraftModal, list, setSelectLevel);
+    await cancelConfirm(diff, governanceId, questKey, questId, setLoading, render, setRender, setDraftModal, list, setSelectLevel, selectLevel);
   }
 
   const obsRef = useRef(null) // observer Element

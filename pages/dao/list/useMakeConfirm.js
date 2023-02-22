@@ -128,14 +128,13 @@ export const makeConfirm = async (e, level, _id, list, selectLevel, setSelectLev
 
       if(level === 'success') {
         setDraftModal(false);
-        if(!list.successResult) {
-          try {
+        try {
+          if(!list.successResult) {
             const receipt = await GovernanceContract().methods.makeDecisionAndExecuteAnswer(questKey, answer, answerKeyList).send({from : account, gas: 500000})
-            console.log('SDAEA', receipt);
             const result = receipt.events.DecisionResult.returnValues.result;
             setSelectLevel({level: level, _id: _id, result: result})
             await client.patch(governanceId).set({successResult: result}).commit();
-  
+
             try {
               if(result === 'success') {
                 await client.patch(governanceId).set({
@@ -162,25 +161,25 @@ export const makeConfirm = async (e, level, _id, list, selectLevel, setSelectLev
               setLoading(false);
               return;
             }
-          } catch (err) {
-            toastNotify({
-              state: 'error',
-              message: `Failed End Quest`,
-            });
+
+            setDraftModal(true);
             setRender(!render);
             setLoading(false);
             return;
           }
-
-          setDraftModal(true);
+        } catch (err) {
+          toastNotify({
+            state: 'error',
+            message: `Failed End Quest`,
+          });
           setRender(!render);
           setLoading(false);
           return;
         }
 
-        if(list.successResult === 'adjourn') {
-          setDraftModal(false);
-          try {
+        try {
+          if(list.successResult === 'adjourn') {
+            setDraftModal(false);
             const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : account, gas: 500000})
             if(adjourn) {
               await client.patch(questId).set({
@@ -200,15 +199,15 @@ export const makeConfirm = async (e, level, _id, list, selectLevel, setSelectLev
               setLoading(false);
               return;
             }
-          } catch (err) {
-            toastNotify({
-              state: 'error',
-              message: `Failed Adjourn End Quest`,
-            });
-            setRender(!render);
-            setLoading(false);
-            return;
           }
+        } catch (err) {
+          toastNotify({
+            state: 'error',
+            message: `Failed Adjourn End Quest`,
+          });
+          setRender(!render);
+          setLoading(false);
+          return;
         }
       }
     })

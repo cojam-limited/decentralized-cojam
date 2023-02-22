@@ -93,7 +93,7 @@ function Index() {
 		}
 
 		setLoading(true);
-		await changeStateFunction({state, walletData, selectedQuest, setQr, setQrModal, setMinutes, setSeconds, setFinishModal, finishModal, setReloadData, reloadData, finishSelect, setFinishSelect});
+		await changeStateFunction({state, walletData, selectedQuest, setQr, setQrModal, setMinutes, setSeconds, setFinishModal, finishModal, setReloadData, reloadData, finishSelect, setFinishSelect, setLoading});
 		setReloadData(!reloadData);
 		setLoading(false);
 	}

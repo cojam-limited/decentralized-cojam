@@ -7,7 +7,7 @@ import { GovernanceContract } from "../dao/contractHelper";
 
 const cojamMarketAddress = '0x6b24afa82775414a8c3778aa8d480587021ba6c8';  // KAS address
 
-export const changeStateFunction = async ({state, walletData, selectedQuest, selectedAnswer, description, setQr, setQrModal, setMinutes, setSeconds, setReloadData, reloadData, finishSelect, setFinishSelect}) => {
+export const changeStateFunction = async ({state, walletData, selectedQuest, selectedAnswer, description, setQr, setQrModal, setMinutes, setSeconds, setReloadData, reloadData, finishSelect, setFinishSelect, setLoading}) => {
     if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
         return;
     }
@@ -302,6 +302,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                             setFinishSelect({...finishSelect, finishTx: finishRes.transactionId});
                             setReloadData(!reloadData)
                             if(window.confirm('Are you sure you want to [Finish] this quest? (2/2)')) {
+                                setLoading(true)
                                 const accounts = await window.klaytn.enable();
                                 const account = accounts[0];
                                 const receipt = await GovernanceContract().methods.startDecision(selectedQuest.questKey).send({from : account})
@@ -316,6 +317,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                                 }).commit();
                                 setFinishSelect({...finishSelect, successTime: Moment().format("yyyy-MM-DD HH:mm:ss")});
                                 setReloadData(!reloadData)
+                                setLoading(false);
                                 toastNotify({
                                     state: 'success',
                                     message: 'finish success',
@@ -325,6 +327,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                                     state: 'error',
                                     message: 'finish market failed (2/2)',
                                 });
+                                setLoading(false);
                                 setReloadData(!reloadData)
                                 return;
                             }
@@ -333,6 +336,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                                 state: 'error',
                                 message: 'finish market failed (1/2)',
                             });
+                            setLoading(false);
                             setReloadData(!reloadData)
                             return;
                         }
@@ -341,6 +345,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                             state: 'error',
                             message: 'finish market failed (1/2)',
                         });
+                        setLoading(false);
                         setReloadData(!reloadData)
                         return;
                     }
@@ -348,6 +353,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
 
                 if(finishSelect.finishTx && !finishSelect.successStartTime) {
                     if(window.confirm('Are you sure you want to [Finish] this quest? (2/2)')) {
+                        setLoading(true);
                         const accounts = await window.klaytn.enable();
                         const account = accounts[0];
                         const receipt = await GovernanceContract().methods.startDecision(selectedQuest.questKey).send({from : account})
@@ -361,6 +367,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                             adjournTotalVote: 0
                         }).commit();
                         setFinishSelect({...finishSelect, successTime: Moment().format("yyyy-MM-DD HH:mm:ss")});
+                        setLoading(false);
                         setReloadData(!reloadData)
                         toastNotify({
                             state: 'success',
@@ -371,6 +378,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                             state: 'error',
                             message: 'finish market failed (2/2)',
                         });
+                        setLoading(false);
                         setReloadData(!reloadData)
                         return;
                     }
