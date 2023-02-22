@@ -108,9 +108,11 @@ function Index() {
     setLoading(true);
     if(status === 'select') {
       if(!checkedAll) {
-        console.log(dataList)
         const idArray = [];
-        dataList.forEach((data) => idArray.push(data?.quest?.votingList[0]?._id))
+        dataList.forEach((data) => {
+          if(!data.quest.votingList[0]) return;
+          return idArray.push(data?.quest?.votingList[0]?._id);
+        })
         setCheckedAll(true);
         setCheckList(idArray);
       } else {
@@ -125,13 +127,13 @@ function Index() {
       checkList.map(async (itemId) => {
         await client.patch(itemId).set({archive: false}).commit();
         setRender(!render);
-        setCheckedAll(false);
-        setCheckList([]);
-        toastNotify({
-          state: 'success',
-          message: `The selected reward history has been deleted.`,
-        });
       })
+      setCheckedAll(false);
+      setCheckList([]);
+      toastNotify({
+        state: 'success',
+        message: `The selected reward history has been deleted.`,
+      });
     }
     setLoading(false);
   }
