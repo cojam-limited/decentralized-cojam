@@ -10,7 +10,7 @@ export const Proposal = {
             description: description,
             options: options,
             creator: creator,
-            endTime: setEndTime(0)
+            endTime: setEndTime(1)
         }
         const proposal = await client.create(doc);
         //create proposal options constraint key with proposal_id

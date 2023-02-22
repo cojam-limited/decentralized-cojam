@@ -32,44 +32,71 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
         try {
           if(level === 'draft') {
             setDraftModal(false);
-            const receipt = await GovernanceContract().methods.cancelQuest(questKey).send({from : account})
-            if(receipt) {
-              await client.patch(governanceId).set({level: 'cancel'}).commit();
+            try {
+              const receipt = await GovernanceContract().methods.cancelQuest(questKey).send({from : account})
+              if(receipt) {
+                await client.patch(governanceId).set({level: 'cancel'}).commit();
+              }
+              toastNotify({
+                state: 'success',
+                message: `Success Cancel Quest.`,
+              });
+            } catch (err) {
+              toastNotify({
+                state: 'error',
+                message: `Failed Draft Cancel Quest.`,
+              });
+              setLoading(false);
+              return;
             }
-            toastNotify({
-              state: 'success',
-              message: `Success Cancel Quest.`,
-            });
           }
 
           if(level === 'success') {
             setDraftModal(false)
-            if(!list.successResult) {
-              const receipt = await GovernanceContract().methods.cancelDecision(questKey).send({from : account})
-              const result = receipt.events.DecisionCancel.returnValues.questKey;
-              setSelectLevel({level: level, _id: _id, result: result})
-              await client.patch(governanceId).set({successResult: result}).commit();
-              setDraftModal(true);
+            try {
+              if(!list.successResult) {
+                const receipt = await GovernanceContract().methods.cancelDecision(questKey).send({from : account})
+                const result = receipt.events.DecisionCancel.returnValues.questKey;
+                setSelectLevel({level: level, _id: _id, result: result})
+                await client.patch(governanceId).set({successResult: result}).commit();
+                setDraftModal(true);
+                setLoading(false);
+                return;
+              }
+            } catch (err) {
+              toastNotify({
+                state: 'error',
+                message: `Failed Success Cancel Quest.`,
+              });
               setLoading(false);
               return;
             }
 
-            if(list.successResult && list.quest.statusType !== 'ADJOURN') {
-              const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : account, gas: 500000})
-              if(adjourn) {
-                await client.patch(questId).set({
-                  statusType: 'ADJOURN',
-                  questStatus: 'ADJOURN',
-                  adjournTx: adjourn.transactionHash,
-                  adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
-                  updateMember: account,
-                }).commit();
-                await client.patch(governanceId).set({level: 'cancel'}).commit();
-                toastNotify({
-                  state: 'success',
-                  message: `Success Cancel Quest.`,
-                });
+            try {
+              if(list.successResult && list.quest.statusType !== 'ADJOURN') {
+                const adjourn = await MarketContract().methods.adjournMarket(questKey).send({from : account, gas: 500000})
+                if(adjourn) {
+                  await client.patch(questId).set({
+                    statusType: 'ADJOURN',
+                    questStatus: 'ADJOURN',
+                    adjournTx: adjourn.transactionHash,
+                    adjournDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                    updateMember: account,
+                  }).commit();
+                  await client.patch(governanceId).set({level: 'cancel'}).commit();
+                  toastNotify({
+                    state: 'success',
+                    message: `Success Cancel Quest.`,
+                  });
+                }
               }
+            } catch (err) {
+              toastNotify({
+                state: 'error',
+                message: `Failed Success Cancel Quest.`,
+              });
+              setLoading(false);
+              return;
             }
           }
 
@@ -128,6 +155,19 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
               const result = receipt.events.QuestResult.returnValues.result;
               setSelectLevel({level: level, _id: _id, result: result})
               await client.patch(governanceId).set({draftResult: result}).commit();
+
+              if(result === 'reject') {
+                await client.patch(governanceId).set({level: 'reject'}).commit();
+                toastNotify({
+                  state: 'success',
+                  message: `Reject Draft End Quest`,
+                });
+                setDraftModal(false);
+                setSelectLevel(null);
+                setLoading(false);
+                return;
+              }
+
               setDraftModal(true);
               setLoading(false);
               return;
@@ -158,15 +198,6 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
                 message: `Approve Draft End Quest`,
               });
               setSelectLevel(null);
-            } else {
-              await client.patch(governanceId).set({level: 'reject'}).commit();
-              toastNotify({
-                state: 'success',
-                message: `Reject Draft End Quest`,
-              });
-              setDraftModal(false);
-              setSelectLevel(null);
-              setLoading(false);
             }
           } else if(level === 'success') {
             setDraftModal(false);
