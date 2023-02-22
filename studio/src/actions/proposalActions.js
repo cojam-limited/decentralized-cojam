@@ -155,6 +155,7 @@ export const Proposal = {
             description,
             creator,
             endTime,
+            proposalTxHash,
             dateTime(endTime) < dateTime(now()) => {
                 "options": *[_type == 'proposalOptionList' && proposalId == ^._id]| order(_createdAt)
             }

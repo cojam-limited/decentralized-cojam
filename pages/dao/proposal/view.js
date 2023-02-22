@@ -44,15 +44,29 @@ const view = (props) => {
   }
 
   const voteSelectHandler = async (data) => {
-    setSelectAnswer(data);
+    if(selectAnswer === data) {
+      setSelectAnswer(null);
+    } else {
+      setSelectAnswer(data);
+    }
   }
 
   const voteConfirmHandler = async () => {
+    if(!selectAnswer) {
+      toastNotify({
+        state: 'error',
+        message: 'Choose the Correct Answer First!',
+      });
+      return;
+    }
+
+    console.log(selectAnswer)
     setLoading(true);
     try {
       const proposalId = data?._id;
       const proposalOptionId = selectAnswer?._id;
-      const voter = newAccount;
+      const voters = await window.klaytn.enable();
+      const voter = voters[0]
       const votableNfts = await isAvailableToVote(proposalKey, voter);
       const result = await Proposal.vote(proposalId, proposalKey, proposalOptionId, voter, votableNfts);
       if(result) {
@@ -130,6 +144,11 @@ const view = (props) => {
     const maxOfVote = Math.max(...target.map(vote => vote.total));
     return votes.total === maxOfVote;
   })
+
+  const alreadyVoteCheck = voteList?.filter((list) => {
+    return list?.voter === newAccount;
+  })
+  
   return (
     <div style={{height: '100%', backgroundColor: '#FFF'}}>
       <div className='proposal-view-content'>
@@ -195,8 +214,11 @@ const view = (props) => {
             }
           </ul>
           {
-            diff > 0 ? (
-              <button onClick={() => {voteConfirmHandler()}}>Confirm</button>
+            diff > 0 ? 
+            (
+              alreadyVoteCheck.length === 0 ? 
+              (<button onClick={() => {voteConfirmHandler()}}>Confirm</button>) : 
+              (<button disabled={true}>Already Voted</button>)
             ) : (null)
           }
         </div>

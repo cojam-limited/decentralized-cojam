@@ -61,10 +61,9 @@ const create = ({ setNeedNftModal }) => {
       setLoading(false);
       history.push('/Dao/DaoProposals');
     } catch (err) {
-      console.error(err);
       toastNotify({
         state: 'error',
-        message: `${err}`,
+        message: `${err.message}`,
       });
       setLoading(false);
     }

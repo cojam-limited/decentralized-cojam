@@ -21,11 +21,11 @@ function Index() {
   const [ notData, setNotData ] = useState(false);
   const [ render, setRender ] = useState(false);
   const amdinContractAddress = '0x867385AcD7171A18CBd6CB1ddc4dc1c80ba5fD52';
-  useEffect(async () => {
-    setInterval(() => {
-      setNowTime(new Date())
-    }, 1000)
-  }, [])
+  // useEffect(async () => {
+  //   setInterval(() => {
+  //     setNowTime(new Date())
+  //   }, 1000)
+  // }, [])
   window.klaytn.on('accountsChanged', (accounts) => {
     setNewAccount(accounts[0]);
   });
@@ -63,46 +63,60 @@ function Index() {
     const account = accounts[0]
     setNewAccount(account);
 
-    if(diff < 0 && amdinContractAddress.toLowerCase() === account.toLowerCase() && list.proposalTxHash === null) {
-      setLoading(true)
-      const finalTitle = resultVote[0].option
-      const finalVote = resultVote[0].total
-      try {
-        let endTime = Date.parse(list.endTime)
-        let data;
-        if(resultVote.length === 1) {
-          data = {
-            proposalKey: list.proposalKey,
-            title: list.title,
-            result: finalTitle,
-            totalVote: totalAmount,
-            resultVote: finalVote,
-            endTime: endTime,
+    try {
+      if(diff < 0 && amdinContractAddress.toLowerCase() === account.toLowerCase() && list.proposalTxHash === null) {
+        setLoading(true)
+        const finalTitle = resultVote[0].option
+        const finalVote = resultVote[0].total
+        try {
+          let endTime = Date.parse(list.endTime)
+          let data;
+          if(resultVote.length === 1) {
+            data = {
+              proposalKey: list.proposalKey,
+              title: list.title,
+              result: finalTitle,
+              totalVote: totalAmount,
+              resultVote: finalVote,
+              endTime: endTime,
+            }
+          } else {
+            data = {
+              proposalKey: list.proposalKey,
+              title: list.title,
+              result: 'draw',
+              totalVote: totalAmount,
+              resultVote: finalVote,
+              endTime: endTime,
+            }
           }
-        } else {
-          data = {
-            proposalKey: list.proposalKey,
-            title: list.title,
-            result: 'draw',
-            totalVote: totalAmount,
-            resultVote: finalVote,
-            endTime: endTime,
-          }
+          const result = await setProposal(data)
+          await client.patch(list._id).set({proposalTxHash: result.transactionHash}).commit();
+          setRender(!render)
+          setLoading(false)
+          toastNotify({
+            state: 'success',
+            message: 'Success Finish Result.',
+          });
+          return;
+        } catch (err) {
+          toastNotify({
+            state: 'error',
+            message: 'Failed Finish Result.',
+          });
+          setRender(!render)
+          setLoading(false)
+          return;
         }
-        console.log(data);
-        const result = await setProposal(data)
-        await client.patch(list._id).set({proposalTxHash: result.transactionHash}).commit();
-        setRender(!render)
-        setLoading(false)
-        toastNotify({
-          state: 'success',
-          message: 'Success Finish Result.',
-        });
-        return;
-      } catch (err) {
-        console.error(err)
-        return;
       }
+    } catch {
+      toastNotify({
+        state: 'error',
+        message: 'Failed Finish Result.',
+      });
+      setRender(!render)
+      setLoading(false)
+      return;
     }
 
     history.push({
