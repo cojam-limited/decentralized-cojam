@@ -1,7 +1,7 @@
 import { client } from "../../../../sanity";
 import toastNotify from '@utils/toast';
 
-export const callDetailQuery = (questId, setItem, setVoteList, setLoading, setNotData) => {
+export const callDetailQuery = (questId, governanceId, setItem, setVoteList, setLoading, setNotData) => {
   setLoading(true);
   if(!questId) {
     toastNotify({
@@ -26,30 +26,35 @@ export const callDetailQuery = (questId, setItem, setVoteList, setLoading, setNo
     setItem(item[0]);
   })
   
-  const answerListQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${questId}' && _id != '${Date.now()}']| order(_createdAt desc)[0..4]`
+  const answerListQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${governanceId}' && _id != '${Date.now()}']| order(_updatedAt desc)[0..4]`
   client.fetch(answerListQuery).then((answer) => {
-    console.log(answer)
+    // console.log(answer)
+    answer.map((data) => {
+      console.log(data._updatedAt)
+    })
     setVoteList(answer);
     setLoading(false);
   })
 }
 
-export const callDetailListQuery = (questId, setVoteList, setLoading, lastCreatedAt, lastId, setNotData) => {
+export const callDetailListQuery = (governanceId, setVoteList, setLoading, lastUpdatedAt, lastId, setNotData) => {
   setLoading(true);
 
-  if(lastCreatedAt !== null && lastId !== null) {
+  if(lastUpdatedAt !== null && lastId !== null) {
     const answerListQuery =
       `*[
           _type == 'governanceItemVote' &&
-          governanceItemId == '${questId}' &&
+          governanceItemId == '${governanceId}' &&
           (
-            dateTime(_createdAt) < dateTime('${lastCreatedAt}') ||
-            (dateTime(_createdAt) == dateTime('${lastCreatedAt}') && _id > '${lastId}')
+            dateTime(_updatedAt) < dateTime('${lastUpdatedAt}') ||
+            (dateTime(_updatedAt) == dateTime('${lastUpdatedAt}') && _id > '${lastId}')
           ) &&
           _id != '${Date.now()}'
-        ]| order(_createdAt desc)[0..4]`
+        ]| order(_updatedAt desc)[0..4]`
     client.fetch(answerListQuery).then((answer) => {
-      console.log(answer)
+      answer.map((data) => {
+        console.log('add :', data._updatedAt)
+      })
       if(answer.length < 5) {
         setNotData(true)
       }

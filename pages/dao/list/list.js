@@ -95,9 +95,9 @@ function Index() {
     setActiveCategory(category);
   }
 
-  const GovernanceVoteHandler = async (diff, level, questKey, answer, _id) => {
+  const GovernanceVoteHandler = async (diff, level, questKey, answer, _id, governanceId) => {
     setLoading(true);
-    await voteGovernance(diff, level, questKey, answer, _id)
+    await voteGovernance(diff, level, questKey, answer, _id, governanceId)
     setRender(!render);
     setLoading(false);
   };
@@ -116,8 +116,8 @@ function Index() {
     setLoading(false);
   }
 
-  const AnswerConfirmHandler = async (questKey, answerKey, answerId, answerTitle, itemId, itemQuestId) => {
-    await answerConfirm(questKey, answerKey, answerId, answerTitle, itemId, itemQuestId, setLoading, render, setRender, setSelectedAnswer);
+  const AnswerConfirmHandler = async (questKey, answerKey, answerId, answerTitle, itemId) => {
+    await answerConfirm(questKey, answerKey, answerId, answerTitle, itemId, setLoading, render, setRender, setSelectedAnswer);
   }
 
   const SelectAnswerHandler = (answer) => {
@@ -176,6 +176,7 @@ function Index() {
   }, [page])
 
   const MaxVote = voteMinOrMax !== {} ? Number(voteMinOrMax.maxVote) : 0;
+  const MinVote = voteMinOrMax !== {} ? Number(voteMinOrMax.minVote) : 0;
 
   return (
     <div className="bg-quest">
@@ -232,6 +233,11 @@ function Index() {
               const beginsTime = category === 'Draft' ? list.draftStartTime : category === 'Success' ? list.successStartTime : list.answerStartTime;
               const endsTime = category === 'Draft' ? list.draftEndTime : category === 'Success' ? list.successEndTime : list.answerEndTime;
 
+              const maxResult = list.quest.answerId.filter((answer, idx, target) => {
+                const maxOfVote = Math.max(...target.map(vote => vote.totalVotes));
+                return answer.totalVotes === maxOfVote;
+              })
+
               // draft / success 투표수 관리
               let agreeVote
               let disagreeVote
@@ -285,7 +291,7 @@ function Index() {
                             return;
                           }
 
-                          history.push({pathname: `/Dao/DaoView`, state: {questId: list.quest._id}}) 
+                          history.push({pathname: `/Dao/DaoView`, state: {questId: list.quest._id, governanceId: list._id}})
                         });
                       }}>
                       <span
@@ -350,14 +356,15 @@ function Index() {
                     <div className={
                       `selectBtn
                       ${
-                        adminAddressDB !== newAccount && (
-                        (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
-                        (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
-                        (list?.level === 'success' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                        (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
-                        (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                        (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ||
-                        diff < 0 || totalAmount >= closedVote) ? 'vote-finish' : ''}`
+                        (
+                          (list?.level === 'draft' && list?.votingList[0]?.draftTxHash) ||
+                          (list?.level === 'success' && list?.votingList[0]?.successTxHash) ||
+                          (list?.level === 'success' && !(list?.votingList[0]?.draftTxHash)) ||
+                          (list?.level === 'answer' && list?.votingList[0]?.answerTxHash) ||
+                          (list?.level === 'answer' && !(list?.votingList[0]?.draftTxHash)) ||
+                          (list?.level === 'answer' && !(list?.votingList[0]?.successTxHash)) ||
+                          diff < 0 || totalAmount >= closedVote
+                        ) ? 'vote-finish' : ''}`
                     }>
                       <div>Would you like to vote for the Quest {category}?</div>
                       <div>
@@ -373,8 +380,7 @@ function Index() {
                                     selectedAnswer?.questAnswerKey,
                                     selectedAnswer?._id,
                                     selectedAnswer?.title,
-                                    list?._id,
-                                    list?.quest._id
+                                    list?._id
                                   )
                                 }
                               }>Confirm</button>
@@ -393,17 +399,17 @@ function Index() {
                                           list?.quest.questKey,
                                           answer?.title.toLowerCase(),
                                           list?.quest._id,
-                                          list
+                                          list._id
                                         )
                                       }
                                     }
                                     disabled={
-                                      (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
-                                      (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
-                                      (list?.level === 'success' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                                      (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash) ||
-                                      (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                                      (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash)) ||
+                                      (list?.level === 'draft' && list?.votingList[0]?.draftTxHash) ||
+                                      (list?.level === 'success' && list?.votingList[0]?.successTxHash) ||
+                                      (list?.level === 'success' && !(list?.votingList[0]?.draftTxHash)) ||
+                                      (list?.level === 'answer' && list?.votingList[0]?.answerTxHash) ||
+                                      (list?.level === 'answer' && !(list?.votingList[0]?.draftTxHash)) ||
+                                      (list?.level === 'answer' && !(list?.votingList[0]?.successTxHash)) ||
                                       diff < 0 || totalAmount >= closedVote ? true : false
                                     }
                                   >
@@ -422,12 +428,44 @@ function Index() {
                         }
                       </div>
                       {
-                        adminAddressDB === newAccount ? (
-                          <button
-                            onClick={() => setQuestEndTime(list.level, list.quest.questKey, list._id)}
-                            className="adminConfirmBtn">
-                            End
-                          </button>
+                        (diff < 0 || totalAmount >= closedVote) ?
+                        (
+                          <div className='vote-alarm'>
+                            <p>QUEST CLOSED</p>
+                          </div>
+                        ) :
+                        (
+                          (list?.level === 'draft' && list?.votingList[0]?.draftTxHash) ||
+                          (list?.level === 'success' && list?.votingList[0]?.successTxHash) ||
+                          (list?.level === 'answer' && list?.votingList[0]?.answerTxHash)
+                        ) ? 
+                        (
+                          <div className='vote-alarm'>
+                            <p>ALREADY VOTED</p>
+                          </div>
+                        ) :
+                        (
+                          (list?.level === 'success' && !(list?.votingList[0]?.draftTxHash)) ||
+                          (list?.level === 'answer' && !(list?.votingList[0]?.draftTxHash)) ||
+                          (list?.level === 'answer' && !(list?.votingList[0]?.successTxHash))
+                        ) ?
+                        (
+                          <div className='vote-alarm'>
+                            <p>NO PREVIOUS VOTE</p>
+                          </div>
+                        ) : (null)
+                      }
+                    </div>
+                    <div>
+                      {
+                        (adminAddressDB === newAccount) && diff > 0 && totalAmount < closedVote ? (
+                          <div>
+                            <button
+                              onClick={() => setQuestEndTime(list.level, list.quest.questKey, list._id)}
+                              className="adminConfirmBtn">
+                              END QUEST BUTTON
+                            </button>
+                          </div>
                         ) : (null)
                       }
                       {
@@ -435,97 +473,92 @@ function Index() {
                         (
                           list.level === "answer" ? (
                             <>
+                              {
+                                maxResult.length === 1 && totalAmount >= MinVote ? (
+                                  <div
+                                    className={list.answerResult && list.answerResult === 'AnswerCancel' ? 'selectCancel' : ''}
+                                  >
+                                    <button
+                                      onClick={() => resultModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list)}
+                                      className='adminConfirmBtn adminResult'
+                                      disabled={list.answerResult && list.answerResult === 'AnswerCancel' ? true : false}
+                                    >
+                                      {
+                                        !list.answerResult ? (
+                                          'Result Confirm(1st STEP)'
+                                        ) :
+                                        list.answerResult && list.answerResult === 'AnswerCancel' ? (
+                                          'Result Confirm'
+                                        ) :
+                                        list.answerResult && list.quest.statusType !== 'SUCCESS' ? (
+                                          'Result Confirm(2nd STEP)'
+                                        ) :
+                                        list.answerResult && list.quest.statusType === 'SUCCESS' && list.level === 'answer' ? (
+                                          'Result Confirm(3rd STEP)'
+                                        ) : (null)
+                                      }
+                                      {
+                                        list.answerResult && list.answerResult === 'AnswerCancel' ? (
+                                          <div>ALREADY SELECTED CANCEL</div>
+                                        ) : (null)
+                                      }
+                                    </button>
+                                  </div>
+                                ) : (null)
+                              }
+                              <div
+                                className={list.answerResult && list.answerResult !== 'AnswerCancel' ? 'selectResult' : ''}
+                              >
+                                <button
+                                  onClick={(e) => cancelModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list, e)}
+                                  className={`adminConfirmBtn adminCancel ${list.answerResult && list.answerResult !== 'AnswerCancel' ? 'selectResult' : ''}`}
+                                  disabled={list.answerResult && list.answerResult !== 'AnswerCancel' ? true : false}
+                                >
+                                  {
+                                    !list.answerResult ? (
+                                      'Cancel(1st STEP)'
+                                    ) :
+                                    list.answerResult === 'AnswerCancel' && list.quest.statusType !== 'ADJOURN' ? (
+                                      'Cancel(2nd STEP)'
+                                    ) :
+                                    (null)
+                                  }
+                                </button>
+                                {
+                                  list.answerResult && list.answerResult !== 'AnswerCancel' ? (
+                                    <div>ALREADY SELECTED RESULT</div>
+                                  ) : (null)
+                                }
+                              </div>
+                            </>
+                          ) : (
+                            <div>
                               <button
                                 onClick={() => resultModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list)}
                                 className="adminConfirmBtn"
-                                disabled={list.answerResult && list.answerResult === 'AnswerCancel' ? true : false}
-                              >
-                                  {
-                                    !list.answerResult ? (
-                                      'Result Confirm(1st STEP)'
-                                    ) :
-                                    list.answerResult && list.answerResult === 'AnswerCancel' ? (
-                                      'Result Confirm'
-                                    ) :
-                                    list.answerResult && list.quest.statusType !== 'SUCCESS' ? (
-                                      'Result Confirm(2nd STEP)'
-                                    ) :
-                                    list.answerResult && list.quest.statusType === 'SUCCESS' && list.level === 'answer' ? (
-                                      'Result Confirm(3rd STEP)'
-                                    ) : (null)
-                                  }
-                              </button>
-                              <button
-                                onClick={(e) => cancelModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list, e)}
-                                className="adminConfirmBtn"
-                                disabled={list.answerResult && list.answerResult !== 'AnswerCancel' ? true : false}
                               >
                                 {
-                                  !list.answerResult ? (
-                                    'Cancel(1st STEP)'
+                                  list.level === 'draft' ? (
+                                    !list.draftResult ? (
+                                      'Result Confirm(1st STEP)'
+                                    ) : (
+                                      'Result Confirm(2nd STEP)'
+                                    )
                                   ) :
-                                  list.answerResult && list.answerResult !== 'AnswerCancel' ? (
-                                    'Cancel'
-                                  ) :
-                                  list.answerResult === 'AnswerCancel' && list.quest.statusType !== 'ADJOURN' ? (
-                                    'Cancel(2nd STEP)'
-                                  ) :
-                                  (null)
+                                  list.level === 'success' ? (
+                                    !list.successResult ? (
+                                      'Result Confirm(1st STEP)'
+                                    ) : (
+                                      'Result Confirm(2nd STEP)'
+                                    )
+                                  ) : (null)
                                 }
                               </button>
-                            </>
-                          ) : (
-                            <button
-                              onClick={() => resultModalHandler(setDraftModal, setSelectLevel, list?.level, list?.quest?._id, list)}
-                              className="adminConfirmBtn"
-                            >
-                              {
-                                list.level === 'draft' ? (
-                                  !list.draftResult ? (
-                                    'Result Confirm(1st STEP)'
-                                  ) : (
-                                    'Result Confirm(2nd STEP)'
-                                  )
-                                ) :
-                                list.level === 'success' ? (
-                                  !list.successResult ? (
-                                    'Result Confirm(1st STEP)'
-                                  ) : (
-                                    'Result Confirm(2nd STEP)'
-                                  )
-                                ) : (null)
-                              }
-                            </button>
+                            </div>
                           )
                         )
                         :
                         (null)
-                      }
-                      {
-                        adminAddressDB !== newAccount && (diff < 0 || totalAmount >= closedVote) ?
-                        (
-                          <div className='vote-alarm'>
-                            <p>QUEST CLOSED</p>
-                          </div>
-                        ) :
-                        adminAddressDB !== newAccount && (
-                        (list?.level === 'draft' && list?.quest?.votingList[0]?.draftTxHash) ||
-                        (list?.level === 'success' && list?.quest?.votingList[0]?.successTxHash) ||
-                        (list?.level === 'answer' && list?.quest?.votingList[0]?.answerTxHash)) ? 
-                        (
-                          <div className='vote-alarm'>
-                            <p>ALREADY VOTED</p>
-                          </div>
-                        ) :
-                        adminAddressDB !== newAccount && (
-                        (list?.level === 'success' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                        (list?.level === 'answer' && !(list?.quest?.votingList[0]?.draftTxHash)) ||
-                        (list?.level === 'answer' && !(list?.quest?.votingList[0]?.successTxHash))) ?
-                        (
-                          <div className='vote-alarm'>
-                            <p>NO PREVIOUS VOTE</p>
-                          </div>
-                        ) : (null)
                       }
                     </div>
                     {
@@ -597,7 +630,7 @@ function Index() {
                                       Start
                                     </button>
                                   ) : list.level === 'answer' && !selectLevel.cancel ? (
-                                    <button onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, selectedAnswer?.questAnswerKey, list)}>
+                                    <button onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, maxResult[0]?.questAnswerKey, list)}>
                                       Start
                                     </button>
                                   ) :

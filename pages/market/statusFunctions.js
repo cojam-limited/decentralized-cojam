@@ -8,8 +8,10 @@ import { GovernanceContract } from "../dao/contractHelper";
 const cojamMarketAddress = '0x6b24afa82775414a8c3778aa8d480587021ba6c8';  // KAS address
 
 export const changeStateFunction = async ({state, walletData, selectedQuest, selectedAnswer, description, setQr, setQrModal, setMinutes, setSeconds, setReloadData, reloadData, finishSelect, setFinishSelect, setLoading}) => {
-    if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
-        return;
+    if(state !== 'finish') {
+        if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
+            return;
+        }
     }
 
     let isLogin = false;
@@ -260,8 +262,6 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                 break;
             
             case 'finish':
-                console.log(finishSelect);
-                
                 if(selectedQuest.completed && selectedQuest.governanceItem[0].successStartTime) {
                     toastNotify({
                         state: 'error',
@@ -299,8 +299,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                                 completed: true,
                                 updateMember: walletData.account
                             }).commit();
-                            setFinishSelect({...finishSelect, finishTx: finishRes.transactionId});
-                            setReloadData(!reloadData)
+
                             if(window.confirm('Are you sure you want to [Finish] this quest? (2/2)')) {
                                 setLoading(true)
                                 const accounts = await window.klaytn.enable();

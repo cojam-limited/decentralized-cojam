@@ -27,9 +27,10 @@ function Index(props) {
 		history.push('/Dao');
 	}
 
-	const { setLoading } = useLoadingState();
+	const { loading, setLoading } = useLoadingState();
 	const [ selectedAnswer, setSelectedAnswer ] = useState();
 	const [ questId ] = useState(props?.location?.state?.questId);
+	const [ governanceId ] = useState(props?.location?.state?.governanceId)
 	const [ item, setItem ] = useState();
 	const [ voteList, setVoteList ] = useState([]);
 	const [ answerHistory, setAnswerHistory ] = useState('All');
@@ -51,7 +52,7 @@ function Index(props) {
   ];
 
 	useEffect(async () => {
-		await callDetailQuery(questId, setItem, setVoteList, setLoading, setNotData)
+		await callDetailQuery(questId, governanceId, setItem, setVoteList, setLoading, setNotData)
 	}, []);
 
 	const level = item?.level === 'draft' ? 'Draft' : item?.level === 'success' ? 'Success' : item?.level === 'answer' ? 'Answer' : item?.level;
@@ -101,8 +102,8 @@ function Index(props) {
   }
 
   const getQuestList = async () => {
-		const {lastValue, lastId} = lastElementsForPage(voteList, `_createdAt`)
-		await callDetailListQuery(questId, setVoteList, setLoading, lastValue, lastId, setNotData)
+		const {lastValue, lastId} = lastElementsForPage(voteList, `_updatedAt`)
+		await callDetailListQuery(governanceId, setVoteList, setLoading, lastValue, lastId, setNotData)
   }
 
 	useEffect(() => {
@@ -113,7 +114,7 @@ function Index(props) {
 
   return (
 		<div>
-			<div className="dao-container" style={{paddingBottom: '0'}}>
+			<div className="dao-container view" style={{height: `${loading ? '100%' : 'auto'}`}}>
 				{/* 상세 */}
 				<div className="dao-quest-view">
 					<dl>

@@ -104,6 +104,8 @@ export const makeConfirm = async (e, level, _id, list, selectLevel, setSelectLev
               statusType: 'APPROVE',
               questStatus: 'APPROVE',
               approveTx: publish.transactionHash,
+              draftTx: publish.transactionHash,
+              answerTx: publish.transactionHash,
               approveDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
               updateMember: account,
             }).commit();

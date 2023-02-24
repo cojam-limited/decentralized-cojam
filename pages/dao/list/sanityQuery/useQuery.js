@@ -7,13 +7,13 @@ export const callQuestQuery = async (setListData, setLoading, activeCategory, se
   const accounts = await window.klaytn.enable()
   const account = accounts[0];
 
-  const governanceDraftQuery = `*[_type == 'governanceItem' && level == '${activeCategory}' && _id != '${Date.now()}'] | order(${activeCategory}EndTime)[0..1]
+  const governanceDraftQuery = `*[_type == 'governanceItem' && level == '${activeCategory}' && _id != '${Date.now()}'] | order(${activeCategory}EndTime)[0..4]
   {
     ...,
+    'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${account}' && _id != '${Date.now()}'],
     'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
       ...,
       'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey},
-      'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${account}' && _id != '${Date.now()}']
     },
   }`;
   client.fetch(governanceDraftQuery).then((governanceItem) => {
@@ -36,13 +36,13 @@ export const callQuestListQuery = async (setListData, setLoading, activeCategory
       (
         ${activeCategory}EndTime > '${lastEndAt}' ||
         ${activeCategory}EndTime == '${lastEndAt}' && _id > '${lastId}'
-      )] | order(${activeCategory}EndTime)[0..1]
+      )] | order(${activeCategory}EndTime)[0..4]
     {
       ...,
+      'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${account}' && _id != '${Date.now()}'],
       'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
         ...,
         'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey},
-        'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${account}' && _id != '${Date.now()}']
       },
     }`;
     client.fetch(governanceQuery).then((governanceItem) => {
@@ -75,14 +75,13 @@ export const recallQuestQuery = async (setListData, setLoading, activeCategory, 
       )] | order(${activeCategory}EndTime)
     {
       ...,
+      'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${account}' && _id != '${Date.now()}'],
       'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]{
         ...,
         'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey},
-        'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && voter == '${account}' && _id != '${Date.now()}']
       },
     }`;
     client.fetch(governanceQuery).then((governanceItem) => {
-      console.log('please', governanceItem)
       setListData(governanceItem)
       setLoading(false);
     });

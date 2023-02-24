@@ -144,7 +144,6 @@ function Index() {
 			}
 		}
 	}
-	
 	/**
 	 * title 클릭 시, Quest 디테일 조회
  	*/
@@ -421,7 +420,7 @@ function Index() {
 										<li key='8'><span>Hot : </span> { transactionData.hot ? 'T' : 'F' } </li>
 										<li key='9'><span>Draft : </span> { transactionData.draftTx !== undefined ? 'T' : 'F' } </li>
 										<li key='10'><span>Answer : </span> { transactionData.answerTx !== undefined ? 'T' : 'F' } </li>
-										<li key='11'><span>Finish : </span> { transactionData.finishTx !== undefined ? 'T' : 'F' } </li>
+										<li key='11'><span>Finish : </span> { transactionData.finishTx !== undefined && transactionData?.governanceItem[0]?.level === 'success' ? 'T' : 'F' } </li>
 									</ul>
 								))
 							}

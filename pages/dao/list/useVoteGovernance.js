@@ -2,7 +2,7 @@ import { client } from "../../../sanity";
 import { NftContract, GovernanceContract } from "../contractHelper";
 import toastNotify from '@utils/toast';
 
-export const voteGovernance = async (diff, level, questKey, answer, _id) => {
+export const voteGovernance = async (diff, level, questKey, answer, _id, governanceId) => {
   const accounts = await window.klaytn.enable()
   const account = accounts[0];
   const balance = await NftContract().methods.balanceOf(account).call();
@@ -30,7 +30,7 @@ export const voteGovernance = async (diff, level, questKey, answer, _id) => {
   
       const GovernanceItemVoteCreate = {
         _type: 'governanceItemVote',
-        governanceItemId: _id,
+        governanceItemId: governanceId,
         voter: returnValue.voter.toLowerCase(),
         draftOption: returnValue.answer,
         draftCount: returnValue.votedNfts.length,
@@ -65,7 +65,7 @@ export const voteGovernance = async (diff, level, questKey, answer, _id) => {
       const returnValue = receipt?.events?.VoteDecisionCast?.returnValues;
       console.log('receipt', receipt)
       console.log('return', returnValue)
-      const SuccessAnswerQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${_id}' && voter == '${account.toLowerCase()}' && _id != '${Date.now()}']`;
+      const SuccessAnswerQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${governanceId}' && voter == '${account.toLowerCase()}' && _id != '${Date.now()}']`;
       await client.fetch(SuccessAnswerQuery).then(async (list) => {
         await client.patch(list[0]._id).set(
           {

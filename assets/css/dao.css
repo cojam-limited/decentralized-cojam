@@ -85,7 +85,7 @@
 .dao-quest-list-columns > ul > li.modalOpen > .waitModal > div > button:hover {background-color: #000; color: #fff;}
 
 /* already Voted || closed Quest */
-.dao-quest-list-columns > ul > li > .selectBtn {margin: 24px 0; font-size:14px; font-weight:300; font-family:'Pretendard'; color:#000;}
+.dao-quest-list-columns > ul > li > .selectBtn {margin-top: 24px; font-size:14px; font-weight:300; font-family:'Pretendard'; color:#000;}
 .dao-quest-list-columns > ul > li > .selectBtn.vote-finish {position: relative;}
 .dao-quest-list-columns > ul > li > .selectBtn.vote-finish > div {filter: blur(4px);}
 .dao-quest-list-columns > ul > li > .selectBtn.vote-finish > .vote-alarm {position: absolute; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(0, 0, 0, 0.8); color: #fff; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-weight: 600; font-size: 24px; filter: none;}
@@ -93,10 +93,19 @@
 .dao-quest-list-columns > ul > li > .selectBtn > div > button {width:48%; height:56px; border-radius:4px; background-color:#EFEFEF; font-size:16px; color:#000; font-weight:300; transition: all 0.3s;}
 .dao-quest-list-columns > ul > li > .selectBtn > div > button.answerBtn {width:100%;}
 .dao-quest-list-columns > ul > li > .selectBtn > div > button:hover {background-color:#000; color:#fff;}
-.dao-quest-list-columns > ul > li > .selectBtn > .adminConfirmBtn {width: 100%; height: 56px; border-radius:4px; background-color:#EFEFEF; font-size:16px; color:#000; font-weight:300; margin-top: 8px;}
-.dao-quest-list-columns > ul > li > .selectBtn > .adminConfirmBtn:disabled {cursor: not-allowed}
-.dao-quest-list-columns > ul > li > .selectBtn > .adminConfirmBtn:hover {background-color:#000; color:#fff;}
-.dao-quest-list-columns > ul > li > .selectBtn > .adminConfirmBtn:disabled:hover {background-color:#EFEFEF; color:#000;}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div {margin-top: 8px;}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div > .adminConfirmBtn {width: 100%; height: 56px; border-radius:4px; background-color:#EFEFEF; font-size:16px; color:#000; font-weight:300; transition: all 0.3s;}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div > .adminConfirmBtn:disabled {cursor: not-allowed}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div > .adminConfirmBtn:hover {background-color:#000; color:#fff;}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div > .adminConfirmBtn:disabled:hover {background-color:#EFEFEF; color:#000;}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div > .adminConfirmBtn.adminResult:hover {background-color: #167EE6; color: #fff;}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div > .adminConfirmBtn.adminCancel:hover {background-color: #C9162B; color: #fff;}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div.selectCancel {position: relative;}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div.selectCancel > .adminConfirmBtn {filter: blur(4px);}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div.selectCancel > div {position: absolute; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(0, 0, 0, 0.8); border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: 600; color: #fff;}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div.selectResult {position: relative;}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div.selectResult > .adminConfirmBtn {filter: blur(4px);}
+.dao-quest-list-columns > ul > li > .selectBtn + div > div.selectResult > div {position: absolute; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(0, 0, 0, 0.8); border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: 600; color: #fff;}
 
 /* Wait Loading */
 .wait-list {width: 100%; height: calc(100vh - 186px); background-color: #fff; display: flex; justify-content: center; align-items: center;}
@@ -119,7 +128,7 @@
 }
 
 /* 상세 */
-.dao-quest-view {width:100%; height: 100%; background-color: #fff;}
+.dao-quest-view {width:100%; background-color: #fff;}
 .dao-quest-view > dl > dt {padding: 24px; background-color: #fff;}
 .dao-quest-view > dl > dt > h2 {padding:5px 0; font-family: 'Pretendard'; font-size:24px; line-height:18px; color:#000; font-weight:700; display: flex; justify-content: space-between; align-items: center;}
 .dao-quest-view > dl > dt > h2 span {font-size:16px; font-weight:700; color:#C8C8C8; font-family: 'Pretendard'; margin-left: 6px;}
@@ -160,7 +169,6 @@
 /* dimmed-Wrap */
 .layout-wrap {position: relative; overflow: hidden;}
 .dimmed-wrap {height:100%; max-width: 400px; overflow: auto; margin: 0 auto; position: relative;}
-.dimmed-wrap.open-mypage {height:auto;}
 
 /* Dimmed-Layer */
 .dimmed-layer {position: fixed; top:0; bottom:0; left:0; right:0; overflow: hidden; background-color: rgba(0, 0, 0, 0.7); z-index: 9990;}
@@ -172,15 +180,20 @@
 .proposal-dimmed-layer {position: fixed; top:0; bottom:0; left:0; right:0; overflow: hidden; background-color: rgba(0, 0, 0, 0.7); z-index: 9999;}
 
 /* MyPage */
-.mypage {position:absolute; top:0; bottom:0; right:0; z-index: 9999; width:85%; height:100%; background-color:#fff; padding: 24px 0 24px 24px;}
+.mypage {position:absolute; top:0; bottom:0; right:0; z-index: 9999; width:85%; height: auto; background-color:#fff; padding: 24px 0 24px 24px;}
 .mypage > h2 {font-size:24px; font-weight:700; line-height:34px; font-family:'Pretendard'; color:#000; margin-bottom: 16px;}
 .mypage > h3 {font-family: 'Pretendard'; font-weight: 700; font-size: 18px; line-height: 22px; color:#000; margin-bottom: 8px}
 .mypage > p {font-family: 'Pretendard'; font-style: normal; font-weight: 300; font-size: 14px; line-height: 22px; margin-bottom: 24px; display: flex; justify-content: flex-start; align-items: center;}
-.mypage > p > i {font-size: 24px; font-weight: 100; color: rgba(0,0,0,1); font-family: 'Pretendard'; margin-left: 4px;}
-.mypage > div {display: flex; justify-content: space-between; align-items: center; width: 100%; font-family: 'Pretendard'; font-weight: 700; font-size: 14px; line-height: 22px; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;}
+.mypage > p > i {font-size: 24px; font-weight: 100; color: rgba(0,0,0,1); font-family: 'Pretendard'; margin-left: 4px; cursor: pointer;}
+.mypage > div.nftCount {display: flex; justify-content: space-between; align-items: center; width: 100%; font-family: 'Pretendard'; font-weight: 700; font-size: 14px; line-height: 22px; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;}
+.mypage > div.closeBtn {position: absolute; top: 14px; right: 14px; font-size: 24px; cursor: pointer; transition: all 0.3s;}
+.mypage > div.closeBtn:hover {color: #000;}
 .mypage > div > p {font-family: 'Pretendard'; font-weight: 700; font-size: 14px; line-height: 22px; color: #000;}
 .mypage > div > p:nth-child(2) {margin-right:20px;}
-.mypage > ul > li {width:100%; padding:14px 0; font-family: 'Pretendard'; font-style: normal; font-weight: 600; font-size: 16px; line-height: 24px; color:#000; cursor: pointer;}
+.mypage > ul > li {width:100%; padding:14px 0;}
+.mypage > ul > li > span {position: relative; font-family: 'Pretendard'; font-style: normal; font-weight: 600; font-size: 16px; line-height: 24px; color:#000; cursor: pointer;}
+.mypage > ul > li > span::after {content: ''; position: absolute; bottom: -4px; left: 0px; right: 0px; opacity: 0; border-bottom: 2px solid #000; transition: all 0.3s;}
+.mypage > ul > li > span:hover::after {content: ''; position: absolute; bottom: -4px; left: 0; right: 0; opacity: 1; border-bottom: 2px solid #000;}
 .mypage > ul > li:first-child {padding-top:0; margin-top:28px;}
 
 /* Proposal-Header */
@@ -337,6 +350,7 @@
 .reward-history-list .reward-history-content > li > input:checked + label.activate > span.checkbox::after {position: absolute; content: ''; width: 10px; height: 2px; background-color: #fff; top: 50%; right: 2.5px; transform: rotate(-45deg) translateY(-50%);}
 .reward-history-list .reward-history-content > li > label > div > h3 {font-family: 'Pretendard'; font-weight: 600; font-size: 14px; line-height: 22px; color: #000; margin-bottom: 20px;}
 .reward-history-list .reward-history-content > li > label > div > h3 > span {font-family: 'Pretendard'; font-weight: 300; font-size: 10px; margin-left: 6px; padding: 0 6px; border-radius: 8px; display: inline-block; color: #fff;}
+.reward-history-list .reward-history-content > li > label > div > h3 > span.rewardFail {background-color: #FF2B2B;}
 .reward-history-list .reward-history-content > li > label > div > h3 > span.rewardFinish {background-color: #0AC35C;}
 .reward-history-list .reward-history-content > li > label > div > h3 > span.rewardGet {background-color: #167EE6;}
 .reward-history-list .reward-history-content > li > label > div > h3 > span.rewardGet > span > span.checkCT {font-weight: 600; font-size: 11px; letter-spacing: 0.7px;}

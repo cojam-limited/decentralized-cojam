@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -7,6 +7,9 @@ import { useLoadingState } from "@assets/context/LoadingContext";
 import { GovernanceContract } from "../contractHelper";
 
 import toastNotify from '@utils/toast';
+
+import { lastElementsForPage } from '../../../studio/src/maker';
+import { callRewardQuery, callRewardListQuery } from "./sanityQuery/useQuery";
 
 function Index() {
 
@@ -18,6 +21,7 @@ function Index() {
   const [ checkList, setCheckList ] = useState([]);
   const [ checkedAll, setCheckedAll ] = useState(false);
   const [ render, setRender ] = useState(false);
+  const [ notData, setNotData ] = useState(false);
 
   // klaytn Account Change 감지
   window.klaytn.on('accountsChanged', (accounts) => {
@@ -29,36 +33,30 @@ function Index() {
   });
   
   useEffect(async () => {
-    setLoading(true);
-
-    const rewardHistoryQuery = `*[_type == 'governanceItem' && level == 'done' && reward != null && _id != '${Date.now()}']
-    {
-      ...,
-      'quest': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]
-      {
-        ...,
-        'answerId': *[_type == 'questAnswerList' && questKey == ^.questKey && _id != '${Date.now()}'] {title, _id, totalVotes, questAnswerKey},
-        'votingList': *[_type == 'governanceItemVote' && governanceItemId == ^._id && archive == true && voter == '${newAccount}' && _id != '${Date.now()}']
-      },
-    }`;
-    await client.fetch(rewardHistoryQuery).then((rewardHistory) => {
-      setDataList(rewardHistory)
-      setLoading(false);
-    })
+    await callRewardQuery(setDataList, setLoading, setNotData)
   }, [newAccount, network, render])
 
-  const totalCount = dataList.filter(reward => reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive).length;
-  const rewardTotalCount = dataList.filter(reward => reward.level === 'done' && reward.quest.votingList.length > 0 && reward.quest.votingList[0].answerCount && reward.quest.votingList[0].archive && !reward.quest.votingList[0].rewardStatus).length;
+  const totalCount = dataList.length;
+  const rewardTotalCount = dataList.filter(reward => reward.archive && !reward.rewardStatus).length;
   const [activateDelete, setActivateDelete] = useState(false);
 
   const activateDeleteHandler = () => {
     activateDelete ? setActivateDelete(false) : setActivateDelete(true);
   }
 
-  const getRewardHandler = async (list) => {
+  const getRewardHandler = async (list, maxResult) => {
     setLoading(true)
 
-    if(list.quest.votingList[0].rewardStatus) {
+    if(list.answerOption !== maxResult.title) {
+      toastNotify({
+        state: 'error',
+        message: `Failed to guess the correct answer.`,
+      });
+      setLoading(false);
+      return;
+    }
+
+    if(list.rewardStatus) {
       toastNotify({
         state: 'error',
         message: `This quest has already been rewarded.`,
@@ -67,20 +65,18 @@ function Index() {
       return;
     }
 
-    const questKey = list.quest.questKey;
+    const questKey = list.governanceItem[0].quest.questKey;
     let answerKey
 
-    list.quest.answerId.map((answer) => {
-      if(answer.title === list.quest.votingList[0].answerOption) {
-        answerKey = answer.questAnswerKey;
-      }
-    })
+    if(list.answerOption === maxResult.title) {
+      answerKey = maxResult.questAnswerKey;
+    }
 
     try {
       const receipt = await GovernanceContract().methods.distributeDaoReward(questKey, answerKey).send({from: newAccount, gas: 500000});
       console.log(receipt);
       if(receipt.status === true) {
-        await client.patch(list.quest.votingList[0]._id).set({rewardStatus: true}).commit();
+        await client.patch(list._id).set({rewardStatus: true}).commit();
         toastNotify({
           state: 'success',
           message: `Success to receive reward.`,
@@ -101,7 +97,6 @@ function Index() {
       });
       setLoading(false)
     }
-    
   }
 
   const RewardFooterHandler = (status) => {
@@ -110,8 +105,8 @@ function Index() {
       if(!checkedAll) {
         const idArray = [];
         dataList.forEach((data) => {
-          if(!data.quest.votingList[0]) return;
-          return idArray.push(data?.quest?.votingList[0]?._id);
+          if(!data) return;
+          return idArray.push(data?._id);
         })
         setCheckedAll(true);
         setCheckList(idArray);
@@ -130,6 +125,7 @@ function Index() {
       })
       setCheckedAll(false);
       setCheckList([]);
+      setActivateDelete(false);
       toastNotify({
         state: 'success',
         message: `The selected reward history has been deleted.`,
@@ -139,7 +135,6 @@ function Index() {
   }
 
   const singleCheckHandler = (_id) => {
-    console.log(_id);
     if(checkList.includes(_id)) {
       setCheckedAll(false);
       setCheckList(checkList.filter((el) => el !== _id))
@@ -148,6 +143,38 @@ function Index() {
       setCheckList([...checkList, _id]);
     }
   }
+
+  // console.log(dataList)
+
+  const obsRef = useRef(null) // observer Element
+  const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(obsHandler, { threshold: 0.6 });
+    if (obsRef.current) observer.observe(obsRef.current);
+    return () => {
+      observer.disconnect();
+    }
+  }, []);
+
+  const obsHandler = async (entries) => {
+    const target = entries[0];
+		if (target.isIntersecting) {
+			setPage(prev => prev + 1);
+		}
+  }
+
+  const getQuestList = async () => {
+    const {lastValue, lastId} = lastElementsForPage(dataList, `_updatedAt`)
+		await callRewardListQuery(setDataList, setLoading, setNotData, lastValue, lastId)
+    return;
+  }
+
+	useEffect(() => {
+    if(!notData && dataList.length !== 0) {
+      getQuestList()
+    }
+  }, [page])
   
   return (
     <div className="bg-quest">
@@ -190,78 +217,83 @@ function Index() {
             <ul className='reward-history-content'>
               {
                 dataList.map((list, idx) => {
-                  const votingList = list.quest.votingList
-                  if(votingList.length > 0 && votingList[0].answerCount && votingList[0].archive) {
-                    const endTime = list.answerEndTime.split(' ');
-                    const rewardNFT = votingList[0].answerCount ?? 0;
-                    const rewardStatus = votingList[0].rewardStatus;
-                    const getCT = ((list.reward * rewardNFT) / list.answerTotalVote).toFixed(2)
-                    return (
-                      <li key={idx} >
-                        {
-                          activateDelete ? (
-                            <input
-                              type="checkbox"
-                              id={list.title}
-                              name={list.title}
-                              checked={checkList.includes(votingList[0]._id) ? true : false}
-                              onChange={(e) => singleCheckHandler(e)}
-                            />
-                          ) : (null)
-                        }
-                        <label
-                          onClick={
-                            () => {
-                              if(!activateDelete) {
-                                getRewardHandler(list)
-                              } else {
-                                singleCheckHandler(votingList[0]._id)
-                              }
+                  const maxResult = list.governanceItem[0].quest.answerId.filter((answer, idx, target) => {
+                    const maxOfVote = Math.max(...target.map(vote => vote.totalVotes));
+                    return answer.totalVotes === maxOfVote;
+                  })
+
+                  const endTime = list.governanceItem[0].answerEndTime.split(' ');
+                  const rewardNFT = list.answerCount ?? 0;
+                  const rewardStatus = list.rewardStatus;
+                  const getCT = ((list.governanceItem[0].reward * rewardNFT) / maxResult[0].totalVotes).toFixed(2)
+                  return (
+                    <li key={idx} >
+                      {
+                        activateDelete ? (
+                          <input
+                            type="checkbox"
+                            id={list.title}
+                            name={list.title}
+                            checked={checkList.includes(list._id) ? true : false}
+                            onChange={(e) => singleCheckHandler(e)}
+                          />
+                        ) : (null)
+                      }
+                      <label
+                        onClick={
+                          () => {
+                            if(!activateDelete) {
+                              getRewardHandler(list, maxResult[0])
+                            } else {
+                              singleCheckHandler(list._id)
                             }
                           }
-                          htmlFor={list.title}
-                          className={`${activateDelete ? 'activate' : ''}`}
-                        >
-                          {
-                            activateDelete ? (
-                              <span className="checkbox"></span>
-                            ) : (null)
-                          }
+                        }
+                        htmlFor={list.title}
+                        className={`${activateDelete ? 'activate' : ''}`}
+                      >
+                        {
+                          activateDelete ? (
+                            <span className="checkbox"></span>
+                          ) : (null)
+                        }
+                        <div>
+                          <h3>
+                            Reward {rewardNFT} NFT
+                            <span className={maxResult[0].title !== list.answerOption ? 'rewardFail' : rewardStatus ? 'rewardFinish': 'rewardGet'}>
+                              {
+                                maxResult[0].title !== list.answerOption ? (
+                                  <span>FAIL</span>
+                                ) : rewardStatus ? (
+                                  <span>FINISH</span>
+                                ) : (
+                                  <span>GET <span className='checkCT'>{getCT}</span> CT</span>
+                                )
+                              }
+                            </span>
+                          </h3>
                           <div>
-                            <h3>
-                              Reward {rewardNFT} NFT
-                              <span className={rewardStatus ? 'rewardFinish': 'rewardGet'}>
-                                {
-                                  rewardStatus ? (
-                                    <span>FINISH</span>
-                                  ) : (
-                                    <span>GET <span className='checkCT'>{getCT}</span> CT</span>
-                                  )
-                                }
-                              </span>
-                            </h3>
+                            <span
+                              style={{
+                                backgroundImage: `url('${list.governanceItem[0].quest && (list.governanceItem[0].quest.imageFile && list.governanceItem[0].quest.imageFile.asset ? urlFor(list.governanceItem[0].quest.imageFile) : list.governanceItem[0].quest.imageUrl)}')`,
+                                backgroundPosition: `center`,
+                                backgroundSize: `cover`,
+                              }}></span>
                             <div>
-                              <span
-                                style={{
-                                  backgroundImage: `url('${list.quest && (list.quest.imageFile && list.quest.imageFile.asset ? urlFor(list.quest.imageFile) : list.quest.imageUrl)}')`, 
-                                  backgroundPosition: `center`,
-                                  backgroundSize: `cover`,
-                                }}></span>
-                              <div>
-                                <p>{list.quest.titleKR}</p>
-                                <p>{endTime[0]}</p>
-                              </div>
+                              <p>{list.governanceItem[0].quest.titleKR}</p>
+                              <p>{endTime[0]}</p>
                             </div>
                           </div>
-                        </label>
-                      </li>
-                    )
-                  }
+                        </div>
+                      </label>
+                    </li>
+                  )
                 })
               }
             </ul>
           {/* Proposal 리스트 루프 End */}
           </ul>
+          <div ref={obsRef} style={{width: '100%', height: '1px', display: `${notData ? 'none' : 'block'}`}}></div>
         </div>
         {/* 리스트 끝 */}
 

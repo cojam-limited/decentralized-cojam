@@ -26,6 +26,11 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
   const skipAccount = account?.slice(0, 6).toUpperCase() + '...' + account?.slice(-4).toUpperCase();
   const DAOPathCheck = path.includes('Proposals') || path.includes('VotingHistory') || path.includes('RewardHistory')
   const history = useHistory();
+  const MyPageList = [
+    {title: 'Proposal', path: 'DaoProposals'},
+    {title: 'Voting History', path: 'VotingHistory'},
+    {title: 'Reward History', path: 'RewardHistory'},
+  ]
 
   useEffect(() => {
 		setLoading(true);
@@ -127,24 +132,37 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
             <div className='mypage'>
               <h2>My Page</h2>
               <h3>{skipAccount}</h3>
-              <p
-                style={{cursor: 'pointer'}}
-                onClick={copyText}
-              >
+              <p>
                 <span>{skipAccount}</span>
-                <i>
+                <i onClick={copyText}>
                   <Icon icon="ph:copy-simple-thin" />
                 </i>
               </p>
-              <div>
+              <div className="nftCount">
                 <p>NFT</p>
                 <p>{totalNft}/5</p>
               </div>
               <ul>
-                <li onClick={() => PageMoveHandler('DaoProposals')}>Proposal</li>
-                <li onClick={() => PageMoveHandler('VotingHistory')}>Voting History</li>
-                <li onClick={() => PageMoveHandler('RewardHistory')}>Reward History</li>
+                {
+                  MyPageList.map((list, idx) => {
+                    console.log(list);
+                    return (
+                      <li
+                        key={idx}
+                        onClick={() => PageMoveHandler(list.path)}
+                      >
+                        <span>{list.title}</span>
+                      </li>
+                    )
+                  })
+                }
               </ul>
+              <div
+                className="closeBtn"
+                onClick={() => {setToggleMyPage(false)}}
+              >
+                <Icon icon="material-symbols:close-rounded" />
+              </div>
             </div>
           )
           :
