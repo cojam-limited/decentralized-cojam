@@ -262,6 +262,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                 break;
             
             case 'finish':
+                console.log(selectedQuest);
                 if(selectedQuest.completed && selectedQuest.governanceItem[0].successStartTime) {
                     toastNotify({
                         state: 'error',
