@@ -28,10 +28,6 @@ export const callDetailQuery = (questId, governanceId, setItem, setVoteList, set
   
   const answerListQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${governanceId}' && _id != '${Date.now()}']| order(_updatedAt desc)[0..4]`
   client.fetch(answerListQuery).then((answer) => {
-    // console.log(answer)
-    answer.map((data) => {
-      console.log(data._updatedAt)
-    })
     setVoteList(answer);
     setLoading(false);
   })
@@ -52,9 +48,6 @@ export const callDetailListQuery = (governanceId, setVoteList, setLoading, lastU
           _id != '${Date.now()}'
         ]| order(_updatedAt desc)[0..4]`
     client.fetch(answerListQuery).then((answer) => {
-      answer.map((data) => {
-        console.log('add :', data._updatedAt)
-      })
       if(answer.length < 5) {
         setNotData(true)
       }

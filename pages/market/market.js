@@ -406,27 +406,23 @@ function Index() {
 							</ul>
 
 							{
-								transactionDatas?.map((transactionData, index) => {
-									console.log('TRANSACTION', transactionData)
-									return (
-										<ul key={index} style={{ background: transactionData._id === selectedQuest._id ? '#2132' : '' }} >
-											<li key='1'><input type="checkbox" onChange={() => {setSelectedQuest(transactionData), setFinishSelect({finishTx: transactionData.finishTx, successStartTime: transactionData.governanceItem[0].successStartTime})}} checked={transactionData._id === selectedQuest._id}/></li>
-											<li key='2'><span>No. : </span> {index + 1} </li>
-											<li key='3'><span>Category : </span> {transactionData.categoryNm?.seasonCategoryName} </li>
-											<li key='4' onClick={() => { loadDetailData(transactionData.questKey, true); }} style={{ cursor: 'pointer' }}>
-												<span>Title : </span>  { transactionData.titleKR } 
-											</li>
-											<li key='5'><span>End Date : </span> {Moment(transactionData.endDateTime).format('YYYY-MM-DD')} </li>
-											<li key='6'><span>Total(minimum) : </span> {transactionData.totalAmount} ({transactionData.minimumPay})</li>
-											<li key='7'><span>Pend : </span> { transactionData.pending ? 'T' : 'F' } </li>
-											<li key='8'><span>Hot : </span> { transactionData.hot ? 'T' : 'F' } </li>
-											<li key='9'><span>Draft : </span> { transactionData.draftTx !== undefined ? 'T' : 'F' } </li>
-											<li key='10'><span>Answer : </span> { transactionData.answerTx !== undefined ? 'T' : 'F' } </li>
-											<li key='11'><span>Finish : </span> { transactionData.finishTx !== undefined && transactionData?.governanceItem[0]?.successStartTime ? 'T' : 'F' } </li>
-										</ul>
-									)
-								}
-							)
+								transactionDatas?.map((transactionData, index) => (
+									<ul key={index} style={{ background: transactionData._id === selectedQuest._id ? '#2132' : '' }} >
+										<li key='1'><input type="checkbox" onChange={() => {setSelectedQuest(transactionData), setFinishSelect({finishTx: transactionData.finishTx, successStartTime: transactionData.governanceItem[0].successStartTime})}} checked={transactionData._id === selectedQuest._id}/></li>
+										<li key='2'><span>No. : </span> {index + 1} </li>
+										<li key='3'><span>Category : </span> {transactionData.categoryNm?.seasonCategoryName} </li>
+										<li key='4' onClick={() => { loadDetailData(transactionData.questKey, true); }} style={{ cursor: 'pointer' }}>
+											<span>Title : </span>  { transactionData.titleKR } 
+										</li>
+										<li key='5'><span>End Date : </span> {Moment(transactionData.endDateTime).format('YYYY-MM-DD')} </li>
+										<li key='6'><span>Total(minimum) : </span> {transactionData.totalAmount} ({transactionData.minimumPay})</li>
+										<li key='7'><span>Pend : </span> { transactionData.pending ? 'T' : 'F' } </li>
+										<li key='8'><span>Hot : </span> { transactionData.hot ? 'T' : 'F' } </li>
+										<li key='9'><span>Draft : </span> { transactionData.draftTx !== undefined ? 'T' : 'F' } </li>
+										<li key='10'><span>Answer : </span> { transactionData.answerTx !== undefined ? 'T' : 'F' } </li>
+										<li key='11'><span>Finish : </span> { transactionData.finishTx !== undefined && transactionData?.governanceItem[0]?.successStartTime ? 'T' : 'F' } </li>
+									</ul>
+								))
 							}
 						</div>
 					</div>

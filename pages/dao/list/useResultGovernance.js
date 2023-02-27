@@ -115,7 +115,6 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
             }
           }
         } catch (err) {
-          console.log(err)
           setDraftModal(false);
           toastNotify({
             state: 'error',
@@ -132,7 +131,6 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
             setMakeSelect(true);
             return;
           } catch (err) {
-            console.log(err);
             setSelectLevel(null);
             setDraftModal(false);
             setMakeSelect(false);
@@ -313,7 +311,6 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
               return;
             }
           } else if(level === 'answer') {
-            console.log(list)
             if(!answerKey) {
               setDraftModal(false);
               toastNotify({
@@ -346,12 +343,8 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
 
             try {
               if(list.answerResult && list.quest.statusType !== 'SUCCESS') {
-                console.log("==== answerResult start ====")
-                console.log(list.answerResult)
-                console.log(list.quest.statusType)
                 setDraftModal(false);
                 setLoading(true);
-                console.log(selectLevel)
                 const successMarket = await MarketContract().methods.successMarket(Number(list.quest.questKey), Number(selectLevel.answer)).send({from : account, gas: 500000})
                 if(successMarket) {
                   await client.patch(questId).set({
@@ -403,8 +396,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
               return;
             }
           }
-        } catch (err) {
-          console.log(err);
+        } catch {
           toastNotify({
             state: 'error',
             message: `Failed Set Quest.`,

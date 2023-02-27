@@ -63,8 +63,6 @@ export const voteGovernance = async (diff, level, questKey, answer, _id, governa
     } else if (level === 'success') {
       const receipt = await GovernanceContract().methods.voteDecision(questKey, answer).send({from : account})
       const returnValue = receipt?.events?.VoteDecisionCast?.returnValues;
-      console.log('receipt', receipt)
-      console.log('return', returnValue)
       const SuccessAnswerQuery = `*[_type == 'governanceItemVote' && governanceItemId == '${governanceId}' && voter == '${account.toLowerCase()}' && _id != '${Date.now()}']`;
       await client.fetch(SuccessAnswerQuery).then(async (list) => {
         await client.patch(list[0]._id).set(
@@ -79,7 +77,6 @@ export const voteGovernance = async (diff, level, questKey, answer, _id, governa
       // update draft total amount
       const SuccessTotalQuery = `*[_type == 'governanceItem' && references('${_id}') && _id != '${Date.now()}']`;
       await client.fetch(SuccessTotalQuery).then(async (vote) => {
-        console.log('vote', vote);
         const questId = vote[0]._id;
   
         if(answer === 'success') {

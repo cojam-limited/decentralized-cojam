@@ -316,7 +316,6 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                     const CreateGovernance = async () => {
                         const accounts = await window.klaytn.enable()
                         const account = accounts[0];
-                        console.log('account', account);
                         if (account !== undefined) {
                             const tx = {
                                 type: 'SMART_CONTRACT_EXECUTION',
@@ -329,26 +328,19 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                                 ).encodeABI(),
                                 gas: 500000,
                             };
-                            console.log(tx)
                             const receipt = await caver.klay.sendTransaction(tx);
-                            console.log(receipt)
                             return receipt;
                         }
                     }
 
                     const GetGovernance = async () => {
                         const tx = await GovernanceContarct().methods.getGovernanceItem(quest.questKey).call();
-                        console.log(tx);
 
                         const StartQuest = Number(tx.questStartTime) * 1000;
                         const EndQuest = Number(tx.questEndTime) * 1000;
 
                         const startTime = Moment(StartQuest).format('yyyy-MM-DD HH:mm:ss');
                         const endTime = Moment(EndQuest).format('yyyy-MM-DD HH:mm:ss');
-
-                        console.log('StartTime', startTime)
-                        console.log('EndTime', endTime)
-
                         const GovernanceItemCreate = {
                             _type: 'governanceItem',
                             questKey: {
@@ -361,9 +353,7 @@ const createNewQuest = async (modalValues, answers, walletData) => {
                             approveTotalVote: 0,
                             rejectTotalVote: 0,
                         }
-
-                        console.log('GovernanceItemCreate', GovernanceItemCreate);
-
+                        
                         await client.create(GovernanceItemCreate);
                     }
                     await CreateGovernance();

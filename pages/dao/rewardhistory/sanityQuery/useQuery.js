@@ -19,7 +19,6 @@ export const callRewardQuery = async (setDataList, setLoading, setNotData) => {
     }
   }`;
   client.fetch(rewardHistoryQuery).then((reward) => {
-    console.log('FIRST', reward)
     setNotData(false);
     setDataList(reward);
     setLoading(false);
@@ -54,7 +53,6 @@ export const callRewardListQuery = async (setDataList, setLoading, setNotData, l
       }
     }`;
     client.fetch(rewardHistoryQuery).then((reward) => {
-      console.log('ADD', reward)
       if(reward.length === 0) {
         setNotData(true);
         setLoading(false);

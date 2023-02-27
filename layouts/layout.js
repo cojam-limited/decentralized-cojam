@@ -145,7 +145,6 @@ const Layout = ({ children, toggleMyPage, setToggleMyPage, needNftModal, setNeed
               <ul>
                 {
                   MyPageList.map((list, idx) => {
-                    console.log(list);
                     return (
                       <li
                         key={idx}

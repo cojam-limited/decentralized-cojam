@@ -60,7 +60,6 @@ const view = (props) => {
       return;
     }
 
-    console.log(selectAnswer)
     setLoading(true);
     try {
       const proposalId = data?._id;

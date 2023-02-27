@@ -262,7 +262,6 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                 break;
             
             case 'finish':
-                console.log(selectedQuest);
                 if(selectedQuest.completed && selectedQuest.governanceItem[0].successStartTime) {
                     toastNotify({
                         state: 'error',
@@ -306,22 +305,23 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                                 const accounts = await window.klaytn.enable();
                                 const account = accounts[0];
                                 const receipt = await GovernanceContract().methods.startDecision(selectedQuest.questKey).send({from : account})
-                                console.log(receipt);
-                                await client.patch(selectedQuest.governanceItem[0]._id)
-                                .set({
-                                    level: 'success', 
-                                    successStartTime: Moment().format("yyyy-MM-DD HH:mm:ss"), 
-                                    successEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
-                                    successTotalVote: 0,
-                                    adjournTotalVote: 0
-                                }).commit();
-                                setFinishSelect({...finishSelect, successTime: Moment().format("yyyy-MM-DD HH:mm:ss")});
-                                setReloadData(!reloadData)
-                                setLoading(false);
-                                toastNotify({
-                                    state: 'success',
-                                    message: 'finish success',
-                                });
+                                if(receipt) {
+                                    await client.patch(selectedQuest.governanceItem[0]._id)
+                                    .set({
+                                        level: 'success', 
+                                        successStartTime: Moment().format("yyyy-MM-DD HH:mm:ss"), 
+                                        successEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
+                                        successTotalVote: 0,
+                                        adjournTotalVote: 0
+                                    }).commit();
+                                    setFinishSelect({...finishSelect, successTime: Moment().format("yyyy-MM-DD HH:mm:ss")});
+                                    setReloadData(!reloadData)
+                                    setLoading(false);
+                                    toastNotify({
+                                        state: 'success',
+                                        message: 'finish success',
+                                    });
+                                }
                             } else {
                                 toastNotify({
                                     state: 'error',
@@ -357,22 +357,23 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                         const accounts = await window.klaytn.enable();
                         const account = accounts[0];
                         const receipt = await GovernanceContract().methods.startDecision(selectedQuest.questKey).send({from : account})
-                        console.log(receipt);
-                        await client.patch(selectedQuest.governanceItem[0]._id)
-                        .set({
-                            level: 'success', 
-                            successStartTime: Moment().format("yyyy-MM-DD HH:mm:ss"), 
-                            successEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
-                            successTotalVote: 0,
-                            adjournTotalVote: 0
-                        }).commit();
-                        setFinishSelect({...finishSelect, successTime: Moment().format("yyyy-MM-DD HH:mm:ss")});
-                        setLoading(false);
-                        setReloadData(!reloadData)
-                        toastNotify({
-                            state: 'success',
-                            message: 'finish success',
-                        });
+                        if(receipt) {
+                            await client.patch(selectedQuest.governanceItem[0]._id)
+                            .set({
+                                level: 'success', 
+                                successStartTime: Moment().format("yyyy-MM-DD HH:mm:ss"), 
+                                successEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
+                                successTotalVote: 0,
+                                adjournTotalVote: 0
+                            }).commit();
+                            setFinishSelect({...finishSelect, successTime: Moment().format("yyyy-MM-DD HH:mm:ss")});
+                            setLoading(false);
+                            setReloadData(!reloadData)
+                            toastNotify({
+                                state: 'success',
+                                message: 'finish success',
+                            });
+                        }
                     } else {
                         toastNotify({
                             state: 'error',
@@ -540,8 +541,6 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                 break;	
         }
     } catch(error) {
-        console.log(error);
-
         toastNotify({
             state: 'error',
             message: "transaction execute failed",

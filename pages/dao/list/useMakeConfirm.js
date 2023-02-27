@@ -18,7 +18,6 @@ export const makeConfirm = async (e, level, _id, list, selectLevel, setSelectLev
       'questKey': *[_type == 'quests' && _id == ^.questKey._ref && _id != '${Date.now()}'][0]
     }`;
     client.fetch(newDraftTotalQuery).then(async (vote) => {
-      console.log(vote);
       const marketKey = vote[0].questKey.questKey;
       const creator = vote[0].questKey.creatorAddress;
       const title = vote[0].questKey.titleKR;
@@ -34,9 +33,7 @@ export const makeConfirm = async (e, level, _id, list, selectLevel, setSelectLev
       const answerKeyQuery = `*[_type == 'questAnswerList' && questKey == ${questKey} && _id != '${Date.now()}']`;
       const answerKeyList = [];
       await client.fetch(answerKeyQuery).then((answers) => {
-        console.log(answers);
         answers.forEach((answer) => {
-          console.log(answer)
           answerKeyList.push(answer.questAnswerKey);
         });
       });
@@ -213,8 +210,7 @@ export const makeConfirm = async (e, level, _id, list, selectLevel, setSelectLev
         }
       }
     })
-  } catch (err) {
-    console.log(err)
+  } catch {
     toastNotify({
       state: 'error',
       message: `Failed Make Quest`,

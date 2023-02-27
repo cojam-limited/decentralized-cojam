@@ -74,7 +74,6 @@ function Index() {
 
     try {
       const receipt = await GovernanceContract().methods.distributeDaoReward(questKey, answerKey).send({from: newAccount, gas: 500000});
-      console.log(receipt);
       if(receipt.status === true) {
         await client.patch(list._id).set({rewardStatus: true}).commit();
         toastNotify({
@@ -143,8 +142,6 @@ function Index() {
       setCheckList([...checkList, _id]);
     }
   }
-
-  // console.log(dataList)
 
   const obsRef = useRef(null) // observer Element
   const [page, setPage] = useState(0);

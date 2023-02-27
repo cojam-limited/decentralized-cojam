@@ -6,7 +6,6 @@ import Moment from 'moment';
 export const cancelConfirm = async (diff, governanceId, questKey, questId, setLoading, render, setRender, setDraftModal, list, setSelectLevel, selectLevel) => {
   setDraftModal(false);
   setLoading(true);
-  console.log(list)
   const accounts = await window.klaytn.enable();
   const account = accounts[0];
   const totalAmount = list.successTotalVote + list.adjournTotalVote
@@ -14,7 +13,6 @@ export const cancelConfirm = async (diff, governanceId, questKey, questId, setLo
     try {
       if(!list.answerResult) {
         const receipt = await GovernanceContract().methods.cancelAnswer(questKey, '').send({from: account, gas: 500000})
-        console.log(receipt)
         const result = receipt.events.AnswerCancel;
         setSelectLevel({...selectLevel, result: result, questKey: result.returnValues.questKey})
         await client.patch(governanceId).set({answerResult: result.event}).commit();
@@ -47,7 +45,6 @@ export const cancelConfirm = async (diff, governanceId, questKey, questId, setLo
         })
       }
     } catch (err) {
-      console.log(err);
       toastNotify({
         state: 'error',
         message: `Failed Cancel Quest`,
