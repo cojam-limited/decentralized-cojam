@@ -102,9 +102,9 @@ function Index() {
     setLoading(false);
   };
 
-  const ResultHandler = async (level, _id, diff, answerKey, list) => {
+  const ResultHandler = async (level, _id, diff, answerKey, title, list) => {
     setLoading(true);
-    await resultGovernance(level, _id, diff, answerKey, list, selectLevel, setSelectLevel, setMakeSelect, voteMinOrMax, setDraftModal, setLoading)
+    await resultGovernance(level, _id, diff, answerKey, title, list, selectLevel, setSelectLevel, setMakeSelect, voteMinOrMax, setDraftModal, setLoading)
     setRender(!render);
     setLoading(false);
   }
@@ -630,12 +630,12 @@ function Index() {
                                       Start
                                     </button>
                                   ) : list.level === 'answer' && !selectLevel.cancel ? (
-                                    <button onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, maxResult[0]?.questAnswerKey, list)}>
+                                    <button onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, maxResult[0]?.questAnswerKey, maxResult[0]?.title, list)}>
                                       Start
                                     </button>
                                   ) :
                                   (
-                                    <button onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, 'not', list)}>
+                                    <button onClick={() => ResultHandler(list?.level, list?.quest?._id, diff, 'not', 'not', list)}>
                                       Start
                                     </button>
                                   )

@@ -4,7 +4,7 @@ import Moment from 'moment';
 import toastNotify from '@utils/toast';
 import Web3 from "web3";
 
-export const resultGovernance = async (level, _id, diff, answerKey, list, selectLevel, setSelectLevel, setMakeSelect, voteMinOrMax, setDraftModal, setLoading) => {
+export const resultGovernance = async (level, _id, diff, answerKey, title, list, selectLevel, setSelectLevel, setMakeSelect, voteMinOrMax, setDraftModal, setLoading) => {
   const web3 = new Web3(window.klaytn);
 
   const accounts = await window.klaytn.enable()
@@ -18,7 +18,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
 
   const marketKey = list.quest.questKey;
   const creator = list.quest.creatorAddress;
-  const title = list.quest.titleKR;
+  const titleKR = list.quest.titleKR;
   const creatorFee = Number(list.quest.creatorPay) / 10 ** 18;
   const creatorFeePercentage = list.quest.creatorFee;
   const cojamFeePercentage = list.quest.cojamFee;
@@ -201,7 +201,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
                 const publish = await MarketContract().methods.publishMarket(
                   marketKey,
                   creator,
-                  title,
+                  titleKR,
                   creatorFee,
                   creatorFeePercentage,
                   cojamFeePercentage,
@@ -226,6 +226,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
                 return;
               }
             } catch (err) {
+              console.log(err)
               toastNotify({
                 state: 'error',
                 message: `Failed Approve Draft End Quest`,
@@ -352,6 +353,7 @@ export const resultGovernance = async (level, _id, diff, answerKey, list, select
                     questStatus: 'SUCCESS',
                     successTx: successMarket.transactionHash,
                     successDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
+                    selectedAnswer: title,
                     updateMember: account,
                   }).commit();
                 }
