@@ -15,7 +15,7 @@ import { QrContext } from '../../components/Context/QrContext';
 
 import LogoBlack from '@assets/coin.png'
 
-const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;
+const cojamMarketAddress = '0x6b24afa82775414a8c3778aa8d480587021ba6c8';
 
 function Index() {
 	const { setLoading } = useLoadingState();
@@ -51,55 +51,59 @@ function Index() {
 				const questQuery = `*[_type == 'quests' && questKey == ${votingData.questKey} && _id != '${Date.now()}'][0] { ..., 'categoryNm': *[_type=='seasonCategories' && _id == ^.seasonCategory._ref]{seasonCategoryName}[0] }`;
 				await client.fetch(questQuery).then((quest) => {
 					if(quest) {
-						const multiply = quest.questStatus === 'ADJOURN' ? 
-										  1 
-										: ((quest.totalAmount
-											- (quest.totalAmount * quest.cojamFee / 100)
-											- ((quest.totalAmount * quest.creatorFee / 100) + quest.creatorPay)
-											- (quest.totalAmount * quest.charityFee / 100)) / votingData.answer.totalAmount).toFixed(2);
-
-						const predictionFee = quest.questStatus === 'ADJOURN' ? 
-												votingData.bettingCoin
-											:	(multiply * votingData.bettingCoin).toFixed(2);
-
-						const votingSet = {
-							categoryNm: quest.categoryNm.seasonCategoryName,
-							questKey: quest.questKey,
-							questStatus: quest.questStatus,
-							questTitle: quest[`titleKR`],
-							approveTx: quest.approveTx,
-							adjournTx: quest.adjournTx,
-							successTx: quest.successTx,
-							answerList: quest.answers,
-							imageFile: quest.imageFile,
-							imageUrl: quest.imageUrl,
-							imageLink: quest.imageLink,
-							spenderAddress: quest.creatorAddress,
-							selectedAnswer: quest.selectedAnswer,
-
-							hot: quest.hot,						
-							pending: quest.pending,
-
-							bettingTx: votingData.transactionId,
-							answerTitle: votingData.answer.title,
-							bettingKey: votingData.bettingKey,
-							bettingCoin: votingData.bettingCoin,
-							receiveAddress: votingData.receiveAddress ?? '',
-							multiply: multiply,
-							predictionFee: predictionFee,
-							_id: votingData._id
-						}
-						
-						votingArr.push({ ...votingSet });
-						votingArr.sort(function compare(a, b) {
-							if(a.bettingKey > b.bettingKey) {
-								return -1;
-							} else {
-								return 1;
+						try {
+							const multiply = quest.questStatus === 'ADJOURN' ? 
+												1 
+											: ((quest.totalAmount
+												- (quest.totalAmount * quest.cojamFee / 100)
+												- ((quest.totalAmount * quest.creatorFee / 100) + quest.creatorPay)
+												- (quest.totalAmount * quest.charityFee / 100)) / votingData.answer.totalAmount).toFixed(2);
+	
+							const predictionFee = quest.questStatus === 'ADJOURN' ? 
+													votingData.bettingCoin
+												:	(multiply * votingData.bettingCoin).toFixed(2);
+	
+							const votingSet = {
+								categoryNm: quest.categoryNm.seasonCategoryName,
+								questKey: quest.questKey,
+								questStatus: quest.questStatus,
+								questTitle: quest[`titleKR`],
+								approveTx: quest.approveTx,
+								adjournTx: quest.adjournTx,
+								successTx: quest.successTx,
+								answerList: quest.answers,
+								imageFile: quest.imageFile,
+								imageUrl: quest.imageUrl,
+								imageLink: quest.imageLink,
+								spenderAddress: quest.creatorAddress,
+								selectedAnswer: quest.selectedAnswer,
+	
+								hot: quest.hot,						
+								pending: quest.pending,
+	
+								bettingTx: votingData.transactionId,
+								answerTitle: votingData.answer.title,
+								bettingKey: votingData.bettingKey,
+								bettingCoin: votingData.bettingCoin,
+								receiveAddress: votingData.receiveAddress ?? '',
+								multiply: multiply,
+								predictionFee: predictionFee,
+								_id: votingData._id
 							}
-						});
-
-						setVotings( {...votings, votingSet: [...votings.votingSet, ...votingArr]} );
+							
+							votingArr.push({ ...votingSet });
+							votingArr.sort(function compare(a, b) {
+								if(a.bettingKey > b.bettingKey) {
+									return -1;
+								} else {
+									return 1;
+								}
+							});
+	
+							setVotings( {...votings, votingSet: [...votings.votingSet, ...votingArr]} );
+						} catch (err) {
+							console.log(err);
+						}
 					} 
 				});
 			});

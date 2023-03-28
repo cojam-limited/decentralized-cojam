@@ -420,6 +420,7 @@ function Header() {
               <Link to="/ResultsList">Results</Link>
               <Link to="/About">About</Link>
               <Link to="/CommunityList">Community</Link>
+              <Link to="/Dao">Dao</Link>
             </div>
           </dt>
           <dd>
@@ -505,6 +506,10 @@ function Header() {
           <li onClick={()=>{setCurrentPage('Community'); history.push('/CommunityList') }} className={currentPage === 'Community' ? 'active' : ''}>
             <p><i className="uil uil-newspaper"></i></p>
             <div>Community</div>
+          </li>
+          <li onClick={()=>{setCurrentPage('Dao'); history.push('/Dao') }} className={currentPage === 'Dao' ? 'active' : ''}>
+            <p><i className="uil uil-newspaper"></i></p>
+            <div>Dao</div>
           </li>
         </ul>
       </div>
@@ -645,6 +650,7 @@ function resizeHeaderOnScroll() {
       document.querySelector('.header > dl > dt > div a:nth-child(3)').style.color = '#222';
       document.querySelector('.header > dl > dt > div a:nth-child(4)').style.color = '#222';
       document.querySelector('.header > dl > dt > div a:nth-child(5)').style.color = '#222';
+      document.querySelector('.header > dl > dt > div a:nth-child(6)').style.color = '#222';
       document.querySelector('.header > dl > dt > div a:hover').style.color = '#00c486';
       document.querySelector('.header > dl > dd > h2').style.color = '#222';
       document.querySelector('.header > dl > dd > h2 > span').style.color = '#222';
@@ -666,11 +672,13 @@ function resizeHeaderOnScroll() {
       document.querySelector('.header > dl > dt > div a:nth-child(3)').style.color = '#fff';
       document.querySelector('.header > dl > dt > div a:nth-child(4)').style.color = '#fff';
       document.querySelector('.header > dl > dt > div a:nth-child(5)').style.color = '#fff';
+      document.querySelector('.header > dl > dt > div a:nth-child(6)').style.color = '#fff';
       document.querySelector('.header > dl > dt > div a:nth-child(1):hover').style.color = '#00c486';
       document.querySelector('.header > dl > dt > div a:nth-child(2):hover').style.color = '#00c486';
       document.querySelector('.header > dl > dt > div a:nth-child(3):hover').style.color = '#00c486';
       document.querySelector('.header > dl > dt > div a:nth-child(4):hover').style.color = '#00c486';
       document.querySelector('.header > dl > dt > div a:nth-child(5):hover').style.color = '#00c486';
+      document.querySelector('.header > dl > dt > div a:nth-child(6):hover').style.color = '#00c486';
       document.querySelector('.header > dl > dt > div a:hover').style.color = '#00c486';
       document.querySelector('.header > dl > dd > h2').style.color = '#fff';
       document.querySelector('.header > dl > dd > h2 > span').style.color = '#fff';

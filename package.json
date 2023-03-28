@@ -12,6 +12,7 @@
     "@nrwl/react": "^13.9.4",
     "@sanity/client": "^3.0.3",
     "@sanity/image-url": "^1.0.1",
+    "@web3-react/core": "^6.1.9",
     "axios": "^0.21.1",
     "buffer": "^6.0.3",
     "caver-js": "^1.6.7",
@@ -38,6 +39,7 @@
     "react-datepicker": "^4.7.0",
     "react-dom": "^17.0.1",
     "react-html-parser": "^2.0.2",
+    "react-intersection-observer": "^9.4.2",
     "react-modal": "^3.16.1",
     "react-responsive-modal": "^6.2.0",
     "react-router-dom": "^5.3.0",
@@ -52,12 +54,14 @@
     "swiper": "^7.3.3",
     "swr": "^1.2.1",
     "url-loader": "^4.1.1",
-    "victory": "^36.3.1"
+    "victory": "^36.3.1",
+    "web3": "^1.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.13.8",
     "@babel/preset-env": "^7.13.8",
     "@babel/preset-react": "^7.12.13",
+    "@iconify/react": "^4.0.1",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.0-rc.5",
     "@svgr/webpack": "^6.2.1",
     "@types/react": "^18.0.15",
@@ -67,7 +71,7 @@
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.4.1",
-    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-react-hooks": "^4.3.0",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^6.2.0",
@@ -80,5 +84,18 @@
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.5.0",
     "webpack-dev-server": "^4.0.0"
-  }
+  },
+  "description": "1. 프로젝트 개요   - Kaikas & Klip 을 통해 탈중앙화된 Cojam Front-end   - Admin으로 등록된 계정으로 Quest 등록 및 State 변화를 줄 수 있다. (pending, approve, addAnswerKeys, adjourn, finish, success, ...)   - 사용자들의 각 계정 (Kaikas or Klip)으로 approve 된 Quest의 Voting을 수행할 수 있다.",
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cojam-limited/decentralized-cojam.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cojam-limited/decentralized-cojam/issues"
+  },
+  "homepage": "https://github.com/cojam-limited/decentralized-cojam#readme"
 }

@@ -34,6 +34,12 @@ export default {
         type: "number",
       },
       {
+        name: "totalVotes",
+        title: "Total Votes",
+        type: "number",
+        description: "total votes from the DAO member"
+      },
+      {
         name: "userCnt",
         title: "User Cnt",
         type: "number",

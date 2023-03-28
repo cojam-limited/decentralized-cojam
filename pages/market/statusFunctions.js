@@ -3,12 +3,15 @@ import { client } from "../../sanity";
 import { checkLogin, callDraftMarket, callAddAnswerKeys, callApproveMarket, callAdjournMarket, callRetrieveMarket, callSuccessMarket, callFinishMarket } from "@api/UseTransactions";
 import Moment from 'moment';
 import toastNotify from '@utils/toast';
+import { GovernanceContract } from "../dao/contractHelper";
 
-const cojamMarketAddress = process.env.REACT_APP_MARKET_ADDRESS;  // KAS address
+const cojamMarketAddress = '0x6b24afa82775414a8c3778aa8d480587021ba6c8';  // KAS address
 
-export const changeStateFunction = async ({state, walletData, selectedQuest, selectedAnswer, description, setQr, setQrModal, setMinutes, setSeconds}) => {
-    if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
-        return;
+export const changeStateFunction = async ({state, walletData, selectedQuest, selectedAnswer, description, setQr, setQrModal, setMinutes, setSeconds, setReloadData, reloadData, finishSelect, setFinishSelect, setLoading}) => {
+    if(state !== 'finish') {
+        if(!window.confirm('change ground status to [ ' + state + ' ] ?')) {
+            return;
+        }
     }
 
     let isLogin = false;
@@ -259,7 +262,7 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                 break;
             
             case 'finish':
-                if(selectedQuest.completed) {
+                if(selectedQuest.completed && selectedQuest.governanceItem[0].successStartTime) {
                     toastNotify({
                         state: 'error',
                         message: "Already Finished!",
@@ -283,27 +286,103 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                     return;
                 }
 
-                const finishRes = await callFinishMarket(selectedQuest.questKey, walletData, setQr, setQrModal, setMinutes, setSeconds);
-                if(finishRes.status === 200) {
-                    await client.patch(selectedQuest._id)
+                if(!finishSelect.finishTx) {
+                    if(window.confirm('Are you sure you want to [Finish] this quest? (1/2)')) {
+                        // eslint-disable-next-line no-case-declarations
+                        const finishRes = await callFinishMarket(selectedQuest.questKey, walletData, setQr, setQrModal, setMinutes, setSeconds);
+                        if(finishRes.status === 200) {
+                            await client.patch(selectedQuest._id)
                             .set({
                                 statusType: 'FINISH', 
                                 finishTx: finishRes.transactionId, 
                                 finishDateTime: Moment().format("yyyy-MM-DD HH:mm:ss"),
                                 completed: true,
                                 updateMember: walletData.account
-                            })
-                            .commit();
-                    
-                    toastNotify({
-                        state: 'success',
-                        message: 'finish success',
-                    });
-                } else {
-                    toastNotify({
-                        state: 'error',
-                        message: 'finish market failed.',
-                    });
+                            }).commit();
+
+                            if(window.confirm('Are you sure you want to [Finish] this quest? (2/2)')) {
+                                setLoading(true)
+                                const accounts = await window.klaytn.enable();
+                                const account = accounts[0];
+                                const receipt = await GovernanceContract().methods.startDecision(selectedQuest.questKey).send({from : account})
+                                if(receipt) {
+                                    await client.patch(selectedQuest.governanceItem[0]._id)
+                                    .set({
+                                        level: 'success', 
+                                        successStartTime: Moment().format("yyyy-MM-DD HH:mm:ss"), 
+                                        successEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
+                                        successTotalVote: 0,
+                                        adjournTotalVote: 0
+                                    }).commit();
+                                    setFinishSelect({...finishSelect, successTime: Moment().format("yyyy-MM-DD HH:mm:ss")});
+                                    setReloadData(!reloadData)
+                                    setLoading(false);
+                                    toastNotify({
+                                        state: 'success',
+                                        message: 'finish success',
+                                    });
+                                }
+                            } else {
+                                toastNotify({
+                                    state: 'error',
+                                    message: 'finish market failed (2/2)',
+                                });
+                                setLoading(false);
+                                setReloadData(!reloadData)
+                                return;
+                            }
+                        } else {
+                            toastNotify({
+                                state: 'error',
+                                message: 'finish market failed (1/2)',
+                            });
+                            setLoading(false);
+                            setReloadData(!reloadData)
+                            return;
+                        }
+                    } else {
+                        toastNotify({
+                            state: 'error',
+                            message: 'finish market failed (1/2)',
+                        });
+                        setLoading(false);
+                        setReloadData(!reloadData)
+                        return;
+                    }
+                }
+
+                if(finishSelect.finishTx && !finishSelect.successStartTime) {
+                    if(window.confirm('Are you sure you want to [Finish] this quest? (2/2)')) {
+                        setLoading(true);
+                        const accounts = await window.klaytn.enable();
+                        const account = accounts[0];
+                        const receipt = await GovernanceContract().methods.startDecision(selectedQuest.questKey).send({from : account})
+                        if(receipt) {
+                            await client.patch(selectedQuest.governanceItem[0]._id)
+                            .set({
+                                level: 'success', 
+                                successStartTime: Moment().format("yyyy-MM-DD HH:mm:ss"), 
+                                successEndTime: Moment().add(1, 'days').format("yyyy-MM-DD HH:mm:ss"),
+                                successTotalVote: 0,
+                                adjournTotalVote: 0
+                            }).commit();
+                            setFinishSelect({...finishSelect, successTime: Moment().format("yyyy-MM-DD HH:mm:ss")});
+                            setLoading(false);
+                            setReloadData(!reloadData)
+                            toastNotify({
+                                state: 'success',
+                                message: 'finish success',
+                            });
+                        }
+                    } else {
+                        toastNotify({
+                            state: 'error',
+                            message: 'finish market failed (2/2)',
+                        });
+                        setLoading(false);
+                        setReloadData(!reloadData)
+                        return;
+                    }
                 }
                 break;
         
@@ -462,8 +541,6 @@ export const changeStateFunction = async ({state, walletData, selectedQuest, sel
                 break;	
         }
     } catch(error) {
-        console.log(error);
-
         toastNotify({
             state: 'error',
             message: "transaction execute failed",

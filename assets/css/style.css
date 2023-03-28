@@ -11,6 +11,7 @@
 @import url('content.css');
 @import url('design.css');
 @import url('default.css');
+@import url('dao.css');
 
 @import "https://unicons.iconscout.com/release/v3.0.3/css/line.css";
 @import "https://unicons.iconscout.com/release/v3.0.3/css/solid.css";
@@ -179,9 +180,9 @@ html {
 /* 모바일 - 하단메뉴 */
 .footer-mobile {position:fixed; bottom:0px; width:100%; box-shadow:0 0 10px 0 rgba(0,0,0,0.1); background:#fff; z-index:999;}
 .footer-mobile > ul {width:100%; overflow:hidden;}
-.footer-mobile > ul > li {float:left; width:20%; padding:8px 0; text-align:center; cursor:pointer;}
+.footer-mobile > ul > li {float:left; width:16.5%; padding:8px 0; text-align:center; cursor:pointer;}
 .footer-mobile > ul > li p {font-family: "Poppins"; font-size:22px; color:#222;}
-.footer-mobile > ul > li div {padding-top:4px; font-family: "Poppins"; font-size:11px; line-height:11px; color:#777;}
+.footer-mobile > ul > li div {padding-top:4px; font-family: "Poppins"; font-size:10px; line-height:11px; color:#777;}
 .footer-mobile > ul > li.active p {color:#0045f4;}
 .footer-mobile > ul > li.active div {color:#0045f4;}
 
@@ -203,29 +204,48 @@ html {
 
 
 /* 본문영역 */
-.container {width:1300px; margin:0 auto; padding-bottom:70px; overflow:hidden;}
+.container {width:1300px; margin:0 auto; padding-bottom:40px; overflow:hidden;}
 .container > dt {float:left; width:15%; padding:30px 20px; border-radius:10px; background:#fff; box-shadow:0 0 15px 0 rgba(0,0,0,0.1);}
 .container > dd {float:right; width:84%; padding:50px; border-radius:10px; background:#fff; box-shadow:0 0 15px 0 rgba(0,0,0,0.1);}
 
 .container-top-round {width:1300px; margin:0 auto; padding:50px 40px 70px 40px; border-top-left-radius:20px; border-top-right-radius:20px; background:#fff; overflow:hidden;}
 
 @media all and (max-width:479px) {
-  .container {width:100%; padding:0 20px 100px 20px;}
+  .container {width:100%; padding:0 20px 40px 20px;}
   .container-top-round {width:100%; padding:35px 20px 30px 20px;}
   .container-main {width:100%; padding:0 20px 50px 20px;}
 }
 @media all and (min-width:480px) and (max-width:767px) {
-  .container {width:470px; padding:0 0 100px 0;}
+  .container {width:470px; padding:0 0 40px 0;}
   .container-top-round {width:470px; padding:35px 20px 30px 20px;}
   .container-main {width:100%; padding:0 20px 50px 20px;}
 }
 @media all and (min-width:768px) and (max-width:991px) {
-  .container {width:750px; padding:0 0 100px 0;}
+  .container {width:750px; padding:0 0 40px 0;}
   .container-top-round {width:750px; padding:35px 20px 30px 20px;}
 }
 @media all and (min-width:992px) and (max-width:1299px) {
   .container {width:1024px;}
   .container-top-round {width:1024px;}
+}
+@media all and (min-width:1300px) {
+
+}
+
+/* DAO 본문영역 */
+.dao-container {max-width:400px; margin:0px auto; background-color: #F5F5F5; padding-bottom:48px;}
+.dao-container.view {background-color:#fff;}
+.dao-container.proposal {background-color:#fff;}
+.dao-container.reward {background-color:#fff; padding-bottom: 0;}
+
+@media all and (max-width:400px) {
+  /* .dao-container {width:100%;} */
+}
+@media all and (min-width:480px) and (max-width:767px) {
+}
+@media all and (min-width:768px) and (max-width:991px) {
+}
+@media all and (min-width:992px) and (max-width:1299px) {
 }
 @media all and (min-width:1300px) {
 
